@@ -1,0 +1,6 @@
+{
+  "name": "Inspirella",
+  "description": "A premium, intelligent, multilingual educational discovery platform focusing on Switzerland and global educational systems.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

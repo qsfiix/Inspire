@@ -1,0 +1,570 @@
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { 
+  ArrowRight, 
+  Sparkles, 
+  Globe, 
+  Compass, 
+  Navigation, 
+  TrendingUp, 
+  Briefcase, 
+  GraduationCap, 
+  Layers, 
+  Building, 
+  CheckCircle,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  ShieldCheck,
+  ChevronRight
+} from "lucide-react";
+
+export function HomeView({ 
+  t, 
+  isDark, 
+  tTextTitle, 
+  tTextSub, 
+  tTextBody, 
+  tTextMuted, 
+  tCard, 
+  tCardAccent, 
+  handleTabTransition, 
+  handleBypassAuth 
+}: any) {
+  return (
+    <motion.div
+      key="view-home"
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-20 py-4 max-w-6xl mx-auto"
+    >
+      {/* Premium Cinematic Hero Block */}
+      <section className="text-center py-10 md:py-16 space-y-8 relative overflow-hidden">
+        {/* Subtle decorative background gradient glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-violet-500/10 blur-[100px] pointer-events-none"></div>
+
+        {/* Live Active Badge */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-all duration-300 ${
+            isDark 
+              ? "bg-white/5 border border-white/10 text-violet-300 shadow-lg shadow-violet-950/20" 
+              : "bg-violet-950/10 border border-violet-950/20 text-violet-950 font-bold shadow-sm"
+          }`}
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span>{t.swissSpecialGroup}</span>
+        </motion.div>
+        
+        {/* Main Hero Hook */}
+        <h1 className={`text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] max-w-4xl mx-auto ${
+          isDark 
+            ? "bg-gradient-to-b from-white via-slate-100 to-zinc-400 bg-clip-text text-transparent" 
+            : "text-violet-950 filter drop-shadow-[0_2px_10px_rgba(46,16,101,0.06)]"
+        }`}>
+          {t.heroTitle}
+        </h1>
+        
+        {/* Hero Description Subtitle */}
+        <p className={`text-base md:text-xl font-sans max-w-2xl mx-auto leading-relaxed font-normal ${
+          isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"
+        }`}>
+          {t.heroSubtitle}
+        </p>
+
+        {/* Primary and secondary Call To Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 max-w-md mx-auto">
+          <button
+            onClick={() => handleTabTransition("login")}
+            className="btn-primary w-full sm:w-auto px-7 py-3.5 text-sm gap-2"
+          >
+            <span>{t.heroCTA}</span>
+            <ArrowRight className="h-4 w-4" />
+          </button>
+
+          <button
+            onClick={handleBypassAuth}
+            className="btn-secondary w-full sm:w-auto px-7 py-3.5 text-sm"
+          >
+            <span>{t.exploreCTA}</span>
+          </button>
+        </div>
+      </section>
+
+      {/* Switzerland Core Focus Segment (Interactive Visual Comparison) */}
+      <section className="card-premium grid gap-12 lg:grid-cols-12 items-center p-8 md:p-12 relative overflow-hidden">
+        {/* Subtle branding background watermark */}
+        <div className="absolute right-0 bottom-0 text-[180px] font-mono text-violet-500/[0.01] select-none pointer-events-none font-bold">CH</div>
+
+        <div className="space-y-6 lg:col-span-5">
+          <div className="inline-flex items-center gap-1.5">
+            <Globe className="h-4 w-4 text-violet-500" />
+            <span className={`text-xs uppercase tracking-widest font-mono font-bold ${
+              isDark ? "text-violet-300" : "text-violet-900"
+            }`}>
+              Swiss Education Structure
+            </span>
+          </div>
+
+          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight ${tTextTitle}`}>
+            {t.whyTitle}
+          </h2>
+
+          <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"}`}>
+            {t.whyText}
+          </p>
+
+          <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"}`}>
+            {t.swissSpecialDesc}
+          </p>
+        </div>
+
+        {/* Styled Interactive Swiss Education Track Diagram Board */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="card-premium-accent p-6 space-y-4">
+            <span className={`block text-[10px] font-mono uppercase tracking-widest ${tTextMuted} border-b border-violet-900/10 pb-2`}>
+              Swiss Dual Track Permeability Structure
+            </span>
+            
+            {/* VET Vocational Track */}
+            <div className={`p-4 rounded-xl transition duration-300 group ${
+              isDark 
+                ? "bg-white/5 border border-white/10 hover:border-violet-500/40" 
+                : "bg-white border-2 border-violet-950/20 hover:border-violet-600/40 shadow-sm"
+            }`}>
+              <div className="flex items-center gap-3 mb-1.5">
+                <div className="p-2 rounded-lg bg-orange-500/10 text-orange-400">
+                  <Briefcase className="h-4.5 w-4.5" />
+                </div>
+                <span className={`font-extrabold text-sm ${isDark ? "text-violet-300" : "text-violet-950"}`}>
+                  Vocational System (VET Apprenticeship)
+                </span>
+                <span className="ml-auto text-[9px] uppercase font-mono px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 font-bold">
+                  70% of Swiss Youth
+                </span>
+              </div>
+              <p className={`text-xs ml-9.5 ${isDark ? "text-zinc-300" : "text-violet-950 font-medium leading-relaxed"}`}>
+                Blend of real paid enterprise workspace training + school room credentials. Providing robust real-world industrial expertise.
+              </p>
+            </div>
+
+            {/* Permeability Bridge Indicator */}
+            <div className="relative py-2 flex items-center justify-center">
+              <div className="absolute left-0 right-0 border-t border-dashed border-violet-900/20"></div>
+              <div className={`relative px-4 py-1 rounded-full text-[10px] font-mono font-bold flex items-center gap-1.5 ${
+                isDark ? "bg-zinc-950 text-violet-400 border border-violet-900/30" : "bg-violet-100 text-violet-950 border border-violet-950/20"
+              }`}>
+                <span>⇅ Bridge (Durchlässigkeit)</span>
+              </div>
+            </div>
+
+            {/* Academic Track */}
+            <div className={`p-4 rounded-xl transition duration-300 group ${
+              isDark 
+                ? "bg-white/5 border border-white/10 hover:border-violet-500/40" 
+                : "bg-white border-2 border-violet-950/20 hover:border-violet-600/40 shadow-sm"
+            }`}>
+              <div className="flex items-center gap-3 mb-1.5">
+                <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+                  <GraduationCap className="h-4.5 w-4.5" />
+                </div>
+                <span className={`font-extrabold text-sm ${isDark ? "text-violet-300" : "text-violet-950"}`}>
+                  Federal Academic Sector (ETH / EPFL)
+                </span>
+                <span className="ml-auto text-[9px] uppercase font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-bold">
+                  Research Institutions
+                </span>
+              </div>
+              <p className={`text-xs ml-9.5 ${isDark ? "text-zinc-300" : "text-violet-950 font-medium leading-relaxed"}`}>
+                Highly specialized research institutes. Direct entrance via Gymnasiale Maturität or transitional Passerelle bridges.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it Works Module Grid */}
+      <section className="space-y-12">
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 text-xs font-mono font-bold uppercase tracking-wider">
+            How it Works
+          </div>
+          <h2 className={`text-3xl md:text-4xl font-extrabold ${tTextTitle}`}>{t.howItWorks}</h2>
+          <p className={`text-sm max-w-md mx-auto ${isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"}`}>
+            A clear system to help you make informed educational decisions.
+          </p>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              title: t.howStepOnboarding,
+              desc: t.howStepOnboardingDesc,
+              num: "01",
+              icon: Compass,
+              color: "text-amber-400 bg-amber-500/10"
+            },
+            {
+              title: t.howStepMap,
+              desc: t.howStepMapDesc,
+              num: "02",
+              icon: Navigation,
+              color: "text-emerald-400 bg-emerald-500/10"
+            },
+            {
+              title: t.howStepTracker,
+              desc: t.howStepTrackerDesc,
+              num: "03",
+              icon: TrendingUp,
+              color: "text-violet-400 bg-violet-500/10"
+            },
+            {
+              title: t.howStepResources,
+              desc: t.howStepResourcesDesc,
+              num: "04",
+              icon: Globe,
+              color: "text-indigo-400 bg-indigo-500/10"
+            }
+          ].map((step, idx) => {
+            const StepIcon = step.icon;
+            return (
+              <div 
+                key={idx}
+                className="card-premium p-6 group transition duration-300 relative overflow-hidden flex flex-col justify-between"
+              >
+                {/* Large elegant subtle background index */}
+                <span className="absolute -top-4 -right-2 text-7xl font-mono font-black opacity-[0.03] select-none group-hover:opacity-[0.06] transition duration-300">
+                  {step.num}
+                </span>
+
+                <div className="space-y-4">
+                  <div className={`p-2.5 rounded-xl w-fit ${step.color}`}>
+                    <StepIcon className="h-5 w-5" />
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <h3 className={`font-extrabold text-sm tracking-tight ${tTextTitle} group-hover:text-violet-400 transition duration-300`}>
+                      {step.title.substring(3)}
+                    </h3>
+                    <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/85 font-semibold"}`}>
+                      {step.desc}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-violet-900/10 flex items-center text-[10px] uppercase font-mono font-bold tracking-wider text-violet-500 group-hover:text-violet-400 transition">
+                  <span>View Details</span>
+                  <ChevronRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition duration-200" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Global Scaling Roadmap Panel */}
+      <section className={`rounded-3xl p-8 md:p-10 max-w-4xl mx-auto border-2 border-dashed relative overflow-hidden ${
+        isDark ? "border-white/10 bg-white/[0.01]" : "border-violet-950/20 bg-violet-950/5 shadow-inner"
+      }`}>
+        <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
+          <div className="space-y-4 text-center md:text-left max-w-md">
+            <div className="inline-flex items-center gap-1.5 text-amber-400">
+              <Sparkles className="h-5 w-5 animate-pulse" />
+              <span className="text-xs uppercase font-mono tracking-widest font-bold">Future Scale</span>
+            </div>
+            <h3 className={`text-xl font-bold tracking-tight ${tTextTitle}`}>{t.futureVisionTitle}</h3>
+            <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-bold"}`}>
+              {t.futureVisionDesc}
+            </p>
+          </div>
+
+          {/* Planned Country Badge Grid */}
+          <div className="grid grid-cols-3 gap-3 w-full md:w-auto">
+            {[
+              { country: "Denmark", code: "DK", status: "Calibration Q4" },
+              { country: "Singapore", code: "SG", status: "Planned H1" },
+              { country: "Japan", code: "JP", status: "Research" }
+            ].map((node, i) => (
+              <div 
+                key={i} 
+                className={`p-3 rounded-xl border flex flex-col items-center justify-center text-center transition duration-300 min-w-[100px] ${
+                  isDark ? "bg-white/5 border-white/10 hover:bg-white/10" : "bg-white border-violet-950/20 hover:border-violet-950/30 shadow-sm"
+                }`}
+              >
+                <span className="text-lg font-black tracking-wider text-violet-500">{node.code}</span>
+                <span className={`text-[10px] font-bold mt-1 ${isDark ? "text-white" : "text-violet-950"}`}>{node.country}</span>
+                <span className="text-[8px] font-mono uppercase bg-violet-500/10 text-violet-400 px-1.5 py-0.5 rounded-full mt-1.5 font-bold">{node.status}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </motion.div>
+  );
+}
+
+export function AboutView({ t, isDark, tTextTitle, tTextBody, tCard }: any) {
+  return (
+    <motion.div
+      key="view-about"
+      initial={{ opacity: 0, x: 15 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -15 }}
+      className="max-w-4xl mx-auto space-y-12 py-6"
+    >
+      {/* Intro Editorial Heading */}
+      <section className="text-center max-w-2xl mx-auto space-y-4">
+        <div className="inline-flex items-center gap-1 text-xs font-mono font-bold uppercase tracking-widest text-violet-500">
+          <Layers className="h-4 w-4" />
+          <span>Our Vision</span>
+        </div>
+        <h1 className={`text-4xl font-extrabold tracking-tight ${tTextTitle}`}>{t.aboutTitle}</h1>
+        <div className="w-12 h-1 bg-violet-600 mx-auto rounded-full"></div>
+      </section>
+
+      {/* Main Mission Paragraphs */}
+      <section className="grid gap-8 md:grid-cols-2">
+        <div className="card-premium p-8 leading-relaxed">
+          <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block mb-3">Addressing System Complexity</span>
+          <p className={`text-sm ${isDark ? "text-zinc-300" : "text-violet-950/90 font-bold"}`}>{t.aboutPara1}</p>
+        </div>
+
+        <div className="card-premium p-8 leading-relaxed">
+          <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block mb-3">Interactive Mapping</span>
+          <p className={`text-sm ${isDark ? "text-zinc-300" : "text-violet-950/90 font-bold"}`}>{t.aboutPara2}</p>
+        </div>
+      </section>
+
+      {/* Swiss Brand Core Pillars Grid */}
+      <section className="space-y-6">
+        <h3 className={`text-center font-bold text-lg tracking-wider font-mono uppercase ${isDark ? "text-violet-300" : "text-violet-950"}`}>
+          Core Features
+        </h3>
+
+        <div className="grid gap-6 sm:grid-cols-3">
+          {[
+            {
+              title: "Unified Knowledge Base",
+              icon: Building,
+              desc: "Integrating federal and cantonal systems into one clear view."
+            },
+            {
+              title: "Durchlässigkeit (Permeability)",
+              icon: ShieldCheck,
+              desc: "Clear pathways from vocational training to technical colleges."
+            },
+            {
+              title: "Ease of Use",
+              icon: Compass,
+              desc: "Minimizing complexity through simple maps and checklists."
+            }
+          ].map((pillar, idx) => {
+            const PillarIcon = pillar.icon;
+            return (
+              <div key={idx} className={`p-5 rounded-2xl border flex flex-col justify-between ${
+                isDark ? "bg-white/[0.02] border-white/5" : "bg-white border-2 border-violet-950/15 shadow-sm"
+              }`}>
+                <div className="space-y-3">
+                  <div className="p-2 rounded-lg bg-violet-500/10 text-violet-500 w-fit">
+                    <PillarIcon className="h-5 w-5" />
+                  </div>
+                  <h4 className={`text-sm font-extrabold ${isDark ? "text-white" : "text-black"}`}>{pillar.title}</h4>
+                  <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/80 font-semibold"}`}>{pillar.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Swiss Cantonal Educational Authority Board */}
+      <section className="card-premium p-8 space-y-4 relative overflow-hidden">
+        <div className="absolute top-0 right-0 h-full w-2 bg-gradient-to-b from-orange-500 via-violet-500 to-indigo-500"></div>
+        <span className={`block text-xs font-mono uppercase tracking-widest font-bold ${
+          isDark ? "text-violet-300" : "text-violet-900"
+        }`}>
+          Cantonal Educational Autonomy
+        </span>
+        <p className={`text-sm leading-relaxed font-sans ${isDark ? "text-zinc-300" : "text-violet-950/95 font-bold"}`}>
+          Switzerland's secondary pathways rely on cantonal boards (EDK / CDIP), which means local regions have different schedules and entrance requirements. Inspirella helps make sense of this system.
+        </p>
+      </section>
+    </motion.div>
+  );
+}
+
+export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: any) {
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactMsg, setContactMsg] = useState("");
+  const [contactSuccess, setContactSuccess] = useState(false);
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactName || !contactEmail || !contactMsg) return;
+
+    setContactSuccess(true);
+    setTimeout(() => {
+      setContactName("");
+      setContactEmail("");
+      setContactMsg("");
+      setContactSuccess(false);
+    }, 4500);
+  };
+
+  return (
+    <motion.div
+      key="view-contact"
+      initial={{ opacity: 0, x: 15 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -15 }}
+      className="max-w-5xl mx-auto py-6 space-y-8"
+    >
+      <div className="text-center max-w-lg mx-auto space-y-2">
+        <h1 className={`text-3xl font-extrabold tracking-tight ${tTextTitle}`}>{t.contactTitle}</h1>
+        <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/80 font-bold"}`}>{t.contactSubtitle}</p>
+      </div>
+
+      <div className="grid gap-8 lg:grid-cols-12 items-start">
+        {/* Left Hand: Office Contact Info */}
+        <div className="card-premium lg:col-span-5 p-6 space-y-6">
+          <div className="space-y-2">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-violet-500 font-bold">Contact Channels</span>
+            <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-violet-950"}`}>Geneva Main Office</h3>
+            <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/80 font-bold"}`}>
+              Direct contact for institutions, educators, and candidates.
+            </p>
+          </div>
+
+          <div className="space-y-4 pt-4 border-t border-violet-900/10 text-xs">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-violet-500/10 text-violet-500">
+                <MapPin className="h-4 w-4" />
+              </div>
+              <div>
+                <span className={`block font-mono text-[9px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Swiss HQ Address</span>
+                <span className={`font-bold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>Rue de l'Athénée 12, 1205 Genève, Switzerland</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-violet-500/10 text-violet-500">
+                <Mail className="h-4 w-4" />
+              </div>
+              <div>
+                <span className={`block font-mono text-[9px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Secrétariat E-mail</span>
+                <span className={`font-bold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>office@inspirella.ch</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-violet-500/10 text-violet-500">
+                <Phone className="h-4 w-4" />
+              </div>
+              <div>
+                <span className={`block font-mono text-[9px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Phone Number</span>
+                <span className={`font-bold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>+41 22 379 7111</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-violet-500/10 text-violet-500">
+                <Clock className="h-4 w-4" />
+              </div>
+              <div>
+                <span className={`block font-mono text-[9px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Office Hours</span>
+                <span className={`font-bold ${isDark ? "text-zinc-200" : "text-violet-100 bg-violet-950 px-2 py-0.5 rounded text-[11px]"}`}>
+                  Mon - Fri, 09:00 - 17:00 CET
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Hand: Contact Form */}
+        <div className="card-premium lg:col-span-7 p-6 md:p-8 shadow-2xl space-y-6">
+          {contactSuccess ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className={`p-6 rounded-xl text-xs font-bold leading-relaxed border flex flex-col items-center text-center space-y-3 ${
+                isDark 
+                  ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400" 
+                  : "bg-emerald-50 border-2 border-emerald-300 text-emerald-950"
+              }`}
+            >
+              <CheckCircle className="h-10 w-10 text-emerald-400 animate-bounce" />
+              <div className="space-y-1">
+                <h4 className="text-sm font-extrabold uppercase">Success</h4>
+                <p className="max-w-md mx-auto text-xs">{t.contactSuccess}</p>
+              </div>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleContactSubmit} className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className={`block text-[10px] font-mono uppercase mb-1.5 font-bold ${tTextSub}`}>
+                    {t.contactName}
+                  </label>
+                  <input
+                    type="text"
+                    value={contactName}
+                    onChange={(e) => setContactName(e.target.value)}
+                    required
+                    className={`w-full rounded-lg p-2.5 text-xs outline-none focus:outline-none transition-all duration-200 ${tInput}`}
+                    placeholder="Jean-Pierre Piaget"
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-[10px] font-mono uppercase mb-1.5 font-bold ${tTextSub}`}>
+                    {t.contactEmail}
+                  </label>
+                  <input
+                    type="email"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    required
+                    className={`w-full rounded-lg p-2.5 text-xs outline-none focus:outline-none transition-all duration-200 ${tInput}`}
+                    placeholder="jean.piaget@unige.ch"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={`block text-[10px] font-mono uppercase mb-1.5 font-bold ${tTextSub}`}>
+                  {t.contactMsg}
+                </label>
+                <textarea
+                  value={contactMsg}
+                  onChange={(e) => setContactMsg(e.target.value)}
+                  required
+                  rows={4}
+                  className={`w-full rounded-lg p-2.5 text-xs outline-none focus:outline-none transition-all duration-200 ${tInput}`}
+                  placeholder="Your questions about educational paths, partnerships, or our platform..."
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="btn-primary w-full py-3 text-xs tracking-wider"
+              >
+                {t.contactSend}
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
