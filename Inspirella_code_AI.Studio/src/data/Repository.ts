@@ -492,6 +492,108 @@ export const DataRepository = {
     }
   },
 
+  // Auth (real Supabase Auth accounts; guest mode never calls these and stays local-only)
+  //
+  // PRODUCT RULE (02_Product/Backend/Prototype Limitations.md - "Login не является
+  // полноценной Supabase authentication flow"): a signed-up user must get a real
+  // account whose data survives clearing the browser, not a local-only profile
+  // that merely LOOKS like one. `saveProfile` above already syncs to Supabase
+  // once a real session exists - these methods are what create that session.
+  signUp: async (
+    name: string,
+    email: string,
+    password: string,
+    language: LanguageCode
+  ): Promise<{ profile: UserProfile | null; needsEmailConfirmation: boolean; error?: string }> => {
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) {
+      return {
+        profile: null,
+        needsEmailConfirmation: false,
+        error: "Cloud accounts are not available right now. Try Guest mode instead."
+      };
+    }
+
+    const supabase = getSupabase();
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) return { profile: null, needsEmailConfirmation: false, error: error.message };
+    if (!data.user) {
+      return { profile: null, needsEmailConfirmation: false, error: "Account creation failed unexpectedly." };
+    }
+
+    // If email confirmation is required, Supabase returns a user but no
+    // session - `saveProfile`'s cloud upsert needs `auth.getUser()` to
+    // resolve, so the profile stays local-only until the user confirms and
+    // signs in for real. It is not lost: `saveProfile` always writes locally
+    // first regardless of session state.
+    const needsEmailConfirmation = !data.session;
+
+    const profile: UserProfile = {
+      id: data.user.id,
+      name,
+      email,
+      interests: [],
+      goals: [],
+      currentStage: "",
+      language,
+      onboardingComplete: false,
+      createdAt: new Date().toISOString(),
+      isGuest: false,
+      syncState: needsEmailConfirmation ? "local" : "cloud"
+    };
+
+    await DataRepository.saveProfile(profile);
+
+    return { profile, needsEmailConfirmation };
+  },
+
+  signIn: async (
+    email: string,
+    password: string
+  ): Promise<{ profile: UserProfile | null; error?: string }> => {
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) {
+      return { profile: null, error: "Cloud accounts are not available right now. Try Guest mode instead." };
+    }
+
+    const supabase = getSupabase();
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { profile: null, error: error.message };
+
+    let profile = await DataRepository.getProfile();
+
+    // Signed in successfully but no `profiles` row exists yet (e.g. the
+    // account predates this flow, or the profiles table isn't set up yet) -
+    // start a fresh profile rather than failing the sign-in.
+    if (!profile && data.user) {
+      profile = {
+        id: data.user.id,
+        name: normalizeText(data.user.user_metadata?.name) ?? "",
+        email: normalizeText(data.user.email) ?? email,
+        interests: [],
+        goals: [],
+        currentStage: "",
+        language: "en",
+        onboardingComplete: false,
+        createdAt: new Date().toISOString(),
+        isGuest: false,
+        syncState: "local"
+      };
+      await DataRepository.saveProfile(profile);
+    }
+
+    return { profile };
+  },
+
+  signOut: async (): Promise<void> => {
+    if (!isSupabaseActive()) return;
+    try {
+      await getSupabase().auth.signOut();
+    } catch (e) {
+      console.warn("Failed to sign out of Supabase", e);
+    }
+  },
+
   // Trackers (local-only until the Supabase tracker model is defined and reviewed;
   // see 02_Product/API/Tracker API Contract.md - Current state)
   getTrackers: () => LocalMockDB.getTrackers(),

@@ -1,91 +1,200 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  GraduationCap, 
-  Briefcase, 
-  Sparkles, 
-  Activity, 
-  User, 
-  Mail, 
-  ChevronRight, 
-  ChevronLeft, 
-  Check, 
-  Compass, 
-  BookOpen 
+import {
+  GraduationCap,
+  Briefcase,
+  Sparkles,
+  Activity,
+  User,
+  Mail,
+  Lock,
+  AlertCircle,
+  ChevronRight,
+  ChevronLeft,
+  Check,
+  Compass,
+  BookOpen
 } from "lucide-react";
 
 // Localized custom copy definitions for Login phase
 const AUTH_TRANSLATIONS: Record<string, Record<string, string>> = {
   en: {
     welcomeTitle: "Welcome to Inspirella",
-    welcomeSubtitle: "Create your workspace to explore Switzerland's dual-track education systems and track your growth.",
+    welcomeSubtitle: "Create your account to explore Switzerland's dual-track education systems and track your growth.",
+    signInSubtitle: "Sign in to pick up where you left off.",
     nameLabel: "Your Name",
     emailLabel: "Email Address",
-    submitBtn: "Create Space & Continue",
+    passwordLabel: "Password",
+    submitBtn: "Create Account & Continue",
+    signInSubmitBtn: "Sign In & Continue",
     instantOverride: "Quick Exploration",
-    bypassBtn: "Explore as Guest (Demo Account)",
+    bypassBtn: "Explore as Guest (No Account)",
     namePlaceholder: "e.g., Marie-Louise",
     emailPlaceholder: "e.g., marie@domain.ch",
+    passwordPlaceholder: "At least 8 characters",
     backHome: "Back to Home",
-    disclaimer: "Your details will are stored locally in your current workspace sandbox. No password is required to continue.",
-    stepLabel: "Step"
+    disclaimer: "Your account is created and stored securely with Supabase, so your profile follows you across devices.",
+    stepLabel: "Step",
+    signUpTabLabel: "Create Account",
+    signInTabLabel: "Sign In",
+    switchToSignIn: "Already have an account? Sign in",
+    switchToSignUp: "New here? Create an account",
+    confirmEmailTitle: "Check your inbox",
+    confirmEmailMessage: "We sent a confirmation link to {email}. Confirm it, then sign in below.",
+    genericAuthError: "Something went wrong. Please try again."
   },
   de: {
     welcomeTitle: "Willkommen bei Inspirella",
-    welcomeSubtitle: "Erstellen Sie Ihr Profil, um die Schweizer Bildungslandschaft zu erkunden und Ihre Ziele zu verfolgen.",
+    welcomeSubtitle: "Erstellen Sie Ihr Konto, um die Schweizer Bildungslandschaft zu erkunden und Ihre Ziele zu verfolgen.",
+    signInSubtitle: "Melden Sie sich an, um dort weiterzumachen, wo Sie aufgehört haben.",
     nameLabel: "Ihr Name",
     emailLabel: "E-Mail-Adresse",
+    passwordLabel: "Passwort",
     submitBtn: "Konto erstellen & fortfahren",
+    signInSubmitBtn: "Anmelden & fortfahren",
     instantOverride: "Schnelles Hineinschnuppern",
-    bypassBtn: "Als Gast erkunden (Demo-Konto)",
+    bypassBtn: "Als Gast erkunden (kein Konto)",
     namePlaceholder: "z.B. Marie-Louise",
     emailPlaceholder: "z.B. marie@domain.ch",
+    passwordPlaceholder: "Mindestens 8 Zeichen",
     backHome: "Zurück zur Startseite",
-    disclaimer: "Ihre Daten werden lokal in Ihrem Sandbox-Workspace gesichert. Zum Fortfahren ist kein Passwort nötig.",
-    stepLabel: "Schritt"
+    disclaimer: "Ihr Konto wird sicher über Supabase gespeichert, damit Ihr Profil auf allen Geräten verfügbar ist.",
+    stepLabel: "Schritt",
+    signUpTabLabel: "Konto erstellen",
+    signInTabLabel: "Anmelden",
+    switchToSignIn: "Bereits ein Konto? Jetzt anmelden",
+    switchToSignUp: "Neu hier? Konto erstellen",
+    confirmEmailTitle: "Bitte E-Mail bestätigen",
+    confirmEmailMessage: "Wir haben einen Bestätigungslink an {email} gesendet. Bestätigen Sie ihn und melden Sie sich anschliessend unten an.",
+    genericAuthError: "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
   },
   fr: {
     welcomeTitle: "Bienvenue chez Inspirella",
-    welcomeSubtitle: "Créez votre profil pour explorer le système éducatif dual suisse et planifier vos objectifs.",
+    welcomeSubtitle: "Créez votre compte pour explorer le système éducatif dual suisse et suivre votre progression.",
+    signInSubtitle: "Connectez-vous pour reprendre là où vous en étiez.",
     nameLabel: "Votre Nom",
     emailLabel: "Adresse E-mail",
-    submitBtn: "Créer un espace & Démarrer",
+    passwordLabel: "Mot de passe",
+    submitBtn: "Créer un compte & continuer",
+    signInSubmitBtn: "Se connecter & continuer",
     instantOverride: "Exploration Rapide",
-    bypassBtn: "Explorer en tant qu'invité (Démo)",
+    bypassBtn: "Explorer en tant qu'invité (sans compte)",
     namePlaceholder: "ex. Marie-Louise",
     emailPlaceholder: "ex. marie@domain.ch",
+    passwordPlaceholder: "Au moins 8 caractères",
     backHome: "Retour à l'accueil",
-    disclaimer: "Vos informations sont enregistrées localement dans votre sandbox. Aucun mot de passe n'est requis.",
-    stepLabel: "Étape"
+    disclaimer: "Votre compte est créé et stocké en toute sécurité via Supabase, afin que votre profil vous suive sur tous vos appareils.",
+    stepLabel: "Étape",
+    signUpTabLabel: "Créer un compte",
+    signInTabLabel: "Se connecter",
+    switchToSignIn: "Déjà un compte ? Se connecter",
+    switchToSignUp: "Nouveau ici ? Créer un compte",
+    confirmEmailTitle: "Vérifiez votre boîte mail",
+    confirmEmailMessage: "Nous avons envoyé un lien de confirmation à {email}. Confirmez-le, puis connectez-vous ci-dessous.",
+    genericAuthError: "Une erreur est survenue. Veuillez réessayer."
   },
   it: {
     welcomeTitle: "Benvenuto in Inspirella",
-    welcomeSubtitle: "Crea il tuo profilo per esplorare il sistema scolastico duale svizzero e tracciare la tua crescita.",
+    welcomeSubtitle: "Crea il tuo account per esplorare il sistema scolastico duale svizzero e tracciare la tua crescita.",
+    signInSubtitle: "Accedi per riprendere da dove avevi lasciato.",
     nameLabel: "Il Tuo Nome",
     emailLabel: "Indirizzo E-mail",
-    submitBtn: "Crea spazio e continua",
+    passwordLabel: "Password",
+    submitBtn: "Crea account e continua",
+    signInSubmitBtn: "Accedi e continua",
     instantOverride: "Esplorazione Rapida",
-    bypassBtn: "Esplora come ospite (Demo)",
+    bypassBtn: "Esplora come ospite (senza account)",
     namePlaceholder: "es. Marie-Louise",
     emailPlaceholder: "es. marie@domain.ch",
+    passwordPlaceholder: "Almeno 8 caratteri",
     backHome: "Torna alla Home",
-    disclaimer: "I tuoi dettagli saranno salvati in locale nella sandbox del tuo browser. Non serve una password.",
-    stepLabel: "Passo"
+    disclaimer: "Il tuo account viene creato e salvato in modo sicuro con Supabase, così il tuo profilo ti segue su tutti i dispositivi.",
+    stepLabel: "Passo",
+    signUpTabLabel: "Crea account",
+    signInTabLabel: "Accedi",
+    switchToSignIn: "Hai già un account? Accedi",
+    switchToSignUp: "Nuovo qui? Crea un account",
+    confirmEmailTitle: "Controlla la tua posta",
+    confirmEmailMessage: "Abbiamo inviato un link di conferma a {email}. Confermalo, poi accedi qui sotto.",
+    genericAuthError: "Qualcosa è andato storto. Riprova."
   }
 };
 
-export function LoginView({ t, currentLanguage = "en", isDark, tInput, handleLoginSubmit, handleBypassAuth }: any) {
+export function LoginView({
+  t,
+  currentLanguage = "en",
+  isDark,
+  tInput,
+  handleSignUp,
+  handleSignIn,
+  handleBypassAuth,
+  authError,
+  pendingConfirmationEmail,
+  onDismissConfirmation
+}: any) {
+  const [mode, setMode] = useState<"signUp" | "signIn">("signUp");
   const [authName, setAuthName] = useState("");
   const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const activeLang = AUTH_TRANSLATIONS[currentLanguage] || AUTH_TRANSLATIONS.en;
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (authName.trim() && authEmail.trim()) {
-      handleLoginSubmit(authName.trim(), authEmail.trim());
+    if (submitting) return;
+    if (!authEmail.trim() || !authPassword) return;
+    if (mode === "signUp" && !authName.trim()) return;
+
+    setSubmitting(true);
+    try {
+      if (mode === "signUp") {
+        await handleSignUp(authName.trim(), authEmail.trim(), authPassword);
+      } else {
+        await handleSignIn(authEmail.trim(), authPassword);
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  // A confirmation email was just sent - show that instead of the form so
+  // the user isn't left wondering why nothing happened after signing up.
+  if (pendingConfirmationEmail) {
+    return (
+      <motion.div
+        key="view-login-confirm"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -15 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="max-w-md mx-auto py-12 px-4"
+      >
+        <div className="card-premium p-8 relative overflow-hidden text-center shadow-2xl rounded-3xl border border-violet-500/20 space-y-4">
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600"></div>
+          <div className="mx-auto h-12 w-12 rounded-2xl bg-violet-600/10 flex items-center justify-center border border-violet-500/20 text-violet-500">
+            <Mail className="h-6 w-6" />
+          </div>
+          <h1 className={`text-xl font-black ${isDark ? "text-white" : "text-violet-950"} tracking-tight`}>
+            {activeLang.confirmEmailTitle}
+          </h1>
+          <p className={`text-xs ${isDark ? "text-zinc-400 font-medium" : "text-violet-900/60 font-bold"} leading-relaxed`}>
+            {activeLang.confirmEmailMessage.replace("{email}", pendingConfirmationEmail)}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setMode("signIn");
+              onDismissConfirmation?.();
+            }}
+            className="btn-secondary w-full py-3 text-xs font-bold transition-all"
+          >
+            {activeLang.signInTabLabel}
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -101,7 +210,7 @@ export function LoginView({ t, currentLanguage = "en", isDark, tInput, handleLog
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600"></div>
 
         {/* Welcome Header */}
-        <div className="text-center space-y-2 mb-8">
+        <div className="text-center space-y-2 mb-6">
           <div className="mx-auto h-12 w-12 rounded-2xl bg-violet-600/10 flex items-center justify-center border border-violet-500/20 text-violet-500 mb-2">
             <Compass className="h-6 w-6 animate-spin-slow" />
           </div>
@@ -109,32 +218,54 @@ export function LoginView({ t, currentLanguage = "en", isDark, tInput, handleLog
             {activeLang.welcomeTitle}
           </h1>
           <p className={`text-xs ${isDark ? "text-zinc-400 font-medium" : "text-violet-900/60 font-bold"} leading-relaxed max-w-sm mx-auto`}>
-            {activeLang.welcomeSubtitle}
+            {mode === "signUp" ? activeLang.welcomeSubtitle : activeLang.signInSubtitle}
           </p>
+        </div>
+
+        {/* Sign up / sign in mode toggle */}
+        <div className={`grid grid-cols-2 gap-1.5 p-1 rounded-xl mb-6 ${isDark ? "bg-white/5" : "bg-violet-100/60"}`}>
+          {(["signUp", "signIn"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={`py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                mode === m
+                  ? "bg-violet-600 text-white shadow"
+                  : isDark
+                    ? "text-zinc-400 hover:text-white"
+                    : "text-violet-950/60 hover:text-violet-950"
+              }`}
+            >
+              {m === "signUp" ? activeLang.signUpTabLabel : activeLang.signInTabLabel}
+            </button>
+          ))}
         </div>
 
         {/* Interactive Form */}
         <form onSubmit={onSubmit} className="space-y-5">
-          <div className="space-y-1.5Packed">
-            <label className={`block text-[10px] font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
-              {activeLang.nameLabel}
-            </label>
-            <div className="relative">
-              <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-500" : "text-violet-950/40"}`}>
-                <User className="h-4 w-4" />
-              </span>
-              <input
-                type="text"
-                value={authName}
-                onChange={(e) => setAuthName(e.target.value)}
-                placeholder={activeLang.namePlaceholder}
-                required
-                className={`w-full rounded-xl pl-10 pr-4 py-3 text-xs focus:outline-none transition-all ${tInput}`}
-              />
+          {mode === "signUp" && (
+            <div className="space-y-1.5">
+              <label className={`block text-[10px] font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
+                {activeLang.nameLabel}
+              </label>
+              <div className="relative">
+                <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-500" : "text-violet-950/40"}`}>
+                  <User className="h-4 w-4" />
+                </span>
+                <input
+                  type="text"
+                  value={authName}
+                  onChange={(e) => setAuthName(e.target.value)}
+                  placeholder={activeLang.namePlaceholder}
+                  required
+                  className={`w-full rounded-xl pl-10 pr-4 py-3 text-xs focus:outline-none transition-all ${tInput}`}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="space-y-1.5Packed">
+          <div className="space-y-1.5">
             <label className={`block text-[10px] font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
               {activeLang.emailLabel}
             </label>
@@ -148,18 +279,60 @@ export function LoginView({ t, currentLanguage = "en", isDark, tInput, handleLog
                 onChange={(e) => setAuthEmail(e.target.value)}
                 placeholder={activeLang.emailPlaceholder}
                 required
+                autoComplete="email"
                 className={`w-full rounded-xl pl-10 pr-4 py-3 text-xs focus:outline-none transition-all ${tInput}`}
               />
             </div>
           </div>
 
+          <div className="space-y-1.5">
+            <label className={`block text-[10px] font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
+              {activeLang.passwordLabel}
+            </label>
+            <div className="relative">
+              <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-500" : "text-violet-950/40"}`}>
+                <Lock className="h-4 w-4" />
+              </span>
+              <input
+                type="password"
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                placeholder={activeLang.passwordPlaceholder}
+                required
+                minLength={8}
+                autoComplete={mode === "signUp" ? "new-password" : "current-password"}
+                className={`w-full rounded-xl pl-10 pr-4 py-3 text-xs focus:outline-none transition-all ${tInput}`}
+              />
+            </div>
+          </div>
+
+          {/* Error banner sits right above the submit button - it must be visible
+              without scrolling back up, since that's where the user's eyes/scroll
+              position already are right after submitting. */}
+          {authError && (
+            <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-[11px] leading-relaxed text-red-400">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+              <span>{authError}</span>
+            </div>
+          )}
+
           {/* Core Submit Button */}
           <button
             type="submit"
-            className="btn-primary w-full py-3.5 text-xs tracking-wider font-extrabold flex items-center justify-center gap-2 mt-2 transition-transform hover:scale-[1.01] active:scale-[0.99]"
+            disabled={submitting}
+            className="btn-primary w-full py-3.5 text-xs tracking-wider font-extrabold flex items-center justify-center gap-2 mt-2 transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <span>{activeLang.submitBtn}</span>
+            <span>{mode === "signUp" ? activeLang.submitBtn : activeLang.signInSubmitBtn}</span>
             <ChevronRight className="h-4 w-4" />
+          </button>
+
+          {/* Switch between sign up / sign in */}
+          <button
+            type="button"
+            onClick={() => setMode(mode === "signUp" ? "signIn" : "signUp")}
+            className={`block w-full text-center text-[10px] font-bold underline-offset-2 hover:underline ${isDark ? "text-violet-400" : "text-violet-700"}`}
+          >
+            {mode === "signUp" ? activeLang.switchToSignIn : activeLang.switchToSignUp}
           </button>
 
           {/* Info Disclaimer */}

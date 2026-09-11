@@ -44,6 +44,8 @@ export default function App() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const isDark = theme === "dark";
   const [mapboxConfig, setMapboxConfig] = useState<{ accessToken?: string; styleUrl?: string }>({});
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState<string | null>(null);
 
   const handleThemeToggle = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
@@ -159,27 +161,52 @@ export default function App() {
     }
   };
 
-  // Auth operations
-  const handleLogin = async (authName: string, authEmail: string) => {
-    if (!authEmail || !authName) return;
+  // Auth operations - real Supabase accounts (see 02_Product/Backend/Prototype
+  // Limitations.md: login must not merely look like an account while actually
+  // being local-only storage indistinguishable from Guest mode).
+  const handleSignUp = async (authName: string, authEmail: string, authPassword: string) => {
+    if (!authEmail || !authName || !authPassword) return;
+    setAuthError(null);
+    setPendingConfirmationEmail(null);
 
-    const newProfile: UserProfile = {
-      name: authName,
-      email: authEmail,
-      interests: [],
-      goals: [],
-      currentStage: "",
-      language: currentLanguage,
-      onboardingComplete: false,
-      createdAt: new Date().toISOString(),
-      isGuest: false,
-      syncState: "local"
-    };
+    const { profile, needsEmailConfirmation, error } = await DataRepository.signUp(
+      authName,
+      authEmail,
+      authPassword,
+      currentLanguage
+    );
 
-    setUserProfile(newProfile);
-    await DataRepository.saveProfile(newProfile);
+    if (error || !profile) {
+      setAuthError(error || "Something went wrong creating your account.");
+      return;
+    }
+
+    if (needsEmailConfirmation) {
+      setPendingConfirmationEmail(authEmail);
+      return;
+    }
+
+    setUserProfile(profile);
     setIsLoggedIn(true);
     setActiveTab("onboarding");
+  };
+
+  const handleSignIn = async (authEmail: string, authPassword: string) => {
+    if (!authEmail || !authPassword) return;
+    setAuthError(null);
+    setPendingConfirmationEmail(null);
+
+    const { profile, error } = await DataRepository.signIn(authEmail, authPassword);
+
+    if (error || !profile) {
+      setAuthError(error || "Could not sign in with these details.");
+      return;
+    }
+
+    setUserProfile(profile);
+    setCurrentLanguage(profile.language);
+    setIsLoggedIn(true);
+    setActiveTab(profile.onboardingComplete ? "dashboard" : "onboarding");
   };
 
   const handleBypassAuth = async () => {
@@ -203,10 +230,13 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    // Reset local UI state immediately; end the Supabase session in the
+    // background so logout feels instant regardless of network latency.
     DataRepository.clearAll();
     setIsLoggedIn(false);
     setUserProfile(null);
     setActiveTab("home");
+    DataRepository.signOut().catch(() => {});
   };
 
   // Navigation redirect wrapper for secure zone checking
@@ -310,7 +340,18 @@ export default function App() {
 
           {/* VIEW: Login Sign Up Frame */}
           {activeTab === "login" && (
-            <LoginView t={t} currentLanguage={currentLanguage} isDark={isDark} tInput={tInput} handleLoginSubmit={handleLogin} handleBypassAuth={handleBypassAuth} />
+            <LoginView
+              t={t}
+              currentLanguage={currentLanguage}
+              isDark={isDark}
+              tInput={tInput}
+              handleSignUp={handleSignUp}
+              handleSignIn={handleSignIn}
+              handleBypassAuth={handleBypassAuth}
+              authError={authError}
+              pendingConfirmationEmail={pendingConfirmationEmail}
+              onDismissConfirmation={() => setPendingConfirmationEmail(null)}
+            />
           )}
 
           {/* VIEW: Onboarding Questionnaire */}
