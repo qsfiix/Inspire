@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "inspirella-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "Inspirella_code_AI.Studio", "run", "dev"],
+      "port": 3000
+    }
+  ]
+}
