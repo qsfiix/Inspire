@@ -43,6 +43,9 @@ Related Files:
   - `vite.config.ts` — переписан комментарий про `DISABLE_HMR` (ранее содержал упоминание AI Studio и повреждённые символы);
   - удалён `metadata.json` (экспорт-манифест AI Studio, нигде не использовался в коде);
   - удалён случайный `src/Inspirella.code-workspace`.
+- `MapboxMap` теперь получает `accessToken`/`styleUrl` явно из runtime-конфига (`02_Product/Backend/Prototype Limitations.md`, пункт 9 закрыт):
+  - `supabaseClient.ts` — `/api/config` теперь также читает `mapboxAccessToken`/`mapboxStyleUrl` и кеширует результат (не перезапрашивает конфиг на каждый вызов `fetchSupabaseConfig()`);
+  - `App.tsx` — передаёт значения в `<MapboxMap>` вместо пустых props.
 - См. `Decisions.md` — запись от 2026-09-11 про объём коммита и что осознанно не тронуто (Supabase CSV backups).
 
 ---
