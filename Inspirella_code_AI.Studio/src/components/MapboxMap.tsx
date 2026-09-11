@@ -120,7 +120,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
           // Initialize map centered in Switzerland
           mapInstance.current = new mapboxgl.Map({
             container: mapContainerRef.current,
-            style: styleUrl && !styleUrl.includes("qsfiix") ? styleUrl : (isDark ? "mapbox://styles/mapbox/dark-v11" : "mapbox://styles/mapbox/light-v11"),
+            style: styleUrl || (isDark ? "mapbox://styles/mapbox/dark-v11" : "mapbox://styles/mapbox/light-v11"),
             center: [8.2275, 46.8182],
             zoom: isFullscreen ? 7.8 : 7.2,
             pitch: is3DMode ? 45 : 0,

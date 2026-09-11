@@ -18,35 +18,48 @@ interface MapboxRuntimeConfig {
 
 let mapboxConfig: MapboxRuntimeConfig = {};
 let configFetched = false;
+let configPromise: Promise<void> | null = null;
 
 /**
  * Fetches runtime config from the server once per session and caches it.
- * Safe to call from multiple places (Repository, App, MapboxMap) - only the
- * first call performs the network request.
+ *
+ * Safe to call from multiple places (Repository, App, MapboxMap) - and safe
+ * to call concurrently. `data/Repository.ts` calls this at the top of every
+ * method, so several calls routinely land in the same tick before the first
+ * `fetch` resolves; without sharing one in-flight promise each of them would
+ * create its own Supabase client ("Multiple GoTrueClient instances" warning,
+ * duplicate auth listeners).
  */
-export async function fetchSupabaseConfig() {
-  if (configFetched) return;
+export function fetchSupabaseConfig(): Promise<void> {
+  if (configFetched) return Promise.resolve();
+  if (configPromise) return configPromise;
 
-  try {
-    const res = await fetch("/api/config");
-    if (res.ok) {
-      const config = await res.json();
-      configFetched = true;
+  configPromise = (async () => {
+    try {
+      const res = await fetch("/api/config");
+      if (res.ok) {
+        const config = await res.json();
+        configFetched = true;
 
-      if (config.supabaseUrl && config.supabaseAnonKey && !config.supabaseUrl.includes("MY_SUPABASE")) {
-        supabaseClientInstance = createClient(config.supabaseUrl, config.supabaseAnonKey);
-        isSupabaseConfigured = true;
-        console.log("Supabase Client initialized successfully with runtime config.");
+        if (config.supabaseUrl && config.supabaseAnonKey && !config.supabaseUrl.includes("MY_SUPABASE")) {
+          supabaseClientInstance = createClient(config.supabaseUrl, config.supabaseAnonKey);
+          isSupabaseConfigured = true;
+          console.log("Supabase Client initialized successfully with runtime config.");
+        }
+
+        mapboxConfig = {
+          accessToken: typeof config.mapboxAccessToken === "string" ? config.mapboxAccessToken : undefined,
+          styleUrl: typeof config.mapboxStyleUrl === "string" ? config.mapboxStyleUrl : undefined
+        };
       }
-
-      mapboxConfig = {
-        accessToken: typeof config.mapboxAccessToken === "string" ? config.mapboxAccessToken : undefined,
-        styleUrl: typeof config.mapboxStyleUrl === "string" ? config.mapboxStyleUrl : undefined
-      };
+    } catch (error) {
+      console.warn("Failed to fetch runtime config from API route. Falling back to mock persistence.", error);
+    } finally {
+      configPromise = null;
     }
-  } catch (error) {
-    console.warn("Failed to fetch runtime config from API route. Falling back to mock persistence.", error);
-  }
+  })();
+
+  return configPromise;
 }
 
 export function getSupabase() {
