@@ -9,7 +9,12 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());
+// Behind Railway/any reverse proxy, the real client address is in
+// X-Forwarded-For - without this, req.ip is the proxy's own address and
+// every visitor would share one rate-limit bucket.
+app.set("trust proxy", 1);
+
+app.use(express.json({ limit: "50kb" }));
 
 // Fallback tokens from PDF to ensure robust out-of-the-box execution
 const CONFIG = {
@@ -30,6 +35,68 @@ app.get("/api/config", (req, res) => {
     mapboxStyleUrl: CONFIG.MAPBOX_STYLE_URL
   });
 });
+
+/**
+ * Minimal in-memory rate limiter for /api/gemini/advisor.
+ *
+ * This endpoint calls a paid, metered API and has no auth in front of it, so
+ * it must not be reachable without limits once the server is public - see
+ * 02_Product/Backend/Backend Overview.md ("Backend quality bar: rate limits,
+ * validation, audit metadata"). A small local Map is deliberately preferred
+ * over adding a dependency (04_Development/Dependencies.md): this only needs
+ * to survive one process, not coordinate across instances.
+ */
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const RATE_LIMIT_MAX_REQUESTS = 5;
+const rateLimitBuckets = new Map<string, { count: number; windowStart: number }>();
+
+function isRateLimited(key: string): boolean {
+  const now = Date.now();
+  const bucket = rateLimitBuckets.get(key);
+
+  if (!bucket || now - bucket.windowStart > RATE_LIMIT_WINDOW_MS) {
+    rateLimitBuckets.set(key, { count: 1, windowStart: now });
+    return false;
+  }
+
+  bucket.count += 1;
+  return bucket.count > RATE_LIMIT_MAX_REQUESTS;
+}
+
+// Periodically forget old buckets so this Map cannot grow without bound.
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, bucket] of rateLimitBuckets) {
+    if (now - bucket.windowStart > RATE_LIMIT_WINDOW_MS) rateLimitBuckets.delete(key);
+  }
+}, RATE_LIMIT_WINDOW_MS).unref();
+
+/** Caps array/string sizes so a malicious payload can't inflate the prompt or cost. */
+function sanitizeAdvisorInput(body: any): { interests?: string[]; goals?: string[]; currentStage?: string; language: string } | null {
+  if (!body || typeof body !== "object") return null;
+
+  const asBoundedStringArray = (value: unknown): string[] | undefined => {
+    if (!Array.isArray(value)) return undefined;
+    return value
+      .filter((item): item is string => typeof item === "string")
+      .slice(0, 20)
+      .map(item => item.trim().slice(0, 100))
+      .filter(Boolean);
+  };
+
+  const asBoundedString = (value: unknown, maxLength: number): string | undefined => {
+    if (typeof value !== "string") return undefined;
+    const trimmed = value.trim().slice(0, maxLength);
+    return trimmed || undefined;
+  };
+
+  return {
+    interests: asBoundedStringArray(body.interests),
+    goals: asBoundedStringArray(body.goals),
+    currentStage: asBoundedString(body.currentStage, 100),
+    language: asBoundedString(body.language, 30) || "English"
+  };
+}
 
 // Lazy-loaded Gemini AI client to prevent crash if key is unset
 let aiClient: GoogleGenAI | null = null;
@@ -53,7 +120,20 @@ function getGeminiClient(): GoogleGenAI {
 
 // API Route: AI-powered Educational Advisor
 app.post("/api/gemini/advisor", async (req, res) => {
-  const { interests, goals, currentStage, language = "English" } = req.body;
+  if (isRateLimited(req.ip || "unknown")) {
+    res.status(429).json({
+      error: "rate_limited",
+      message: "Too many advisor requests. Please try again in a few minutes."
+    });
+    return;
+  }
+
+  const sanitized = sanitizeAdvisorInput(req.body);
+  if (!sanitized) {
+    res.status(400).json({ error: "invalid_request", message: "Malformed request body." });
+    return;
+  }
+  const { interests, goals, currentStage, language } = sanitized;
 
   try {
     const ai = getGeminiClient();
@@ -128,6 +208,19 @@ Ensure the output is strictly valid JSON matching the schema above, and matches 
       errorMessage: error.message || "An error occurred with the AI consultant."
     });
   }
+});
+
+// Structured error handler: Express's default error page includes a stack
+// trace and local file paths (e.g. for a body-parser "payload too large"
+// error), which must never reach a client response.
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (res.headersSent) {
+    next(err);
+    return;
+  }
+  console.error("Unhandled request error:", err);
+  const status = typeof err?.status === "number" ? err.status : 500;
+  res.status(status).json({ error: "request_error", message: "The request could not be processed." });
 });
 
 // Serve Vite in dev or static in prod
