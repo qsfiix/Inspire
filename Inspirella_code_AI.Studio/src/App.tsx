@@ -26,7 +26,7 @@ import { TRANSLATIONS, OFF_RESOURCES } from "./data";
 import Navbar from "./components/Navbar";
 import MapboxMap from "./components/MapboxMap";
 import TrackerSystem from "./components/TrackerSystem";
-import { fetchSupabaseConfig } from "./supabaseClient";
+import { fetchSupabaseConfig, getMapboxConfig } from "./supabaseClient";
 import { DataRepository } from "./data/Repository";
 import { EXAMPLE_TRACKERS } from "./data/seedData";
 import { localizedMatches } from "./lib/localized";
@@ -43,6 +43,7 @@ export default function App() {
   const [trackers, setTrackers] = useState<TrackerGoal[]>([]);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const isDark = theme === "dark";
+  const [mapboxConfig, setMapboxConfig] = useState<{ accessToken?: string; styleUrl?: string }>({});
 
   const handleThemeToggle = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
@@ -109,8 +110,9 @@ export default function App() {
     }
 
     const initData = async () => {
-      // Attempt connecting and retrieving Supabase credentials
+      // Attempt connecting and retrieving Supabase/Mapbox runtime credentials
       await fetchSupabaseConfig();
+      setMapboxConfig(getMapboxConfig());
 
       // Recover cached states from DataRepository
       const cachedProfile = await DataRepository.getProfile();
@@ -348,7 +350,12 @@ export default function App() {
               </div>
 
               {/* Render Mapbox Component */}
-              <MapboxMap currentLanguage={currentLanguage} theme={theme} />
+              <MapboxMap
+                currentLanguage={currentLanguage}
+                theme={theme}
+                accessToken={mapboxConfig.accessToken}
+                styleUrl={mapboxConfig.styleUrl}
+              />
             </motion.div>
           )}
 
