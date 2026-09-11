@@ -131,6 +131,58 @@ const asLocalizedText = (
   return undefined;
 };
 
+/**
+ * Picks a localized text field, trying each base name in order and returning
+ * the first one that yields any translation at all.
+ *
+ * Two source conventions exist across imports and the current Supabase schema:
+ * - suffixed columns per language (`title_en`, `title_de`, `title_fr`, `title_it`) -
+ *   this is how the live `institutions`/`resources`/`professions` tables store
+ *   multilingual text;
+ * - a single column holding either a nested `{en, de, fr, it}` object or one
+ *   plain string (handled by `asLocalizedText`) - kept for static/legacy rows.
+ *
+ * Order base names from the most language-complete field to the least: the
+ * first base name with ANY translation wins outright, so a fuller field
+ * (e.g. `summary_de/fr/it/en`) should be listed before a partial one
+ * (e.g. `description_de` only).
+ */
+const pickLocalizedText = (
+  db: Record<string, any>,
+  ...baseNames: string[]
+): Partial<Record<LanguageCode, string>> | undefined => {
+  for (const base of baseNames) {
+    const suffixed: Partial<Record<LanguageCode, string>> = {};
+    for (const code of SUPPORTED_LANGUAGES) {
+      const text = normalizeText(db?.[`${base}_${code}`]);
+      if (text) suffixed[code] = text;
+    }
+    if (Object.keys(suffixed).length > 0) return suffixed;
+
+    const bare = asLocalizedText(db?.[base]);
+    if (bare) return bare;
+  }
+  return undefined;
+};
+
+/**
+ * Picks a single best-available string for fields that are not localized in
+ * the product model (currently only `Institution.title`). Prefers English,
+ * then the other supported languages via suffixed columns, then a plain
+ * column - never mixes languages within one call, just picks one source.
+ */
+const pickPlainText = (db: Record<string, any>, ...baseNames: string[]): string | undefined => {
+  for (const base of baseNames) {
+    for (const code of SUPPORTED_LANGUAGES) {
+      const text = normalizeText(db?.[`${base}_${code}`]);
+      if (text) return text;
+    }
+    const bare = normalizeText(db?.[base]);
+    if (bare) return bare;
+  }
+  return undefined;
+};
+
 const asLocalizedList = (
   value: unknown
 ): Partial<Record<LanguageCode, string[]>> | undefined => {
@@ -179,7 +231,10 @@ const INSTITUTION_QUALITY_FIELDS = ["category", "coordinates", "canton", "websit
 
 export const parseDbInstitution = (db: Record<string, any>): Institution | null => {
   const id = normalizeId(pick(db, "id", "institution_id", "slug"));
-  const title = normalizeText(pick(db, "title", "name", "institution_name"));
+  // `Institution.title` is a single (non-localized) string in the product model.
+  // Prefer a real title column (title_en/de/fr/it) over the shorter `name`,
+  // which reads more like an internal label in the current schema.
+  const title = pickPlainText(db, "title", "name", "institution_name");
 
   // Identity validation first: no stable ID or no usable title means no record.
   if (!id || !title) return null;
@@ -199,19 +254,25 @@ export const parseDbInstitution = (db: Record<string, any>): Institution | null 
   const institution: Institution = {
     id,
     title,
-    category: normalizeText(pick(db, "category", "institution_type", "type")),
+    category: normalizeText(pick(db, "category", "institution_type", "type", "institution_group")),
     coordinates,
     canton: normalizeText(pick(db, "canton", "region")),
-    description: asLocalizedText(pick(db, "description", "summary")),
-    website: normalizeUrl(pick(db, "website", "web_url", "website_url")),
+    // `summary_*` has full en/de/fr/it coverage in the live schema; `description_de`
+    // and `overview_de` are German-only fallbacks (localizedText() falls back to
+    // whichever language is present rather than showing nothing).
+    description: pickLocalizedText(db, "summary", "description", "overview"),
+    website: normalizeUrl(pick(db, "website", "web_url", "website_url", "official_homepage_url")),
     email: normalizeText(pick(db, "email", "contact_email")),
     phone: normalizeText(pick(db, "phone", "contact_phone")),
-    address: normalizeText(pick(db, "address")),
-    imageUrl: normalizeUrl(pick(db, "imageUrl", "image_url")),
-    admissionRequirements: asLocalizedText(
-      pick(db, "admissionRequirements", "admission_requirements", "admission_requirements_summary")
+    address: normalizeText(pick(db, "address", "formatted_address", "street_address")),
+    imageUrl: normalizeUrl(pick(db, "imageUrl", "image_url", "logo_url")),
+    admissionRequirements: pickLocalizedText(
+      db,
+      "admissionRequirements",
+      "admission_requirements",
+      "admissions_summary"
     ),
-    status: normalizeText(pick(db, "status")),
+    status: normalizeText(pick(db, "status", "verification_status")),
     verified: asBoolean(pick(db, "verified", "is_verified")),
     rating: asNumber(pick(db, "rating", "data_confidence_score")),
     establishedYear: asNumber(pick(db, "establishedYear", "established_year")),
@@ -239,8 +300,8 @@ const RESOURCE_QUALITY_FIELDS = ["category", "description", "country"];
 
 export const parseDbResource = (db: Record<string, any>): ResourceItem | null => {
   const id = normalizeId(pick(db, "id", "resource_id", "slug"));
-  const title = asLocalizedText(pick(db, "title", "name"));
-  const url = normalizeUrl(pick(db, "url", "resource_url", "link"));
+  const title = pickLocalizedText(db, "title", "name");
+  const url = normalizeUrl(pick(db, "url", "resource_url", "link", "official_url"));
 
   // A resource without an identity, a title or a reachable official link has no
   // product value and must not appear as a trusted choice.
@@ -249,18 +310,18 @@ export const parseDbResource = (db: Record<string, any>): ResourceItem | null =>
   const resource: ResourceItem = {
     id,
     title,
-    description: asLocalizedText(pick(db, "description", "summary")),
+    description: pickLocalizedText(db, "summary", "description"),
     category: normalizeText(pick(db, "category", "resource_type")),
     url,
     country: normalizeText(pick(db, "country", "country_code")),
-    status: normalizeText(pick(db, "status")),
+    status: normalizeText(pick(db, "status", "verification_status")),
     verified: asBoolean(pick(db, "verified", "is_verified")),
     rating: asNumber(pick(db, "rating")),
     tags: asStringArray(pick(db, "tags")),
     isFederal: asBoolean(pick(db, "isFederal", "is_federal")),
     lastUpdated: normalizeText(pick(db, "lastUpdated", "last_updated", "last_verified_at")),
     clicksCount: asNumber(pick(db, "clicksCount", "clicks_count")),
-    accessCost: normalizeText(pick(db, "accessCost", "access_cost")),
+    accessCost: normalizeText(pick(db, "accessCost", "access_cost", "price_type")),
     customMetadata: asMetadata(pick(db, "customMetadata", "custom_metadata")),
     dataOrigin: "cloud"
   };
@@ -278,19 +339,21 @@ const PROFESSION_QUALITY_FIELDS = ["category", "description", "educationRequired
 
 export const parseDbProfession = (db: Record<string, any>): Profession | null => {
   const id = normalizeId(pick(db, "id", "profession_id", "slug"));
-  const title = asLocalizedText(pick(db, "title", "name"));
+  const title = pickLocalizedText(db, "title", "name");
 
   if (!id || !title) return null;
 
   const profession: Profession = {
     id,
     title,
-    description: asLocalizedText(pick(db, "description", "summary")),
-    category: normalizeText(pick(db, "category", "profession_category")),
+    description: pickLocalizedText(db, "summary", "description"),
+    category: normalizeText(pick(db, "category", "profession_category", "sector")),
+    // No numeric salary column exists in the live schema (only free-text
+    // `salary_notes_de`); stays undefined rather than parsed out of prose.
     salaryCHF: asNumber(pick(db, "salaryCHF", "salary_chf", "salary_range_median")),
     outlook: normalizeText(pick(db, "outlook")),
-    educationRequired: asLocalizedText(pick(db, "educationRequired", "education_required")),
-    status: normalizeText(pick(db, "status")),
+    educationRequired: pickLocalizedText(db, "educationRequired", "education_required", "education_notes"),
+    status: normalizeText(pick(db, "status", "verification_status")),
     verified: asBoolean(pick(db, "verified", "is_verified")),
     demandLevel: normalizeText(pick(db, "demandLevel", "demand_level")),
     growthRatePct: asNumber(pick(db, "growthRatePct", "growth_rate_pct")),
