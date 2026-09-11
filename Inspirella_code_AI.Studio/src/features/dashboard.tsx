@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { BookOpen, Milestone, Sparkles, Search, ExternalLink, User, Briefcase, TrendingUp, Coins, Clock, ShieldCheck, Check, ChevronRight } from "lucide-react";
+import { BookOpen, Milestone, Sparkles, Search, ExternalLink, User, Briefcase, Coins, ShieldCheck, Check, ChevronRight } from "lucide-react";
 import { SWISS_EDUCATION_LEVELS } from "../data";
 import { DataRepository } from "../data/Repository";
 import AdvisorReport from "../components/AdvisorReport";
 import { EducationLevel, LanguageCode, Profession } from "../types";
 import { useEducationEngine } from "../engine/useEducationEngine";
+import { localizedList, localizedText } from "../lib/localized";
+import { isProvisional, isTrusted } from "../lib/quality";
 
 export function DashboardView({
   t,
@@ -365,16 +367,25 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
     return () => { active = false; };
   }, []);
 
-  const uniqueCategories = ["all", ...Array.from(new Set(professionsList.map(p => p.category).filter(Boolean)))];
+  const presentCategories: string[] = [];
+  for (const profession of professionsList) {
+    if (profession.category && !presentCategories.includes(profession.category)) {
+      presentCategories.push(profession.category);
+    }
+  }
+  const uniqueCategories: string[] = ["all", ...presentCategories];
 
+  const needle = searchText.trim().toLowerCase();
   const filtered = professionsList.filter(p => {
-    const titleText = (p.title[currentLanguage] || p.title["en"] || "").toLowerCase();
-    const descText = (p.description[currentLanguage] || p.description["en"] || "").toLowerCase();
-    const skills = (p.skillsRequired?.[currentLanguage] || p.skillsRequired?.["en"] || []).join(" ").toLowerCase();
-    
-    const matchesSearch = titleText.includes(searchText.toLowerCase()) || 
-                          descText.includes(searchText.toLowerCase()) ||
-                          skills.includes(searchText.toLowerCase());
+    const titleText = localizedText(p.title, currentLanguage).toLowerCase();
+    const descText = localizedText(p.description, currentLanguage).toLowerCase();
+    const skills = localizedList(p.skillsRequired, currentLanguage).join(" ").toLowerCase();
+
+    const matchesSearch =
+      !needle ||
+      titleText.includes(needle) ||
+      descText.includes(needle) ||
+      skills.includes(needle);
 
     const matchesCat = catFilter === "all" || p.category === catFilter;
     return matchesSearch && matchesCat;
@@ -387,14 +398,14 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b pb-4 mb-6 border-purple-200/10 text-left">
         <div>
           <span className={`block font-mono text-[9px] uppercase tracking-widest ${isDark ? "text-violet-400" : "text-violet-600 font-extrabold"}`}>
-            Vocations & Careers
+            {t.professionsEyebrow}
           </span>
           <h2 className={`text-base font-extrabold tracking-tight flex items-center gap-1.5 ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
             <Briefcase className="h-4.5 w-4.5 text-violet-500 shrink-0" />
-            Swiss Vocation & Profession Explorer
+            {t.professionsTitle}
           </h2>
           <p className={`text-[10.5px] mt-0.5 leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950 font-semibold"}`}>
-            Browse premium vocations, apprenticeship integration, and average wage indicators.
+            {t.professionsSub}
           </p>
         </div>
 
@@ -407,7 +418,8 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
               type="text"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Search careers/skills..."
+              placeholder={t.professionsSearchPlaceholder}
+              aria-label={t.professionsSearchPlaceholder}
               className={`w-full bg-transparent text-[11px] focus:outline-none ${isDark ? "text-white placeholder-zinc-500" : "text-black placeholder-violet-950/40 font-bold"}`}
             />
           </div>
@@ -423,7 +435,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                     : isDark ? "text-zinc-400 hover:text-white border border-transparent" : "text-violet-950 hover:text-violet-600 font-extrabold"
                 }`}
               >
-                {cat}
+                {cat === "all" ? t.filterAll : cat.replace(/_/g, " ")}
               </button>
             ))}
           </div>
@@ -435,7 +447,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
         <div className="md:col-span-5 space-y-2 max-h-[380px] overflow-y-auto pr-1">
           {filtered.length === 0 ? (
             <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-white/10 text-zinc-500" : "border-purple-200 text-violet-950/50"}`}>
-              <p className="text-xs">No vocational matches found.</p>
+              <p className="text-xs">{t.professionsEmpty}</p>
             </div>
           ) : (
             filtered.map(p => {
@@ -452,20 +464,26 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                 >
                   <div className="space-y-1 truncate pr-1">
                     <span className="block font-bold text-xs truncate">
-                      {p.title[currentLanguage] || p.title["en"]}
+                      {localizedText(p.title, currentLanguage)}
                     </span>
                     <div className="flex items-center gap-1.5 text-[9px] font-mono text-zinc-400">
-                      <span className={`px-1.5 py-0.2 rounded border ${isDark ? "border-white/10 bg-black" : "border-purple-200 bg-white"}`}>{p.category.toUpperCase()}</span>
-                      
-                      {p.status === "draft" && (
-                        <span className="px-1.5 py-0.2 rounded border bg-amber-500/10 text-amber-500 border-amber-500/20">DRAFT</span>
-                      )}
-                      {(p.status === "verified" || p.status === "official" || p.status === "published" || p.verified === true) && (
-                        <span className="px-1.5 py-0.2 rounded border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">VERIFIED</span>
+                      {p.category && (
+                        <span className={`px-1.5 py-0.5 rounded border ${isDark ? "border-white/10 bg-black" : "border-purple-200 bg-white"}`}>{p.category.toUpperCase()}</span>
                       )}
 
-                      <span>•</span>
-                      <span className={`${isDark ? "text-violet-300" : "text-violet-950 font-bold"}`}>CHF {(p.salaryCHF/1000).toFixed(0)}k/yr</span>
+                      {isProvisional(p.status) && (
+                        <span className="px-1.5 py-0.5 rounded border bg-amber-500/10 text-amber-500 border-amber-500/20">{t.qualityProvisional}</span>
+                      )}
+                      {isTrusted(p) && (
+                        <span className="px-1.5 py-0.5 rounded border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">{t.qualityVerified}</span>
+                      )}
+
+                      {typeof p.salaryCHF === "number" && (
+                        <>
+                          <span>•</span>
+                          <span className={`${isDark ? "text-violet-300" : "text-violet-950 font-bold"}`}>CHF {(p.salaryCHF / 1000).toFixed(0)}k/yr</span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <ChevronRight className="h-4 w-4 text-violet-400 shrink-0" />
@@ -492,75 +510,91 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3 border-purple-200/10">
                     <div>
                       <h3 className={`text-base font-extrabold flex items-center gap-1.5 leading-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
-                        {selectedProf.title[currentLanguage] || selectedProf.title["en"]}
-                        {(selectedProf.status === "verified" || selectedProf.status === "official" || selectedProf.status === "published" || selectedProf.verified === true) && (
+                        {localizedText(selectedProf.title, currentLanguage)}
+                        {isTrusted(selectedProf) && (
                           <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
                         )}
-                        {selectedProf.status === "draft" && (
+                        {isProvisional(selectedProf) && (
                           <span className="ml-2 inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] font-mono font-bold bg-amber-500/15 text-amber-500 border border-amber-500/25">
-                            DRAFT / PROVISIONAL
+                            {t.qualityProvisional}
                           </span>
                         )}
                       </h3>
-                      <span className={`inline-block text-[9px] font-mono px-1.5 py-0.2 mt-1 rounded ${
-                        isDark ? "bg-violet-950/40 text-violet-300" : "bg-purple-100 text-violet-950 font-bold"
-                      }`}>
-                        Swiss Standard Occupation Code
-                      </span>
+                      {selectedProf.category && (
+                        <span className={`inline-block text-[9px] font-mono px-1.5 py-0.5 mt-1 rounded ${
+                          isDark ? "bg-violet-950/40 text-violet-300" : "bg-purple-100 text-violet-950 font-bold"
+                        }`}>
+                          {selectedProf.category.replace(/_/g, " ").toUpperCase()}
+                        </span>
+                      )}
                     </div>
 
-                    <div className="text-right">
-                      <div className="flex items-center gap-1 text-[11px] font-mono leading-none">
-                        <Coins className="h-3.5 w-3.5 text-violet-400 shrink-0" />
-                        <span className={`font-extrabold ${isDark ? "text-white" : "text-black"}`}>CHF {selectedProf.salaryCHF.toLocaleString()}</span>
+                    {typeof selectedProf.salaryCHF === "number" ? (
+                      <div className="text-right">
+                        <div className="flex items-center gap-1 text-[11px] font-mono leading-none">
+                          <Coins className="h-3.5 w-3.5 text-violet-400 shrink-0" />
+                          <span className={`font-extrabold ${isDark ? "text-white" : "text-black"}`}>CHF {selectedProf.salaryCHF.toLocaleString()}</span>
+                        </div>
+                        <span className="text-[8px] uppercase tracking-wider font-mono text-zinc-400">{t.professionSalaryLabel}</span>
                       </div>
-                      <span className="text-[8px] uppercase tracking-wider font-mono text-zinc-400">Average Base Salary</span>
-                    </div>
+                    ) : (
+                      <div className="text-right">
+                        <span className="text-[9px] uppercase tracking-wider font-mono text-zinc-400">{t.professionSalaryUnknown}</span>
+                      </div>
+                    )}
                   </div>
 
-                  <p className={`text-[11.5px] leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
-                    {selectedProf.description[currentLanguage] || selectedProf.description["en"]}
-                  </p>
+                  {localizedText(selectedProf.description, currentLanguage) && (
+                    <p className={`text-[11.5px] leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
+                      {localizedText(selectedProf.description, currentLanguage)}
+                    </p>
+                  )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
                     <div className="card-premium p-3">
                       <span className="block text-[8px] font-mono uppercase tracking-wider text-violet-400 mb-1">
-                        Education Required
+                        {t.professionEducationRequired}
                       </span>
                       <p className={`text-[10px] leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
-                        {selectedProf.educationRequired[currentLanguage] || selectedProf.educationRequired["en"]}
+                        {localizedText(selectedProf.educationRequired, currentLanguage) || t.dataNotAvailable}
                       </p>
                     </div>
 
                     <div className="card-premium p-3 flex flex-col justify-between text-left">
                       <div>
                         <span className="block text-[8px] font-mono uppercase tracking-wider text-violet-400 mb-1">
-                          Apprenticeship VET
+                          {t.professionVetLabel}
                         </span>
-                        <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[8.5px] font-bold font-mono ${
-                          selectedProf.isApprenticeshipPath 
-                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
-                            : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                        }`}>
-                          {selectedProf.isApprenticeshipPath ? "DIPLOMA (CFC) COMPATIBLE" : "TERTIARY ONLY"}
-                        </span>
+                        {typeof selectedProf.isApprenticeshipPath === "boolean" ? (
+                          <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[8.5px] font-bold font-mono ${
+                            selectedProf.isApprenticeshipPath
+                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              : "bg-violet-500/10 text-violet-400 border border-violet-500/20"
+                          }`}>
+                            {selectedProf.isApprenticeshipPath ? t.professionVetCompatible : t.professionVetTertiary}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[8.5px] font-bold font-mono bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">
+                            {t.dataNotAvailable}
+                          </span>
+                        )}
                       </div>
-                      
+
                       <div className="pt-2 border-t border-white/5 mt-2 flex items-center justify-between text-[9px] font-mono text-zinc-400">
-                        <span>Demand: {selectedProf.demandLevel || "High"}</span>
-                        <span>Outlook: {(selectedProf.outlook || "").toUpperCase()}</span>
+                        <span>{t.professionDemand}: {selectedProf.demandLevel || t.dataNotAvailable}</span>
+                        <span>{t.professionOutlook}: {(selectedProf.outlook || t.dataNotAvailable).toUpperCase()}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Skills Section */}
-                  {selectedProf.skillsRequired && (
+                  {localizedList(selectedProf.skillsRequired, currentLanguage).length > 0 && (
                     <div className="space-y-1.5 text-left">
                       <span className="block text-[8px] font-mono uppercase tracking-wider text-violet-400">
-                        Target Swiss VET / Professional Skills
+                        {t.professionSkillsLabel}
                       </span>
                       <div className="flex flex-wrap gap-1">
-                        {(selectedProf.skillsRequired[currentLanguage] || selectedProf.skillsRequired["en"] || []).map((skill: string, idx: number) => (
+                        {localizedList(selectedProf.skillsRequired, currentLanguage).map((skill: string, idx: number) => (
                           <span 
                             key={idx} 
                             className={`inline-flex items-center gap-1 text-[9px] font-mono px-2 py-0.5 rounded-lg ${
@@ -579,7 +613,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                   {selectedProf.industries && selectedProf.industries.length > 0 && (
                     <div className="space-y-1.5 text-left">
                       <span className="block text-[8px] font-mono uppercase tracking-wider text-violet-400">
-                        Top Regional Clusters
+                        {t.professionClustersLabel}
                       </span>
                       <div className="flex flex-wrap gap-1">
                         {selectedProf.industries.map((ind: string, idx: number) => (
@@ -602,8 +636,8 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
             <div className={`p-10 text-center rounded-2xl border border-dashed flex flex-col items-center justify-center h-full min-h-[280px] ${
               isDark ? "border-white/10 text-zinc-500 bg-white/[0.005]" : "border-purple-200 text-violet-950/50 bg-purple-50/10"
             }`}>
-              <Briefcase className="h-6 w-6 text-violet-500 mb-2.5 animate-bounce" />
-              <p className="text-xs font-semibold">Select a vocation path from the directory list to examine the salary, demand level, and skills requirements.</p>
+              <Briefcase className="h-6 w-6 text-violet-500 mb-2.5" />
+              <p className="text-xs font-semibold">{t.professionSelectHint}</p>
             </div>
           )}
         </div>
@@ -643,12 +677,12 @@ export function ResourcesView({
     >
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div>
-          <h1 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-black font-black"}`}>Swiss Authorities</h1>
-          <p className={`text-xs mt-0.5 ${isDark ? "text-zinc-300" : "text-black font-bold"}`}>Technical verification and pathways.</p>
+          <h1 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-black font-black"}`}>{t.resourcesHeader}</h1>
+          <p className={`text-xs mt-0.5 ${isDark ? "text-zinc-300" : "text-black font-bold"}`}>{t.resourcesSub}</p>
           {userProfile && (
             <p className={`text-[10px] mt-1 font-mono uppercase ${isDark ? "text-violet-400" : "text-emerald-700 font-extrabold"}`}>
               <Sparkles className="inline-block h-3 w-3 mr-1" />
-              ★ Highlights adapted to {userProfile.isGuest ? "guest session parameters" : `${userProfile.name}'s profile`}
+              {userProfile.isGuest ? t.resourcesAdaptedGuest : t.resourcesAdaptedUser}
             </p>
           )}
         </div>
@@ -662,7 +696,8 @@ export function ResourcesView({
               type="text"
               value={resourceSearch}
               onChange={(e) => setResourceSearch(e.target.value)}
-              placeholder="Search credentials..."
+              placeholder={t.resourcesSearchPlaceholder}
+              aria-label={t.resourcesSearchPlaceholder}
               className={`w-full bg-transparent text-xs focus:outline-none ${isDark ? "text-white placeholder-zinc-500" : "text-black placeholder-violet-950/40 font-bold"}`}
             />
           </div>
@@ -680,12 +715,21 @@ export function ResourcesView({
                     : isDark ? "text-zinc-300 hover:text-white" : "text-black hover:text-violet-950 font-bold"
                 }`}
               >
-                {cat.replace("_", " ")}
+                {cat === "all" ? t.filterAll : cat.replace(/_/g, " ")}
               </button>
             ))}
           </div>
         </div>
       </div>
+
+      {filteredResources.length === 0 && (
+        <div className={`rounded-2xl border border-dashed p-10 text-center ${
+          isDark ? "border-white/10 text-zinc-400" : "border-purple-300 text-violet-950/70"
+        }`}>
+          <p className="text-xs font-semibold">{t.resourcesEmptyTitle}</p>
+          <p className="text-[11px] mt-1 opacity-80">{t.resourcesEmptyHint}</p>
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         {filteredResources.map((res: any) => {
@@ -702,33 +746,35 @@ export function ResourcesView({
           >
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className={`inline-block text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
-                  isDark ? "text-violet-400 bg-violet-950/30 border-violet-800/20" : "text-violet-950 bg-violet-100 border-violet-950/20 font-black shadow-sm"
-                }`}>
-                  {res.category.replace("_", " ")}
-                </span>
-                
+                {res.category && (
+                  <span className={`inline-block text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
+                    isDark ? "text-violet-400 bg-violet-950/30 border-violet-800/20" : "text-violet-950 bg-violet-100 border-violet-950/20 font-black shadow-sm"
+                  }`}>
+                    {res.category.replace(/_/g, " ")}
+                  </span>
+                )}
+
                 {isRecommended && (
                   <span className={`inline-flex items-center gap-1 text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
                     isDark ? "text-emerald-400 bg-emerald-950/30 border-emerald-800/20" : "text-emerald-700 bg-emerald-100 border-emerald-300 shadow-sm"
                   }`}>
-                    <Sparkles className="h-3 w-3" /> Recommended
-                  </span>
-                )}
-                
-                {(res.status === "verified" || res.status === "official" || res.status === "published" || res.verified === true) && (
-                  <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[8.5px] font-bold font-mono tracking-wide text-emerald-400 border border-emerald-500/20">
-                    {res.status === "official" ? "OFFICIAL" : "VERIFIED"}
-                  </span>
-                )}
-                
-                {(res.status === "draft" || res.status === "needs_review") && (
-                  <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[8.5px] font-bold font-mono tracking-wide text-amber-500 border border-amber-500/20">
-                    PROVISIONAL DATA
+                    <Sparkles className="h-3 w-3" /> {t.recommendedBadge}
                   </span>
                 )}
 
-                {res.rating && (
+                {isTrusted(res) && (
+                  <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[8.5px] font-bold font-mono tracking-wide text-emerald-400 border border-emerald-500/20">
+                    {t.qualityVerified}
+                  </span>
+                )}
+
+                {isProvisional(res) && (
+                  <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[8.5px] font-bold font-mono tracking-wide text-amber-500 border border-amber-500/20">
+                    {t.qualityProvisional}
+                  </span>
+                )}
+
+                {typeof res.rating === "number" && (
                   <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[8px] font-mono font-bold bg-amber-500/15 text-amber-500 border border-amber-500/25">
                     ★ {res.rating.toFixed(1)}
                   </span>
@@ -736,30 +782,43 @@ export function ResourcesView({
 
                 {res.accessCost && (
                   <span className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[8px] font-bold font-mono border ${
-                    res.accessCost === "free" 
-                      ? "bg-sky-500/10 text-sky-400 border-sky-500/20" 
+                    res.accessCost === "free"
+                      ? "bg-sky-500/10 text-sky-400 border-sky-500/20"
                       : "bg-amber-500/10 text-amber-500 border-amber-500/20"
                   }`}>
-                    {res.accessCost.toUpperCase()}
+                    {String(res.accessCost).toUpperCase()}
+                  </span>
+                )}
+
+                {res.dataOrigin === "static" && (
+                  <span
+                    className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[8px] font-bold font-mono border ${
+                      isDark ? "bg-zinc-800/60 text-zinc-400 border-zinc-700" : "bg-zinc-100 text-zinc-600 border-zinc-300"
+                    }`}
+                    title={t.originCuratedHint}
+                  >
+                    {t.originCurated}
                   </span>
                 )}
               </div>
 
               <h4 className={`text-sm font-bold tracking-tight leading-snug ${isDark ? "text-white" : "text-black font-black"}`}>
-                {res.title[currentLanguage] || res.title["en"]}
+                {localizedText(res.title, currentLanguage)}
               </h4>
-              <p className={`text-[11px] leading-normal font-sans ${isDark ? "text-zinc-200" : "text-black font-semibold leading-relaxed"}`}>
-                {res.description[currentLanguage] || res.description["en"]}
-              </p>
+              {localizedText(res.description, currentLanguage) && (
+                <p className={`text-[11px] leading-normal font-sans ${isDark ? "text-zinc-200" : "text-black font-semibold leading-relaxed"}`}>
+                  {localizedText(res.description, currentLanguage)}
+                </p>
+              )}
 
               {/* Dynamic tag badges */}
               {res.tags && res.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 pt-1">
                   {res.tags.map((tag: string, idx: number) => (
-                    <span 
-                      key={idx} 
+                    <span
+                      key={idx}
                       className={`text-[8.5px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
-                        isDark ? "bg-zinc-900 text-zinc-400 border-violet-955/20" : "bg-purple-100/60 text-violet-950 border-purple-200/50"
+                        isDark ? "bg-zinc-900 text-zinc-400 border-violet-900/30" : "bg-purple-100/60 text-violet-950 border-purple-200/50"
                       }`}
                     >
                       #{tag}
@@ -771,9 +830,9 @@ export function ResourcesView({
 
             <div className={`pt-4 mt-4 border-t flex items-center justify-between ${isRecommended ? (isDark ? "border-emerald-900/30" : "border-emerald-200") : (isDark ? "border-violet-950/40" : "border-purple-200")}`}>
               <span className={`text-[10px] uppercase font-mono ${isDark ? "text-zinc-400" : "text-black font-black"}`}>
-                {res.isFederal ? "FEDERAL RESOURCE" : "SWISS RESOURCE"}
+                {res.isFederal ? t.resourceFederal : t.resourceSwiss}
               </span>
-              
+
               <a
                 href={res.url}
                 target="_blank"
@@ -782,7 +841,7 @@ export function ResourcesView({
                   isDark ? "text-violet-300 hover:text-white" : "text-violet-700 hover:text-violet-950 font-black underline"
                 }`}
               >
-                <span>Visit Website</span>
+                <span>{t.visitWebsite}</span>
                 <ExternalLink className="h-3 w-3" />
               </a>
             </div>

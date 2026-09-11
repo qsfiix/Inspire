@@ -21,14 +21,15 @@ import {
   Milestone
 } from "lucide-react";
 
-import { LanguageCode, UserProfile, TrackerGoal, EducationLevel, ResourceItem } from "./types";
-import { TRANSLATIONS, SWISS_EDUCATION_LEVELS, SWISS_INSTITUTIONS, OFF_RESOURCES } from "./data";
+import { LanguageCode, UserProfile, TrackerGoal, ResourceItem } from "./types";
+import { TRANSLATIONS, OFF_RESOURCES } from "./data";
 import Navbar from "./components/Navbar";
 import MapboxMap from "./components/MapboxMap";
 import TrackerSystem from "./components/TrackerSystem";
 import { fetchSupabaseConfig } from "./supabaseClient";
 import { DataRepository } from "./data/Repository";
-import { MOCK_SEED_TRACKERS } from "./data/seedData";
+import { EXAMPLE_TRACKERS } from "./data/seedData";
+import { localizedMatches } from "./lib/localized";
 
 import { HomeView, AboutView, ContactView } from "./features/marketing";
 import { LoginView, OnboardingView } from "./features/auth";
@@ -126,11 +127,13 @@ export default function App() {
         }
       }
 
-      if (cachedTrackers && cachedTrackers.length > 0) {
+      // An empty tracker list means the user deleted their goals and that choice
+      // must be respected. Only a browser that has never stored a tracker list at
+      // all is offered the example goal.
+      if (DataRepository.hasStoredTrackers()) {
         setTrackers(cachedTrackers);
       } else {
-        // Seed default trackers to demonstrate system capability
-        const initialTrackers: TrackerGoal[] = MOCK_SEED_TRACKERS;
+        const initialTrackers: TrackerGoal[] = EXAMPLE_TRACKERS;
         setTrackers(initialTrackers);
         DataRepository.saveTrackers(initialTrackers);
       }
@@ -213,11 +216,13 @@ export default function App() {
     }
   };
 
-  // Filter resources based on current search metrics
+  // Filter resources based on current search metrics.
+  // Uses `localizedMatches` so a record that is only partially translated
+  // (common for real database rows) can never crash the catalogue.
   const filteredResources = resourcesList.filter((res) => {
     const matchesSearch =
-      res.title[currentLanguage].toLowerCase().includes(resourceSearch.toLowerCase()) ||
-      res.description[currentLanguage].toLowerCase().includes(resourceSearch.toLowerCase());
+      localizedMatches(res.title, currentLanguage, resourceSearch) ||
+      localizedMatches(res.description, currentLanguage, resourceSearch);
     const matchesCat = resourceCategoryFilter === "all" || res.category === resourceCategoryFilter;
     return matchesSearch && matchesCat;
   });

@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { MapPin, Globe, Mail, Phone, Map as MapIcon, Layers, Compass, Maximize2, Minimize2, X } from "lucide-react";
-import { Institution, LanguageCode } from "../types";
+import { Globe, Mail, Phone, Map as MapIcon, Layers, Compass, Maximize2, Minimize2, X, Info } from "lucide-react";
+import { Coordinates, Institution, LanguageCode } from "../types";
 import { SWISS_INSTITUTIONS, TRANSLATIONS } from "../data";
 import { DataRepository } from "../data/Repository";
+import { localizedText } from "../lib/localized";
+import { hasCoordinates, isWithinSwitzerland, SWISS_BOUNDS } from "../lib/validation";
 
 interface MapProps {
   currentLanguage: LanguageCode;
@@ -12,9 +14,11 @@ interface MapProps {
   theme?: "dark" | "light";
 }
 
+type GeoInstitution = Institution & { coordinates: Coordinates };
+
 export default function MapboxMap({ currentLanguage, accessToken, styleUrl, theme = "dark" }: MapProps) {
   const [institutions, setInstitutions] = useState<Institution[]>(SWISS_INSTITUTIONS);
-  const [selectedInst, setSelectedInst] = useState<Institution | null>(SWISS_INSTITUTIONS[0]);
+  const [selectedInst, setSelectedInst] = useState<Institution | null>(SWISS_INSTITUTIONS[0] ?? null);
   const [is3DMode, setIs3DMode] = useState<boolean>(true);
   const [mapEngineLoaded, setMapEngineLoaded] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
@@ -23,20 +27,39 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
   const t = TRANSLATIONS[currentLanguage];
   const isDark = theme === "dark";
 
-  // Dynamic Projection Formula to convert real coordinates (Lng, Lat) to SVG Coordinates (1000 x 500)
-  const getProjectedCoords = (lngLat: [number, number]) => {
+  /**
+   * Institutions that carry a validated position.
+   *
+   * DATA RULE (02_Product/Requirements/Map Discovery Requirements.md):
+   * "Map does not invent coordinates. Invalid or missing location records are
+   * excluded from geographic rendering and may appear in non-map lists only."
+   * The sidebar list therefore keeps every record, the map layers keep only these.
+   */
+  const geoInstitutions = useMemo(
+    () => institutions.filter((inst): inst is GeoInstitution => hasCoordinates(inst)),
+    [institutions]
+  );
+
+  /** Records the user can still browse, but which cannot be placed on a map. */
+  const unlocatedCount = institutions.length - geoInstitutions.length;
+
+  /**
+   * The fallback illustration can only draw Switzerland, so it renders the subset
+   * of points that actually fall inside the Swiss bounding box.
+   */
+  const projectableInstitutions = useMemo(
+    () => geoInstitutions.filter(inst => isWithinSwitzerland(inst.coordinates)),
+    [geoInstitutions]
+  );
+
+  // Projection from real coordinates (Lng, Lat) to the 1000 x 500 SVG viewBox.
+  const getProjectedCoords = (lngLat: Coordinates) => {
     const [lng, lat] = lngLat;
-    // Switzerland bounding coordinates
-    const minLng = 5.95;
-    const maxLng = 10.49;
-    const minLat = 45.81;
-    const maxLat = 47.81;
 
-    // Calculate percentage coordinates
-    const xPct = (lng - minLng) / (maxLng - minLng);
-    const yPct = (lat - minLat) / (maxLat - minLat);
+    const xPct = (lng - SWISS_BOUNDS.minLng) / (SWISS_BOUNDS.maxLng - SWISS_BOUNDS.minLng);
+    const yPct = (lat - SWISS_BOUNDS.minLat) / (SWISS_BOUNDS.maxLat - SWISS_BOUNDS.minLat);
 
-    // Map to 1000x500 SVG margins to represent Switzerland gracefully
+    // Map into the drawn Switzerland silhouette with a comfortable margin.
     const x = xPct * 760 + 120;
     const y = 500 - (yPct * 300 + 100); // Invert Y for screen indexing
 
@@ -109,8 +132,8 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
           mapInstance.current.on("load", () => {
             setMapEngineLoaded(true);
 
-            // Dynamically paint the coordinates on the map
-            institutions.forEach((inst) => {
+            // Only records with validated coordinates are placed on the map.
+            geoInstitutions.forEach((inst) => {
               const el = document.createElement("div");
               el.className = "flex items-center justify-center cursor-pointer group";
               el.innerHTML = `
@@ -152,7 +175,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
         mapInstance.current = null;
       }
     };
-  }, [accessToken, styleUrl, institutions, isDark, isFullscreen]);
+  }, [accessToken, styleUrl, geoInstitutions, isDark, isFullscreen]);
 
   // Adjust pitch dynamically when interactive 3D is toggled
   useEffect(() => {
@@ -183,10 +206,27 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
           <span className="text-xs font-semibold tracking-wide uppercase font-mono">
             {mapEngineLoaded ? "Map Connected" : "Directory Map"}
           </span>
-          <span className="text-[10px] bg-violet-150 text-violet-700 px-2 py-0.5 rounded-lg font-mono font-bold shrink-0">
-            {institutions.length} Academies
+          <span className={`text-[10px] px-2 py-0.5 rounded-lg font-mono font-bold shrink-0 ${
+            isDark ? "bg-violet-500/20 text-violet-200" : "bg-violet-100 text-violet-800"
+          }`}>
+            {geoInstitutions.length}/{institutions.length} {t.mapMappedLabel}
           </span>
         </div>
+
+        {/* Honest note when some records cannot be placed geographically. */}
+        {unlocatedCount > 0 && (
+          <div
+            className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[10px] font-medium backdrop-blur-md ${
+              isDark
+                ? "bg-amber-500/10 border-amber-500/25 text-amber-300"
+                : "bg-amber-50 border-amber-300 text-amber-800"
+            }`}
+            title={t.mapUnlocatedHint}
+          >
+            <Info className="h-3.5 w-3.5 shrink-0" />
+            <span>{unlocatedCount} {t.mapUnlocatedLabel}</span>
+          </div>
+        )}
 
         <button
           onClick={() => setIs3DMode(!is3DMode)}
@@ -278,8 +318,8 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
               <polygon points="680,110 750,280 610,280" fill="rgba(139, 92, 246, 0.02)" opacity="0.12" />
               <polygon points="320,150 380,270 260,270" fill="rgba(139, 92, 246, 0.01)" opacity="0.08" />
 
-              {/* Render dynamic Projected Coordinates for ALL Loaded Database Institutions */}
-              {institutions.map((inst) => {
+              {/* Projected positions for every institution with a validated Swiss location */}
+              {projectableInstitutions.map((inst) => {
                 const isPinSelected = selectedInst?.id === inst.id;
                 const { x, y } = getProjectedCoords(inst.coordinates);
                 
@@ -377,9 +417,11 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover opacity-75 mix-blend-luminosity hover:opacity-95 transition duration-300"
                   />
-                  <span className="absolute bottom-2 left-2 rounded bg-violet-950/70 border border-white/10 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider text-white backdrop-blur-md">
-                    {selectedInst.category.replace("_", " ")}
-                  </span>
+                  {selectedInst.category && (
+                    <span className="absolute bottom-2 left-2 rounded bg-violet-950/70 border border-white/10 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+                      {selectedInst.category.replace(/_/g, " ")}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -406,7 +448,10 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
                   </div>
                   
                   <span className={`text-[10px] font-mono tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900 font-extrabold bg-violet-100/60 px-2 py-0.5 rounded"}`}>
-                    Canton {selectedInst.canton} • [{selectedInst.coordinates[0].toFixed(3)}, {selectedInst.coordinates[1].toFixed(3)}]
+                    {selectedInst.canton ? `Canton ${selectedInst.canton}` : t.mapCantonUnknown}
+                    {hasCoordinates(selectedInst)
+                      ? ` • [${selectedInst.coordinates[0].toFixed(3)}, ${selectedInst.coordinates[1].toFixed(3)}]`
+                      : ` • ${t.mapNoCoordinates}`}
                   </span>
 
                   {/* Rich Meta Grid (Established Year, Student Count, Region Language) */}
@@ -450,17 +495,22 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
                   )}
                 </div>
 
-                <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
-                  {selectedInst.description[currentLanguage] || selectedInst.description["en"]}
-                </p>
+                {localizedText(selectedInst.description, currentLanguage) && (
+                  <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
+                    {localizedText(selectedInst.description, currentLanguage)}
+                  </p>
+                )}
 
-                {selectedInst.admissionRequirements && (
+                {localizedText(selectedInst.admissionRequirements, currentLanguage) && (
                   <div className="card-premium-accent p-3.5">
                     <span className="block text-[10px] font-bold text-violet-500 font-mono uppercase mb-1">
                       {t.admissionInfo}
                     </span>
                     <p className={`text-[10px] leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-bold"}`}>
-                      {selectedInst.admissionRequirements[currentLanguage] || selectedInst.admissionRequirements["en"]}
+                      {localizedText(selectedInst.admissionRequirements, currentLanguage)}
+                    </p>
+                    <p className={`mt-2 text-[9px] leading-relaxed ${isDark ? "text-zinc-500" : "text-violet-950/60 font-semibold"}`}>
+                      {t.verifyWithInstitution}
                     </p>
                   </div>
                 )}

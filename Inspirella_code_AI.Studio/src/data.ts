@@ -117,7 +117,51 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     visitWebsite: "Visit Website",
     contactInstitution: "Contact Department",
     admissionInfo: "Admissions & Transfer Info",
-    mapToggle3D: "Show 3D View"
+    mapToggle3D: "Show 3D View",
+    mapMappedLabel: "on the map",
+    mapUnlocatedLabel: "without a verified location",
+    mapUnlocatedHint: "These institutions are listed but not placed on the map, because Inspirella does not guess coordinates.",
+    mapCantonUnknown: "Canton not recorded",
+    mapNoCoordinates: "no verified coordinates",
+    verifyWithInstitution: "Details can change. Please confirm with the institution before you decide.",
+
+    // Trust and data quality
+    qualityVerified: "Verified",
+    qualityProvisional: "Provisional data",
+    dataNotAvailable: "Not available",
+    originCurated: "Curated",
+    originCuratedHint: "Part of Inspirella's curated starter set, not a live database record.",
+    filterAll: "All",
+    recommendedBadge: "Recommended",
+
+    // Resources
+    resourcesHeader: "Official Swiss Resources",
+    resourcesSub: "Federal and cantonal gateways you can act on directly.",
+    resourcesSearchPlaceholder: "Search resources...",
+    resourcesAdaptedGuest: "Highlights adapted to your guest session",
+    resourcesAdaptedUser: "Highlights adapted to your profile",
+    resourcesEmptyTitle: "No resources match your search yet.",
+    resourcesEmptyHint: "Try a shorter search term or switch back to the All category.",
+    resourceFederal: "Federal resource",
+    resourceSwiss: "Swiss resource",
+
+    // Professions
+    professionsEyebrow: "Vocations & Careers",
+    professionsTitle: "Swiss Vocation & Profession Explorer",
+    professionsSub: "Explore vocational routes, apprenticeship compatibility and typical pay indicators.",
+    professionsSearchPlaceholder: "Search careers or skills...",
+    professionsEmpty: "No vocational matches found.",
+    professionSelectHint: "Select a vocation from the list to see the required education, demand level and skills.",
+    professionSalaryLabel: "Typical annual pay",
+    professionSalaryUnknown: "Pay data not recorded",
+    professionEducationRequired: "Education required",
+    professionVetLabel: "Apprenticeship (VET)",
+    professionVetCompatible: "Reachable via apprenticeship",
+    professionVetTertiary: "Tertiary route",
+    professionDemand: "Demand",
+    professionOutlook: "Outlook",
+    professionSkillsLabel: "Core skills",
+    professionClustersLabel: "Main regional clusters"
   },
   de: {
     // Navigation
@@ -234,7 +278,51 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     visitWebsite: "Webseite besuchen",
     contactInstitution: "Abteilung kontaktieren",
     admissionInfo: "Zulassungs- & Transferinformationen",
-    mapToggle3D: "3D-Gelände darstellen"
+    mapToggle3D: "3D-Gelände darstellen",
+    mapMappedLabel: "auf der Karte",
+    mapUnlocatedLabel: "ohne geprüften Standort",
+    mapUnlocatedHint: "Diese Institutionen sind aufgeführt, aber nicht auf der Karte platziert, weil Inspirella keine Koordinaten errät.",
+    mapCantonUnknown: "Kanton nicht erfasst",
+    mapNoCoordinates: "keine geprüften Koordinaten",
+    verifyWithInstitution: "Angaben können sich ändern. Bitte bestätigen Sie sie vor einer Entscheidung bei der Institution.",
+
+    // Trust and data quality
+    qualityVerified: "Geprüft",
+    qualityProvisional: "Vorläufige Daten",
+    dataNotAvailable: "Nicht verfügbar",
+    originCurated: "Kuratiert",
+    originCuratedHint: "Teil des kuratierten Startdatensatzes von Inspirella, kein Live-Datenbankeintrag.",
+    filterAll: "Alle",
+    recommendedBadge: "Empfohlen",
+
+    // Resources
+    resourcesHeader: "Offizielle Schweizer Ressourcen",
+    resourcesSub: "Bundes- und kantonale Portale, die Sie direkt nutzen können.",
+    resourcesSearchPlaceholder: "Ressourcen suchen...",
+    resourcesAdaptedGuest: "Hervorhebungen für Ihre Gastsitzung angepasst",
+    resourcesAdaptedUser: "Hervorhebungen an Ihr Profil angepasst",
+    resourcesEmptyTitle: "Noch keine Ressource passt zu Ihrer Suche.",
+    resourcesEmptyHint: "Versuchen Sie einen kürzeren Suchbegriff oder wechseln Sie zur Kategorie Alle.",
+    resourceFederal: "Bundesressource",
+    resourceSwiss: "Schweizer Ressource",
+
+    // Professions
+    professionsEyebrow: "Berufe & Karrieren",
+    professionsTitle: "Schweizer Berufs- und Laufbahn-Explorer",
+    professionsSub: "Entdecken Sie Berufswege, Lehrstellen-Kompatibilität und typische Lohnindikatoren.",
+    professionsSearchPlaceholder: "Berufe oder Kompetenzen suchen...",
+    professionsEmpty: "Keine passenden Berufe gefunden.",
+    professionSelectHint: "Wählen Sie einen Beruf aus der Liste, um Ausbildung, Nachfrage und Kompetenzen zu sehen.",
+    professionSalaryLabel: "Typischer Jahreslohn",
+    professionSalaryUnknown: "Lohndaten nicht erfasst",
+    professionEducationRequired: "Erforderliche Ausbildung",
+    professionVetLabel: "Berufslehre (EFZ)",
+    professionVetCompatible: "Über eine Lehre erreichbar",
+    professionVetTertiary: "Tertiärer Weg",
+    professionDemand: "Nachfrage",
+    professionOutlook: "Aussichten",
+    professionSkillsLabel: "Kernkompetenzen",
+    professionClustersLabel: "Wichtigste regionale Cluster"
   },
   fr: {
     // Navigation
@@ -351,7 +439,51 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     visitWebsite: "Accéder au Site Officiel",
     contactInstitution: "Contacter l'Établissement",
     admissionInfo: "Conditions d'admissions & Transfert",
-    mapToggle3D: "Activer le relief 3D"
+    mapToggle3D: "Activer le relief 3D",
+    mapMappedLabel: "sur la carte",
+    mapUnlocatedLabel: "sans localisation vérifiée",
+    mapUnlocatedHint: "Ces établissements sont listés mais non placés sur la carte, car Inspirella ne devine pas les coordonnées.",
+    mapCantonUnknown: "Canton non renseigné",
+    mapNoCoordinates: "aucune coordonnée vérifiée",
+    verifyWithInstitution: "Les informations peuvent changer. Confirmez-les auprès de l'établissement avant de décider.",
+
+    // Trust and data quality
+    qualityVerified: "Vérifié",
+    qualityProvisional: "Données provisoires",
+    dataNotAvailable: "Non disponible",
+    originCurated: "Sélection Inspirella",
+    originCuratedHint: "Fait partie du jeu de données initial d'Inspirella, ce n'est pas un enregistrement live.",
+    filterAll: "Tout",
+    recommendedBadge: "Recommandé",
+
+    // Resources
+    resourcesHeader: "Ressources officielles suisses",
+    resourcesSub: "Portails fédéraux et cantonaux directement exploitables.",
+    resourcesSearchPlaceholder: "Rechercher une ressource...",
+    resourcesAdaptedGuest: "Mise en avant adaptée à votre session invité",
+    resourcesAdaptedUser: "Mise en avant adaptée à votre profil",
+    resourcesEmptyTitle: "Aucune ressource ne correspond encore à votre recherche.",
+    resourcesEmptyHint: "Essayez un terme plus court ou revenez à la catégorie Tout.",
+    resourceFederal: "Ressource fédérale",
+    resourceSwiss: "Ressource suisse",
+
+    // Professions
+    professionsEyebrow: "Métiers & Carrières",
+    professionsTitle: "Explorateur des métiers et filières suisses",
+    professionsSub: "Explorez les voies professionnelles, la compatibilité CFC et les indicateurs de salaire.",
+    professionsSearchPlaceholder: "Rechercher un métier ou une compétence...",
+    professionsEmpty: "Aucun métier correspondant.",
+    professionSelectHint: "Choisissez un métier dans la liste pour voir la formation requise, la demande et les compétences.",
+    professionSalaryLabel: "Salaire annuel typique",
+    professionSalaryUnknown: "Données salariales non renseignées",
+    professionEducationRequired: "Formation requise",
+    professionVetLabel: "Apprentissage (CFC)",
+    professionVetCompatible: "Accessible par apprentissage",
+    professionVetTertiary: "Voie tertiaire",
+    professionDemand: "Demande",
+    professionOutlook: "Perspectives",
+    professionSkillsLabel: "Compétences clés",
+    professionClustersLabel: "Principaux pôles régionaux"
   },
   it: {
     // Navigation
@@ -468,7 +600,51 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     visitWebsite: "Visita Sito Ufficiale",
     contactInstitution: "Contatta l'Istituto",
     admissionInfo: "Ammissioni",
-    mapToggle3D: "Visualizza rilievo 3D"
+    mapToggle3D: "Visualizza rilievo 3D",
+    mapMappedLabel: "sulla mappa",
+    mapUnlocatedLabel: "senza posizione verificata",
+    mapUnlocatedHint: "Questi istituti sono elencati ma non collocati sulla mappa, perché Inspirella non indovina le coordinate.",
+    mapCantonUnknown: "Cantone non registrato",
+    mapNoCoordinates: "nessuna coordinata verificata",
+    verifyWithInstitution: "I dettagli possono cambiare. Confermali con l'istituto prima di decidere.",
+
+    // Trust and data quality
+    qualityVerified: "Verificato",
+    qualityProvisional: "Dati provvisori",
+    dataNotAvailable: "Non disponibile",
+    originCurated: "Selezione Inspirella",
+    originCuratedHint: "Fa parte del set iniziale curato da Inspirella, non è un record live del database.",
+    filterAll: "Tutti",
+    recommendedBadge: "Consigliato",
+
+    // Resources
+    resourcesHeader: "Risorse ufficiali svizzere",
+    resourcesSub: "Portali federali e cantonali utilizzabili subito.",
+    resourcesSearchPlaceholder: "Cerca risorse...",
+    resourcesAdaptedGuest: "Evidenze adattate alla tua sessione ospite",
+    resourcesAdaptedUser: "Evidenze adattate al tuo profilo",
+    resourcesEmptyTitle: "Nessuna risorsa corrisponde ancora alla tua ricerca.",
+    resourcesEmptyHint: "Prova un termine più breve o torna alla categoria Tutti.",
+    resourceFederal: "Risorsa federale",
+    resourceSwiss: "Risorsa svizzera",
+
+    // Professions
+    professionsEyebrow: "Professioni & Carriere",
+    professionsTitle: "Esploratore di professioni e percorsi svizzeri",
+    professionsSub: "Esplora percorsi professionali, compatibilità con l'apprendistato e indicatori salariali.",
+    professionsSearchPlaceholder: "Cerca professioni o competenze...",
+    professionsEmpty: "Nessuna professione corrispondente.",
+    professionSelectHint: "Scegli una professione dall'elenco per vedere formazione richiesta, domanda e competenze.",
+    professionSalaryLabel: "Retribuzione annua tipica",
+    professionSalaryUnknown: "Dati salariali non registrati",
+    professionEducationRequired: "Formazione richiesta",
+    professionVetLabel: "Apprendistato (AFC)",
+    professionVetCompatible: "Raggiungibile con apprendistato",
+    professionVetTertiary: "Percorso terziario",
+    professionDemand: "Domanda",
+    professionOutlook: "Prospettive",
+    professionSkillsLabel: "Competenze chiave",
+    professionClustersLabel: "Principali poli regionali"
   }
 };
 

@@ -1,14 +1,35 @@
 // Shared TypeScript interfaces and structures for Inspirella educational platform
+//
+// CONTRACT RULE (03_Data/SQL/Quality Rules.md, 02_Product/Requirements/Trust and Data Requirements.md):
+// A field is optional here when Inspirella is NOT allowed to invent it.
+// Missing data must stay missing and be communicated honestly - it must never be
+// replaced by a plausible-looking default such as a fallback city, salary or website.
 
 export type LanguageCode = "en" | "de" | "fr" | "it";
+
+/**
+ * Where a product-facing record physically came from.
+ * Used so the UI can never present demo/static content as live verified data.
+ */
+export type DataOrigin = "cloud" | "static";
+
+/**
+ * Fields shared by every public catalogue record (institutions, resources, professions).
+ * `incompleteFields` lists canonical fields that were absent in the source row, so
+ * screens can lower confidence instead of showing a fabricated value.
+ */
+export interface RecordProvenance {
+  dataOrigin?: DataOrigin;
+  incompleteFields?: string[];
+}
 
 export interface UserProfile {
   id?: string;
   name: string;
   email: string;
   interests: string[]; // e.g., ["academic", "vocational", "arts", "tech", "business"]
-  goals: string[]; // e.g., ["study_abroad", "career_switch", "professional_dev", "general_curiosity"]
-  currentStage: string; // e.g., "secondary", "academic", "industry", "parent_educator"
+  goals: string[]; // e.g., ["study_active", "career_pivot", "global_compare", "parent_routing"]
+  currentStage: string; // e.g., "stage_secondary", "stage_university", "stage_professional", "stage_other"
   language: LanguageCode;
   onboardingComplete: boolean;
   avatarUrl?: string;
@@ -37,31 +58,47 @@ export interface EducationLevel {
   pathSteps: EducationPathStep[];
 }
 
-export interface Institution {
+/**
+ * Geographic position of an institution.
+ * Optional on purpose: the map must never invent coordinates
+ * (02_Product/Requirements/Map Discovery Requirements.md - Data rules).
+ */
+export type Coordinates = [number, number]; // [Longitude, Latitude]
+
+export interface Institution extends RecordProvenance {
   id: string;
   title: string;
-  category: string; // Made dynamic to support any categories from the database without repeated enum rewrites
-  coordinates: [number, number]; // [Longitude, Latitude]
-  canton: string;
-  description: Record<LanguageCode, string>;
-  website: string;
-  email: string;
-  phone: string;
-  address: string;
+
+  /** Controlled classification. Absent when the source row has no usable type. */
+  category?: string;
+
+  /** Absent when the source row has no valid location. Never guessed. */
+  coordinates?: Coordinates;
+
+  /** Absent when the source row has no canton. Never guessed. */
+  canton?: string;
+
+  description?: Partial<Record<LanguageCode, string>>;
+
+  /** Official website. Absent rather than replaced by a generic portal link. */
+  website?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
   imageUrl?: string;
-  admissionRequirements?: Record<LanguageCode, string>;
-  
-  // Real database capability extensions
-  status?: "verified" | "published" | "draft" | "needs_review" | string;
+  admissionRequirements?: Partial<Record<LanguageCode, string>>;
+
+  // Trust and quality layer
+  status?: string;
   verified?: boolean;
   rating?: number; // quality rating score
   establishedYear?: number;
   studentCount?: number;
-  cantonalLanguage?: "German" | "French" | "Italian" | "Bilingual" | string;
+  cantonalLanguage?: string;
   tags?: string[];
   isPublic?: boolean;
   degreeLevels?: string[]; // e.g. ["Bachelor", "Master", "PhD", "Apprenticeship"]
-  customMetadata?: Record<string, any>;
+  customMetadata?: Record<string, unknown>;
 }
 
 export interface TrackerGoal {
@@ -73,6 +110,9 @@ export interface TrackerGoal {
   progress: number; // Percentage
   items: TrackerChecklistItem[];
   createdAt: string;
+  updatedAt?: string;
+  /** Marks goals seeded by Inspirella as an example rather than created by the user. */
+  isExample?: boolean;
 }
 
 export interface TrackerChecklistItem {
@@ -82,45 +122,56 @@ export interface TrackerChecklistItem {
   frequency: "daily" | "weekly";
 }
 
-export interface ResourceItem {
+export interface ResourceItem extends RecordProvenance {
   id: string;
-  title: Record<LanguageCode, string>;
-  description: Record<LanguageCode, string>;
-  category: string; // Made dynamic to facilitate any official or local categories
-  url: string;
-  country: string; // "CH"
+  title: Partial<Record<LanguageCode, string>>;
+  description?: Partial<Record<LanguageCode, string>>;
 
-  // Real database capability extensions
-  status?: "verified" | "published" | "draft" | "needs_review" | string;
+  /** Controlled category. Absent when the source row has no usable category. */
+  category?: string;
+
+  /** Required: a resource without a reachable official link has no product value. */
+  url: string;
+
+  country?: string; // e.g. "CH"
+
+  // Trust and quality layer
+  status?: string;
   verified?: boolean;
   rating?: number;
   tags?: string[];
   isFederal?: boolean;
   lastUpdated?: string;
   clicksCount?: number;
-  accessCost?: "free" | "paid" | string;
-  customMetadata?: Record<string, any>;
+  accessCost?: string;
+  customMetadata?: Record<string, unknown>;
 }
 
-export interface Profession {
+export interface Profession extends RecordProvenance {
   id: string;
-  title: Record<LanguageCode, string>;
-  description: Record<LanguageCode, string>;
-  category: string; // Made dynamic to map professions accurately from Supabase/Postgres
-  salaryCHF: number;
-  outlook: string; // Accepts "high" | "medium" | "low" as well as custom rating ranges
-  educationRequired: Record<LanguageCode, string>;
+  title: Partial<Record<LanguageCode, string>>;
+  description?: Partial<Record<LanguageCode, string>>;
 
-  // Real database capability extensions
-  status?: "verified" | "published" | "draft" | "needs_review" | string;
+  /** Controlled category. Absent when the source row has no usable category. */
+  category?: string;
+
+  /** Absent rather than defaulted: a guessed salary is a fabricated fact. */
+  salaryCHF?: number;
+
+  /** Absent rather than defaulted to "medium". */
+  outlook?: string;
+
+  educationRequired?: Partial<Record<LanguageCode, string>>;
+
+  // Trust and quality layer
+  status?: string;
   verified?: boolean;
-  demandLevel?: "very_high" | "high" | "medium" | "low" | string;
+  demandLevel?: string;
   growthRatePct?: number;
   avgWorkHoursWeekly?: number;
   flexibilityScore?: number; // 1-10
-  skillsRequired?: Record<LanguageCode, string[]>;
+  skillsRequired?: Partial<Record<LanguageCode, string[]>>;
   industries?: string[];
   isApprenticeshipPath?: boolean;
-  customMetadata?: Record<string, any>;
+  customMetadata?: Record<string, unknown>;
 }
-
