@@ -66,6 +66,19 @@ Related Files:
 
 ---
 
+## 2026-09-11 — Pre-launch hardening: rate limiting + настоящая авторизация
+
+Готовим проект к деплою на Railway и первым живым пользователям (решение выбрать Railway — см. `Decisions.md`). Закрыты первые два критичных пункта из pre-launch аудита:
+
+- **`/api/gemini/advisor` защищён** (коммит `fb58173`): `app.set("trust proxy", 1)` (иначе за прокси Railway все посетители делили бы один rate-limit bucket), in-memory rate limiter (5 запросов / 10 минут на IP — небольшой локальный Map вместо новой зависимости, по `04_Development/Dependencies.md`), `express.json({ limit: "50kb" })` + санитизация полей запроса, структурированный JSON error handler (дефолтная Express-страница ошибки утекала stack trace и локальный путь к файлу при 413 "payload too large" — теперь чистый JSON).
+- **Настоящая авторизация через Supabase Auth** (коммит `e155696`): `LoginView` получил переключатель Create Account/Sign In, поле пароля, честный экран "Check your inbox" при email-confirmation, баннер ошибок (перемещён к кнопке отправки — иначе не виден без скролла вверх). `Repository.ts` получил `signUp`/`signIn`/`signOut`. Guest bypass не тронут, остаётся явным local-only режимом.
+  - Проверено на реальном (тестовом, одноразовом) аккаунте: регистрация создаёт настоящего Supabase-пользователя, email-confirmation экран показывается честно, неверный пароль/email показывают реальную ошибку Supabase.
+  - По пути найден и исправлен баг: кнопка "Sign In" на экране подтверждения email не возвращала к форме (не сбрасывала `pendingConfirmationEmail`).
+  - **Таблицы `profiles` в Supabase пока нет** (проверено live REST-запросом — 404 "Could not find the table"). Аккаунт (identity) теперь настоящий, но содержимое профиля пока не синхронизируется между устройствами. SQL для таблицы — у Sofiia (создание БД она делает сама).
+- См. `02_Product/Backend/Prototype Limitations.md` — пункты 3, 4, 6, 9 отмечены закрытыми.
+
+---
+
 ## Как использовать этот файл дальше
 
 - Одна содержательная сессия работы = обычно одна запись (не одна запись на каждый маленький commit).
