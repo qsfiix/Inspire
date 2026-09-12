@@ -30,6 +30,17 @@ Related Files:
 
 ---
 
+## 2026-09-12 — Learning paths подключены к Advisor Report + исправлен баг в скоринге "tech"-интереса
+
+- `learning_paths`/`learning_path_steps` (17 реальных путей, включая `become_software_engineer`, `become_physician` и т.д.) теперь читаются из Supabase и показываются пользователю:
+  - `types.ts` — добавлены `LearningPath`/`LearningPathStep`;
+  - `data/Repository.ts` — добавлены парсеры `parseDbLearningPathStep`/`parseDbLearningPath` и метод `getLearningPaths()` (тянет обе таблицы параллельно, группирует шаги по `learning_path_id`; при ошибке/отсутствии Supabase возвращает `[]`, без выдуманных данных);
+  - `components/AdvisorReport.tsx` — новый блок "Your Path to Becoming X": подбирает путь по `targetProfessionId` топ-профессии из `useEducationEngine`, показывает шаги по порядку (заголовок/описание/срок), скрыт полностью если путь не найден или у него ещё нет шагов (часть путей в БД пока без шагов — это честно, БД ещё наполняется).
+- Попутно найден и исправлен реальный баг скоринга в `engine/EducationEngine.ts`: интерес "tech" сверялся с категориями `"engineering"/"IT"`, которых не существует в реальных данных (`professions.sector` содержит `"technology"`, `"engineering"`, `"science"` и др.) — из-за этого профессии сектора `technology` (Softwareentwickler, Data Analyst, Cybersecurity-Spezialist) никогда не получали бонус за совпадение интереса. Проверено вживую через консоль (прямой вызов `EducationEngine` с реальными профессиями/профилем) — теперь "tech" корректно матчит `technology`/`engineering`/`IT`/`science`.
+- Живая проверка: `DataRepository.getLearningPaths()` вызван напрямую в браузере, вернул все 17 путей с корректно сгруппированными шагами; сквозной прогон движка (профессии → топ-профессия → path lookup) подтвердил, что для Softwareentwicklerin находится путь с 6 реальными немецкоязычными шагами.
+
+---
+
 ## 2026-09-11 — Trust/quality data layer + зачистка AI Studio следов
 
 - Закоммичен ранее не зафиксированный рефакторинг data layer (ветка `data-layer-trust-refactor`, поверх baseline `d2281fc`):

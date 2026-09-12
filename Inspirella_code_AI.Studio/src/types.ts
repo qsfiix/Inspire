@@ -175,3 +175,32 @@ export interface Profession extends RecordProvenance {
   isApprenticeshipPath?: boolean;
   customMetadata?: Record<string, unknown>;
 }
+
+/** One concrete action within a LearningPath, in order. */
+export interface LearningPathStep {
+  id: string;
+  title: Partial<Record<LanguageCode, string>>;
+  description?: Partial<Record<LanguageCode, string>>;
+  timeframe?: Partial<Record<LanguageCode, string>>;
+}
+
+/**
+ * A concrete, ordered route toward a specific outcome (e.g. "become a
+ * software engineer"), as opposed to `EducationPathStep`/`EducationLevel`
+ * (data.ts) which describe the general shape of the Swiss system rather
+ * than a path to any particular goal.
+ */
+export interface LearningPath extends RecordProvenance {
+  id: string;
+  code?: string;
+  title: Partial<Record<LanguageCode, string>>;
+  description?: Partial<Record<LanguageCode, string>>;
+
+  /** e.g. "profession" | "admission" - what kind of goal this path leads to. */
+  pathType?: string;
+
+  /** Present when this path leads to a specific profession (see Profession.id). */
+  targetProfessionId?: string;
+
+  steps: LearningPathStep[];
+}

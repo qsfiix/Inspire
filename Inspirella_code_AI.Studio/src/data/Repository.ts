@@ -8,7 +8,9 @@ import {
   UserProfile,
   DataOrigin,
   TrackerGoal,
-  TrackerChecklistItem
+  TrackerChecklistItem,
+  LearningPath,
+  LearningPathStep
 } from "../types";
 import { OFF_RESOURCES, SWISS_INSTITUTIONS } from "../data";
 import { normalizeCoordinates, normalizeId, normalizeText, normalizeUrl } from "../lib/validation";
@@ -420,6 +422,45 @@ export const parseDbProfession = (db: Record<string, any>): Profession | null =>
   if (incompleteFields.length > 0) profession.incompleteFields = incompleteFields;
 
   return profession;
+};
+
+const parseDbLearningPathStep = (db: Record<string, any>): LearningPathStep | null => {
+  const id = normalizeId(pick(db, "id"));
+  const title = pickLocalizedText(db, "title", "name");
+  if (!id || !title) return null;
+
+  return {
+    id,
+    title,
+    description: pickLocalizedText(db, "summary", "description", "long_description", "details"),
+    timeframe: pickLocalizedText(db, "recommended_timeline")
+  };
+};
+
+/**
+ * A concrete route toward an outcome (e.g. "become_software_engineer"),
+ * connected to `learning_path_steps` via `stepsByPath` (keyed by
+ * `learning_path_id`, pre-grouped by the caller since Supabase doesn't
+ * nest child rows for us).
+ */
+const parseDbLearningPath = (
+  db: Record<string, any>,
+  stepsByPath: Map<string, LearningPathStep[]>
+): LearningPath | null => {
+  const id = normalizeId(pick(db, "id"));
+  const title = pickLocalizedText(db, "outcomeTitle", "outcome_title", "title", "name");
+  if (!id || !title) return null;
+
+  return {
+    id,
+    code: normalizeText(pick(db, "code")),
+    title,
+    description: pickLocalizedText(db, "summary", "description", "short_description", "long_description"),
+    pathType: normalizeText(pick(db, "pathType", "path_type", "goal_type")),
+    targetProfessionId: normalizeId(pick(db, "targetProfessionId", "target_profession_id")) ?? undefined,
+    steps: stepsByPath.get(id) ?? [],
+    dataOrigin: "cloud"
+  };
 };
 
 /** Tags bundled seed data so the UI can tell it apart from live records. */
@@ -950,6 +991,41 @@ export const DataRepository = {
       }
     }
     return null;
+  },
+
+  // Learning paths: concrete, ordered routes toward a specific outcome
+  // (02_Product/Requirements/... "path and next steps" is core, not support,
+  // per 01_Strategy/Features.md - Уровень A). No static fallback: an empty
+  // result here honestly means "no path defined yet for this goal", not
+  // "the feature is broken".
+  getLearningPaths: async (): Promise<LearningPath[]> => {
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) return [];
+
+    try {
+      const supabase = getSupabase();
+      const [pathsRes, stepsRes] = await Promise.all([
+        supabase.from("learning_paths").select("*").eq("is_active", true),
+        supabase.from("learning_path_steps").select("*").order("sort_order", { ascending: true })
+      ]);
+
+      if (pathsRes.error || !Array.isArray(pathsRes.data)) return [];
+
+      const stepsByPath = new Map<string, LearningPathStep[]>();
+      for (const row of parseRows(stepsRes.data, r => ({ row: r, step: parseDbLearningPathStep(r) }))) {
+        if (!row.step) continue;
+        const pathId = normalizeId(row.row.learning_path_id);
+        if (!pathId) continue;
+        const list = stepsByPath.get(pathId) ?? [];
+        list.push(row.step);
+        stepsByPath.set(pathId, list);
+      }
+
+      return parseRows(pathsRes.data, row => parseDbLearningPath(row, stepsByPath));
+    } catch (err) {
+      console.warn("Failed to load learning paths from Supabase", err);
+      return [];
+    }
   },
 
   clearAll: () => {

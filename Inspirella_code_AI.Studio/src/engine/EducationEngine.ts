@@ -121,9 +121,14 @@ export class EducationEngine {
         matchReasons.push(this.translate("High industry demand.", "Hohe Nachfrage in der Industrie.", "Forte demande dans l'industrie.", "Alta domanda nel settore."));
       }
 
-      // Category matching
-      if (this.profile.interests.includes(prof.category) || 
-          (this.profile.interests.includes("tech") && (prof.category === "engineering" || prof.category === "IT"))) {
+      // Category matching. prof.category comes from professions.sector, a free-text
+      // column (real values seen in production: technology, engineering, healthcare,
+      // business, science, design, hospitality, skilled_trades, education, law,
+      // social_care - not the fixed "engineering"/"IT" labels this used to check for),
+      // so the "tech" interest is matched against every sector that is actually tech-adjacent.
+      if (this.profile.interests.includes(prof.category) ||
+          (this.profile.interests.includes("tech") &&
+            (prof.category === "technology" || prof.category === "engineering" || prof.category === "IT" || prof.category === "science"))) {
         score += EngineConfig.weights.alignment.primaryInterest;
         matchReasons.push(this.translate("Aligns with your primary interests.", "Stimmt mit Ihren Hauptinteressen überein.", "Correspond à vos intérêts principaux.", "In linea con i tuoi interessi principali."));
       }

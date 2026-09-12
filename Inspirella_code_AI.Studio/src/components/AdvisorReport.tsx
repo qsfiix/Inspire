@@ -1,8 +1,10 @@
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, BrainCircuit, Landmark, ShieldCheck, Briefcase, ExternalLink, Lightbulb } from "lucide-react";
-import { LanguageCode, UserProfile } from "../types";
+import { Sparkles, BrainCircuit, Landmark, ShieldCheck, Briefcase, ExternalLink, Lightbulb, Route, CheckCircle2 } from "lucide-react";
+import { LanguageCode, LearningPath, UserProfile } from "../types";
 import { TRANSLATIONS } from "../data";
 import { useEducationEngine } from "../engine/useEducationEngine";
+import { DataRepository } from "../data/Repository";
 
 interface AdvisorReportProps {
   userProfile?: UserProfile | null;
@@ -24,6 +26,25 @@ export default function AdvisorReport({
   const { recommendation, loading, error } = useEducationEngine(userProfile || null);
   const t = TRANSLATIONS[language];
   const isDark = theme !== "light";
+
+  // Learning paths are catalog-wide (not profile-scoped), so they're fetched
+  // once and matched client-side against the engine's top profession - no
+  // need to re-run this alongside useEducationEngine.
+  const [learningPaths, setLearningPaths] = useState<LearningPath[]>([]);
+  useEffect(() => {
+    let active = true;
+    DataRepository.getLearningPaths().then(paths => {
+      if (active) setLearningPaths(paths);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const topProfessionId = recommendation?.professions[0]?.profession.id;
+  const matchedPath = topProfessionId
+    ? learningPaths.find(p => p.targetProfessionId === topProfessionId)
+    : undefined;
 
   const tTextBody = isDark ? "text-zinc-200" : "text-black font-bold";
   const tTextMuted = isDark ? "text-zinc-300 animate-pulse" : "text-black font-extrabold";
@@ -190,6 +211,48 @@ export default function AdvisorReport({
                 )) : <p className="text-[11px] opacity-60">No distinct institutions found.</p>}
               </div>
             </div>
+
+            {/* Matched learning path: concrete ordered steps toward the top-scored profession */}
+            {matchedPath && matchedPath.steps.length > 0 && (
+              <div className={`pt-4 border-t space-y-3 ${isDark ? "border-white/10" : "border-violet-950/10"}`}>
+                <div className={`text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 ${isDark ? "text-white/40" : "text-violet-950/60 font-black"}`}>
+                  <Route className="h-3.5 w-3.5" />
+                  Your Path to Becoming {typeof matchedPath.title === "string" ? matchedPath.title : (matchedPath.title[language] || matchedPath.title["en"])}
+                </div>
+                <ol className="space-y-2">
+                  {matchedPath.steps.map((step, idx) => (
+                    <li
+                      key={step.id}
+                      className={`p-3 rounded-lg border flex items-start gap-3 ${
+                        isDark ? "bg-white/[0.02] border-white/10" : "bg-white border-purple-200"
+                      }`}
+                    >
+                      <div className={`shrink-0 h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold mt-0.5 ${
+                        isDark ? "bg-violet-500/20 text-violet-300" : "bg-violet-100 text-violet-800"
+                      }`}>
+                        {idx + 1}
+                      </div>
+                      <div className="min-w-0">
+                        <div className={`font-bold text-[12px] ${isDark ? "text-violet-200" : "text-violet-950"}`}>
+                          {step.title[language] || step.title["en"]}
+                        </div>
+                        {step.description && (step.description[language] || step.description["en"]) && (
+                          <p className={`text-[10px] mt-1 leading-snug ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                            {step.description[language] || step.description["en"]}
+                          </p>
+                        )}
+                        {step.timeframe && (step.timeframe[language] || step.timeframe["en"]) && (
+                          <div className={`text-[9px] mt-1 font-mono flex items-center gap-1 ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>
+                            <CheckCircle2 className="h-3 w-3" />
+                            {step.timeframe[language] || step.timeframe["en"]}
+                          </div>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
 
             {/* Shortlist: Resources */}
             <div className={`pt-4 border-t space-y-3 ${isDark ? "border-white/10" : "border-violet-950/10"}`}>
