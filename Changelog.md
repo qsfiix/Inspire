@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-09-11
+Last Updated: 2026-09-12
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -105,6 +105,17 @@ Sofiia подключила Supabase MCP — прямой доступ к баз
 - **Маппинг несовпадений схемы**: `tracker_goals.category` в БД не поддерживает `"sport"` (только education/habit/language/career/health/productivity/other) — на запись мапится в `"health"`, на чтение DB-only значения (`language`/`career`) схлопываются в `"other"`.
 - **Найден и исправлен реальный баг** в `App.tsx`: логика "это первый визит → показать example tracker" проверяла только `hasStoredTrackers()` (наличие данных в этом браузере). На новом устройстве у уже существующего облачного пользователя это привело бы к немедленной перезаписи его настоящих трекеров example-трекером (`saveTrackers` делает полную замену). Теперь также проверяется `cachedTrackers.length > 0`.
 - См. `02_Product/Backend/Prototype Limitations.md` — пункты 5 и 14 отмечены закрытыми.
+
+---
+
+## 2026-09-12 — Закрытие вопроса Supabase RLS (round 2): найден и починен регресс + полный обход схемы
+
+Sofiia попросила закрыть тему настройки Supabase полностью, чтобы дальше только добавлять данные.
+
+- **Нашёл и починил регресс от сегодняшних утренних изменений**: переключение 3 VIEW на `security_invoker` (см. запись выше) сработало правильно только благодаря тому, что `institutions` имеет публичную политику — но `institution_locations` (129 реальных строк, от неё зависят обе map-view для multi-campus институций) имела RLS включён и **ноль политик**. После переключения на invoker-режим анон больше не мог её читать — обе VIEW молча теряли часть строк. Добавлена политика с тем же trust-фильтром, что уже зашит в самих VIEW (`verification_status in ('verified','needs_review')`). Проверено живым REST-запросом — обе VIEW снова отдают полные данные.
+- **Полный обход оставшихся 40 таблиц с RLS-без-политик**: 13 из них оказались настоящими публичными справочниками/связями (`cantons`, `cities`, `education_levels`, `institution_types`, `languages`, `institution_languages`, `institution_focus_areas`, `profession_institutions`, `profession_resources`, `profession_program_links`, `resource_path_links`, `profession_activity_items`, `profession_family_map`) — добавлены read-политики (с фильтром по `is_active`, где есть такая колонка). Остальные ~26 (`future.*`, `ops.stg_*`, `*_import_batches`, `*_source_records`, `*_seed_map`, `*_match_candidates`, `source_registry`, `institution_media_manifest`, `institution_source_links`) — осознанно оставлены закрытыми, это внутренние pipeline-таблицы.
+- **Осталось невозможным исправить через SQL/миграции** (требует действий Sofiia в Supabase Dashboard): leaked password protection выключена (Authentication → Policies); `citext` extension в public schema (не двигаю — рискует сломать `profiles.email`).
+- Подробности и таблица "что публично / что закрыто и почему" — в памяти агента `inspirella-supabase-schema`.
 
 ---
 
