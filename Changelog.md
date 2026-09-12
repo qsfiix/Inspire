@@ -114,8 +114,18 @@ Sofiia попросила закрыть тему настройки Supabase п
 
 - **Нашёл и починил регресс от сегодняшних утренних изменений**: переключение 3 VIEW на `security_invoker` (см. запись выше) сработало правильно только благодаря тому, что `institutions` имеет публичную политику — но `institution_locations` (129 реальных строк, от неё зависят обе map-view для multi-campus институций) имела RLS включён и **ноль политик**. После переключения на invoker-режим анон больше не мог её читать — обе VIEW молча теряли часть строк. Добавлена политика с тем же trust-фильтром, что уже зашит в самих VIEW (`verification_status in ('verified','needs_review')`). Проверено живым REST-запросом — обе VIEW снова отдают полные данные.
 - **Полный обход оставшихся 40 таблиц с RLS-без-политик**: 13 из них оказались настоящими публичными справочниками/связями (`cantons`, `cities`, `education_levels`, `institution_types`, `languages`, `institution_languages`, `institution_focus_areas`, `profession_institutions`, `profession_resources`, `profession_program_links`, `resource_path_links`, `profession_activity_items`, `profession_family_map`) — добавлены read-политики (с фильтром по `is_active`, где есть такая колонка). Остальные ~26 (`future.*`, `ops.stg_*`, `*_import_batches`, `*_source_records`, `*_seed_map`, `*_match_candidates`, `source_registry`, `institution_media_manifest`, `institution_source_links`) — осознанно оставлены закрытыми, это внутренние pipeline-таблицы.
-- **Осталось невозможным исправить через SQL/миграции** (требует действий Sofiia в Supabase Dashboard): leaked password protection выключена (Authentication → Policies); `citext` extension в public schema (не двигаю — рискует сломать `profiles.email`).
+- **Осталось невозможным исправить через SQL/миграции** (требует действий Sofiia в Supabase Dashboard): leaked password protection выключена — путь: Authentication → Sign In / Providers → **Email** → "Prevent the use of leaked passwords" (доступно только на Pro-плане и выше — на Free его физически нет в интерфейсе); `citext` extension в public schema (не двигаю — рискует сломать `profiles.email`).
 - Подробности и таблица "что публично / что закрыто и почему" — в памяти агента `inspirella-supabase-schema`.
+
+---
+
+## 2026-09-12 — Закрыт жёлтый pre-launch блок (favicon, meta-теги, crash guard, Privacy)
+
+- **`public/favicon.svg` + `index.html`**: favicon на основе `PhoenixLogo` (упрощённая версия для мелких размеров), meta description, theme-color, Open Graph/Twitter card теги — раньше шаринг ссылки давал пустой previev.
+- **`src/components/ErrorBoundary.tsx`**, обёрнут вокруг `<App/>` в `main.tsx`: раньше необработанная ошибка рендера в любом месте дерева роняла всё приложение в чистый белый экран без объяснений. Специально не зависит от i18n/темы/app state — они сами могли быть частью того, что упало.
+- **`PrivacyView`** (`features/marketing.tsx`), доступна из футера (`activeTab: "privacy"`): честное простым языком описание — кто отвечает (Inspirella, пока без юр. лица, контакт `iinspirella@gmail.com`), что собираем (аккаунт/профиль/персонализация/трекеры, отдельно оговорён guest-режим — ничего не уходит с браузера), зачем, где хранится (Supabase, Mapbox), права пользователя, cookies/local storage. Только на английском пока, с явной пометкой "первый честный черновик, нужен юрист (nLPD/FADP, GDPR) перед масштабированием за пределы друзей/тестеров".
+- **Production build** уже проверялся ранее (собирается чисто, единственное замечание — тяжёлый бандл без code-splitting, не блокирует запуск).
+- **Побочная находка, не трогал**: `ContactView` показывает выдуманный адрес ("Rue de l'Athénée 12, 1205 Genève"), телефон и email `office@inspirella.ch` — остаток демо-контента AI Studio. Показывать несуществующий офис/телефон реальным пользователям нечестно; стоит заменить или убрать перед реальным запуском.
 
 ---
 
