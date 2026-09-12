@@ -1,6 +1,6 @@
 Status: Working
 Owner: Sofiia
-Last Updated: 2026-09-11
+Last Updated: 2026-09-12
 Purpose: собрать явный список ограничений текущего AI Studio snapshot, чтобы агент не принимал demo-поведение за production-ready решение.
 Maturity: This is a first product-layer draft grounded in the current Inspirella strategy, data model and AI Studio code snapshot. Review before treating it as final product policy.
 Related Files:
@@ -16,7 +16,7 @@ Related Files:
 2. Navigation использует `activeTab`, а не полноценную URL route model.
 3. ~~Login создает local profile и не реализует полноценную Supabase sign-in/sign-up.~~ **Закрыто 2026-09-11** — см. раздел «Закрытые ограничения».
 4. ~~Guest bypass заполняет demo-profile и должен быть отделён от real user.~~ **Закрыто 2026-09-11** — реальные пользователи теперь идут через Supabase Auth, guest остаётся явным local-only bypass.
-5. Trackers сохраняются через localStorage; Supabase persistence отмечена TODO.
+5. ~~Trackers сохраняются через localStorage; Supabase persistence отмечена TODO.~~ **Закрыто 2026-09-12** — см. раздел «Закрытые ограничения».
 6. ~~`getProfessions()` возвращает пустой fallback без реального dataset.~~ **Закрыто 2026-09-11** — причиной был не отсутствующий dataset, а рассинхрон column mapping с реальной Supabase-схемой; см. раздел «Закрытые ограничения».
 7. `DataRepository` использует `any` и несколько naming aliases.
 8. `getInstitutions()` пробует `institutions`, затем `schools`, что полезно для миграции, но не является финальной моделью.
@@ -25,7 +25,7 @@ Related Files:
 11. Gemini endpoint существует, но основной `AdvisorReport` сейчас использует local rule-based engine.
 12. ~~`package-lock.json` сохраняет старое имя `react-example`.~~ Уже не так — `package.json`/`package-lock.json` называются `inspirella`.
 13. Некоторые файлы и ссылки имеют различный регистр (`Readme.md` vs `README.md`).
-14. Есть случайные `Math.random()` IDs для records/tracker display.
+14. ~~Есть случайные `Math.random()` IDs для records/tracker display.~~ **Частично закрыто 2026-09-12** — tracker goal/item ids теперь `crypto.randomUUID()` (требовалось для Supabase-синхронизации, см. ниже). Остался один чисто косметический `Math.random()` в `features/modules.tsx` (декоративный "ID: CH-XXXXXX" на карточке профиля, нигде не сохраняется) — не трогали, вне контекста.
 15. 02_Product ранее отсутствовал как заполненная спецификация; текущий пакет является первым draft.
 
 ## Закрытые ограничения
@@ -34,7 +34,7 @@ Related Files:
 
 `LoginView` теперь предлагает настоящую регистрацию/вход через Supabase Auth (email + пароль, с переключателем Create Account / Sign In), а не создаёт local-only профиль под видом аккаунта. `data/Repository.ts` получил `signUp`/`signIn`/`signOut`. Обрабатывается кейс email-confirmation (Supabase возвращает user без session) честным экраном "Check your inbox", а не молчаливым провалом. Guest bypass не изменился — остаётся явным local-only режимом без иллюзии сохранности данных.
 
-Важная оговорка: таблица `profiles` в Supabase пока не создана (проверено live REST-запросом). Аккаунт (identity) теперь настоящий и переживёт очистку браузера, но содержимое профиля (interests/goals/onboarding) пока не синхронизируется между устройствами, пока таблица не создана — `saveProfile` в этом случае просто продолжает работать local-first, ничего не ломается.
+Обновление 2026-09-12: таблица `profiles` в Supabase с тех пор появилась (нормализованная — `profiles` + `profile_interests`/`profile_goals`/`profile_target_languages`/`profile_target_cantons`), и `getProfile`/`saveProfile` переписаны под реальные названия колонок — см. пункт про profiles schema mismatch ниже. Профиль теперь синхронизируется между устройствами для настоящих аккаунтов.
 
 ### getProfessions() / column mapping (пункт 6) — 2026-09-11
 
@@ -47,6 +47,16 @@ Related Files:
 ### Rate limiting / input validation для `/api/gemini/advisor` — 2026-09-11
 
 Backend Overview.md называет `rate limits, validation, audit metadata` частью quality bar — этого не было. Добавлен in-memory rate limiter (5 запросов / 10 минут на IP), ограничение размера payload (`express.json({ limit: "50kb" })`), санитизация полей запроса, и структурированный JSON error handler вместо дефолтной Express HTML-страницы с stack trace/путём к файлу.
+
+### Profiles schema mismatch и RLS — 2026-09-12
+
+Sofiia подключила Supabase MCP (прямой доступ к базе). Обнаружилось: реальная схема `profiles` сильно отличается от того, что писал/читал `Repository.ts` (`interests`/`goals`/`language`/`onboarding_complete`/`preferred_canton`/`target_language_region` не существуют как колонки — на деле это `full_name`, `interface_language_code`, `onboarding_status`+`onboarding_completed_at`, и отдельные нормализованные таблицы `profile_interests`/`profile_goals`/`profile_target_languages`/`profile_target_cantons`). Каждое сохранение профиля тихо падало. `getProfile`/`saveProfile` переписаны под реальную схему.
+
+Заодно поправлены реальные RLS-проблемы (Supabase advisor): `institutions` имела 3 дублирующие SELECT-политики, из-за которых draft/неактивные записи были публично видны; 3 VIEW были `SECURITY DEFINER` (обходили RLS полностью); служебная функция `rls_auto_enable()` была случайно доступна анонимам через RPC. Подробности — в памяти агента `inspirella-supabase-schema` и `Changelog.md` (запись 2026-09-12).
+
+### Trackers → Supabase (пункт 5) — 2026-09-12
+
+`getTrackers`/`saveTrackers` теперь cloud-first для настоящих аккаунтов через `tracker_goals`/`tracker_items` (guest остаётся local-only, как и профиль). Потребовало перехода с `Math.random()` id на `crypto.randomUUID()` (пункт 14) — колонки `id` в этих таблицах типа `uuid`. По пути найден и исправлен реальный баг: логика "это первый визит → показать example tracker" проверяла только localStorage, и на новом устройстве могла молча перезаписать настоящие облачные трекеры пользователя примером.
 
 ## Как трактовать
 

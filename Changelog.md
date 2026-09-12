@@ -94,7 +94,17 @@ Sofiia подключила Supabase MCP — прямой доступ к баз
 
 Проверено: CHECK-constraints на всех задействованных полях (`onboarding_status`, `interface_language_code` и т.д.) — все используемые значения валидны. Полный живой прогон через подтверждённую сессию не делал (подтверждение email через SQL запрещено классификатором безопасности Claude Code — не обходил), вместо этого прогнал регрессию на guest-режиме и публичном чтении institutions/map — всё чисто.
 
-**Ещё не сделано** (возможно теперь благодаря новым таблицам): cloud-персистентность трекеров (`tracker_goals`/`tracker_items` готовы, но `Repository.getTrackers/saveTrackers` всё ещё только `localStorage`); UI для `saved_items` (сохранённые institutions/professions) и `recommendation_feedback` (лайк/дизлайк рекомендаций) вообще не существует — таблицы готовы, фичи нет.
+**Ещё не сделано**: UI для `saved_items` (сохранённые institutions/professions) и `recommendation_feedback` (лайк/дизлайк рекомендаций) вообще не существует — таблицы готовы, фичи нет.
+
+---
+
+## 2026-09-12 — Трекеры подключены к Supabase (tracker_goals/tracker_items)
+
+- **`Repository.getTrackers`/`saveTrackers`** теперь cloud-first для настоящих аккаунтов (guest — как и раньше, local-only: у него просто нет реальной Supabase-сессии). Дочерние записи (`tracker_items`) синхронизируются полной заменой на каждое сохранение — как и для `profile_interests`/`profile_goals` — потому что у клиента нет надёжного способа диффать построчно; удаление `tracker_goal` каскадно удаляет его `tracker_items` (`ON DELETE CASCADE`).
+- **ID переведены на `crypto.randomUUID()`** (`TrackerSystem.tsx`, `seedData.ts`) вместо `Math.random().toString(36)` — колонки `id` в БД типа `uuid`, без этого синхронизация была бы невозможна в принципе. `saveTrackers` защитно проверяет ID на UUID-формат перед отправкой в облако — старые localStorage-данные (если у кого-то остались с до-фикса) просто не будут облачно синхронизироваться, но не потеряются локально.
+- **Маппинг несовпадений схемы**: `tracker_goals.category` в БД не поддерживает `"sport"` (только education/habit/language/career/health/productivity/other) — на запись мапится в `"health"`, на чтение DB-only значения (`language`/`career`) схлопываются в `"other"`.
+- **Найден и исправлен реальный баг** в `App.tsx`: логика "это первый визит → показать example tracker" проверяла только `hasStoredTrackers()` (наличие данных в этом браузере). На новом устройстве у уже существующего облачного пользователя это привело бы к немедленной перезаписи его настоящих трекеров example-трекером (`saveTrackers` делает полную замену). Теперь также проверяется `cachedTrackers.length > 0`.
+- См. `02_Product/Backend/Prototype Limitations.md` — пункты 5 и 14 отмечены закрытыми.
 
 ---
 
