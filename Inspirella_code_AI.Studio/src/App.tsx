@@ -31,7 +31,7 @@ import { DataRepository } from "./data/Repository";
 import { EXAMPLE_TRACKERS } from "./data/seedData";
 import { localizedMatches } from "./lib/localized";
 
-import { HomeView, AboutView, ContactView } from "./features/marketing";
+import { HomeView, AboutView, ContactView, PrivacyView } from "./features/marketing";
 import { LoginView, OnboardingView } from "./features/auth";
 import { DashboardView, ResourcesView, ProfileView } from "./features/dashboard";
 
@@ -342,6 +342,11 @@ export default function App() {
             <ContactView t={t} isDark={isDark} tTextTitle={tTextTitle} tTextSub={tTextSub} tInput={tInput} tCard={tCard} />
           )}
 
+          {/* VIEW: Privacy Notice */}
+          {activeTab === "privacy" && (
+            <PrivacyView isDark={isDark} tTextTitle={tTextTitle} handleTabTransition={handleTabTransition} />
+          )}
+
           {/* VIEW: Login Sign Up Frame */}
           {activeTab === "login" && (
             <LoginView
@@ -465,9 +470,17 @@ export default function App() {
           <span className="font-mono text-[10px] tracking-widest text-violet-500 uppercase font-black">
             © 2026 Inspirella
           </span>
-          <span className={isDark ? "text-zinc-500" : "text-black font-extrabold"}>
-            Switzerland Education Explorer
-          </span>
+          <div className="flex items-center gap-4">
+            <span className={isDark ? "text-zinc-500" : "text-black font-extrabold"}>
+              Switzerland Education Explorer
+            </span>
+            <button
+              onClick={() => handleTabTransition("privacy")}
+              className={`underline-offset-2 hover:underline cursor-pointer ${isDark ? "text-zinc-500 hover:text-zinc-300" : "text-black font-extrabold"}`}
+            >
+              Privacy
+            </button>
+          </div>
         </div>
       </footer>
 
