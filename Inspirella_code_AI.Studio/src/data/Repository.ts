@@ -394,6 +394,17 @@ const parseRows = <T>(rows: unknown, adapter: (row: Record<string, any>) => T | 
 
 export const DataRepository = {
   // Profiles (cloud-first for authenticated users, local for guests)
+  //
+  // SCHEMA NOTE (verified live 2026-09-12): `profiles` does not carry
+  // `interests`/`goals`/`language`/`onboarding_complete`/`preferred_canton`/
+  // `target_language_region` as columns. Interests and goals are normalized
+  // into `profile_interests`/`profile_goals` (one row per slug); target
+  // canton/language are `profile_target_cantons`/`profile_target_languages`
+  // (one row per preference, ordered by `priority` - the app currently only
+  // models a single value for each, so we read/write the top-priority row).
+  // `profiles` itself uses `full_name`, `interface_language_code`, and a
+  // status+timestamp pair (`onboarding_status`/`onboarding_completed_at`)
+  // instead of a boolean.
   getProfile: async (): Promise<UserProfile | null> => {
     await fetchSupabaseConfig();
     const localProfile = LocalMockDB.getProfile();
@@ -404,33 +415,52 @@ export const DataRepository = {
         const { data: userData, error: userError } = await supabase.auth.getUser();
 
         if (!userError && userData?.user) {
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", userData.user.id)
-            .single();
+          const uid = userData.user.id;
+          const [profileRes, interestsRes, goalsRes, targetLangRes, targetCantonRes] = await Promise.all([
+            supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
+            supabase.from("profile_interests").select("interest_slug").eq("profile_id", uid),
+            supabase.from("profile_goals").select("goal_slug").eq("profile_id", uid),
+            supabase
+              .from("profile_target_languages")
+              .select("language_code")
+              .eq("profile_id", uid)
+              .order("priority", { ascending: true })
+              .limit(1),
+            supabase
+              .from("profile_target_cantons")
+              .select("canton_code")
+              .eq("profile_id", uid)
+              .order("priority", { ascending: true })
+              .limit(1)
+          ]);
 
-          if (!error && data) {
-            const language = isLanguageCode(data.language)
-              ? data.language
+          const data = profileRes.data;
+          if (!profileRes.error && data) {
+            const language = isLanguageCode(data.interface_language_code)
+              ? data.interface_language_code
               : localProfile?.language ?? "en";
 
             return {
-              id: userData.user.id,
-              name: normalizeText(data.name) ?? localProfile?.name ?? "",
+              id: uid,
+              name: normalizeText(data.full_name) ?? localProfile?.name ?? "",
               email:
                 normalizeText(data.email) ??
                 localProfile?.email ??
                 normalizeText(userData.user.email) ??
                 "",
-              interests: asStringArray(data.interests) ?? localProfile?.interests ?? [],
-              goals: asStringArray(data.goals) ?? localProfile?.goals ?? [],
+              interests:
+                asStringArray((interestsRes.data ?? []).map((r: any) => r.interest_slug)) ??
+                localProfile?.interests ??
+                [],
+              goals:
+                asStringArray((goalsRes.data ?? []).map((r: any) => r.goal_slug)) ??
+                localProfile?.goals ??
+                [],
               currentStage:
                 normalizeText(data.current_stage) ?? localProfile?.currentStage ?? "",
               language,
-              onboardingComplete: Boolean(
-                data.onboarding_complete ?? localProfile?.onboardingComplete
-              ),
+              onboardingComplete:
+                data.onboarding_status === "completed" || Boolean(localProfile?.onboardingComplete),
               createdAt:
                 normalizeText(data.created_at) ??
                 localProfile?.createdAt ??
@@ -439,9 +469,9 @@ export const DataRepository = {
               avatarUrl: normalizeUrl(data.avatar_url) ?? localProfile?.avatarUrl,
               updatedAt: normalizeText(data.updated_at),
               preferredCanton:
-                normalizeText(data.preferred_canton) ?? localProfile?.preferredCanton,
+                normalizeText(targetCantonRes.data?.[0]?.canton_code) ?? localProfile?.preferredCanton,
               targetLanguageRegion:
-                normalizeText(data.target_language_region) ??
+                normalizeText(targetLangRes.data?.[0]?.language_code) ??
                 localProfile?.targetLanguageRegion,
               syncState: "cloud"
             };
@@ -470,21 +500,54 @@ export const DataRepository = {
         const { data: userData, error: userError } = await supabase.auth.getUser();
 
         if (!userError && userData?.user) {
+          const uid = userData.user.id;
+
           await supabase.from("profiles").upsert({
-            id: userData.user.id,
+            id: uid,
             email: profile.email || userData.user.email,
-            name: profile.name,
-            interests: profile.interests,
-            goals: profile.goals,
-            current_stage: profile.currentStage,
-            language: profile.language,
-            preferred_canton: profile.preferredCanton ?? null,
-            target_language_region: profile.targetLanguageRegion ?? null,
-            onboarding_complete: profile.onboardingComplete,
-            created_at: profile.createdAt,
+            full_name: profile.name,
+            interface_language_code: profile.language,
+            current_stage: profile.currentStage || null,
+            onboarding_status: profile.onboardingComplete ? "completed" : "pending",
+            onboarding_completed_at: profile.onboardingComplete ? new Date().toISOString() : null,
+            avatar_url: profile.avatarUrl ?? null,
             is_guest: false,
             updated_at: new Date().toISOString()
           });
+
+          // Child preference tables have no stable id from the client side,
+          // so a full replace-per-save is the simplest correct sync for a
+          // flat client-side list/single-value model. RLS on these tables
+          // (`*_all_own`) requires profile_id = auth.uid(), matching `uid`.
+          await supabase.from("profile_interests").delete().eq("profile_id", uid);
+          if (profile.interests.length > 0) {
+            await supabase.from("profile_interests").insert(
+              profile.interests.map(slug => ({ profile_id: uid, interest_slug: slug }))
+            );
+          }
+
+          await supabase.from("profile_goals").delete().eq("profile_id", uid);
+          if (profile.goals.length > 0) {
+            await supabase.from("profile_goals").insert(
+              profile.goals.map(slug => ({ profile_id: uid, goal_slug: slug }))
+            );
+          }
+
+          await supabase.from("profile_target_languages").delete().eq("profile_id", uid);
+          if (profile.targetLanguageRegion) {
+            await supabase.from("profile_target_languages").insert({
+              profile_id: uid,
+              language_code: profile.targetLanguageRegion
+            });
+          }
+
+          await supabase.from("profile_target_cantons").delete().eq("profile_id", uid);
+          if (profile.preferredCanton) {
+            await supabase.from("profile_target_cantons").insert({
+              profile_id: uid,
+              canton_code: profile.preferredCanton
+            });
+          }
         }
       } catch (e) {
         console.warn("Failed syncing profile to Supabase", e);
