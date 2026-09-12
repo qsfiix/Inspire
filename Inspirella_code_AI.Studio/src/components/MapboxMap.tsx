@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Globe, Mail, Phone, Map as MapIcon, Layers, Compass, Maximize2, Minimize2, X, Info } from "lucide-react";
+import { Globe, Mail, Phone, Map as MapIcon, Layers, Compass, Maximize2, Minimize2, X, Info, Scale, Check, Plus } from "lucide-react";
 import { Coordinates, Institution, LanguageCode } from "../types";
 import { SWISS_INSTITUTIONS, TRANSLATIONS } from "../data";
 import { DataRepository } from "../data/Repository";
 import { localizedText } from "../lib/localized";
 import { hasCoordinates, isWithinSwitzerland, SWISS_BOUNDS } from "../lib/validation";
+import InstitutionCompareModal from "./InstitutionCompareModal";
+
+const MAX_COMPARE = 3;
 
 interface MapProps {
   currentLanguage: LanguageCode;
@@ -22,6 +25,8 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
   const [is3DMode, setIs3DMode] = useState<boolean>(true);
   const [mapEngineLoaded, setMapEngineLoaded] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [compareList, setCompareList] = useState<Institution[]>([]);
+  const [showCompareModal, setShowCompareModal] = useState<boolean>(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const t = TRANSLATIONS[currentLanguage];
@@ -186,6 +191,16 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
 
   const handleSVGPinClick = (inst: Institution) => {
     setSelectedInst(inst);
+  };
+
+  const isInCompare = (id: string) => compareList.some(i => i.id === id);
+
+  const toggleCompare = (inst: Institution) => {
+    setCompareList(prev => {
+      if (prev.some(i => i.id === inst.id)) return prev.filter(i => i.id !== inst.id);
+      if (prev.length >= MAX_COMPARE) return prev;
+      return [...prev, inst];
+    });
   };
 
   return (
@@ -395,8 +410,10 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
 
       {/* Floating map sidebar panel for institution metrics */}
       <div className={`w-full lg:w-[360px] h-2/5 lg:h-full shrink-0 border-t lg:border-t-0 lg:border-l backdrop-blur-xl flex flex-col justify-between overflow-y-auto ${
-        isDark 
-          ? "border-white/10 bg-black/20 text-white" 
+        compareList.length > 0 ? "pb-24" : ""
+      } ${
+        isDark
+          ? "border-white/10 bg-black/20 text-white"
           : "border-purple-250 bg-white text-black"
       }`}>
         <AnimatePresence mode="wait">
@@ -514,6 +531,29 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
                     </p>
                   </div>
                 )}
+
+                <button
+                  onClick={() => toggleCompare(selectedInst)}
+                  disabled={!isInCompare(selectedInst.id) && compareList.length >= MAX_COMPARE}
+                  title={!isInCompare(selectedInst.id) && compareList.length >= MAX_COMPARE ? t.compareFull : undefined}
+                  className={`w-full flex items-center justify-center gap-1.5 rounded-lg border py-2 text-[10px] font-bold tracking-wide transition disabled:opacity-40 disabled:cursor-not-allowed ${
+                    isInCompare(selectedInst.id)
+                      ? "bg-violet-600/20 border-violet-500/40 text-violet-300"
+                      : isDark
+                      ? "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
+                      : "bg-purple-50 border-purple-200 text-violet-950 hover:bg-purple-100"
+                  }`}
+                >
+                  {isInCompare(selectedInst.id) ? (
+                    <>
+                      <Check className="h-3.5 w-3.5" /> {t.compareRemove}
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-3.5 w-3.5" /> {t.compareAdd}
+                    </>
+                  )}
+                </button>
               </div>
 
               {/* Department Contact Details */}
@@ -564,6 +604,56 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
           )}
         </AnimatePresence>
       </div>
+
+      {/* Floating compare tray: institutions the user picked while browsing pins */}
+      {compareList.length > 0 && (
+        <div className={`absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex flex-wrap items-center justify-center gap-2 max-w-[92%] rounded-2xl border px-3.5 py-2.5 backdrop-blur-md shadow-xl ${
+          isDark ? "bg-zinc-950/90 border-white/15" : "bg-white/95 border-purple-200"
+        }`}>
+          <div className="flex items-center gap-1.5">
+            <Scale className="h-3.5 w-3.5 text-violet-500 shrink-0" />
+            <span className={`text-[10px] font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>
+              {t.compareBarLabel} ({compareList.length}/{MAX_COMPARE})
+            </span>
+          </div>
+          {compareList.map(inst => (
+            <span
+              key={inst.id}
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold max-w-[140px] ${
+                isDark ? "bg-white/10 text-zinc-200" : "bg-purple-100 text-violet-950"
+              }`}
+            >
+              <span className="truncate">{inst.title}</span>
+              <button onClick={() => toggleCompare(inst)} aria-label={t.compareRemove}>
+                <X className="h-3 w-3 shrink-0" />
+              </button>
+            </span>
+          ))}
+          <button
+            onClick={() => setCompareList([])}
+            className={`text-[10px] font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/60 hover:text-violet-950"}`}
+          >
+            {t.compareClear}
+          </button>
+          <button
+            onClick={() => setShowCompareModal(true)}
+            disabled={compareList.length < 2}
+            className="btn-primary flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {t.compareViewButton}
+          </button>
+        </div>
+      )}
+
+      {showCompareModal && compareList.length >= 2 && (
+        <InstitutionCompareModal
+          institutions={compareList}
+          currentLanguage={currentLanguage}
+          theme={theme}
+          onClose={() => setShowCompareModal(false)}
+          onRemove={id => setCompareList(prev => prev.filter(i => i.id !== id))}
+        />
+      )}
 
     </div>
   );

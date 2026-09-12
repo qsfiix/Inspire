@@ -125,6 +125,24 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     mapNoCoordinates: "no verified coordinates",
     verifyWithInstitution: "Details can change. Please confirm with the institution before you decide.",
 
+    // Institution comparison
+    compareAdd: "Add to Compare",
+    compareRemove: "Remove from Compare",
+    compareFull: "You can compare up to 3 institutions at a time.",
+    compareBarLabel: "Comparing",
+    compareViewButton: "View Comparison",
+    compareClear: "Clear",
+    compareModalTitle: "Institution Comparison",
+    compareFieldCanton: "Canton",
+    compareFieldCategory: "Type",
+    compareFieldEstablished: "Established",
+    compareFieldStudents: "Students",
+    compareFieldLanguage: "Language",
+    compareFieldWebsite: "Website",
+    compareFieldVerified: "Status",
+    compareFieldRating: "Rating",
+    compareNoData: "Not recorded",
+
     // Trust and data quality
     qualityVerified: "Verified",
     qualityProvisional: "Provisional data",
@@ -288,6 +306,24 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     mapCantonUnknown: "Kanton nicht erfasst",
     mapNoCoordinates: "keine geprüften Koordinaten",
     verifyWithInstitution: "Angaben können sich ändern. Bitte bestätigen Sie sie vor einer Entscheidung bei der Institution.",
+
+    // Institution comparison
+    compareAdd: "Zum Vergleich hinzufügen",
+    compareRemove: "Aus Vergleich entfernen",
+    compareFull: "Sie können bis zu 3 Institutionen gleichzeitig vergleichen.",
+    compareBarLabel: "Im Vergleich",
+    compareViewButton: "Vergleich anzeigen",
+    compareClear: "Leeren",
+    compareModalTitle: "Institutionenvergleich",
+    compareFieldCanton: "Kanton",
+    compareFieldCategory: "Typ",
+    compareFieldEstablished: "Gegründet",
+    compareFieldStudents: "Studierende",
+    compareFieldLanguage: "Sprache",
+    compareFieldWebsite: "Webseite",
+    compareFieldVerified: "Status",
+    compareFieldRating: "Bewertung",
+    compareNoData: "Nicht erfasst",
 
     // Trust and data quality
     qualityVerified: "Geprüft",
@@ -453,6 +489,24 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     mapNoCoordinates: "aucune coordonnée vérifiée",
     verifyWithInstitution: "Les informations peuvent changer. Confirmez-les auprès de l'établissement avant de décider.",
 
+    // Institution comparison
+    compareAdd: "Ajouter à la comparaison",
+    compareRemove: "Retirer de la comparaison",
+    compareFull: "Vous pouvez comparer jusqu'à 3 établissements à la fois.",
+    compareBarLabel: "En comparaison",
+    compareViewButton: "Voir la comparaison",
+    compareClear: "Effacer",
+    compareModalTitle: "Comparaison des établissements",
+    compareFieldCanton: "Canton",
+    compareFieldCategory: "Type",
+    compareFieldEstablished: "Fondé en",
+    compareFieldStudents: "Étudiants",
+    compareFieldLanguage: "Langue",
+    compareFieldWebsite: "Site web",
+    compareFieldVerified: "Statut",
+    compareFieldRating: "Note",
+    compareNoData: "Non renseigné",
+
     // Trust and data quality
     qualityVerified: "Vérifié",
     qualityProvisional: "Données provisoires",
@@ -616,6 +670,24 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     mapCantonUnknown: "Cantone non registrato",
     mapNoCoordinates: "nessuna coordinata verificata",
     verifyWithInstitution: "I dettagli possono cambiare. Confermali con l'istituto prima di decidere.",
+
+    // Institution comparison
+    compareAdd: "Aggiungi al confronto",
+    compareRemove: "Rimuovi dal confronto",
+    compareFull: "Puoi confrontare fino a 3 istituti alla volta.",
+    compareBarLabel: "In confronto",
+    compareViewButton: "Visualizza confronto",
+    compareClear: "Svuota",
+    compareModalTitle: "Confronto tra istituti",
+    compareFieldCanton: "Cantone",
+    compareFieldCategory: "Tipo",
+    compareFieldEstablished: "Fondato nel",
+    compareFieldStudents: "Studenti",
+    compareFieldLanguage: "Lingua",
+    compareFieldWebsite: "Sito web",
+    compareFieldVerified: "Stato",
+    compareFieldRating: "Valutazione",
+    compareNoData: "Non registrato",
 
     // Trust and data quality
     qualityVerified: "Verificato",
