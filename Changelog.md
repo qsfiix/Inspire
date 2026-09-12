@@ -79,6 +79,25 @@ Related Files:
 
 ---
 
+## 2026-09-12 — Прямой доступ к Supabase (MCP): RLS-фиксы и схема `profiles`
+
+Sofiia подключила Supabase MCP — прямой доступ к базе (список таблиц, RLS-политики, advisors, миграции). Обнаружено: база выросла намного больше, чем предполагал код приложения — появились настоящие `profiles`, `profile_interests`, `profile_goals`, `profile_target_languages`, `profile_target_cantons`, `tracker_goals`, `tracker_items`, `saved_items`, `recommendation_feedback` с в целом корректными RLS (`auth.uid() = profile_id`). Полная структура — в памяти `inspirella-supabase-schema`.
+
+**RLS/security фиксы (миграции применены через Supabase MCP):**
+- `institutions` — было 3 дублирующие SELECT-политики (2 из них `qual: true`, из-за чего draft/неактивные/непроверенные записи были публично читаемы). Заменены одной политикой, повторяющей trust-фильтр из `public_institutions_map_view`.
+- 3 VIEW (`public_institutions_map_view`, `public_institution_locations_view`, `legacy_schools_compat_view`) были `SECURITY DEFINER` (ERROR по Supabase advisor, полностью обходит RLS) — переключены на `security_invoker = true`.
+- `rls_auto_enable()` (служебная функция для event trigger) была доступна анонимам через RPC — revoked.
+- 8 функций без фиксированного `search_path` (WARN) — исправлено.
+- **Не исправлено, флагнуто Sofiia**: leaked password protection выключена (настройка Auth в дашборде, не SQL); `citext` extension в public schema (рискованно двигать — от неё зависит `profiles.email`); unindexed FK / unused/duplicate indexes — performance-only, отложено (таблицы почти пустые).
+
+**Критичный баг найден и исправлен**: `Repository.ts`'s `getProfile`/`saveProfile` писали/читали колонки, которых физически нет в реальной схеме `profiles` (`interests`, `goals`, `language`, `onboarding_complete`, `preferred_canton`, `target_language_region` — на самом деле это `full_name`, `interface_language_code`, `onboarding_status`+`onboarding_completed_at`, и отдельные нормализованные таблицы `profile_interests`/`profile_goals`/`profile_target_languages`/`profile_target_cantons`). Каждое сохранение профиля тихо падало (column does not exist, перехватывалось try/catch) — почти наверняка та самая "проблема с RLS", о которой сообщила Sofiia. Переписано на правильный маппинг колонок + delete-then-insert для дочерних таблиц.
+
+Проверено: CHECK-constraints на всех задействованных полях (`onboarding_status`, `interface_language_code` и т.д.) — все используемые значения валидны. Полный живой прогон через подтверждённую сессию не делал (подтверждение email через SQL запрещено классификатором безопасности Claude Code — не обходил), вместо этого прогнал регрессию на guest-режиме и публичном чтении institutions/map — всё чисто.
+
+**Ещё не сделано** (возможно теперь благодаря новым таблицам): cloud-персистентность трекеров (`tracker_goals`/`tracker_items` готовы, но `Repository.getTrackers/saveTrackers` всё ещё только `localStorage`); UI для `saved_items` (сохранённые institutions/professions) и `recommendation_feedback` (лайк/дизлайк рекомендаций) вообще не существует — таблицы готовы, фичи нет.
+
+---
+
 ## Как использовать этот файл дальше
 
 - Одна содержательная сессия работы = обычно одна запись (не одна запись на каждый маленький commit).
