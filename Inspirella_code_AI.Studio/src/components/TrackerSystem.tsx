@@ -44,7 +44,7 @@ export default function TrackerSystem({
     if (!newGoalTitle.trim()) return;
 
     const newGoal: TrackerGoal = {
-      id: Math.random().toString(36).substring(2, 9),
+      id: crypto.randomUUID(),
       title: newGoalTitle,
       category: newGoalCategory,
       description: newGoalDesc,
@@ -72,7 +72,7 @@ export default function TrackerSystem({
     const updated = trackers.map(g => {
       if (g.id === goalId) {
         const newItem: TrackerChecklistItem = {
-          id: Math.random().toString(36).substring(2, 9),
+          id: crypto.randomUUID(),
           text: text,
           completed: false,
           frequency: "daily"

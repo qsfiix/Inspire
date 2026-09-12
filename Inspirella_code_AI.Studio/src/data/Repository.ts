@@ -6,7 +6,9 @@ import {
   Profession,
   LanguageCode,
   UserProfile,
-  DataOrigin
+  DataOrigin,
+  TrackerGoal,
+  TrackerChecklistItem
 } from "../types";
 import { OFF_RESOURCES, SWISS_INSTITUTIONS } from "../data";
 import { normalizeCoordinates, normalizeId, normalizeText, normalizeUrl } from "../lib/validation";
@@ -222,6 +224,49 @@ const asLocalizedList = (
 /** Collects the canonical fields that were absent, so the UI can lower confidence. */
 const collectMissing = (record: Record<string, unknown>, fields: string[]): string[] =>
   fields.filter(field => record[field] === undefined);
+
+/**
+ * True when `value` is a well-formed UUID string.
+ *
+ * `tracker_goals.id`/`tracker_items.id` are `uuid` columns, so client-generated
+ * ids must actually be UUIDs (see `crypto.randomUUID()` in TrackerSystem.tsx).
+ * Used defensively before syncing trackers to Supabase, so a browser holding
+ * pre-UUID-fix localStorage data degrades to local-only rather than erroring.
+ */
+const isValidUuid = (value: string): boolean =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
+/**
+ * `tracker_goals.category` (DB CHECK) allows education/habit/language/career/
+ * health/productivity/other - "sport" (a value the product UI offers) is not
+ * one of them. Map both directions rather than silently failing the write or
+ * losing the distinction on read.
+ */
+const toDbTrackerCategory = (category: TrackerGoal["category"]): string =>
+  category === "sport" ? "health" : category;
+
+const fromDbTrackerCategory = (value: unknown): TrackerGoal["category"] => {
+  if (
+    value === "education" ||
+    value === "habit" ||
+    value === "health" ||
+    value === "productivity" ||
+    value === "other"
+  ) {
+    return value;
+  }
+  // "language"/"career" are valid in the DB but have no direct app category yet.
+  return "other";
+};
+
+/** `tracker_items.frequency` (DB CHECK) allows once/daily/weekly/monthly/custom; the product UI only offers daily/weekly. */
+const fromDbTrackerFrequency = (value: unknown): TrackerChecklistItem["frequency"] =>
+  value === "weekly" ? "weekly" : "daily";
+
+const calculateTrackerProgress = (items: { completed: boolean }[]): number => {
+  if (items.length === 0) return 0;
+  return Math.round((items.filter(i => i.completed).length / items.length) * 100);
+};
 
 // ---------------------------------------------------------------------------
 // Row adapters. Each returns `null` when the row has no usable identity.
@@ -657,10 +702,138 @@ export const DataRepository = {
     }
   },
 
-  // Trackers (local-only until the Supabase tracker model is defined and reviewed;
-  // see 02_Product/API/Tracker API Contract.md - Current state)
-  getTrackers: () => LocalMockDB.getTrackers(),
-  saveTrackers: (trackers: unknown[]) => LocalMockDB.saveTrackers(trackers),
+  // Trackers (cloud-first for signed-in users via tracker_goals/tracker_items,
+  // local-only for guests - see 02_Product/API/Tracker API Contract.md).
+  //
+  // Neither table gives the client a stable identity to diff against beyond
+  // the ids it generated itself, so - like the profile preference tables -
+  // saveTrackers does a full replace per save rather than a partial sync.
+  // Deleting a tracker_goal cascades to its tracker_items
+  // (fk_tracker_items_tracker_goal ... ON DELETE CASCADE), so one delete is enough.
+  getTrackers: async (): Promise<TrackerGoal[]> => {
+    await fetchSupabaseConfig();
+    const localTrackers = LocalMockDB.getTrackers();
+
+    if (isSupabaseActive()) {
+      try {
+        const supabase = getSupabase();
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+
+        if (!userError && userData?.user) {
+          const uid = userData.user.id;
+          const [goalsRes, itemsRes] = await Promise.all([
+            supabase
+              .from("tracker_goals")
+              .select("*")
+              .eq("profile_id", uid)
+              .neq("status", "archived")
+              .order("sort_order", { ascending: true }),
+            supabase
+              .from("tracker_items")
+              .select("*")
+              .eq("profile_id", uid)
+              .order("sort_order", { ascending: true })
+          ]);
+
+          if (!goalsRes.error && Array.isArray(goalsRes.data)) {
+            const itemsByGoal = new Map<string, TrackerChecklistItem[]>();
+            for (const row of (itemsRes.data ?? []) as any[]) {
+              const list = itemsByGoal.get(row.tracker_goal_id) ?? [];
+              list.push({
+                id: row.id,
+                text: normalizeText(row.title) ?? "",
+                completed: Boolean(row.is_completed),
+                frequency: fromDbTrackerFrequency(row.frequency)
+              });
+              itemsByGoal.set(row.tracker_goal_id, list);
+            }
+
+            return (goalsRes.data as any[]).map(row => {
+              const items = itemsByGoal.get(row.id) ?? [];
+              const tracker: TrackerGoal = {
+                id: row.id,
+                title: normalizeText(row.title) ?? "",
+                category: fromDbTrackerCategory(row.category),
+                description: normalizeText(row.description) ?? "",
+                streak: asNumber(row.streak_count) ?? 0,
+                progress: calculateTrackerProgress(items),
+                items,
+                createdAt: normalizeText(row.created_at) ?? new Date().toISOString(),
+                updatedAt: normalizeText(row.updated_at)
+              };
+              return tracker;
+            });
+          }
+        }
+      } catch (e) {
+        console.warn("Failed fetching trackers from Supabase", e);
+      }
+    }
+
+    return localTrackers;
+  },
+
+  saveTrackers: async (trackers: TrackerGoal[]): Promise<void> => {
+    await fetchSupabaseConfig();
+
+    // Always keep a local copy for instant load and offline continuity.
+    LocalMockDB.saveTrackers(trackers);
+
+    if (isSupabaseActive()) {
+      try {
+        const supabase = getSupabase();
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError || !userData?.user) return; // guest or no session: local-only
+
+        const uid = userData.user.id;
+
+        const allIdsValid = trackers.every(
+          goal => isValidUuid(goal.id) && goal.items.every(item => isValidUuid(item.id))
+        );
+        if (!allIdsValid) {
+          console.warn(
+            "Skipping cloud sync for trackers with non-UUID ids (pre-fix local data) - saved locally only."
+          );
+          return;
+        }
+
+        await supabase.from("tracker_goals").delete().eq("profile_id", uid);
+        if (trackers.length === 0) return;
+
+        const goalRows = trackers.map((goal, index) => ({
+          id: goal.id,
+          profile_id: uid,
+          title: goal.title,
+          description: goal.description || null,
+          category: toDbTrackerCategory(goal.category),
+          status: "active",
+          streak_count: goal.streak,
+          sort_order: index
+        }));
+        const { error: goalsError } = await supabase.from("tracker_goals").insert(goalRows);
+        if (goalsError) throw goalsError;
+
+        const itemRows = trackers.flatMap(goal =>
+          goal.items.map((item, index) => ({
+            id: item.id,
+            tracker_goal_id: goal.id,
+            profile_id: uid,
+            title: item.text,
+            frequency: item.frequency,
+            is_completed: item.completed,
+            sort_order: index
+          }))
+        );
+        if (itemRows.length > 0) {
+          const { error: itemsError } = await supabase.from("tracker_items").insert(itemRows);
+          if (itemsError) throw itemsError;
+        }
+      } catch (e) {
+        console.warn("Failed syncing trackers to Supabase", e);
+      }
+    }
+  },
+
   hasStoredTrackers: () => LocalMockDB.hasTrackers(),
 
   // Resources (cloud-first if active, otherwise curated static set)

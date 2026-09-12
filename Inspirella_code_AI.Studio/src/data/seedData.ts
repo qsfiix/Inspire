@@ -9,9 +9,13 @@ import { TrackerGoal } from "../types";
  * with `isExample` so the UI can label it honestly, and it is never re-injected
  * after the user has deleted it (see `LocalMockDB.hasTrackers`).
  */
+// Real (fixed) UUIDs rather than human-readable slugs: `TrackerGoal.id`/
+// `TrackerChecklistItem.id` now must be valid UUIDs to match the `tracker_goals`/
+// `tracker_items` Supabase columns (uuid type) once a signed-in user's trackers
+// sync to the cloud - see DataRepository.saveTrackers in data/Repository.ts.
 export const EXAMPLE_TRACKERS: TrackerGoal[] = [
   {
-    id: "example-swiss-language-start",
+    id: "8f14e45f-ceea-467e-add2-000000000001",
     title: "Learn everyday Swiss German",
     category: "education",
     description: "A small daily step towards feeling at home in a German-speaking canton",
@@ -19,13 +23,13 @@ export const EXAMPLE_TRACKERS: TrackerGoal[] = [
     progress: 0,
     items: [
       {
-        id: "example-item-vocabulary",
+        id: "8f14e45f-ceea-467e-add2-000000000002",
         text: "Learn 10 everyday words (Grüezi, Rüebli, Velo, ...)",
         completed: false,
         frequency: "daily"
       },
       {
-        id: "example-item-listening",
+        id: "8f14e45f-ceea-467e-add2-000000000003",
         text: "Listen to 10 minutes of SRF radio",
         completed: false,
         frequency: "daily"

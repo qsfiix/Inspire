@@ -132,9 +132,13 @@ export default function App() {
       }
 
       // An empty tracker list means the user deleted their goals and that choice
-      // must be respected. Only a browser that has never stored a tracker list at
-      // all is offered the example goal.
-      if (DataRepository.hasStoredTrackers()) {
+      // must be respected. Only offer the example goal when there is no sign of
+      // an existing list anywhere - neither this browser's local cache nor
+      // (for a signed-in user) the cloud. Checking `hasStoredTrackers()` alone
+      // would miss a signed-in user's real cloud trackers on a new device (no
+      // local cache yet) and immediately overwrite them with the example goal,
+      // since saveTrackers() replaces the whole cloud list on every save.
+      if (DataRepository.hasStoredTrackers() || cachedTrackers.length > 0) {
         setTrackers(cachedTrackers);
       } else {
         const initialTrackers: TrackerGoal[] = EXAMPLE_TRACKERS;
