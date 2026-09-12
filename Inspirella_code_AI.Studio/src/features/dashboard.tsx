@@ -210,157 +210,32 @@ export function DashboardView({
   );
 }
 
-const MOCK_PROFESSIONS_FALLBACK: Profession[] = [
-  {
-    id: "soft_eng",
-    title: { en: "Software Engineer", de: "Software-Entwickler", fr: "Ingénieur Logiciel", it: "Ingegnere del Software" },
-    description: {
-      en: "Architects and develops distributed backend systems and responsive web platforms. Crucial for Switzerland's expanding banking-tech/crypto clusters.",
-      de: "Konzipiert und entwickelt verteilte Backend-Systeme. Entscheidend für die Schweizer Banken- und Krypto-Cluster.",
-      fr: "Conçoit et développe des architectures logicielles. Essentiel pour les pôles fintech et cryptographiques suisses.",
-      it: "Progetta e sviluppa sistemi software complessi, fondamentali per i cluster fintech e cripto svizzeri."
-    },
-    category: "tech",
-    salaryCHF: 115000,
-    outlook: "high",
-    educationRequired: {
-      en: "BSc/MSc in Computer Science or Higher Professional College (HF) diploma.",
-      de: "Bachelor/Master in Informatik oder Diplom einer Höheren Fachschule (HF).",
-      fr: "Bachelor/Master en Informatique ou diplôme d'une École supérieure (ES).",
-      it: "Corso di Laurea in Informatica o diploma di Scuola Specializzata Superiore (SSS)."
-    },
-    verified: true,
-    demandLevel: "Very High",
-    growthRatePct: 14.5,
-    avgWorkHoursWeekly: 42,
-    flexibilityScore: 9,
-    skillsRequired: {
-      en: ["TypeScript", "Docker", "Database Design", "Kubernetes", "Swiss Security Standards"],
-      de: ["TypeScript", "Docker", "Datenbank-Design", "Systemarchitektur"],
-      fr: ["TypeScript", "Docker", "Sûreté des données", "Génie logiciel"],
-      it: ["TypeScript", "Docker", "Progettazione database", "Sicurezza svizzera"]
-    },
-    industries: ["Fintech", "Medtech", "Watchmaking Analytics", "Crypto Valley"],
-    isApprenticeshipPath: true
-  },
-  {
-    id: "health_asst",
-    title: { en: "Healthcare Assistant (FaGe)", de: "Fachmann Gesundheit (FaGe)", fr: "Assistant en Soins (ASSC)", it: "Operatore Sociosanitario (OSS)" },
-    description: {
-      en: "Provides dedicated nursing care, support, and administrative assistance in Swiss cantonal hospitals, care circles, and specialized care facilities.",
-      de: "Bietet pflegerische Betreuung und Unterstützung in Schweizer Spitälern, Pflegeheimen und Spitex-Diensten.",
-      fr: "Assure des prestations de soins et d'assistance dans les hôpitaux cantonaux, EMS et organisations de soins à domicile (Aide et soins à domicile).",
-      it: "Fornisce assistenza sociosanitaria e infermieristica negli ospedali cantonali e nelle case di riposo."
-    },
-    category: "health",
-    salaryCHF: 72000,
-    outlook: "high",
-    educationRequired: {
-      en: "3-year Vocational Education and Training (VET/EFZ) apprenticeship.",
-      de: "3-jährige Berufslehre mit eidgenössischem Fähigkeitszeugnis (EFZ).",
-      fr: "Apprentissage de 3 ans avec Certificat fédéral de capacité (CFC).",
-      it: "Apprendistato triennale con Attestato federale di capacità (AFC)."
-    },
-    verified: true,
-    demandLevel: "Very High",
-    growthRatePct: 18.2,
-    avgWorkHoursWeekly: 40,
-    flexibilityScore: 5,
-    skillsRequired: {
-      en: ["Patient Care", "Clinical Diagnostics", "Medical Compliance", "First Aid"],
-      de: ["Patientenpflege", "Klinische Diagnostik", "Hygiene", "Erste Hilfe"],
-      fr: ["Soins", "Suivi clinique", "Règles d'hygiène", "Urgences"],
-      it: ["Cura dei pazienti", "Diagnostica clinica", "Soccorso iniziale", "Igiene"]
-    },
-    industries: ["Cantonal Hospitals", "Spitex In-Home Care", "Medical Wellness"],
-    isApprenticeshipPath: true
-  },
-  {
-    id: "mech_eng",
-    title: { en: "Precision Micro-Engineer", de: "Mikrotechnologe", fr: "Microtechnicien de précision", it: "Microtecnico di precisione" },
-    description: {
-      en: "Designs ultra-precise micromechanical gears, sensors, and aerospace instruments. Deeply connected to the Swiss watchmaking heritage.",
-      de: "Konstruiert hochpräzise mikromechanische Bauteile. Eng verbunden mit die Schweizer Uhrentradition.",
-      fr: "Conçoit des pièces micromécaniques d'extrême précision. Lié à la haute horlogerie et aux technologies médicales.",
-      it: "Progetta ingranaggi micromecanici di alta precisione. Legato all'orologeria di lusso e alla microelettronica."
-    },
-    category: "engineering",
-    salaryCHF: 95000,
-    outlook: "medium",
-    educationRequired: {
-      en: "Apprenticeship with EFZ plus Higher College HF course, or University of Applied Sciences degree.",
-      de: "Berufslehre EFZ mit Weiterbildung HF, oder Fachhochschulstudium.",
-      fr: "CFC de micromécanicien élargi par un diplôme ES ou HES.",
-      it: "Apprendistato AFC integrato da diploma SSS o SUP."
-    },
-    verified: true,
-    demandLevel: "High",
-    growthRatePct: 8.5,
-    avgWorkHoursWeekly: 41,
-    flexibilityScore: 6,
-    skillsRequired: {
-      en: ["CAD Modeling", "CNC Precision Machining", "Sensor Design", "Microfluidics"],
-      de: ["CAD-Modellierung", "CNC-Präzisionsfertigung", "Feinwerktechnik"],
-      fr: ["Modélisation CAD", "Usinage CNC", "Haute horlogerie", "Microfluidique"],
-      it: ["Modellazione CAD", "Lavorazione CNC", "Orologeria", "Microfluidica"]
-    },
-    industries: ["Watchmaking conglomerates", "Aerospace components", "Biotech implants"],
-    isApprenticeshipPath: true
-  },
-  {
-    id: "fin_adviser",
-    title: { en: "Financial Specialist", de: "Finanzfachmann", fr: "Expert en Finance d'Investissement", it: "Specialista in Finanza" },
-    description: {
-      en: "Optimizes capital structures, handles investment risk analytics, and structures private wealth configurations in Zurich & Geneva markets.",
-      de: "Optimiert Kapitalstrukturen und verwaltet Anlagerisiken in den Marken Zürich und Genf.",
-      fr: "Optimise les structures de capital et évalue les risques d'investissement à Genève et Zurich.",
-      it: "Ottimizza strutture di capitale e analizza i rischi d'investimento nelle piazze di Zurigo e Ginevra."
-    },
-    category: "business",
-    salaryCHF: 125000,
-    outlook: "high",
-    educationRequired: {
-      en: "MSc in Quantitative Finance, or certified Swiss Federal Diploma in Financial Analysis.",
-      de: "Master in Quantitative Finance oder Eidg. Diplom Finanzanalytiker.",
-      fr: "Master en finance quantitative ou diplôme fédéral d'expert en finance.",
-      it: "Master in Finanza Quantitativa o diploma federale di analista finanziario."
-    },
-    verified: true,
-    demandLevel: "High",
-    growthRatePct: 11.2,
-    avgWorkHoursWeekly: 44,
-    flexibilityScore: 7,
-    skillsRequired: {
-      en: ["Quantitative Modeling", "Portfolio Analytics", "FINMA Regulations", "Private Banking"],
-      de: ["Quantitative Modellierung", "Portfolio-Analyse", "FINMA-Regeln"],
-      fr: ["Modélisation financière", "Analyse de portefeuille", "Régulation FINMA"],
-      it: ["Modelli quantitativi", "Analisi di portafoglio", "Regolamentazione FINMA"]
-    },
-    industries: ["Private Banking Partnerships", "Family Offices", "Fintech Hedge Funds"],
-    isApprenticeshipPath: false
-  }
-];
-
 export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
   const [professionsList, setProfessionsList] = useState<Profession[]>([]);
+  const [profLoading, setProfLoading] = useState(true);
+  const [profLoadError, setProfLoadError] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [selectedProf, setSelectedProf] = useState<Profession | null>(null);
 
+  // HARD RULE (02_Product/Requirements/Trust and Data Requirements.md): never
+  // invent data. A previous version of this component swapped in a mock
+  // dataset with fabricated salaries whenever the real fetch was empty or
+  // failed, with no indication to the user that the numbers weren't real.
+  // The catalog is still small and growing (see Changelog.md) - an honest
+  // "still growing" message is the right fallback, not fabricated content.
   React.useEffect(() => {
     let active = true;
     const fetchProfs = async () => {
+      setProfLoading(true);
+      setProfLoadError(false);
       try {
         const data = await DataRepository.getProfessions();
-        if (active) {
-          if (data && data.length > 0) {
-            setProfessionsList(data);
-          } else {
-            setProfessionsList(MOCK_PROFESSIONS_FALLBACK);
-          }
-        }
+        if (active) setProfessionsList(data);
       } catch (err) {
-        if (active) setProfessionsList(MOCK_PROFESSIONS_FALLBACK);
+        if (active) setProfLoadError(true);
+      } finally {
+        if (active) setProfLoading(false);
       }
     };
     fetchProfs();
@@ -445,9 +320,20 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
       <div className="grid gap-6 md:grid-cols-12 items-start">
         {/* Professions list selection column */}
         <div className="md:col-span-5 space-y-2 max-h-[380px] overflow-y-auto pr-1">
-          {filtered.length === 0 ? (
+          {profLoading ? (
             <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-white/10 text-zinc-500" : "border-purple-200 text-violet-950/50"}`}>
-              <p className="text-xs">{t.professionsEmpty}</p>
+              <p className="text-xs">{t.professionsLoading}</p>
+            </div>
+          ) : profLoadError ? (
+            <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-amber-500/20 text-amber-500" : "border-amber-300 text-amber-700"}`}>
+              <p className="text-xs">{t.professionsLoadError}</p>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-white/10 text-zinc-500" : "border-purple-200 text-violet-950/50"}`}>
+              {/* Distinguish "search/filter narrowed to zero" from "catalog has
+                  nothing yet" - conflating the two would either hide a real
+                  empty-catalog state or wrongly blame the user's search. */}
+              <p className="text-xs">{professionsList.length === 0 ? t.professionsCatalogGrowing : t.professionsEmpty}</p>
             </div>
           ) : (
             filtered.map(p => {
