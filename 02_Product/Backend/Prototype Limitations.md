@@ -1,6 +1,6 @@
 Status: Working
 Owner: Sofiia
-Last Updated: 2026-09-12
+Last Updated: 2026-09-13
 Purpose: собрать явный список ограничений текущего AI Studio snapshot, чтобы агент не принимал demo-поведение за production-ready решение.
 Maturity: This is a first product-layer draft grounded in the current Inspirella strategy, data model and AI Studio code snapshot. Review before treating it as final product policy.
 Related Files:
@@ -22,10 +22,10 @@ Related Files:
 8. `getInstitutions()` пробует `institutions`, затем `schools`, что полезно для миграции, но не является финальной моделью.
 9. ~~`MapboxMap` получает optional token/style props, а `App.tsx` их не передаёт явно.~~ **Закрыто 2026-09-11.**
 10. `/api/config` отдаёт набор runtime values целиком и требует строгого whitelist-а.
-11. Gemini endpoint существует, но основной `AdvisorReport` сейчас использует local rule-based engine.
+11. ~~Gemini endpoint существует, но основной `AdvisorReport` сейчас использует local rule-based engine.~~ **Закрыто 2026-09-13** — см. раздел «Закрытые ограничения».
 12. ~~`package-lock.json` сохраняет старое имя `react-example`.~~ Уже не так — `package.json`/`package-lock.json` называются `inspirella`.
 13. Некоторые файлы и ссылки имеют различный регистр (`Readme.md` vs `README.md`).
-14. ~~Есть случайные `Math.random()` IDs для records/tracker display.~~ **Частично закрыто 2026-09-12** — tracker goal/item ids теперь `crypto.randomUUID()` (требовалось для Supabase-синхронизации, см. ниже). Остался один чисто косметический `Math.random()` в `features/modules.tsx` (декоративный "ID: CH-XXXXXX" на карточке профиля, нигде не сохраняется) — не трогали, вне контекста.
+14. ~~Есть случайные `Math.random()` IDs для records/tracker display.~~ **Закрыто 2026-09-13** — tracker goal/item ids теперь `crypto.randomUUID()` (требовалось для Supabase-синхронизации, см. ниже). Единственный оставшийся косметический `Math.random()` жил в `features/modules.tsx` (декоративный "ID: CH-XXXXXX" на карточке профиля) — этот файл был мёртвым кодом (не импортировался нигде) и удалён 2026-09-13.
 15. 02_Product ранее отсутствовал как заполненная спецификация; текущий пакет является первым draft.
 
 ## Закрытые ограничения
@@ -57,6 +57,14 @@ Sofiia подключила Supabase MCP (прямой доступ к базе)
 ### Trackers → Supabase (пункт 5) — 2026-09-12
 
 `getTrackers`/`saveTrackers` теперь cloud-first для настоящих аккаунтов через `tracker_goals`/`tracker_items` (guest остаётся local-only, как и профиль). Потребовало перехода с `Math.random()` id на `crypto.randomUUID()` (пункт 14) — колонки `id` в этих таблицах типа `uuid`. По пути найден и исправлен реальный баг: логика "это первый визит → показать example tracker" проверяла только localStorage, и на новом устройстве могла молча перезаписать настоящие облачные трекеры пользователя примером.
+
+### Gemini endpoint не подключён к UI (пункт 11) — 2026-09-13
+
+`AdvisorReport.tsx` теперь предлагает кнопку "Explain my recommendation with AI", вызывающую уже существовавший `/api/gemini/advisor`. Rule-based движок остаётся источником истины для самих рекомендаций — Gemini добавляет только объяснение поверх. Заодно выяснилось, что `isFallback`/`errorMessage`, которые сервер возвращал при сбое Gemini с самого начала, никогда не проверялись на фронтенде (потому что endpoint не был подключён вообще) — теперь при `isFallback` показывается явное предупреждение, а не общий текст под видом персонального. См. `Decisions.md`, запись «Роль Gemini».
+
+### Мёртвый код и выдуманный fallback в профессиях — 2026-09-13
+
+`features/dashboard.tsx` подставлял 4 полностью выдуманные профессии (с придуманными зарплатами и % роста) при любой ошибке или пустом результате запроса — без раскрытия пользователю. Убран; вместо этого честные состояния loading/error/empty. `features/modules.tsx` (дубликат `ResourcesView`/`ProfileView`, нигде не импортировался, содержал decorative `Math.random()` ID, см. пункт 14) — удалён.
 
 ## Как трактовать
 
