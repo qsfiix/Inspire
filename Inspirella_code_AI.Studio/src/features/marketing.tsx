@@ -12,10 +12,7 @@ import {
   Layers, 
   Building, 
   CheckCircle,
-  Phone,
   Mail,
-  MapPin,
-  Clock,
   ShieldCheck,
   ChevronRight
 } from "lucide-react";
@@ -519,9 +516,17 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
   const [contactMsg, setContactMsg] = useState("");
   const [contactSuccess, setContactSuccess] = useState(false);
 
+  // There is no backend mail service behind this form - opening a mailto:
+  // link is the honest mechanism here: it genuinely hands the message to the
+  // user's own mail client addressed to a real inbox, rather than showing a
+  // "sent" confirmation for a message that actually went nowhere.
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactName || !contactEmail || !contactMsg) return;
+
+    const subject = encodeURIComponent(`Inspirella contact form - ${contactName}`);
+    const body = encodeURIComponent(`${contactMsg}\n\n— ${contactName} (${contactEmail})`);
+    window.location.href = `mailto:iinspirella@gmail.com?subject=${subject}&body=${body}`;
 
     setContactSuccess(true);
     setTimeout(() => {
@@ -546,56 +551,32 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
       </div>
 
       <div className="grid gap-8 lg:grid-cols-12 items-start">
-        {/* Left Hand: Office Contact Info */}
+        {/* Left Hand: Contact Info */}
         <div className="card-premium lg:col-span-5 p-6 space-y-6">
           <div className="space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-violet-500 font-bold">Contact Channels</span>
-            <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-violet-950"}`}>Geneva Main Office</h3>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-violet-500 font-bold">Contact</span>
+            <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-violet-950"}`}>
+              An early-stage, independent project
+            </h3>
             <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/80 font-bold"}`}>
-              Direct contact for institutions, educators, and candidates.
+              Inspirella is not yet a registered company - there's no office or phone line, just a real
+              person reading every message.
             </p>
           </div>
 
           <div className="space-y-4 pt-4 border-t border-violet-900/10 text-xs">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-violet-500/10 text-violet-500">
-                <MapPin className="h-4 w-4" />
-              </div>
-              <div>
-                <span className={`block font-mono text-[9px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Swiss HQ Address</span>
-                <span className={`font-bold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>Rue de l'Athénée 12, 1205 Genève, Switzerland</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-violet-500/10 text-violet-500">
                 <Mail className="h-4 w-4" />
               </div>
               <div>
-                <span className={`block font-mono text-[9px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Secrétariat E-mail</span>
-                <span className={`font-bold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>office@inspirella.ch</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-violet-500/10 text-violet-500">
-                <Phone className="h-4 w-4" />
-              </div>
-              <div>
-                <span className={`block font-mono text-[9px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Phone Number</span>
-                <span className={`font-bold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>+41 22 379 7111</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-violet-500/10 text-violet-500">
-                <Clock className="h-4 w-4" />
-              </div>
-              <div>
-                <span className={`block font-mono text-[9px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Office Hours</span>
-                <span className={`font-bold ${isDark ? "text-zinc-200" : "text-violet-100 bg-violet-950 px-2 py-0.5 rounded text-[11px]"}`}>
-                  Mon - Fri, 09:00 - 17:00 CET
-                </span>
+                <span className={`block font-mono text-[9px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Email</span>
+                <a
+                  href="mailto:iinspirella@gmail.com"
+                  className={`font-bold underline underline-offset-2 ${isDark ? "text-zinc-200 hover:text-violet-300" : "text-violet-950"}`}
+                >
+                  iinspirella@gmail.com
+                </a>
               </div>
             </div>
           </div>

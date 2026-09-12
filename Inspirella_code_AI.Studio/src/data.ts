@@ -49,7 +49,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     contactEmail: "Email Address",
     contactMsg: "Your Message",
     contactSend: "Send Message",
-    contactSuccess: "Message sent successfully. We will respond shortly.",
+    contactSuccess: "Your email app should now be open with your message ready to send.",
 
     // Onboarding
     onboardTitle: "Educational Alignment Consultations",
@@ -210,7 +210,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     contactEmail: "E-Mail-Adresse",
     contactMsg: "Ihre Mitteilung",
     contactSend: "Nachricht senden",
-    contactSuccess: "Nachricht erfolgreich übermittelt. Unsere Berater melden sich in Kürze.",
+    contactSuccess: "Ihr E-Mail-Programm sollte sich jetzt mit der vorbereiteten Nachricht öffnen.",
 
     // Onboarding
     onboardTitle: "Bildungsausrichtungs-Beratung",
@@ -371,7 +371,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     contactEmail: "Adresse électronique",
     contactMsg: "Votre Message",
     contactSend: "Envoyer le Message",
-    contactSuccess: "Message transmis avec succès. Un conseiller prendra contact prochainement.",
+    contactSuccess: "Votre application e-mail devrait s'ouvrir avec le message déjà prêt.",
 
     // Onboarding
     onboardTitle: "Consultation d'Orientation Éducative",
@@ -532,7 +532,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     contactEmail: "Indirizzo E-mail",
     contactMsg: "Il tuo Messaggio",
     contactSend: "Invia Messaggio",
-    contactSuccess: "Messaggio inviato. Risponderemo al più presto.",
+    contactSuccess: "La tua app di posta dovrebbe aprirsi con il messaggio già pronto.",
 
     // Onboarding
     onboardTitle: "Consulenza d'Allineamento Formativo",

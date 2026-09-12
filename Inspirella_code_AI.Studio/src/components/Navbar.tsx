@@ -2,7 +2,6 @@ import { motion } from "motion/react";
 import { Globe, LogOut, GraduationCap, Map, CheckSquare, FileText, User, Compass, Sun, Moon } from "lucide-react";
 import { LanguageCode } from "../types";
 import { TRANSLATIONS } from "../data";
-import PhoenixLogo from "./PhoenixLogo";
 
 interface NavbarProps {
   currentLanguage: LanguageCode;
@@ -61,9 +60,12 @@ export default function Navbar({
           className="flex items-center gap-2 cursor-pointer group" 
           onClick={() => onTabChange(isLoggedIn ? "dashboard" : "home")}
         >
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 via-indigo-700 to-purple-800 shadow-[0_0_15px_rgba(109,40,217,0.4)] transition-transform duration-300 group-hover:scale-105 active:scale-95">
-            <PhoenixLogo size={28} className="text-white drop-shadow-[0_2px_5px_rgba(255,255,255,0.4)]" />
-            <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-violet-600 to-purple-800 opacity-20 blur-sm"></div>
+          <div className="relative flex h-10 w-10 items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95">
+            <img
+              src="/logo-mark.png"
+              alt="Inspirella"
+              className="h-full w-full object-contain drop-shadow-[0_2px_10px_rgba(139,92,246,0.5)]"
+            />
           </div>
           <div>
             <span className={`text-xl font-bold tracking-wider transition-colors ${isDark ? "text-white" : "text-indigo-950"}`}>
