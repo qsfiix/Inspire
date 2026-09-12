@@ -1,6 +1,19 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, BrainCircuit, Landmark, ShieldCheck, Briefcase, ExternalLink, Lightbulb, Route, CheckCircle2 } from "lucide-react";
+import {
+  Sparkles,
+  BrainCircuit,
+  Landmark,
+  ShieldCheck,
+  Briefcase,
+  ExternalLink,
+  Lightbulb,
+  Route,
+  CheckCircle2,
+  Wand2,
+  AlertTriangle,
+  Milestone
+} from "lucide-react";
 import { LanguageCode, LearningPath, UserProfile } from "../types";
 import { TRANSLATIONS } from "../data";
 import { useEducationEngine } from "../engine/useEducationEngine";
@@ -14,6 +27,25 @@ interface AdvisorReportProps {
   language: LanguageCode;
   theme?: string;
 }
+
+/** Shape of a successful /api/gemini/advisor response (see server.ts). */
+interface AiAdvisorResponse {
+  welcomeMessage: string;
+  suggestedPathTitle: string;
+  explanation: string;
+  milestones: { id: string; title: string; description: string; timeframe: string }[];
+  recommendedInstitutions: string[];
+  /** Present only when the server couldn't reach Gemini and returned a generic stand-in. */
+  isFallback?: boolean;
+  errorMessage?: string;
+}
+
+const LANGUAGE_NAMES: Record<LanguageCode, string> = {
+  en: "English",
+  de: "German",
+  fr: "French",
+  it: "Italian"
+};
 
 export default function AdvisorReport({
   userProfile,
@@ -45,6 +77,50 @@ export default function AdvisorReport({
   const matchedPath = topProfessionId
     ? learningPaths.find(p => p.targetProfessionId === topProfessionId)
     : undefined;
+
+  // AI explanation layer: an optional, explicitly user-triggered narrative on top
+  // of the rule-based engine result above. The engine's scored lists remain the
+  // source of truth - this only ever adds a plain-language read of them, never
+  // replaces them, and clearly discloses itself if Gemini couldn't be reached
+  // (server.ts sets `isFallback` rather than silently serving invented content).
+  const [aiState, setAiState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [aiData, setAiData] = useState<AiAdvisorResponse | null>(null);
+  const [aiErrorMessage, setAiErrorMessage] = useState<string | null>(null);
+
+  const requestAiExplanation = async () => {
+    setAiState("loading");
+    setAiErrorMessage(null);
+    try {
+      const res = await fetch("/api/gemini/advisor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          interests,
+          goals,
+          currentStage: currentStage.replace("stage_", ""),
+          language: LANGUAGE_NAMES[language] || "English"
+        })
+      });
+
+      const body = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setAiErrorMessage(
+          res.status === 429
+            ? "Too many requests right now. Please try again in a few minutes."
+            : (body && body.message) || "The AI advisor couldn't be reached. Please try again shortly."
+        );
+        setAiState("error");
+        return;
+      }
+
+      setAiData(body as AiAdvisorResponse);
+      setAiState("success");
+    } catch {
+      setAiErrorMessage("The AI advisor couldn't be reached. Please try again shortly.");
+      setAiState("error");
+    }
+  };
 
   const tTextBody = isDark ? "text-zinc-200" : "text-black font-bold";
   const tTextMuted = isDark ? "text-zinc-300 animate-pulse" : "text-black font-extrabold";
@@ -148,6 +224,98 @@ export default function AdvisorReport({
                   {recommendation.nextBestStep}
                 </p>
               </div>
+            </div>
+
+            {/* AI explanation layer: optional, on-demand narrative over the result above */}
+            <div className={`rounded-xl border p-4 ${isDark ? "bg-white/[0.02] border-white/10" : "bg-white border-purple-200"}`}>
+              {aiState === "idle" && (
+                <button
+                  onClick={requestAiExplanation}
+                  className="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-bold tracking-wide btn-primary"
+                >
+                  <Wand2 className="h-3.5 w-3.5" />
+                  Explain my recommendation with AI
+                </button>
+              )}
+
+              {aiState === "loading" && (
+                <div className="flex items-center justify-center gap-2 py-2 text-xs">
+                  <Sparkles className="h-3.5 w-3.5 text-violet-500 animate-pulse" />
+                  <span className={isDark ? "text-zinc-300" : "text-zinc-700"}>Asking the AI advisor for a plain-language explanation...</span>
+                </div>
+              )}
+
+              {aiState === "error" && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-amber-500">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    <span>{aiErrorMessage}</span>
+                  </div>
+                  <button
+                    onClick={requestAiExplanation}
+                    className={`text-[11px] font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/60 hover:text-violet-950"}`}
+                  >
+                    Try again
+                  </button>
+                </div>
+              )}
+
+              {aiState === "success" && aiData && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-violet-500" />
+                    <span className={`text-[9px] uppercase tracking-widest font-mono ${isDark ? "text-violet-400" : "text-violet-800 font-extrabold"}`}>
+                      AI Perspective{aiData.isFallback ? " — Generic Overview" : ""}
+                    </span>
+                  </div>
+
+                  {aiData.isFallback && (
+                    <div className={`flex items-start gap-2 rounded-lg border p-2.5 text-[10px] ${
+                      isDark ? "bg-amber-500/10 border-amber-500/25 text-amber-300" : "bg-amber-50 border-amber-300 text-amber-800"
+                    }`}>
+                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                      <span>
+                        The AI advisor couldn't be reached just now, so this is a generic overview rather than a
+                        response tailored to your profile. The scored results above are unaffected.
+                      </span>
+                    </div>
+                  )}
+
+                  <h3 className={`text-base font-bold ${isDark ? "text-white" : "text-violet-950"}`}>{aiData.suggestedPathTitle}</h3>
+                  <p className={`text-xs leading-relaxed ${tTextBody}`}>{aiData.welcomeMessage}</p>
+                  <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{aiData.explanation}</p>
+
+                  {aiData.milestones?.length > 0 && (
+                    <ol className="space-y-2 pt-1">
+                      {aiData.milestones.map((m, idx) => (
+                        <li key={m.id || idx} className={`p-2.5 rounded-lg border flex items-start gap-2.5 ${isDark ? "bg-white/[0.02] border-white/10" : "bg-purple-50/50 border-purple-200"}`}>
+                          <Milestone className="h-3.5 w-3.5 mt-0.5 text-violet-500 shrink-0" />
+                          <div className="min-w-0">
+                            <div className={`font-bold text-[11px] ${isDark ? "text-violet-200" : "text-violet-950"}`}>{m.title}</div>
+                            <p className={`text-[10px] mt-0.5 leading-snug ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{m.description}</p>
+                            {m.timeframe && (
+                              <span className={`text-[9px] font-mono ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>{m.timeframe}</span>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+
+                  {aiData.recommendedInstitutions?.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {aiData.recommendedInstitutions.map((name, idx) => (
+                        <span
+                          key={idx}
+                          className={`text-[9.5px] font-mono px-2 py-1 rounded-lg border ${isDark ? "bg-white/5 border-white/10 text-zinc-300" : "bg-purple-100/80 text-violet-950 border-purple-200"}`}
+                        >
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
