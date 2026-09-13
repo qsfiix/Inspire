@@ -67,7 +67,7 @@ export function HomeView({
       >
         <HeroBackground isDark={isDark} showPhoenixWatermark={splineStatus !== "ready"} />
 
-        <div className="relative grid gap-6 lg:grid-cols-[0.95fr_1.05fr] items-center">
+        <div className="relative grid gap-6 lg:grid-cols-[0.85fr_1.15fr] items-center">
           {/* Text column */}
           <div className="space-y-8 text-center lg:text-left">
             {/* Live Active Badge */}
@@ -149,12 +149,14 @@ export function HomeView({
 
           {/* 3D phoenix column - Sofiia's own Spline model of the logo.
               Stays a tasteful glass panel with a soft pulse while loading/if
-              unavailable, so the layout never shows an empty box. */}
-          {/* No overflow-hidden here on purpose: Sofiia framed the phoenix
-              (and its glow) natively in Spline to slightly exceed this box,
-              so clipping it here would hard-cut the model on the right and
-              its glow on the left - let it bleed instead. */}
-          <div className="relative h-[380px] sm:h-[480px] lg:h-[640px]">
+              unavailable, so the layout never shows an empty box.
+              No overflow-hidden here - a canvas can't show content beyond
+              its own pixel bounds anyway, so a DOM clip mask was never the
+              real lever. The edge cropping Sofiia saw is Spline's own
+              camera/FOV framing the scene tighter than her enlarged phoenix
+              + glow now need - that's fixed by adjusting the camera zoom in
+              Spline itself, not CSS here. Sized generously as a complement. */}
+          <div className="relative h-[420px] sm:h-[520px] lg:h-[720px]">
             <div
               className={`absolute inset-0 rounded-3xl border transition-opacity duration-500 flex items-center justify-center ${
                 isDark ? "border-white/10 bg-white/[0.02]" : "border-violet-950/10 bg-violet-950/[0.02]"
