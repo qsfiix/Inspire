@@ -12,12 +12,14 @@ import {
   CheckCircle2,
   Wand2,
   AlertTriangle,
-  Milestone
+  Milestone,
+  ListPlus
 } from "lucide-react";
-import { LanguageCode, LearningPath, UserProfile } from "../types";
+import { LanguageCode, LearningPath, TrackerGoal, UserProfile } from "../types";
 import { TRANSLATIONS } from "../data";
 import { useEducationEngine } from "../engine/useEducationEngine";
 import { DataRepository } from "../data/Repository";
+import { localizedText } from "../lib/localized";
 
 interface AdvisorReportProps {
   userProfile?: UserProfile | null;
@@ -26,6 +28,9 @@ interface AdvisorReportProps {
   currentStage: string;
   language: LanguageCode;
   theme?: string;
+  /** Optional: when provided, the matched learning path gets an "add to my tracker" button. */
+  trackers?: TrackerGoal[];
+  onTrackersChange?: (updated: TrackerGoal[]) => void;
 }
 
 /** Shape of a successful /api/gemini/advisor response (see server.ts). */
@@ -53,7 +58,9 @@ export default function AdvisorReport({
   goals,
   currentStage,
   language,
-  theme
+  theme,
+  trackers,
+  onTrackersChange
 }: AdvisorReportProps) {
   const { recommendation, loading, error } = useEducationEngine(userProfile || null);
   const t = TRANSLATIONS[language];
@@ -77,6 +84,33 @@ export default function AdvisorReport({
   const matchedPath = topProfessionId
     ? learningPaths.find(p => p.targetProfessionId === topProfessionId)
     : undefined;
+
+  // Bridge to the Life Tracker (Sofiia's review 2026-09-13: the tracker felt
+  // disconnected from the rest of the product - this is the most direct tie,
+  // since the path's steps are already structured and ordered).
+  const matchedPathTitleText = matchedPath ? localizedText(matchedPath.title, language) : "";
+  const pathTrackerGoalTitle = `Path: ${matchedPathTitleText}`;
+  const isPathInTracker = !!trackers?.some(g => g.title === pathTrackerGoalTitle);
+
+  const addPathToTracker = () => {
+    if (!matchedPath || !onTrackersChange || isPathInTracker) return;
+    const newGoal: TrackerGoal = {
+      id: crypto.randomUUID(),
+      title: pathTrackerGoalTitle,
+      category: "education",
+      description: localizedText(matchedPath.description, language),
+      streak: 0,
+      progress: 0,
+      items: matchedPath.steps.map(step => ({
+        id: crypto.randomUUID(),
+        text: localizedText(step.title, language),
+        completed: false,
+        frequency: "weekly"
+      })),
+      createdAt: new Date().toISOString()
+    };
+    onTrackersChange([newGoal, ...(trackers || [])]);
+  };
 
   // AI explanation layer: an optional, explicitly user-triggered narrative on top
   // of the rule-based engine result above. The engine's scored lists remain the
@@ -330,7 +364,7 @@ export default function AdvisorReport({
                     <div>
                       <div className="flex justify-between items-start gap-2">
                         <span className={`font-black text-[12px] truncate ${isDark ? "text-violet-200" : "text-violet-950"}`}>
-                          {typeof rp.profession.title === "string" ? rp.profession.title : (rp.profession.title[language] || rp.profession.title["en"])}
+                          {localizedText(rp.profession.title, language)}
                         </span>
                         <span className={`px-1.5 py-0.5 rounded text-[8px] font-mono border ${isDark ? "bg-white/5 border-white/10 text-emerald-400" : "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold"}`}>
                           SCORE: {rp.score}
@@ -383,9 +417,25 @@ export default function AdvisorReport({
             {/* Matched learning path: concrete ordered steps toward the top-scored profession */}
             {matchedPath && matchedPath.steps.length > 0 && (
               <div className={`pt-4 border-t space-y-3 ${isDark ? "border-white/10" : "border-violet-950/10"}`}>
-                <div className={`text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 ${isDark ? "text-white/40" : "text-violet-950/60 font-black"}`}>
-                  <Route className="h-3.5 w-3.5" />
-                  Your Path to Becoming {typeof matchedPath.title === "string" ? matchedPath.title : (matchedPath.title[language] || matchedPath.title["en"])}
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className={`text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 ${isDark ? "text-white/40" : "text-violet-950/60 font-black"}`}>
+                    <Route className="h-3.5 w-3.5" />
+                    Your Path to Becoming {matchedPathTitleText}
+                  </div>
+                  {onTrackersChange && (
+                    <button
+                      onClick={addPathToTracker}
+                      disabled={isPathInTracker}
+                      className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1.5 rounded-lg transition ${
+                        isPathInTracker
+                          ? (isDark ? "text-emerald-400 bg-emerald-500/10 cursor-default" : "text-emerald-700 bg-emerald-50 cursor-default")
+                          : (isDark ? "text-violet-300 bg-white/5 hover:bg-white/10 cursor-pointer" : "text-violet-700 bg-violet-50 hover:bg-violet-100 cursor-pointer")
+                      }`}
+                    >
+                      {isPathInTracker ? <CheckCircle2 className="h-3 w-3" /> : <ListPlus className="h-3 w-3" />}
+                      {isPathInTracker ? t.advisorPathInTracker : t.advisorAddPathToTracker}
+                    </button>
+                  )}
                 </div>
                 <ol className="space-y-2">
                   {matchedPath.steps.map((step, idx) => (
@@ -402,17 +452,17 @@ export default function AdvisorReport({
                       </div>
                       <div className="min-w-0">
                         <div className={`font-bold text-[12px] ${isDark ? "text-violet-200" : "text-violet-950"}`}>
-                          {step.title[language] || step.title["en"]}
+                          {localizedText(step.title, language)}
                         </div>
-                        {step.description && (step.description[language] || step.description["en"]) && (
+                        {localizedText(step.description, language) && (
                           <p className={`text-[10px] mt-1 leading-snug ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
-                            {step.description[language] || step.description["en"]}
+                            {localizedText(step.description, language)}
                           </p>
                         )}
-                        {step.timeframe && (step.timeframe[language] || step.timeframe["en"]) && (
+                        {localizedText(step.timeframe, language) && (
                           <div className={`text-[9px] mt-1 font-mono flex items-center gap-1 ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>
                             <CheckCircle2 className="h-3 w-3" />
-                            {step.timeframe[language] || step.timeframe["en"]}
+                            {localizedText(step.timeframe, language)}
                           </div>
                         )}
                       </div>
@@ -440,7 +490,7 @@ export default function AdvisorReport({
                   >
                     <div className="flex items-center justify-between gap-1 mb-1">
                       <span className={`font-bold text-[10px] truncate ${isDark ? "text-violet-300" : "text-violet-900"}`}>
-                        {typeof rawRes.resource.title === "string" ? rawRes.resource.title : (rawRes.resource.title[language] || rawRes.resource.title["en"])}
+                        {localizedText(rawRes.resource.title, language)}
                       </span>
                       <ExternalLink className="h-3 w-3 opacity-50 shrink-0" />
                     </div>

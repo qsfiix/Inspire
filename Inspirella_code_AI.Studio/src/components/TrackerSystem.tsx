@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Plus, Trash2, CheckCircle, Circle, PlusCircle, Trophy, BarChart3, Star, HeartPulse, BrainCircuit, Activity } from "lucide-react";
+import { Plus, Trash2, CheckCircle, Circle, PlusCircle, Trophy, BarChart3, Star, HeartPulse, BrainCircuit, Activity, CalendarClock, AlertTriangle } from "lucide-react";
 import { TrackerGoal, TrackerChecklistItem, LanguageCode } from "../types";
 import { TRANSLATIONS } from "../data";
 
@@ -11,6 +11,20 @@ interface TrackerSystemProps {
   theme?: string;
 }
 
+/**
+ * Days between today and a "YYYY-MM-DD" due date; negative means overdue.
+ * Exported so the dashboard's passive reminder banner (dashboard.tsx) can
+ * reuse the exact same date math instead of a second, possibly-diverging copy.
+ */
+export const daysUntilDue = (dueDate?: string): number | null => {
+  if (!dueDate) return null;
+  const due = new Date(`${dueDate}T00:00:00`);
+  if (Number.isNaN(due.getTime())) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+};
+
 export default function TrackerSystem({
   currentLanguage,
   trackers,
@@ -20,6 +34,7 @@ export default function TrackerSystem({
   const [newGoalTitle, setNewGoalTitle] = useState("");
   const [newGoalDesc, setNewGoalDesc] = useState("");
   const [newGoalCategory, setNewGoalCategory] = useState<TrackerGoal["category"]>("education");
+  const [newGoalDueDate, setNewGoalDueDate] = useState("");
   const [newItemTexts, setNewItemTexts] = useState<Record<string, string>>({}); // goalId: text
   const t = TRANSLATIONS[currentLanguage];
   const isDark = theme !== "light";
@@ -51,13 +66,15 @@ export default function TrackerSystem({
       streak: 0,
       progress: 0,
       items: [],
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      dueDate: newGoalDueDate || undefined
     };
 
     const updated = [newGoal, ...trackers];
     onTrackersChange(updated);
     setNewGoalTitle("");
     setNewGoalDesc("");
+    setNewGoalDueDate("");
   };
 
   const handleDeleteGoal = (goalId: string) => {
@@ -211,7 +228,7 @@ export default function TrackerSystem({
           {t.createTracker}
         </h3>
 
-        <form onSubmit={handleCreateGoal} className="grid gap-4 sm:grid-cols-6 items-end">
+        <form onSubmit={handleCreateGoal} className="grid gap-4 sm:grid-cols-7 items-end">
           <div className="sm:col-span-2">
             <label className={`block text-[10px] font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>Goal Title *</label>
             <input
@@ -249,6 +266,16 @@ export default function TrackerSystem({
               <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="productivity">{t.habitCat_productivity}</option>
               <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="other">{t.habitCat_other}</option>
             </select>
+          </div>
+
+          <div className="sm:col-span-1">
+            <label className={`block text-[10px] font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>{t.trackerDueDateLabel}</label>
+            <input
+              type="date"
+              value={newGoalDueDate}
+              onChange={(e) => setNewGoalDueDate(e.target.value)}
+              className={`w-full rounded-lg p-2.5 text-xs focus:outline-none ${tInput}`}
+            />
           </div>
 
           <div className="sm:col-span-1">
@@ -305,19 +332,43 @@ export default function TrackerSystem({
                   </div>
 
                   {/* Progress Indicators & Streaks */}
-                  <div className="flex items-center justify-between text-xs mb-3">
+                  <div className="flex items-center justify-between text-xs mb-3 flex-wrap gap-1.5">
                     <span className={`font-mono text-[10px] uppercase ${isDark ? "text-zinc-300 font-bold" : "text-violet-950 font-extrabold"}`}>
                       {t.completionPercentage} • {goal.progress}%
                     </span>
-                    
-                    {goal.streak > 0 && (
-                      <span className={`font-mono text-[10px] flex items-center gap-1.5 px-2.5 py-1 rounded-lg border backdrop-blur-md ${
-                        isDark ? "bg-white/5 text-amber-300 border-white/10 shadow-[0_0_8px_rgba(245,158,11,0.1)]" : "bg-amber-50 text-amber-950 border-amber-200 font-black shadow-sm"
-                      }`}>
-                        <Trophy className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
-                        <span>{goal.streak} {t.completeStreak}</span>
-                      </span>
-                    )}
+
+                    <div className="flex items-center gap-1.5">
+                      {goal.dueDate && (() => {
+                        const days = daysUntilDue(goal.dueDate);
+                        const isOverdue = days !== null && days < 0 && goal.progress < 100;
+                        const isDueSoon = days !== null && days >= 0 && days <= 7 && goal.progress < 100;
+                        return (
+                          <span className={`font-mono text-[10px] flex items-center gap-1.5 px-2.5 py-1 rounded-lg border backdrop-blur-md ${
+                            isOverdue
+                              ? (isDark ? "bg-red-500/10 text-red-300 border-red-500/20" : "bg-red-50 text-red-700 border-red-200 font-black")
+                              : isDueSoon
+                              ? (isDark ? "bg-amber-500/10 text-amber-300 border-amber-500/20" : "bg-amber-50 text-amber-800 border-amber-200 font-black")
+                              : (isDark ? "bg-white/5 text-zinc-300 border-white/10" : "bg-violet-50 text-violet-900 border-violet-200 font-bold")
+                          }`}>
+                            {isOverdue ? <AlertTriangle className="h-3.5 w-3.5" /> : <CalendarClock className="h-3.5 w-3.5" />}
+                            <span>
+                              {isOverdue ? t.trackerOverdueBadge : isDueSoon ? t.trackerDueSoonBadge : t.trackerDuePrefix}
+                              {" "}
+                              {new Date(`${goal.dueDate}T00:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                            </span>
+                          </span>
+                        );
+                      })()}
+
+                      {goal.streak > 0 && (
+                        <span className={`font-mono text-[10px] flex items-center gap-1.5 px-2.5 py-1 rounded-lg border backdrop-blur-md ${
+                          isDark ? "bg-white/5 text-amber-300 border-white/10 shadow-[0_0_8px_rgba(245,158,11,0.1)]" : "bg-amber-50 text-amber-950 border-amber-200 font-black shadow-sm"
+                        }`}>
+                          <Trophy className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
+                          <span>{goal.streak} {t.completeStreak}</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Progress Bar */}

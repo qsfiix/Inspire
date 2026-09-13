@@ -392,7 +392,16 @@ export default function App() {
 
           {/* VIEW: Personalized Dashboard & Home */}
           {activeTab === "dashboard" && (
-            <DashboardView t={t} isDark={isDark} currentLanguage={currentLanguage} userProfile={userProfile} theme={theme} handleTabTransition={handleTabTransition} />
+            <DashboardView
+              t={t}
+              isDark={isDark}
+              currentLanguage={currentLanguage}
+              userProfile={userProfile}
+              theme={theme}
+              handleTabTransition={handleTabTransition}
+              trackers={trackers}
+              onTrackersChange={handleUpdateTrackers}
+            />
           )}
 
           {/* VIEW: Interactive Mapbox WebGIS Grid */}

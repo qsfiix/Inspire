@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { BookOpen, Milestone, Sparkles, User, Pencil, Check, X } from "lucide-react";
+import { BookOpen, Milestone, Sparkles, User, Pencil, Check, X, CalendarClock, AlertTriangle } from "lucide-react";
 import { SWISS_EDUCATION_LEVELS } from "../data";
 import AdvisorReport from "../components/AdvisorReport";
-import { EducationLevel, LanguageCode } from "../types";
+import { daysUntilDue } from "../components/TrackerSystem";
+import { EducationLevel, LanguageCode, TrackerGoal } from "../types";
 
 export function DashboardView({
   t,
@@ -11,9 +12,22 @@ export function DashboardView({
   currentLanguage,
   userProfile,
   theme,
-  handleTabTransition
+  handleTabTransition,
+  trackers = [],
+  onTrackersChange
 }: any) {
   const [selectedSystemLevel, setSelectedSystemLevel] = useState<EducationLevel | null>(SWISS_EDUCATION_LEVELS[2]);
+
+  // Passive tracker reminders: computed client-side from due dates, no push/
+  // email infrastructure needed. Only counts goals that aren't already done.
+  const overdueCount = (trackers as TrackerGoal[]).filter(g => {
+    const days = daysUntilDue(g.dueDate);
+    return days !== null && days < 0 && g.progress < 100;
+  }).length;
+  const dueSoonCount = (trackers as TrackerGoal[]).filter(g => {
+    const days = daysUntilDue(g.dueDate);
+    return days !== null && days >= 0 && days <= 7 && g.progress < 100;
+  }).length;
 
   return (
     <motion.div
@@ -63,6 +77,38 @@ export function DashboardView({
         </div>
       </section>
 
+      {(overdueCount > 0 || dueSoonCount > 0) && (
+        <section className={`rounded-xl border p-4 flex items-center gap-3 ${
+          overdueCount > 0
+            ? (isDark ? "bg-red-500/5 border-red-500/20" : "bg-red-50 border-red-200")
+            : (isDark ? "bg-amber-500/5 border-amber-500/20" : "bg-amber-50 border-amber-200")
+        }`}>
+          {overdueCount > 0
+            ? <AlertTriangle className={`h-5 w-5 shrink-0 ${isDark ? "text-red-400" : "text-red-600"}`} />
+            : <CalendarClock className={`h-5 w-5 shrink-0 ${isDark ? "text-amber-400" : "text-amber-600"}`} />
+          }
+          <div className="flex-1">
+            <span className={`block text-[10px] font-mono uppercase tracking-widest font-bold ${
+              overdueCount > 0 ? (isDark ? "text-red-300" : "text-red-700") : (isDark ? "text-amber-300" : "text-amber-700")
+            }`}>
+              {t.dashboardReminderTitle}
+            </span>
+            <span className={`text-xs ${isDark ? "text-zinc-200" : "text-black font-semibold"}`}>
+              {[
+                overdueCount > 0 ? `${overdueCount} ${t.dashboardReminderOverdueSuffix}` : null,
+                dueSoonCount > 0 ? `${dueSoonCount} ${t.dashboardReminderDueSoonSuffix}` : null
+              ].filter(Boolean).join(" · ")}
+            </span>
+          </div>
+          <button
+            onClick={() => handleTabTransition("tracker")}
+            className={`text-[10px] font-mono underline shrink-0 ${isDark ? "text-zinc-300 hover:text-white" : "text-black hover:text-violet-950"}`}
+          >
+            {t.navTracker}
+          </button>
+        </section>
+      )}
+
       <section>
         <AdvisorReport
           userProfile={userProfile}
@@ -71,6 +117,8 @@ export function DashboardView({
           currentStage={userProfile?.currentStage || "stage_university"}
           language={currentLanguage}
           theme={theme}
+          trackers={trackers}
+          onTrackersChange={onTrackersChange}
         />
       </section>
 

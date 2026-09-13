@@ -802,7 +802,8 @@ export const DataRepository = {
                 progress: calculateTrackerProgress(items),
                 items,
                 createdAt: normalizeText(row.created_at) ?? new Date().toISOString(),
-                updatedAt: normalizeText(row.updated_at)
+                updatedAt: normalizeText(row.updated_at),
+                dueDate: normalizeText(row.due_on)
               };
               return tracker;
             });
@@ -851,7 +852,8 @@ export const DataRepository = {
           category: toDbTrackerCategory(goal.category),
           status: "active",
           streak_count: goal.streak,
-          sort_order: index
+          sort_order: index,
+          due_on: goal.dueDate || null
         }));
         const { error: goalsError } = await supabase.from("tracker_goals").insert(goalRows);
         if (goalsError) throw goalsError;

@@ -114,6 +114,8 @@ export interface TrackerGoal {
   updatedAt?: string;
   /** Marks goals seeded by Inspirella as an example rather than created by the user. */
   isExample?: boolean;
+  /** Optional target date (ISO "YYYY-MM-DD"). Drives the dashboard's due/overdue reminders. */
+  dueDate?: string;
 }
 
 export interface TrackerChecklistItem {
