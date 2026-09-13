@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import HeroBackground from "../components/HeroBackground";
 import PlatformStats from "../components/PlatformStats";
+import SplineHero, { SplineHeroStatus } from "../components/SplineHero";
 
 export function HomeView({ 
   t, 
@@ -31,6 +32,7 @@ export function HomeView({
   handleBypassAuth
 }: any) {
   const heroRef = useRef<HTMLElement>(null);
+  const [splineStatus, setSplineStatus] = useState<SplineHeroStatus>("loading");
 
   // Cursor-reactive spotlight: written straight to the DOM (not React state)
   // so a 60fps mousemove never triggers a re-render - HeroBackground's
@@ -57,84 +59,114 @@ export function HomeView({
       <section
         ref={heroRef}
         onMouseMove={handleHeroMouseMove}
-        className="text-center py-14 md:py-24 space-y-8 relative overflow-hidden rounded-3xl"
+        className="py-14 md:py-24 relative overflow-hidden rounded-3xl"
       >
-        <HeroBackground isDark={isDark} />
+        <HeroBackground isDark={isDark} showPhoenixWatermark={splineStatus !== "ready"} />
 
-        {/* Live Active Badge */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-all duration-300 ${
-            isDark 
-              ? "bg-white/5 border border-white/10 text-violet-300 shadow-lg shadow-violet-950/20" 
-              : "bg-violet-950/10 border border-violet-950/20 text-violet-950 font-bold shadow-sm"
-          }`}
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span>{t.swissSpecialGroup}</span>
-        </motion.div>
-        
-        {/* Main Hero Hook */}
-        <h1 className={`text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] max-w-4xl mx-auto ${
-          isDark 
-            ? "bg-gradient-to-b from-white via-slate-100 to-zinc-400 bg-clip-text text-transparent" 
-            : "text-violet-950 filter drop-shadow-[0_2px_10px_rgba(46,16,101,0.06)]"
-        }`}>
-          {t.heroTitle}
-        </h1>
-        
-        {/* Hero Description Subtitle */}
-        <p className={`text-base md:text-xl font-sans max-w-2xl mx-auto leading-relaxed font-normal ${
-          isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"
-        }`}>
-          {t.heroSubtitle}
-        </p>
+        <div className="relative grid gap-12 lg:grid-cols-[1.05fr_0.95fr] items-center">
+          {/* Text column */}
+          <div className="space-y-8 text-center lg:text-left">
+            {/* Live Active Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-all duration-300 ${
+                isDark
+                  ? "bg-white/5 border border-white/10 text-violet-300 shadow-lg shadow-violet-950/20"
+                  : "bg-violet-950/10 border border-violet-950/20 text-violet-950 font-bold shadow-sm"
+              }`}
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span>{t.swissSpecialGroup}</span>
+            </motion.div>
 
-        {/* Primary and secondary Call To Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 max-w-md mx-auto">
-          <div className="relative w-full sm:w-auto">
-            <div
-              className="hero-blob absolute inset-0 -z-10 rounded-xl blur-xl opacity-60"
-              style={{
-                background: "radial-gradient(circle, rgba(139,92,246,0.55) 0%, rgba(139,92,246,0) 75%)",
-                animationName: "hero-node-pulse",
-                animationDuration: "3.5s",
-                "--node-opacity-min": 0.5,
-                "--node-opacity-max": 0.9
+            {/* Main Hero Hook */}
+            <h1 className={`text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] max-w-4xl mx-auto lg:mx-0 ${
+              isDark
+                ? "bg-gradient-to-b from-white via-slate-100 to-zinc-400 bg-clip-text text-transparent"
+                : "text-violet-950 filter drop-shadow-[0_2px_10px_rgba(46,16,101,0.06)]"
+            }`}>
+              {t.heroTitle}
+            </h1>
+
+            {/* Hero Description Subtitle */}
+            <p className={`text-base md:text-xl font-sans max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal ${
+              isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"
+            }`}>
+              {t.heroSubtitle}
+            </p>
+
+            {/* Primary and secondary Call To Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4 max-w-md mx-auto lg:mx-0">
+              <div className="relative w-full sm:w-auto">
+                <div
+                  className="hero-blob absolute inset-0 -z-10 rounded-xl blur-xl opacity-60"
+                  style={{
+                    background: "radial-gradient(circle, rgba(139,92,246,0.55) 0%, rgba(139,92,246,0) 75%)",
+                    animationName: "hero-node-pulse",
+                    animationDuration: "3.5s",
+                    "--node-opacity-min": 0.5,
+                    "--node-opacity-max": 0.9
+                  }}
+                />
+                <button
+                  onClick={() => handleTabTransition("login")}
+                  className="btn-primary relative w-full sm:w-auto px-7 py-3.5 text-sm gap-2"
+                >
+                  <span>{t.heroCTA}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+
+              <button
+                onClick={handleBypassAuth}
+                className="btn-secondary w-full sm:w-auto px-7 py-3.5 text-sm"
+              >
+                <span>{t.exploreCTA}</span>
+              </button>
+            </div>
+
+            {/* Real, live platform scale - not decorative, hidden entirely if unreachable */}
+            <PlatformStats
+              isDark={isDark}
+              align="left"
+              labels={{
+                institutions: t.statInstitutions,
+                professions: t.statProfessions,
+                learningPaths: t.statLearningPaths,
+                languages: t.statLanguages
               }}
             />
-            <button
-              onClick={() => handleTabTransition("login")}
-              className="btn-primary relative w-full sm:w-auto px-7 py-3.5 text-sm gap-2"
-            >
-              <span>{t.heroCTA}</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
           </div>
 
-          <button
-            onClick={handleBypassAuth}
-            className="btn-secondary w-full sm:w-auto px-7 py-3.5 text-sm"
-          >
-            <span>{t.exploreCTA}</span>
-          </button>
+          {/* 3D phoenix column - Sofiia's own Spline model of the logo.
+              Stays a tasteful glass panel with a soft pulse while loading/if
+              unavailable, so the layout never shows an empty box. */}
+          <div className="relative h-[300px] sm:h-[380px] lg:h-[460px]">
+            <div
+              className={`absolute inset-0 rounded-3xl border transition-opacity duration-500 flex items-center justify-center ${
+                isDark ? "border-white/10 bg-white/[0.02]" : "border-violet-950/10 bg-violet-950/[0.02]"
+              } ${splineStatus === "ready" ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+            >
+              <span
+                className={`h-3 w-3 rounded-full ${isDark ? "bg-violet-400" : "bg-violet-600"}`}
+                style={{
+                  animationName: "hero-node-pulse",
+                  animationDuration: "2.2s",
+                  animationIterationCount: "infinite",
+                  animationTimingFunction: "ease-in-out",
+                  "--node-opacity-min": 0.25,
+                  "--node-opacity-max": 0.7
+                }}
+              />
+            </div>
+            <SplineHero className="absolute inset-0 rounded-3xl overflow-hidden" onStatusChange={setSplineStatus} />
+          </div>
         </div>
-
-        {/* Real, live platform scale - not decorative, hidden entirely if unreachable */}
-        <PlatformStats
-          isDark={isDark}
-          labels={{
-            institutions: t.statInstitutions,
-            professions: t.statProfessions,
-            learningPaths: t.statLearningPaths,
-            languages: t.statLanguages
-          }}
-        />
       </section>
 
       {/* Switzerland Core Focus Segment (Interactive Visual Comparison) */}

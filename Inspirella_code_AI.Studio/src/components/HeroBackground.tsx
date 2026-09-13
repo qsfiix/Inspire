@@ -21,6 +21,8 @@
 
 interface HeroBackgroundProps {
   isDark: boolean;
+  /** Hide the flat phoenix watermark - set false once the 3D phoenix model has loaded, so there's only one phoenix on screen instead of two. */
+  showPhoenixWatermark?: boolean;
 }
 
 // Same silhouette points as MapboxMap.tsx's fallback illustration (shared
@@ -66,7 +68,7 @@ const EDGES: [number, number][] = [
   [17, 1], [17, 19], [19, 0], [19, 13]
 ];
 
-export default function HeroBackground({ isDark }: HeroBackgroundProps) {
+export default function HeroBackground({ isDark, showPhoenixWatermark = true }: HeroBackgroundProps) {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
       {/* Layer 1: slow-drifting gradient blobs */}
@@ -101,25 +103,29 @@ export default function HeroBackground({ isDark }: HeroBackgroundProps) {
         }}
       />
 
-      {/* Layer 2: phoenix-mark core - the brand's own symbol, not stock decoration */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div
-          className="hero-blob absolute h-[26rem] w-[26rem] rounded-full blur-[90px]"
-          style={{
-            background: isDark
-              ? "radial-gradient(circle, rgba(251,146,60,0.16) 0%, rgba(139,92,246,0.14) 45%, rgba(139,92,246,0) 75%)"
-              : "radial-gradient(circle, rgba(251,146,60,0.12) 0%, rgba(139,92,246,0.1) 45%, rgba(139,92,246,0) 75%)",
-            animationName: "hero-drift-a",
-            animationDuration: "14s"
-          }}
-        />
-        <img
-          src="/logo-mark.png"
-          alt=""
-          className="hero-phoenix-mark relative h-44 w-44 md:h-56 md:w-56 object-contain"
-          style={{ opacity: isDark ? 0.16 : 0.09 }}
-        />
-      </div>
+      {/* Layer 2: phoenix-mark core - the brand's own symbol, not stock decoration.
+          Hidden once the 3D phoenix model (SplineHero) is on screen, so there's
+          only ever one phoenix rendered at a time. */}
+      {showPhoenixWatermark && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div
+            className="hero-blob absolute h-[26rem] w-[26rem] rounded-full blur-[90px]"
+            style={{
+              background: isDark
+                ? "radial-gradient(circle, rgba(251,146,60,0.16) 0%, rgba(139,92,246,0.14) 45%, rgba(139,92,246,0) 75%)"
+                : "radial-gradient(circle, rgba(251,146,60,0.12) 0%, rgba(139,92,246,0.1) 45%, rgba(139,92,246,0) 75%)",
+              animationName: "hero-drift-a",
+              animationDuration: "14s"
+            }}
+          />
+          <img
+            src="/logo-mark.png"
+            alt=""
+            className="hero-phoenix-mark relative h-44 w-44 md:h-56 md:w-56 object-contain"
+            style={{ opacity: isDark ? 0.16 : 0.09 }}
+          />
+        </div>
+      )}
 
       {/* Layer 3: faint Switzerland outline + constellation network radiating from the phoenix */}
       <svg
@@ -166,18 +172,18 @@ export default function HeroBackground({ isDark }: HeroBackgroundProps) {
             className="hero-node"
             cx={node.x}
             cy={node.y}
-            r={node.hub ? 5 : 2.8}
-            fill={node.hub ? (isDark ? "#fdba74" : "#c2410c") : (isDark ? "#c4b5fd" : "#6d28d9")}
+            r={node.hub ? 4 : 2.8}
+            fill={isDark ? "#c4b5fd" : "#6d28d9"}
             style={{
               animationName: "hero-node-pulse",
-              animationDuration: node.hub ? "3.5s" : `${5 + (i % 4)}s`,
+              animationDuration: `${5 + (i % 4)}s`,
               animationIterationCount: "infinite",
               animationTimingFunction: "ease-in-out",
               animationDelay: `${(i % 6) * 0.5}s`,
               "--node-opacity-min": isDark ? 0.35 : 0.4,
-              "--node-opacity-max": node.hub ? 1 : isDark ? 0.9 : 0.85,
-              "--node-r-min": node.hub ? 4.2 : 2.4,
-              "--node-r-max": node.hub ? 6.5 : 3.6
+              "--node-opacity-max": isDark ? 0.9 : 0.85,
+              "--node-r-min": node.hub ? 3.4 : 2.4,
+              "--node-r-max": node.hub ? 4.6 : 3.6
             }}
           />
         ))}

@@ -4,6 +4,8 @@ import { DataRepository } from "../data/Repository";
 interface PlatformStatsProps {
   isDark: boolean;
   labels: { institutions: string; professions: string; learningPaths: string; languages: string };
+  /** "left" centers on mobile and left-aligns from the lg breakpoint up, to match a two-column hero layout. Defaults to always-centered. */
+  align?: "center" | "left";
 }
 
 /**
@@ -13,7 +15,7 @@ interface PlatformStatsProps {
  * Renders nothing if Supabase isn't reachable (DataRepository.getPlatformStats
  * returns null) rather than showing a fabricated or zeroed-out figure.
  */
-export default function PlatformStats({ isDark, labels }: PlatformStatsProps) {
+export default function PlatformStats({ isDark, labels, align = "center" }: PlatformStatsProps) {
   const [stats, setStats] = useState<{ institutions: number; professions: number; learningPaths: number } | null>(null);
 
   useEffect(() => {
@@ -36,7 +38,9 @@ export default function PlatformStats({ isDark, labels }: PlatformStatsProps) {
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 pt-6">
+    <div className={`flex flex-wrap items-center gap-x-8 gap-y-4 pt-6 ${
+      align === "left" ? "justify-center lg:justify-start" : "justify-center"
+    }`}>
       {items.map((item, idx) => (
         <div key={item.label} className="flex items-center gap-x-8">
           <StatCount value={item.value} label={item.label} isDark={isDark} delay={idx * 120} />
