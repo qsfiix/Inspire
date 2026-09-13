@@ -55,11 +55,15 @@ export function HomeView({
       transition={{ duration: 0.5 }}
       className="space-y-20 py-4 max-w-6xl mx-auto"
     >
-      {/* Premium Cinematic Hero Block */}
+      {/* Premium Cinematic Hero Block. No overflow-hidden/rounded-3xl here
+          on purpose - that was the last frame still clipping the Spline
+          model and its glow with a rounded edge. HeroBackground keeps its
+          own separate overflow-hidden wrapper, so the decorative blobs stay
+          contained regardless. */}
       <section
         ref={heroRef}
         onMouseMove={handleHeroMouseMove}
-        className="py-14 md:py-24 relative overflow-hidden rounded-3xl"
+        className="py-14 md:py-24 relative"
       >
         <HeroBackground isDark={isDark} showPhoenixWatermark={splineStatus !== "ready"} />
 
