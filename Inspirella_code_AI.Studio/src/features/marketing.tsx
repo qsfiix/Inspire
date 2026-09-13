@@ -164,12 +164,11 @@ export function HomeView({
                 }}
               />
             </div>
-            {/* Scaled up and cropped by the wrapper's overflow-hidden so the
-                phoenix fills far more of the box than the model's own
-                default framing would - "make it look bigger" per Sofiia's
-                request, without literally 3x-ing the box (which would
-                collide with the text column). */}
-            <SplineHero className="absolute inset-0 scale-[1.6] sm:scale-[1.8] lg:scale-[2]" onStatusChange={setSplineStatus} />
+            {/* No CSS scale here on purpose - Sofiia is re-framing/scaling
+                the phoenix natively inside Spline itself instead, so it
+                renders crisp at its own resolution rather than being
+                stretched by a CSS transform (which was softening it). */}
+            <SplineHero className="absolute inset-0" onStatusChange={setSplineStatus} />
           </div>
         </div>
       </section>
