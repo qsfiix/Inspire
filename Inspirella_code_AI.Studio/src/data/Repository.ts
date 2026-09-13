@@ -1032,6 +1032,38 @@ export const DataRepository = {
     }
   },
 
+  /**
+   * Real, RLS-filtered row counts for the homepage stat strip - never a
+   * guessed or rounded figure. Uses `head: true` count queries (no row data
+   * transferred) rather than fetching full catalogues just to measure them.
+   * Returns null when Supabase isn't reachable, so the caller can hide the
+   * strip entirely instead of showing zeros that look like an empty product.
+   */
+  getPlatformStats: async (): Promise<{ institutions: number; professions: number; learningPaths: number } | null> => {
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) return null;
+
+    try {
+      const supabase = getSupabase();
+      const [instRes, profRes, pathRes] = await Promise.all([
+        supabase.from("institutions").select("*", { count: "exact", head: true }),
+        supabase.from("professions").select("*", { count: "exact", head: true }),
+        supabase.from("learning_paths").select("*", { count: "exact", head: true }).eq("is_active", true)
+      ]);
+
+      if (instRes.error && profRes.error && pathRes.error) return null;
+
+      return {
+        institutions: instRes.count ?? 0,
+        professions: profRes.count ?? 0,
+        learningPaths: pathRes.count ?? 0
+      };
+    } catch (err) {
+      console.warn("Failed to load platform stats from Supabase", err);
+      return null;
+    }
+  },
+
   clearAll: () => {
     LocalMockDB.clearAll();
   }

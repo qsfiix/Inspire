@@ -1,17 +1,22 @@
 /**
- * Ambient hero background: a slowly drifting violet gradient field with a
- * faint constellation of connected nodes over a barely-there Switzerland
+ * Ambient hero background: a slowly drifting violet gradient field, a
+ * constellation of connected nodes radiating from a warm phoenix-glow core
+ * (Sofiia's own logo mark - the brand's actual symbol of freedom and
+ * clarity, not generic decoration), over a barely-there Switzerland
  * silhouette (same outline coordinates as MapboxMap.tsx's fallback view,
- * for visual consistency between the two).
+ * for visual consistency between the hero and the map), plus a cursor-
+ * reactive spotlight for a touch of live interactivity.
  *
- * Deliberately decorative, not data - no claim these nodes correspond to
- * real institutions (that would blur the line with the actual map feature
- * and its "never invent data" rule). Pure atmosphere behind the hero copy.
+ * Deliberately decorative, not data - no claim the network's nodes
+ * correspond to real institutions (that would blur the line with the
+ * actual map feature and its "never invent data" rule).
  *
- * Design intent (Sofiia, 2026-09-13): replace the flat static gradient with
- * something modern, premium and a little alive, without competing with the
- * headline for attention - every layer here stays low-opacity/low-contrast
- * so text legibility is untouched in both themes.
+ * Design intent (Sofiia, 2026-09-13, round 2 - "give it more presence, a
+ * spark that says what this project is"): pair the abstract network with
+ * something that's actually *hers* (the phoenix mark she designed herself)
+ * so the hero reads as this specific brand, not a generic SaaS constellation.
+ * Every layer stays low-opacity/low-contrast so text legibility is untouched
+ * in both themes; prefers-reduced-motion disables all animation.
  */
 
 interface HeroBackgroundProps {
@@ -24,9 +29,10 @@ const SWITZERLAND_OUTLINE =
   "100,300 170,220 280,180 350,150 480,100 650,110 850,80 920,130 950,230 840,320 750,420 580,450 420,400 320,420 180,380";
 
 // Node positions on a 1000x500 canvas: the outline ring plus a few interior
-// "hub" nodes, hand-placed for a pleasing sparse network rather than a
-// randomly generated one (keeps the layout identical on every render/SSR
-// pass and avoids an accidental hairball of crossing lines).
+// nodes radiating from the center "hub" (500,250) - which is where the
+// phoenix glow sits, so the network visually reads as emanating from it.
+// Hand-placed (not randomly generated) so the layout is identical on every
+// render and never produces an accidental hairball of crossing lines.
 const NODES: { x: number; y: number; hub?: boolean }[] = [
   { x: 180, y: 380 },
   { x: 320, y: 420 },
@@ -51,7 +57,7 @@ const NODES: { x: number; y: number; hub?: boolean }[] = [
 ];
 
 // Edges reference NODES indices: the perimeter ring (0-14) plus a few
-// spokes through the interior "hub" nodes (15-19).
+// spokes radiating out through the interior nodes from the hub (15-19).
 const EDGES: [number, number][] = [
   [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9],
   [9, 10], [10, 11], [11, 12], [12, 13], [13, 14], [14, 0],
@@ -65,37 +71,57 @@ export default function HeroBackground({ isDark }: HeroBackgroundProps) {
     <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
       {/* Layer 1: slow-drifting gradient blobs */}
       <div
-        className="hero-blob absolute -top-24 -left-16 h-[26rem] w-[26rem] rounded-full blur-[110px]"
+        className="hero-blob absolute -top-24 -left-16 h-[28rem] w-[28rem] rounded-full blur-[110px]"
         style={{
           background: isDark
-            ? "radial-gradient(circle, rgba(139,92,246,0.22) 0%, rgba(99,102,241,0) 70%)"
-            : "radial-gradient(circle, rgba(139,92,246,0.18) 0%, rgba(99,102,241,0) 70%)",
+            ? "radial-gradient(circle, rgba(139,92,246,0.28) 0%, rgba(99,102,241,0) 70%)"
+            : "radial-gradient(circle, rgba(139,92,246,0.22) 0%, rgba(99,102,241,0) 70%)",
           animationName: "hero-drift-a",
           animationDuration: "22s"
         }}
       />
       <div
-        className="hero-blob absolute top-1/3 -right-20 h-[24rem] w-[24rem] rounded-full blur-[110px]"
+        className="hero-blob absolute top-1/3 -right-20 h-[26rem] w-[26rem] rounded-full blur-[110px]"
         style={{
           background: isDark
-            ? "radial-gradient(circle, rgba(99,102,241,0.20) 0%, rgba(79,70,229,0) 70%)"
-            : "radial-gradient(circle, rgba(99,102,241,0.16) 0%, rgba(79,70,229,0) 70%)",
+            ? "radial-gradient(circle, rgba(99,102,241,0.25) 0%, rgba(79,70,229,0) 70%)"
+            : "radial-gradient(circle, rgba(99,102,241,0.2) 0%, rgba(79,70,229,0) 70%)",
           animationName: "hero-drift-b",
           animationDuration: "26s"
         }}
       />
       <div
-        className="hero-blob absolute -bottom-28 left-1/4 h-[22rem] w-[22rem] rounded-full blur-[110px]"
+        className="hero-blob absolute -bottom-28 left-1/4 h-[24rem] w-[24rem] rounded-full blur-[110px]"
         style={{
           background: isDark
-            ? "radial-gradient(circle, rgba(192,132,252,0.16) 0%, rgba(168,85,247,0) 70%)"
-            : "radial-gradient(circle, rgba(192,132,252,0.14) 0%, rgba(168,85,247,0) 70%)",
+            ? "radial-gradient(circle, rgba(192,132,252,0.2) 0%, rgba(168,85,247,0) 70%)"
+            : "radial-gradient(circle, rgba(192,132,252,0.17) 0%, rgba(168,85,247,0) 70%)",
           animationName: "hero-drift-c",
           animationDuration: "19s"
         }}
       />
 
-      {/* Layer 2: faint Switzerland outline + constellation network */}
+      {/* Layer 2: phoenix-mark core - the brand's own symbol, not stock decoration */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div
+          className="hero-blob absolute h-[26rem] w-[26rem] rounded-full blur-[90px]"
+          style={{
+            background: isDark
+              ? "radial-gradient(circle, rgba(251,146,60,0.16) 0%, rgba(139,92,246,0.14) 45%, rgba(139,92,246,0) 75%)"
+              : "radial-gradient(circle, rgba(251,146,60,0.12) 0%, rgba(139,92,246,0.1) 45%, rgba(139,92,246,0) 75%)",
+            animationName: "hero-drift-a",
+            animationDuration: "14s"
+          }}
+        />
+        <img
+          src="/logo-mark.png"
+          alt=""
+          className="hero-phoenix-mark relative h-44 w-44 md:h-56 md:w-56 object-contain"
+          style={{ opacity: isDark ? 0.16 : 0.09 }}
+        />
+      </div>
+
+      {/* Layer 3: faint Switzerland outline + constellation network radiating from the phoenix */}
       <svg
         viewBox="0 0 1000 500"
         preserveAspectRatio="xMidYMid slice"
@@ -127,8 +153,8 @@ export default function HeroBackground({ isDark }: HeroBackgroundProps) {
                 animationIterationCount: "infinite",
                 animationTimingFunction: "ease-in-out",
                 animationDelay: `${(i % 7) * 0.4}s`,
-                "--line-opacity-min": isDark ? 0.08 : 0.1,
-                "--line-opacity-max": isDark ? 0.26 : 0.3
+                "--line-opacity-min": isDark ? 0.1 : 0.12,
+                "--line-opacity-max": isDark ? 0.32 : 0.36
               }}
             />
           );
@@ -140,24 +166,35 @@ export default function HeroBackground({ isDark }: HeroBackgroundProps) {
             className="hero-node"
             cx={node.x}
             cy={node.y}
-            r={node.hub ? 4.5 : 2.8}
-            fill={isDark ? "#c4b5fd" : "#6d28d9"}
+            r={node.hub ? 5 : 2.8}
+            fill={node.hub ? (isDark ? "#fdba74" : "#c2410c") : (isDark ? "#c4b5fd" : "#6d28d9")}
             style={{
               animationName: "hero-node-pulse",
-              animationDuration: `${5 + (i % 4)}s`,
+              animationDuration: node.hub ? "3.5s" : `${5 + (i % 4)}s`,
               animationIterationCount: "infinite",
               animationTimingFunction: "ease-in-out",
               animationDelay: `${(i % 6) * 0.5}s`,
-              "--node-opacity-min": isDark ? 0.3 : 0.35,
-              "--node-opacity-max": node.hub ? 1 : isDark ? 0.85 : 0.8,
-              "--node-r-min": node.hub ? 4 : 2.4,
-              "--node-r-max": node.hub ? 5.5 : 3.4
+              "--node-opacity-min": isDark ? 0.35 : 0.4,
+              "--node-opacity-max": node.hub ? 1 : isDark ? 0.9 : 0.85,
+              "--node-r-min": node.hub ? 4.2 : 2.4,
+              "--node-r-max": node.hub ? 6.5 : 3.6
             }}
           />
         ))}
       </svg>
 
-      {/* Layer 3: faint grain for tactile, non-flat premium finish */}
+      {/* Layer 4: cursor-reactive spotlight (set via --mx/--my on the hero
+          section in marketing.tsx) - a touch of live interactivity. */}
+      <div
+        className="absolute inset-0 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(500px circle at var(--mx, 50%) var(--my, 30%), ${
+            isDark ? "rgba(167,139,250,0.10)" : "rgba(139,92,246,0.07)"
+          } 0%, transparent 70%)`
+        }}
+      />
+
+      {/* Layer 5: faint grain for tactile, non-flat premium finish */}
       <div
         className="absolute inset-0"
         style={{
@@ -168,7 +205,7 @@ export default function HeroBackground({ isDark }: HeroBackgroundProps) {
         }}
       />
 
-      {/* Layer 4: soft edge vignette so content stays the clear focal point */}
+      {/* Layer 6: soft edge vignette so content stays the clear focal point */}
       <div
         className="absolute inset-0"
         style={{

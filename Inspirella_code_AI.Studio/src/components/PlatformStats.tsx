@@ -1,0 +1,92 @@
+import { useEffect, useState } from "react";
+import { DataRepository } from "../data/Repository";
+
+interface PlatformStatsProps {
+  isDark: boolean;
+  labels: { institutions: string; professions: string; learningPaths: string; languages: string };
+}
+
+/**
+ * Real, live row counts from Supabase, animated as a count-up strip under
+ * the hero CTAs. Exists to answer "is this actually a real, substantial
+ * project?" at a glance - with true numbers, not a decorative placeholder.
+ * Renders nothing if Supabase isn't reachable (DataRepository.getPlatformStats
+ * returns null) rather than showing a fabricated or zeroed-out figure.
+ */
+export default function PlatformStats({ isDark, labels }: PlatformStatsProps) {
+  const [stats, setStats] = useState<{ institutions: number; professions: number; learningPaths: number } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    DataRepository.getPlatformStats().then(result => {
+      if (active) setStats(result);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (!stats) return null;
+
+  const items = [
+    { value: stats.institutions, label: labels.institutions },
+    { value: stats.professions, label: labels.professions },
+    { value: stats.learningPaths, label: labels.learningPaths },
+    { value: 4, label: labels.languages }
+  ];
+
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 pt-6">
+      {items.map((item, idx) => (
+        <div key={item.label} className="flex items-center gap-x-8">
+          <StatCount value={item.value} label={item.label} isDark={isDark} delay={idx * 120} />
+          {idx < items.length - 1 && (
+            <span className={`hidden sm:block h-8 w-px ${isDark ? "bg-white/10" : "bg-violet-950/10"}`} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function StatCount({ value, label, isDark, delay }: { value: number; label: string; isDark: boolean; delay: number }) {
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      setDisplay(value);
+      return;
+    }
+
+    const duration = 1200;
+    let raf: number;
+    const timer = setTimeout(() => {
+      const start = performance.now();
+      const tick = (now: number) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // ease-out-cubic
+        setDisplay(Math.round(eased * value));
+        if (progress < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }, delay);
+
+    return () => {
+      clearTimeout(timer);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [value, delay]);
+
+  return (
+    <div className="text-center">
+      <span className={`block font-mono text-2xl md:text-3xl font-black tabular-nums ${isDark ? "text-white" : "text-violet-950"}`}>
+        {display}
+        <span className={isDark ? "text-violet-400" : "text-violet-600"}>+</span>
+      </span>
+      <span className={`block text-[9px] font-mono uppercase tracking-widest mt-0.5 ${isDark ? "text-zinc-500" : "text-violet-950/50 font-bold"}`}>
+        {label}
+      </span>
+    </div>
+  );
+}

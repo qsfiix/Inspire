@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   ArrowRight, 
@@ -16,6 +16,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import HeroBackground from "../components/HeroBackground";
+import PlatformStats from "../components/PlatformStats";
 
 export function HomeView({ 
   t, 
@@ -27,8 +28,22 @@ export function HomeView({
   tCard, 
   tCardAccent, 
   handleTabTransition, 
-  handleBypassAuth 
+  handleBypassAuth
 }: any) {
+  const heroRef = useRef<HTMLElement>(null);
+
+  // Cursor-reactive spotlight: written straight to the DOM (not React state)
+  // so a 60fps mousemove never triggers a re-render - HeroBackground's
+  // spotlight layer just reads the live --mx/--my custom properties.
+  const handleHeroMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = heroRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    heroRef.current?.style.setProperty("--mx", `${x}%`);
+    heroRef.current?.style.setProperty("--my", `${y}%`);
+  };
+
   return (
     <motion.div
       key="view-home"
@@ -39,7 +54,11 @@ export function HomeView({
       className="space-y-20 py-4 max-w-6xl mx-auto"
     >
       {/* Premium Cinematic Hero Block */}
-      <section className="text-center py-14 md:py-24 space-y-8 relative overflow-hidden rounded-3xl">
+      <section
+        ref={heroRef}
+        onMouseMove={handleHeroMouseMove}
+        className="text-center py-14 md:py-24 space-y-8 relative overflow-hidden rounded-3xl"
+      >
         <HeroBackground isDark={isDark} />
 
         {/* Live Active Badge */}
@@ -78,13 +97,25 @@ export function HomeView({
 
         {/* Primary and secondary Call To Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 max-w-md mx-auto">
-          <button
-            onClick={() => handleTabTransition("login")}
-            className="btn-primary w-full sm:w-auto px-7 py-3.5 text-sm gap-2"
-          >
-            <span>{t.heroCTA}</span>
-            <ArrowRight className="h-4 w-4" />
-          </button>
+          <div className="relative w-full sm:w-auto">
+            <div
+              className="hero-blob absolute inset-0 -z-10 rounded-xl blur-xl opacity-60"
+              style={{
+                background: "radial-gradient(circle, rgba(139,92,246,0.55) 0%, rgba(139,92,246,0) 75%)",
+                animationName: "hero-node-pulse",
+                animationDuration: "3.5s",
+                "--node-opacity-min": 0.5,
+                "--node-opacity-max": 0.9
+              }}
+            />
+            <button
+              onClick={() => handleTabTransition("login")}
+              className="btn-primary relative w-full sm:w-auto px-7 py-3.5 text-sm gap-2"
+            >
+              <span>{t.heroCTA}</span>
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
 
           <button
             onClick={handleBypassAuth}
@@ -93,6 +124,17 @@ export function HomeView({
             <span>{t.exploreCTA}</span>
           </button>
         </div>
+
+        {/* Real, live platform scale - not decorative, hidden entirely if unreachable */}
+        <PlatformStats
+          isDark={isDark}
+          labels={{
+            institutions: t.statInstitutions,
+            professions: t.statProfessions,
+            learningPaths: t.statLearningPaths,
+            languages: t.statLanguages
+          }}
+        />
       </section>
 
       {/* Switzerland Core Focus Segment (Interactive Visual Comparison) */}
