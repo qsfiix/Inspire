@@ -156,11 +156,11 @@ export function HomeView({
               unavailable, so the layout never shows an empty box.
               No overflow-hidden here - a canvas can't show content beyond
               its own pixel bounds anyway, so a DOM clip mask was never the
-              real lever. The edge cropping Sofiia saw is Spline's own
-              camera/FOV framing the scene tighter than her enlarged phoenix
-              + glow now need - that's fixed by adjusting the camera zoom in
-              Spline itself, not CSS here. Sized generously as a complement. */}
-          <div className="relative h-[420px] sm:h-[520px] lg:h-[720px]">
+              real lever. Width was the fix for the left/right crop (the
+              hero breakout above) - height was still the same fixed cap as
+              before, so anything tall in her composition still hit the
+              bottom/top of the box. Given real extra room here too. */}
+          <div className="relative h-[520px] sm:h-[640px] lg:h-[900px]">
             <div
               className={`absolute inset-0 rounded-3xl border transition-opacity duration-500 flex items-center justify-center ${
                 isDark ? "border-white/10 bg-white/[0.02]" : "border-violet-950/10 bg-violet-950/[0.02]"
