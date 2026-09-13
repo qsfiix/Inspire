@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   ChevronRight
 } from "lucide-react";
+import HeroBackground from "../components/HeroBackground";
 
 export function HomeView({ 
   t, 
@@ -38,9 +39,8 @@ export function HomeView({
       className="space-y-20 py-4 max-w-6xl mx-auto"
     >
       {/* Premium Cinematic Hero Block */}
-      <section className="text-center py-10 md:py-16 space-y-8 relative overflow-hidden">
-        {/* Subtle decorative background gradient glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-violet-500/10 blur-[100px] pointer-events-none"></div>
+      <section className="text-center py-14 md:py-24 space-y-8 relative overflow-hidden rounded-3xl">
+        <HeroBackground isDark={isDark} />
 
         {/* Live Active Badge */}
         <motion.div 

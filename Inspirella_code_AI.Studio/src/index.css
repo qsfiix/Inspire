@@ -131,4 +131,39 @@ body.dark-mode .card-premium-glow {
   @apply bg-zinc-950/60 border-violet-900/50 shadow-[0_0_30px_rgba(109,40,217,0.15)] shadow-violet-950/30;
 }
 
+/* --- Hero background: slow ambient motion (HeroBackground.tsx) ---
+   Independent drift/breathe cycles per blob so nothing looks synchronized
+   or mechanical - each element gets a different duration below. */
+@keyframes hero-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(4%, -6%) scale(1.08); }
+}
+@keyframes hero-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-5%, 5%) scale(0.95); }
+}
+@keyframes hero-drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(3%, 4%) scale(1.05); }
+}
+@keyframes hero-node-pulse {
+  0%, 100% { opacity: var(--node-opacity-min, 0.35); r: var(--node-r-min, 2.6); }
+  50% { opacity: var(--node-opacity-max, 0.9); r: var(--node-r-max, 3.6); }
+}
+@keyframes hero-line-shimmer {
+  0%, 100% { opacity: var(--line-opacity-min, 0.12); }
+  50% { opacity: var(--line-opacity-max, 0.32); }
+}
+
+.hero-blob {
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-blob, .hero-node, .hero-line {
+    animation: none !important;
+  }
+}
+
 
