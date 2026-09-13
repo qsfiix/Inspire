@@ -8,9 +8,8 @@ import {
   Navigation, 
   TrendingUp, 
   Briefcase, 
-  GraduationCap, 
-  Layers, 
-  Building, 
+  GraduationCap,
+  Layers,
   CheckCircle,
   Mail,
   ShieldCheck,
@@ -207,35 +206,45 @@ export function HomeView({
               desc: t.howStepOnboardingDesc,
               num: "01",
               icon: Compass,
-              color: "text-amber-400 bg-amber-500/10"
+              color: "text-amber-400 bg-amber-500/10",
+              targetTab: "login"
             },
             {
               title: t.howStepMap,
               desc: t.howStepMapDesc,
               num: "02",
               icon: Navigation,
-              color: "text-emerald-400 bg-emerald-500/10"
+              color: "text-emerald-400 bg-emerald-500/10",
+              targetTab: "map"
             },
             {
               title: t.howStepTracker,
               desc: t.howStepTrackerDesc,
               num: "03",
               icon: TrendingUp,
-              color: "text-violet-400 bg-violet-500/10"
+              color: "text-violet-400 bg-violet-500/10",
+              targetTab: "tracker"
             },
             {
               title: t.howStepResources,
               desc: t.howStepResourcesDesc,
               num: "04",
               icon: Globe,
-              color: "text-indigo-400 bg-indigo-500/10"
+              color: "text-indigo-400 bg-indigo-500/10",
+              targetTab: "resources"
             }
           ].map((step, idx) => {
             const StepIcon = step.icon;
             return (
-              <div 
+              <div
                 key={idx}
-                className="card-premium p-6 group transition duration-300 relative overflow-hidden flex flex-col justify-between"
+                onClick={() => handleTabTransition(step.targetTab)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => {
+                  if (e.key === "Enter" || e.key === " ") handleTabTransition(step.targetTab);
+                }}
+                className="card-premium p-6 group transition duration-300 relative overflow-hidden flex flex-col justify-between cursor-pointer"
               >
                 {/* Large elegant subtle background index */}
                 <span className="absolute -top-4 -right-2 text-7xl font-mono font-black opacity-[0.03] select-none group-hover:opacity-[0.06] transition duration-300">
@@ -342,29 +351,30 @@ export function AboutView({ t, isDark, tTextTitle, tTextBody, tCard }: any) {
         </div>
       </section>
 
-      {/* Swiss Brand Core Pillars Grid */}
+      {/* Mission - condensed from 00_Brain/Mission.md */}
+      <section className="card-premium-glow p-8 space-y-3 text-center max-w-3xl mx-auto">
+        <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block">{t.aboutMissionEyebrow}</span>
+        <p className={`text-base leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950/95 font-bold"}`}>{t.aboutMissionBody}</p>
+      </section>
+
+      {/* Why it matters - condensed from the "gap" section of Mission.md */}
+      <section className="max-w-3xl mx-auto text-center space-y-2">
+        <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block">{t.aboutWhyEyebrow}</span>
+        <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-semibold"}`}>{t.aboutWhyBody}</p>
+      </section>
+
+      {/* Core values */}
       <section className="space-y-6">
         <h3 className={`text-center font-bold text-lg tracking-wider font-mono uppercase ${isDark ? "text-violet-300" : "text-violet-950"}`}>
-          Core Features
+          {t.aboutValuesTitle}
         </h3>
 
-        <div className="grid gap-6 sm:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            {
-              title: "Unified Knowledge Base",
-              icon: Building,
-              desc: "Integrating federal and cantonal systems into one clear view."
-            },
-            {
-              title: "Durchlässigkeit (Permeability)",
-              icon: ShieldCheck,
-              desc: "Clear pathways from vocational training to technical colleges."
-            },
-            {
-              title: "Ease of Use",
-              icon: Compass,
-              desc: "Minimizing complexity through simple maps and checklists."
-            }
+            { title: t.aboutValue1Title, icon: ShieldCheck, desc: t.aboutValue1Desc },
+            { title: t.aboutValue2Title, icon: Compass, desc: t.aboutValue2Desc },
+            { title: t.aboutValue3Title, icon: Layers, desc: t.aboutValue3Desc },
+            { title: t.aboutValue4Title, icon: CheckCircle, desc: t.aboutValue4Desc }
           ].map((pillar, idx) => {
             const PillarIcon = pillar.icon;
             return (
@@ -395,6 +405,20 @@ export function AboutView({ t, isDark, tTextTitle, tTextBody, tCard }: any) {
         <p className={`text-sm leading-relaxed font-sans ${isDark ? "text-zinc-300" : "text-violet-950/95 font-bold"}`}>
           Switzerland's secondary pathways rely on cantonal boards (EDK / CDIP), which means local regions have different schedules and entrance requirements. Inspirella helps make sense of this system.
         </p>
+      </section>
+
+      {/* Honest, current-stage transparency note */}
+      <section className={`p-6 rounded-2xl border ${isDark ? "bg-amber-500/5 border-amber-500/20" : "bg-amber-50 border-amber-300"}`}>
+        <span className={`block text-xs font-mono uppercase tracking-widest font-bold mb-2 ${isDark ? "text-amber-300" : "text-amber-800"}`}>
+          {t.aboutStageEyebrow}
+        </span>
+        <p className={`text-sm leading-relaxed ${isDark ? "text-amber-100/90" : "text-amber-900/90 font-semibold"}`}>{t.aboutStageBody}</p>
+      </section>
+
+      {/* Vision - condensed from 00_Brain/Vision.md */}
+      <section className="max-w-3xl mx-auto text-center space-y-2 pb-2">
+        <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block">{t.aboutVisionEyebrow}</span>
+        <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-semibold"}`}>{t.aboutVisionBody}</p>
       </section>
     </motion.div>
   );

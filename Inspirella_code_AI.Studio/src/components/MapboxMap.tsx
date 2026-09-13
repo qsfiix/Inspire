@@ -127,7 +127,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
             container: mapContainerRef.current,
             style: styleUrl || (isDark ? "mapbox://styles/mapbox/dark-v11" : "mapbox://styles/mapbox/light-v11"),
             center: [8.2275, 46.8182],
-            zoom: isFullscreen ? 7.8 : 7.2,
+            zoom: 7.2,
             pitch: is3DMode ? 45 : 0,
             bearing: -5,
             interactive: true,
@@ -137,14 +137,59 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
           mapInstance.current.on("load", () => {
             setMapEngineLoaded(true);
 
+            // Real volumetric 3D buildings (not just a tilted camera on a flat map):
+            // the standard Mapbox styles (dark-v11/light-v11) ship building height data
+            // in their `composite` source's "building" source-layer, so this is a normal
+            // fill-extrusion layer, not a different tool. A custom Studio style's
+            // `composite` source may or may not have been composed from a tileset that
+            // includes "building" data (Mapbox errors loudly if a style layer references
+            // a source-layer the source doesn't actually have), so this only runs once
+            // that's confirmed - safe no-op otherwise. Only visible once zoomed in close
+            // (city-block level); that's how building extrusion works, not a bug.
+            // Wrapped defensively: a style/source surprise here must never stop the
+            // marker-adding code right below it from running.
+            try {
+              const source = mapInstance.current.getSource("composite") as { vectorLayerIds?: string[] } | undefined;
+              const hasBuildingData = !!source?.vectorLayerIds?.includes("building");
+              if (hasBuildingData && !mapInstance.current.getLayer("inspirella-3d-buildings")) {
+                const layers = mapInstance.current.getStyle()?.layers || [];
+                const firstSymbolLayerId = layers.find((layer: any) => layer.type === "symbol")?.id;
+                mapInstance.current.addLayer(
+                  {
+                    id: "inspirella-3d-buildings",
+                    source: "composite",
+                    "source-layer": "building",
+                    filter: ["==", "extrude", "true"],
+                    type: "fill-extrusion",
+                    minzoom: 14,
+                    paint: {
+                      "fill-extrusion-color": isDark ? "#7c3aed" : "#a78bfa",
+                      "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 14, 0, 14.5, ["get", "height"]],
+                      "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 14, 0, 14.5, ["get", "min_height"]],
+                      "fill-extrusion-opacity": 0.75
+                    }
+                  },
+                  firstSymbolLayerId
+                );
+              } else if (!hasBuildingData) {
+                console.info(
+                  "Inspirella: the active Mapbox style has no building height data (composite source lacks a 'building' layer), so 3D building extrusion is skipped. This is a style configuration matter, not a code error - see Mapbox Studio's style sources."
+                );
+              }
+            } catch (buildingLayerErr) {
+              console.warn("Inspirella: skipped 3D building extrusion.", buildingLayerErr);
+            }
+
             // Only records with validated coordinates are placed on the map.
             geoInstitutions.forEach((inst) => {
+              // No per-marker animate-ping: with the real dataset (91+ institutions and
+              // growing) a permanent pulse on every pin at once reads as visual noise
+              // rather than a signal. Hover/selection feedback (scale, ring) is enough.
               const el = document.createElement("div");
               el.className = "flex items-center justify-center cursor-pointer group";
               el.innerHTML = `
                 <div class="relative flex h-8 w-8 items-center justify-center rounded-full bg-violet-600/30 border border-violet-400/90 shadow-[0_0_10px_rgba(109,40,217,0.5)] transition duration-300 transform group-hover:scale-125">
                   <div class="h-3 w-3 rounded-full bg-violet-300"></div>
-                  <div class="absolute -inset-1 rounded-full bg-violet-400 opacity-20 blur-sm scale-150 animate-ping"></div>
                 </div>
               `;
 
@@ -180,7 +225,26 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
         mapInstance.current = null;
       }
     };
-  }, [accessToken, styleUrl, geoInstitutions, isDark, isFullscreen]);
+    // isFullscreen is deliberately NOT a dependency: toggling it used to destroy and
+    // recreate the entire map (losing `mapEngineLoaded` sync along the way, which
+    // showed as a blank grey screen in fullscreen). The ResizeObserver below handles
+    // the actual container-size change instead - cheaper and doesn't reset anything.
+  }, [accessToken, styleUrl, geoInstitutions, isDark]);
+
+  // Keep the Mapbox canvas in sync with its container's real size. Mapbox GL only
+  // measures the container once at creation - it does not notice later size changes
+  // on its own (entering/exiting fullscreen, the sidebar image finishing its load and
+  // reflowing the layout, a window resize), and without an explicit resize() call the
+  // canvas keeps its old dimensions - the "map renders in a small square" / "fullscreen
+  // is just a blank box" bugs both trace back to this.
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+    const observer = new ResizeObserver(() => {
+      mapInstance.current?.resize();
+    });
+    observer.observe(mapContainerRef.current);
+    return () => observer.disconnect();
+  }, [mapEngineLoaded]);
 
   // Adjust pitch dynamically when interactive 3D is toggled
   useEffect(() => {
