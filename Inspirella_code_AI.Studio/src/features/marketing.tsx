@@ -63,7 +63,7 @@ export function HomeView({
       >
         <HeroBackground isDark={isDark} showPhoenixWatermark={splineStatus !== "ready"} />
 
-        <div className="relative grid gap-12 lg:grid-cols-[0.95fr_1.05fr] items-center">
+        <div className="relative grid gap-6 lg:grid-cols-[0.95fr_1.05fr] items-center">
           {/* Text column */}
           <div className="space-y-8 text-center lg:text-left">
             {/* Live Active Badge */}
