@@ -11,13 +11,13 @@ import { useEffect, useRef, useState } from "react";
  * success by then, `onStatus("error")` fires and the caller falls back to
  * the flat 2D hero background instead of leaving an empty box on screen.
  * Verified 2026-09-13 in Sofiia's real Edge browser (hardware-accelerated
- * WebGL2 + WebGPU): the scene renders correctly, but the element's own
- * "load" DOM event fires unreliably - in an isolated test page it never
- * fired at all despite the phoenix being fully visible on screen. Relying
- * on "load" alone made the honest-timeout fallback trigger on a scene that
- * had actually already loaded. Fixed by also polling the viewer's internal
- * `.spline` property (set by Spline's own runtime once the scene object
- * exists), whichever signal - the event or the poll - arrives first wins.
+ * WebGL2 + WebGPU): the scene renders correctly. The bug was ours, twice:
+ * the plain "load" DOM event this used to listen for is never dispatched
+ * by the component at all (confirmed by reading spline-viewer.js's own
+ * source) - the real completion event is "load-complete". A follow-up fix
+ * that polled a `.spline` property was also wrong: that field exists only
+ * as the private `_spline` internal, never a public `.spline`. Listening
+ * for the correct "load-complete" event is the actual fix.
  */
 
 const SPLINE_SCENE_URL = "https://prod.spline.design/F-79qzszcnNncEMu/scene.splinecode";
@@ -63,16 +63,9 @@ export default function SplineHero({ onStatusChange, className }: SplineHeroProp
   useEffect(() => {
     let cancelled = false;
     let viewerEl: HTMLElement | null = null;
-    let pollInterval: ReturnType<typeof setInterval> | null = null;
     const readyTimeout = setTimeout(() => {
       if (!cancelled && statusRef.current === "loading") updateStatus("error");
     }, READY_TIMEOUT_MS);
-
-    const markReady = () => {
-      if (cancelled) return;
-      if (pollInterval) clearInterval(pollInterval);
-      updateStatus("ready");
-    };
 
     loadSplineViewerScript()
       .then(() => {
@@ -81,7 +74,11 @@ export default function SplineHero({ onStatusChange, className }: SplineHeroProp
         viewerEl.setAttribute("url", SPLINE_SCENE_URL);
         viewerEl.style.width = "100%";
         viewerEl.style.height = "100%";
-        viewerEl.addEventListener("load", markReady);
+        // The real completion event - see the file header note. "load" is
+        // NOT dispatched by this component and was the original bug here.
+        viewerEl.addEventListener("load-complete", () => {
+          if (!cancelled) updateStatus("ready");
+        });
         viewerEl.addEventListener("error", (event) => {
           if (!cancelled) {
             // eslint-disable-next-line no-console
@@ -90,15 +87,6 @@ export default function SplineHero({ onStatusChange, className }: SplineHeroProp
           }
         });
         containerRef.current.appendChild(viewerEl);
-
-        // Belt-and-suspenders: the "load" event has proven unreliable in
-        // testing (scene visibly rendered, event never fired), so also
-        // poll the viewer's own `.spline` runtime property as a second,
-        // more trustworthy readiness signal.
-        pollInterval = setInterval(() => {
-          if (cancelled) return;
-          if ((viewerEl as unknown as { spline?: unknown })?.spline) markReady();
-        }, 250);
       })
       .catch(() => {
         if (!cancelled) updateStatus("error");
@@ -107,7 +95,6 @@ export default function SplineHero({ onStatusChange, className }: SplineHeroProp
     return () => {
       cancelled = true;
       clearTimeout(readyTimeout);
-      if (pollInterval) clearInterval(pollInterval);
       viewerEl?.remove();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
