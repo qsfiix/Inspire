@@ -146,7 +146,11 @@ export function HomeView({
           {/* 3D phoenix column - Sofiia's own Spline model of the logo.
               Stays a tasteful glass panel with a soft pulse while loading/if
               unavailable, so the layout never shows an empty box. */}
-          <div className="relative h-[380px] sm:h-[480px] lg:h-[640px] overflow-hidden rounded-3xl">
+          {/* No overflow-hidden here on purpose: Sofiia framed the phoenix
+              (and its glow) natively in Spline to slightly exceed this box,
+              so clipping it here would hard-cut the model on the right and
+              its glow on the left - let it bleed instead. */}
+          <div className="relative h-[380px] sm:h-[480px] lg:h-[640px]">
             <div
               className={`absolute inset-0 rounded-3xl border transition-opacity duration-500 flex items-center justify-center ${
                 isDark ? "border-white/10 bg-white/[0.02]" : "border-violet-950/10 bg-violet-950/[0.02]"
