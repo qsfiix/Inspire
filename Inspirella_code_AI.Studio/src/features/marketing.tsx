@@ -63,7 +63,7 @@ export function HomeView({
       >
         <HeroBackground isDark={isDark} showPhoenixWatermark={splineStatus !== "ready"} />
 
-        <div className="relative grid gap-12 lg:grid-cols-[1.05fr_0.95fr] items-center">
+        <div className="relative grid gap-12 lg:grid-cols-[0.95fr_1.05fr] items-center">
           {/* Text column */}
           <div className="space-y-8 text-center lg:text-left">
             {/* Live Active Badge */}
@@ -146,7 +146,7 @@ export function HomeView({
           {/* 3D phoenix column - Sofiia's own Spline model of the logo.
               Stays a tasteful glass panel with a soft pulse while loading/if
               unavailable, so the layout never shows an empty box. */}
-          <div className="relative h-[300px] sm:h-[380px] lg:h-[460px]">
+          <div className="relative h-[380px] sm:h-[480px] lg:h-[640px] overflow-hidden rounded-3xl">
             <div
               className={`absolute inset-0 rounded-3xl border transition-opacity duration-500 flex items-center justify-center ${
                 isDark ? "border-white/10 bg-white/[0.02]" : "border-violet-950/10 bg-violet-950/[0.02]"
@@ -164,7 +164,12 @@ export function HomeView({
                 }}
               />
             </div>
-            <SplineHero className="absolute inset-0 rounded-3xl overflow-hidden" onStatusChange={setSplineStatus} />
+            {/* Scaled up and cropped by the wrapper's overflow-hidden so the
+                phoenix fills far more of the box than the model's own
+                default framing would - "make it look bigger" per Sofiia's
+                request, without literally 3x-ing the box (which would
+                collide with the text column). */}
+            <SplineHero className="absolute inset-0 scale-[1.6] sm:scale-[1.8] lg:scale-[2]" onStatusChange={setSplineStatus} />
           </div>
         </div>
       </section>
