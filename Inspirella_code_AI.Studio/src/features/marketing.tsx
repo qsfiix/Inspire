@@ -59,11 +59,15 @@ export function HomeView({
           on purpose - that was the last frame still clipping the Spline
           model and its glow with a rounded edge. HeroBackground keeps its
           own separate overflow-hidden wrapper, so the decorative blobs stay
-          contained regardless. */}
+          contained regardless.
+          Breaks out of the page's max-w-6xl cap (left-1/2 + negative
+          margin + w-screen is the standard full-bleed trick) so the hero
+          - and the model's own column - get real extra width instead of
+          being squeezed into the same 1152px every other section uses. */}
       <section
         ref={heroRef}
         onMouseMove={handleHeroMouseMove}
-        className="py-14 md:py-24 relative"
+        className="py-14 md:py-24 relative left-1/2 -ml-[50vw] w-screen px-4 sm:px-8 lg:px-16"
       >
         <HeroBackground isDark={isDark} showPhoenixWatermark={splineStatus !== "ready"} />
 
