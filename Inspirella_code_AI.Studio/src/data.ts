@@ -9,7 +9,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     navContact: "Contact",
     navDashboard: "My Dashboard",
     navMap: "3D Swiss Map",
-    navResources: "Resources",
+    navResources: "Resources & Careers",
     navTracker: "Life Tracker",
     navProfile: "Profile",
     navLogin: "Get Started",
@@ -199,7 +199,23 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     professionDemand: "Demand",
     professionOutlook: "Outlook",
     professionSkillsLabel: "Core skills",
-    professionClustersLabel: "Main regional clusters"
+    professionClustersLabel: "Main regional clusters",
+
+    // Resources & Careers hub (unifies web resources, professions, institutions)
+    resourcesCareersHeader: "Resources & Careers",
+    resourcesCareersSub: "Everything you need to explore opportunities in Switzerland - resources, professions, and institutions - in one place.",
+    resourcesTabWeb: "Web Resources",
+    resourcesTabProfessions: "Professions",
+    resourcesTabInstitutions: "Institutions",
+    institutionsEyebrow: "Institutions & Schools",
+    institutionsTitle: "Swiss Institution Explorer",
+    institutionsSub: "Search universities, colleges and schools, and compare the ones that matter to you.",
+    institutionsSearchPlaceholder: "Search institutions...",
+    institutionsEmpty: "No institutions match your search.",
+    institutionsLoading: "Loading institutions...",
+    institutionsCatalogGrowing: "Our institutions catalog is still growing - check back soon for more.",
+    institutionsLoadError: "Couldn't load institutions right now. Please try again in a moment.",
+    institutionSelectHint: "Select an institution from the list to see its details, contacts and admissions info."
   },
   de: {
     // Navigation
@@ -208,7 +224,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     navContact: "Kontakt",
     navDashboard: "Mein Dashboard",
     navMap: "3D Schweiz-Karte",
-    navResources: "Ressourcen",
+    navResources: "Ressourcen & Karrieren",
     navTracker: "Lebens-Tracker",
     navProfile: "Konto-Profil",
     navLogin: "Starten",
@@ -398,7 +414,23 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     professionDemand: "Nachfrage",
     professionOutlook: "Aussichten",
     professionSkillsLabel: "Kernkompetenzen",
-    professionClustersLabel: "Wichtigste regionale Cluster"
+    professionClustersLabel: "Wichtigste regionale Cluster",
+
+    // Resources & Careers hub (unifies web resources, professions, institutions)
+    resourcesCareersHeader: "Ressourcen & Karrieren",
+    resourcesCareersSub: "Alles, was Sie zur Erkundung von Möglichkeiten in der Schweiz brauchen - Ressourcen, Berufe und Institutionen - an einem Ort.",
+    resourcesTabWeb: "Web-Ressourcen",
+    resourcesTabProfessions: "Berufe",
+    resourcesTabInstitutions: "Institutionen",
+    institutionsEyebrow: "Institutionen & Schulen",
+    institutionsTitle: "Schweizer Institutionen-Explorer",
+    institutionsSub: "Durchsuchen Sie Universitäten, Hochschulen und Schulen und vergleichen Sie die für Sie relevanten.",
+    institutionsSearchPlaceholder: "Institutionen suchen...",
+    institutionsEmpty: "Keine passenden Institutionen gefunden.",
+    institutionsLoading: "Institutionen werden geladen...",
+    institutionsCatalogGrowing: "Unser Institutionenkatalog wächst noch - schauen Sie bald wieder vorbei.",
+    institutionsLoadError: "Institutionen konnten gerade nicht geladen werden. Bitte versuchen Sie es gleich noch einmal.",
+    institutionSelectHint: "Wählen Sie eine Institution aus der Liste, um Details, Kontakte und Zulassungsinformationen zu sehen."
   },
   fr: {
     // Navigation
@@ -407,7 +439,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     navContact: "Contact",
     navDashboard: "Tableau de Bord",
     navMap: "Carte 3D Suisse",
-    navResources: "Ressources",
+    navResources: "Ressources & Carrières",
     navTracker: "Suivi de Vie",
     navProfile: "Profil Utilisateur",
     navLogin: "Démarrer",
@@ -597,7 +629,23 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     professionDemand: "Demande",
     professionOutlook: "Perspectives",
     professionSkillsLabel: "Compétences clés",
-    professionClustersLabel: "Principaux pôles régionaux"
+    professionClustersLabel: "Principaux pôles régionaux",
+
+    // Resources & Careers hub (unifies web resources, professions, institutions)
+    resourcesCareersHeader: "Ressources & Carrières",
+    resourcesCareersSub: "Tout ce qu'il faut pour explorer les opportunités en Suisse - ressources, métiers et établissements - au même endroit.",
+    resourcesTabWeb: "Ressources web",
+    resourcesTabProfessions: "Métiers",
+    resourcesTabInstitutions: "Établissements",
+    institutionsEyebrow: "Établissements & Écoles",
+    institutionsTitle: "Explorateur des établissements suisses",
+    institutionsSub: "Recherchez universités, hautes écoles et écoles, et comparez celles qui vous intéressent.",
+    institutionsSearchPlaceholder: "Rechercher un établissement...",
+    institutionsEmpty: "Aucun établissement correspondant.",
+    institutionsLoading: "Chargement des établissements...",
+    institutionsCatalogGrowing: "Notre catalogue d'établissements continue de s'enrichir - revenez bientôt.",
+    institutionsLoadError: "Impossible de charger les établissements pour le moment. Veuillez réessayer sous peu.",
+    institutionSelectHint: "Choisissez un établissement dans la liste pour voir ses détails, contacts et informations d'admission."
   },
   it: {
     // Navigation
@@ -606,7 +654,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     navContact: "Contatti",
     navDashboard: "Dashboard",
     navMap: "Mappa 3D Svizzera",
-    navResources: "Risorse",
+    navResources: "Risorse & Carriere",
     navTracker: "Life Tracker",
     navProfile: "Profilo",
     navLogin: "Inizia",
@@ -796,7 +844,23 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     professionDemand: "Domanda",
     professionOutlook: "Prospettive",
     professionSkillsLabel: "Competenze chiave",
-    professionClustersLabel: "Principali poli regionali"
+    professionClustersLabel: "Principali poli regionali",
+
+    // Resources & Careers hub (unifies web resources, professions, institutions)
+    resourcesCareersHeader: "Risorse & Carriere",
+    resourcesCareersSub: "Tutto ciò che serve per esplorare le opportunità in Svizzera - risorse, professioni e istituti - in un unico posto.",
+    resourcesTabWeb: "Risorse web",
+    resourcesTabProfessions: "Professioni",
+    resourcesTabInstitutions: "Istituti",
+    institutionsEyebrow: "Istituti & Scuole",
+    institutionsTitle: "Esploratore degli istituti svizzeri",
+    institutionsSub: "Cerca università, scuole superiori e istituti, e confronta quelli che ti interessano.",
+    institutionsSearchPlaceholder: "Cerca istituti...",
+    institutionsEmpty: "Nessun istituto corrispondente.",
+    institutionsLoading: "Caricamento degli istituti...",
+    institutionsCatalogGrowing: "Il nostro catalogo di istituti è ancora in crescita - torna presto a controllare.",
+    institutionsLoadError: "Impossibile caricare gli istituti al momento. Riprova tra poco.",
+    institutionSelectHint: "Scegli un istituto dall'elenco per vedere dettagli, contatti e informazioni sulle ammissioni."
   }
 };
 

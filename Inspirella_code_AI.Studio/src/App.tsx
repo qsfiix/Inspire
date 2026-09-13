@@ -33,7 +33,8 @@ import { localizedMatches } from "./lib/localized";
 
 import { HomeView, AboutView, ContactView, PrivacyView } from "./features/marketing";
 import { LoginView, OnboardingView } from "./features/auth";
-import { DashboardView, ResourcesView, ProfileView } from "./features/dashboard";
+import { DashboardView, ProfileView } from "./features/dashboard";
+import { ResourcesCareersView } from "./features/resourcesCareers";
 
 export default function App() {
   const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>("en");
@@ -409,12 +410,13 @@ export default function App() {
             </motion.div>
           )}
 
-          {/* VIEW: Resources Directory */}
+          {/* VIEW: Resources & Careers hub (web resources + professions + institutions) */}
           {activeTab === "resources" && (
-            <ResourcesView
+            <ResourcesCareersView
               t={t}
               isDark={isDark}
               currentLanguage={currentLanguage}
+              theme={theme}
               resourceSearch={resourceSearch}
               setResourceSearch={setResourceSearch}
               resourceCategoryFilter={resourceCategoryFilter}
