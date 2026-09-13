@@ -166,6 +166,15 @@ export default function App() {
     }
   };
 
+  // Generic profile field save (currently used for the "about me" bio field,
+  // ProfileView.tsx) - mirrors handleLanguageChange's update-then-persist shape.
+  const handleUpdateProfile = async (patch: Partial<UserProfile>) => {
+    if (!userProfile) return;
+    const nextProfile = { ...userProfile, ...patch };
+    setUserProfile(nextProfile);
+    await DataRepository.saveProfile(nextProfile);
+  };
+
   // Auth operations - real Supabase accounts (see 02_Product/Backend/Prototype
   // Limitations.md: login must not merely look like an account while actually
   // being local-only storage indistinguishable from Guest mode).
@@ -460,6 +469,7 @@ export default function App() {
               currentLanguage={currentLanguage}
               handleLanguageChange={handleLanguageChange}
               handleLogout={handleLogout}
+              handleUpdateProfile={handleUpdateProfile}
             />
           )}
 

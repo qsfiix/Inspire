@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { BookOpen, Milestone, Sparkles, User } from "lucide-react";
+import { BookOpen, Milestone, Sparkles, User, Pencil, Check, X } from "lucide-react";
 import { SWISS_EDUCATION_LEVELS } from "../data";
 import AdvisorReport from "../components/AdvisorReport";
 import { EducationLevel, LanguageCode } from "../types";
@@ -207,8 +207,23 @@ export function ProfileView({
   userProfile,
   currentLanguage,
   handleLanguageChange,
-  handleLogout
+  handleLogout,
+  handleUpdateProfile
 }: any) {
+  const BIO_MAX_LENGTH = 500;
+  const [isEditingBio, setIsEditingBio] = useState(false);
+  const [draftBio, setDraftBio] = useState(userProfile?.bio || "");
+
+  const startEditingBio = () => {
+    setDraftBio(userProfile?.bio || "");
+    setIsEditingBio(true);
+  };
+
+  const saveBio = async () => {
+    await handleUpdateProfile?.({ bio: draftBio.trim() });
+    setIsEditingBio(false);
+  };
+
   return (
     <motion.div
       key="view-profile"
@@ -233,6 +248,61 @@ export function ProfileView({
               {userProfile?.syncState === "cloud" && userProfile?.id ? `ID: ${userProfile.id.slice(0, 8).toUpperCase()}` : (userProfile?.isGuest ? "ID: TEMPORARY" : "ID: LOCAL")}
             </p>
           </div>
+        </div>
+
+        {/* About Me: free-text personalization, the user's own words rather than
+            system-derived fields. Sofiia's review 2026-09-13 asked for more room
+            for personal identity in the profile - this is the first piece of it. */}
+        <div className={`p-4 rounded-xl border ${isDark ? "bg-zinc-900/30 border-violet-950" : "bg-purple-100 border-2 border-purple-300 shadow-sm"}`}>
+          <div className="flex items-center justify-between mb-2">
+            <span className={`text-[9px] font-mono uppercase ${isDark ? "text-zinc-400" : "text-black font-black"}`}>{t.profileBioLabel}</span>
+            {!isEditingBio && (
+              <button
+                onClick={startEditingBio}
+                className={`inline-flex items-center gap-1 text-[10px] font-semibold cursor-pointer ${isDark ? "text-violet-300 hover:text-white" : "text-violet-700 hover:text-violet-950"}`}
+              >
+                <Pencil className="h-3 w-3" /> {t.profileBioEdit}
+              </button>
+            )}
+          </div>
+
+          {isEditingBio ? (
+            <div className="space-y-2">
+              <textarea
+                value={draftBio}
+                onChange={e => setDraftBio(e.target.value.slice(0, BIO_MAX_LENGTH))}
+                placeholder={t.profileBioPlaceholder}
+                rows={4}
+                autoFocus
+                className={`w-full rounded-lg p-3 text-xs leading-relaxed resize-none focus:outline-none ${
+                  isDark ? "bg-zinc-950/60 text-zinc-100 placeholder-zinc-500 border border-violet-950" : "bg-white text-black placeholder-violet-950/40 border border-purple-300"
+                }`}
+              />
+              <div className="flex items-center justify-between">
+                <span className={`text-[9px] font-mono ${isDark ? "text-zinc-500" : "text-violet-950/50 font-semibold"}`}>
+                  {draftBio.length}/{BIO_MAX_LENGTH}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsEditingBio(false)}
+                    className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-lg cursor-pointer ${isDark ? "text-zinc-300 hover:text-white" : "text-black hover:text-violet-950"}`}
+                  >
+                    <X className="h-3 w-3" /> {t.profileBioCancel}
+                  </button>
+                  <button
+                    onClick={saveBio}
+                    className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg btn-primary"
+                  >
+                    <Check className="h-3 w-3" /> {t.profileBioSave}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className={`text-xs leading-relaxed ${userProfile?.bio ? (isDark ? "text-zinc-200" : "text-black font-semibold") : (isDark ? "text-zinc-500 italic" : "text-violet-950/50 italic")}`}>
+              {userProfile?.bio || t.profileBioEmpty}
+            </p>
+          )}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 text-xs">

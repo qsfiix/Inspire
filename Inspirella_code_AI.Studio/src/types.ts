@@ -39,6 +39,7 @@ export interface UserProfile {
   syncState?: "local" | "syncing" | "cloud";
   preferredCanton?: string; // Optional field for canton-aware recommendations
   targetLanguageRegion?: string; // Optional field for language region preferences
+  bio?: string; // Free-text "about me", written by the user themselves
 }
 
 export interface EducationPathStep {

@@ -126,6 +126,12 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     profileDataTitle: "System Registries & Security",
     profileUserAddress: "Authenticated Credentials",
     registeredAt: "Synchronized to Inspirella Core",
+    profileBioLabel: "About Me",
+    profileBioPlaceholder: "Write a little about yourself - your interests, what you're aiming for, anything you'd like this profile to reflect.",
+    profileBioEmpty: "You haven't written anything about yourself yet.",
+    profileBioEdit: "Edit",
+    profileBioSave: "Save",
+    profileBioCancel: "Cancel",
 
     // Map Page
     mapHeader: "Interactive Swiss Education Map",
@@ -341,6 +347,12 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     profileDataTitle: "Systemregister & Sicherheit",
     profileUserAddress: "Authentifizierter Benutzerzugang",
     registeredAt: "Synchronisiert mit Inspirella-Core",
+    profileBioLabel: "Über mich",
+    profileBioPlaceholder: "Schreiben Sie etwas über sich - Ihre Interessen, Ihre Ziele, alles, was dieses Profil widerspiegeln soll.",
+    profileBioEmpty: "Sie haben noch nichts über sich geschrieben.",
+    profileBioEdit: "Bearbeiten",
+    profileBioSave: "Speichern",
+    profileBioCancel: "Abbrechen",
 
     // Map Page
     mapHeader: "Interaktive 3D Schweiz-Karte",
@@ -556,6 +568,12 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     profileDataTitle: "Sécurité & Registres Système",
     profileUserAddress: "Accès Authentifié",
     registeredAt: "Synchronisé avec le noyau Inspirella",
+    profileBioLabel: "À propos de moi",
+    profileBioPlaceholder: "Écrivez quelques mots sur vous - vos intérêts, vos objectifs, tout ce que ce profil devrait refléter.",
+    profileBioEmpty: "Vous n'avez encore rien écrit sur vous.",
+    profileBioEdit: "Modifier",
+    profileBioSave: "Enregistrer",
+    profileBioCancel: "Annuler",
 
     // Map Page
     mapHeader: "Carte interactive de la Suisse",
@@ -771,6 +789,12 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     profileDataTitle: "Sicurezza & Registri di Sistema",
     profileUserAddress: "Accesso Autenticato",
     registeredAt: "Sincronizzato al nucleo Inspirella",
+    profileBioLabel: "Chi sono",
+    profileBioPlaceholder: "Scrivi qualcosa su di te - i tuoi interessi, i tuoi obiettivi, tutto ciò che questo profilo dovrebbe riflettere.",
+    profileBioEmpty: "Non hai ancora scritto nulla su di te.",
+    profileBioEdit: "Modifica",
+    profileBioSave: "Salva",
+    profileBioCancel: "Annulla",
 
     // Map Page
     mapHeader: "Mappa Georiferita 3D della Svizzera",

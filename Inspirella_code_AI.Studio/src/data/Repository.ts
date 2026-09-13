@@ -553,6 +553,7 @@ export const DataRepository = {
                 new Date().toISOString(),
               isGuest: false,
               avatarUrl: normalizeUrl(data.avatar_url) ?? localProfile?.avatarUrl,
+              bio: normalizeText(data.bio) ?? localProfile?.bio,
               updatedAt: normalizeText(data.updated_at),
               preferredCanton:
                 normalizeText(targetCantonRes.data?.[0]?.canton_code) ?? localProfile?.preferredCanton,
@@ -597,6 +598,7 @@ export const DataRepository = {
             onboarding_status: profile.onboardingComplete ? "completed" : "pending",
             onboarding_completed_at: profile.onboardingComplete ? new Date().toISOString() : null,
             avatar_url: profile.avatarUrl ?? null,
+            bio: profile.bio ?? null,
             is_guest: false,
             updated_at: new Date().toISOString()
           });
