@@ -209,9 +209,14 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
 
               el.addEventListener("click", () => {
                 setSelectedInst(inst);
+                // Zoom in close to the building (not just "somewhere in the
+                // canton") - 9.5 used to be LOWER than whatever zoom the user
+                // was already at, so clicking a pin could visibly zoom out.
+                // 16 is well past the 14.5 threshold where 3D buildings kick
+                // in, so clicking a pin reliably zooms in to street level.
                 mapInstance.current?.flyTo({
                   center: inst.coordinates,
-                  zoom: 9.5,
+                  zoom: 16,
                   essential: true
                 });
               });
