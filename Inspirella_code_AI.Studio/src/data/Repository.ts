@@ -313,6 +313,7 @@ export const parseDbInstitution = (db: Record<string, any>): Institution | null 
     phone: normalizeText(pick(db, "phone", "contact_phone")),
     address: normalizeText(pick(db, "address", "formatted_address", "street_address")),
     imageUrl: normalizeUrl(pick(db, "imageUrl", "image_url", "logo_url")),
+    imageAttribution: normalizeText(pick(db, "imageAttribution", "image_attribution", "logo_attribution")),
     admissionRequirements: pickLocalizedText(
       db,
       "admissionRequirements",

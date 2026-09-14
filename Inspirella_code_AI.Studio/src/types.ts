@@ -87,6 +87,8 @@ export interface Institution extends RecordProvenance {
   phone?: string;
   address?: string;
   imageUrl?: string;
+  /** Short credit line for imageUrl when sourced externally (e.g. Wikimedia Commons author/license) - shown in small print under the image. Never invented; absent when the image itself is absent. */
+  imageAttribution?: string;
   admissionRequirements?: Partial<Record<LanguageCode, string>>;
 
   // Trust and quality layer

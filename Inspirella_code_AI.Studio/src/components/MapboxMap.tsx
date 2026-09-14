@@ -504,20 +504,37 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
               className="p-6 flex-1 flex flex-col justify-between space-y-4 text-left"
             >
               <div className="space-y-4">
-                {/* Image if available */}
-                <div className="relative h-28 w-full rounded-xl overflow-hidden border border-white/10 bg-white/5 shadow-inner">
-                  <img
-                    src={selectedInst.imageUrl || "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80"}
-                    alt={selectedInst.title}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover opacity-75 mix-blend-luminosity hover:opacity-95 transition duration-300"
-                  />
-                  {selectedInst.category && (
-                    <span className="absolute bottom-2 left-2 rounded bg-violet-950/70 border border-white/10 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider text-white backdrop-blur-md">
-                      {selectedInst.category.replace(/_/g, " ")}
-                    </span>
-                  )}
-                </div>
+                {/* Image - only when we actually have a real photo of this institution.
+                    Used to fall back to a generic stock Unsplash photo for every record
+                    without one, which quietly implied it was a picture of the place -
+                    honest empty state instead (see Trust and Data Requirements.md). */}
+                {selectedInst.imageUrl && (
+                  <div>
+                    <div className="relative h-28 w-full rounded-xl overflow-hidden border border-white/10 bg-white/5 shadow-inner">
+                      <img
+                        src={selectedInst.imageUrl}
+                        alt={selectedInst.title}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover opacity-75 mix-blend-luminosity hover:opacity-95 transition duration-300"
+                      />
+                      {selectedInst.category && (
+                        <span className="absolute bottom-2 left-2 rounded bg-violet-950/70 border border-white/10 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+                          {selectedInst.category.replace(/_/g, " ")}
+                        </span>
+                      )}
+                    </div>
+                    {selectedInst.imageAttribution && (
+                      <p className={`mt-1 text-[9px] leading-snug ${isDark ? "text-zinc-500" : "text-violet-950/50"}`}>
+                        {selectedInst.imageAttribution}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {!selectedInst.imageUrl && selectedInst.category && (
+                  <span className="inline-block rounded bg-violet-950/70 border border-white/10 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+                    {selectedInst.category.replace(/_/g, " ")}
+                  </span>
+                )}
 
                 <div>
                   <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
