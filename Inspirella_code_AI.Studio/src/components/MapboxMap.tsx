@@ -10,6 +10,18 @@ import InstitutionCompareModal from "./InstitutionCompareModal";
 
 const MAX_COMPARE = 3;
 
+// Locks panning/zooming to Switzerland (plus a little breathing room past the
+// border, so it doesn't feel like hitting a hard wall right at the edge of
+// the country). Sofiia's request 2026-09-14: the map is Swiss-only right
+// now, so letting people scroll off to the rest of the globe just invites
+// wasted work with no payoff yet. Padded from the app's rough validation
+// bounding box (`SWISS_BOUNDS`), not a new source of truth for "is this
+// point in Switzerland" - that check stays in lib/validation.ts.
+const SWITZERLAND_MAX_BOUNDS: [[number, number], [number, number]] = [
+  [SWISS_BOUNDS.minLng - 1.2, SWISS_BOUNDS.minLat - 0.7], // southwest
+  [SWISS_BOUNDS.maxLng + 1.2, SWISS_BOUNDS.maxLat + 0.7] // northeast
+];
+
 interface MapProps {
   currentLanguage: LanguageCode;
   accessToken?: string;
@@ -128,6 +140,8 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
             style: styleUrl || (isDark ? "mapbox://styles/mapbox/dark-v11" : "mapbox://styles/mapbox/light-v11"),
             center: [8.2275, 46.8182],
             zoom: 7.2,
+            minZoom: 6,
+            maxBounds: SWITZERLAND_MAX_BOUNDS,
             pitch: is3DMode ? 45 : 0,
             bearing: -5,
             interactive: true,
