@@ -30,6 +30,23 @@ Related Files:
 
 ---
 
+## 2026-09-14 — Первый раунд наполнения БД: закрыт географический пробел по кантонам
+
+Sofiia передала наполнение базы данных в мой (агента) контур, с условием: только проверенные официальные источники, честный verification_status, ничего существующего не ломать. Прочитала весь `03_Data/SQL/*.md` (Data Pipeline, Import Rules, Sources, Coverage) — там уже продуман полноценный многоступенчатый data governance framework.
+
+**Диагностика через прямой SQL-доступ**: из 26 швейцарских кантонов 11 не имели вообще ни одной институции (UR, SZ, OW, NW, GL, ZG, BL, SH, AR, AI, TG), 80 из 114 существующих записей имели `canton: null`.
+
+**Проверка на дубли (по правилам Import Rules.md) показала**: 6 из 11 "пустых" кантонов на самом деле уже представлены в базе — записями-заготовками без указанного кантона/адреса (Kantonsschule Ausserschwyz, Kantonsschule Kollegium Schwyz, Kollegi Stans, Kantonsschule Zug, Gymnasium Liestal, Kantonsschule Trogen, Thurgauische Kantonsschule Frauenfeld, Pädagogische Maturitätsschule Kreuzlingen — 8 записей на 6 кантонов). Создание новых записей поверх них нарушило бы её же правило "нашли дубль → обогати существующую запись, не создавай новую".
+
+**Итог**:
+- **5 новых институций** добавлены (проверены напрямую на официальных сайтах): Kantonale Mittelschule Uri, Kantonsschule Obwalden, Kantonsschule Glarus, Kantonsschule Schaffhausen, Gymnasium St. Antonius (AI).
+- **8 существующих записей дообогащены** (только пустые поля — canton/city/address/coordinates/source-link — ничего не перезаписано через `COALESCE`): закрыли SZ, NW, ZG, BL, AR, TG.
+- Каждая запись получила `institution_source_links` на официальный сайт-источник (`source_registry`: "Official school websites"), `verification_status: verified`, `address_confidence: high`, `coordinate_completion_status: partial` (честно — координаты приблизительные, на уровне города, не точный геокодинг здания).
+- **Результат**: все 26 кантонов теперь покрыты минимум одной институцией.
+- Проверила Supabase advisors после изменений — ничего нового, только уже известные/задокументированные предупреждения.
+
+---
+
 ## 2026-09-14 — Фирменный стиль hero (свечение + сеть) распространён по всему сайту
 
 По просьбе Sofiia: тот же визуальный язык hero (мягкое фиолетовое свечение + фрагмент constellation-сети) теперь встречается и в остальных разделах — умеренно, как акцент, а не второй hero.
