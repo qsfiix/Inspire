@@ -18,9 +18,19 @@ import { useEffect, useRef, useState } from "react";
  * that polled a `.spline` property was also wrong: that field exists only
  * as the private `_spline` internal, never a public `.spline`. Listening
  * for the correct "load-complete" event is the actual fix.
+ *
+ * 2026-09-14: Spline's CDN serves scene.splinecode with no Cache-Control or
+ * ETag header (confirmed via a direct fetch), so browsers fall back to
+ * heuristic caching off Last-Modified - meaning a republished scene can
+ * silently keep serving a stale disk-cached copy at this exact same URL,
+ * with zero visible change no matter what Sofiia edits in Spline. Fixed by
+ * appending a version query string we control, so every bump forces a
+ * fresh fetch (the query string makes it a different cache key). Bump
+ * SPLINE_SCENE_VERSION whenever she republishes an edit and wants it to
+ * actually show up.
  */
-
-const SPLINE_SCENE_URL = "https://prod.spline.design/F-79qzszcnNncEMu/scene.splinecode";
+const SPLINE_SCENE_VERSION = "2026-09-14-2";
+const SPLINE_SCENE_URL = `https://prod.spline.design/F-79qzszcnNncEMu/scene.splinecode?v=${SPLINE_SCENE_VERSION}`;
 const SPLINE_VIEWER_SCRIPT = "https://cdn.spline.design/@splinetool/viewer@2.0.46/build/spline-viewer.js";
 const READY_TIMEOUT_MS = 9000;
 
