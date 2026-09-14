@@ -47,6 +47,16 @@ Sofiia передала наполнение базы данных в мой (а
 
 ---
 
+## 2026-09-14 — Глубокое наполнение, раунд 2: ещё 15 институций с фото/полными описаниями
+
+Продолжение предыдущего раунда (6 институций). Добавлено:
+- **7 новых фото** с Wikimedia Commons (каждое проверено прямым HTTP-запросом перед записью): Collège Calvin, Kantonsschule Solothurn, Kantonsschule Trogen, Kollegium Spiritus Sanctus Brig, Kantonsschule Ausserschwyz, Kantonsschule Kollegium Schwyz, Lycée cantonal de Porrentruy.
+- **8 институций** без найденного фото на Commons получили полноценные описания вместо пустых полей (Kollegi Stans, Kantonsschule Zug, Gymnasium Liestal, Thurgauische Kantonsschule Frauenfeld, Pädagogische Maturitätsschule Kreuzlingen, Collège de Candolle, Lycée Blaise-Cendrars, Gymnasium Muttenz).
+
+**Итог по всей базе**: 12 институций с реальными проверенными фото, 66 из 127 с содержательными описаниями (было 6 фото / гораздо меньше описаний в начале дня). Advisors чисто.
+
+---
+
 ## 2026-09-14 — Точные координаты через OpenStreetMap Nominatim + найден ещё один "выдуманный" адрес
 
 Sofiia попросила подбирать максимально точные координаты, а не приблизительные. Нашла бесплатный геокодер без ключа — OpenStreetMap Nominatim (`nominatim.openstreetmap.org/search`) — который по точному адресу отдаёт координаты конкретного здания, а не города.
