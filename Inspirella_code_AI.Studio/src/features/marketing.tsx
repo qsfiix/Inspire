@@ -68,7 +68,7 @@ export function HomeView({
       <section
         ref={heroRef}
         onMouseMove={handleHeroMouseMove}
-        className="py-14 md:py-24 relative left-1/2 -ml-[50vw] w-screen px-4 sm:px-8 lg:px-16"
+        className="pt-6 pb-14 md:pt-10 md:pb-24 relative left-1/2 -ml-[50vw] w-screen px-4 sm:px-8 lg:px-16"
       >
         <HeroBackground isDark={isDark} showPhoenixWatermark={splineStatus !== "ready"} />
 
