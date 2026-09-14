@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { BookOpen, Milestone, Sparkles, User, Pencil, Check, X, CalendarClock, AlertTriangle } from "lucide-react";
 import { SWISS_EDUCATION_LEVELS } from "../data";
 import AdvisorReport from "../components/AdvisorReport";
+import SectionGlow from "../components/SectionGlow";
 import { daysUntilDue } from "../components/TrackerSystem";
 import { EducationLevel, LanguageCode, TrackerGoal } from "../types";
 
@@ -38,6 +39,7 @@ export function DashboardView({
       className="space-y-8"
     >
       <section className="card-premium flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 relative overflow-hidden text-left">
+        <SectionGlow isDark={isDark} corner="top-right" />
         <div className="space-y-1">
           <span className={`block font-mono text-[9px] uppercase tracking-widest ${isDark ? "text-violet-300" : "text-violet-600 font-black"}`}>
             {userProfile?.isGuest ? "Guest Workspace Active" : "Personal Workspace Active"}
@@ -280,7 +282,8 @@ export function ProfileView({
       exit={{ opacity: 0 }}
       className="max-w-2xl mx-auto space-y-6 py-4 text-left"
     >
-      <div className="card-premium p-6 space-y-6">
+      <div className="card-premium p-6 space-y-6 relative overflow-hidden">
+        <SectionGlow isDark={isDark} corner="top-right" />
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-xl">
             <User className="h-6 w-6 text-white" />

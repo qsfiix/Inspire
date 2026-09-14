@@ -23,6 +23,7 @@ import { useEducationEngine } from "../engine/useEducationEngine";
 import { localizedList, localizedText } from "../lib/localized";
 import { isProvisional, isTrusted } from "../lib/quality";
 import InstitutionCompareModal from "../components/InstitutionCompareModal";
+import SectionGlow from "../components/SectionGlow";
 
 const MAX_COMPARE = 3;
 
@@ -63,8 +64,9 @@ export function ResourcesCareersView({
       exit={{ opacity: 0, x: -15 }}
       className="space-y-6"
     >
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-        <div>
+      <div className="relative flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 py-1">
+        <SectionGlow isDark={isDark} corner="top-left" />
+        <div className="relative">
           <h1 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-black font-black"}`}>{t.resourcesCareersHeader}</h1>
           <p className={`text-xs mt-0.5 max-w-xl ${isDark ? "text-zinc-300" : "text-black font-bold"}`}>{t.resourcesCareersSub}</p>
         </div>

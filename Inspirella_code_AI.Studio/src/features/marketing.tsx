@@ -18,6 +18,7 @@ import {
 import HeroBackground from "../components/HeroBackground";
 import PlatformStats from "../components/PlatformStats";
 import SplineHero, { SplineHeroStatus } from "../components/SplineHero";
+import SectionGlow from "../components/SectionGlow";
 
 export function HomeView({ 
   t, 
@@ -426,13 +427,14 @@ export function AboutView({ t, isDark, tTextTitle, tTextBody, tCard }: any) {
       className="max-w-4xl mx-auto space-y-12 py-6"
     >
       {/* Intro Editorial Heading */}
-      <section className="text-center max-w-2xl mx-auto space-y-4">
-        <div className="inline-flex items-center gap-1 text-xs font-mono font-bold uppercase tracking-widest text-violet-500">
+      <section className="relative text-center max-w-2xl mx-auto space-y-4 py-4">
+        <SectionGlow isDark={isDark} corner="center" showNodes />
+        <div className="relative inline-flex items-center gap-1 text-xs font-mono font-bold uppercase tracking-widest text-violet-500">
           <Layers className="h-4 w-4" />
           <span>Our Vision</span>
         </div>
-        <h1 className={`text-4xl font-extrabold tracking-tight ${tTextTitle}`}>{t.aboutTitle}</h1>
-        <div className="w-12 h-1 bg-violet-600 mx-auto rounded-full"></div>
+        <h1 className={`relative text-4xl font-extrabold tracking-tight ${tTextTitle}`}>{t.aboutTitle}</h1>
+        <div className="relative w-12 h-1 bg-violet-600 mx-auto rounded-full"></div>
       </section>
 
       {/* Main Mission Paragraphs */}
@@ -666,9 +668,10 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
       exit={{ opacity: 0, x: -15 }}
       className="max-w-5xl mx-auto py-6 space-y-8"
     >
-      <div className="text-center max-w-lg mx-auto space-y-2">
-        <h1 className={`text-3xl font-extrabold tracking-tight ${tTextTitle}`}>{t.contactTitle}</h1>
-        <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/80 font-bold"}`}>{t.contactSubtitle}</p>
+      <div className="relative text-center max-w-lg mx-auto space-y-2 py-2">
+        <SectionGlow isDark={isDark} corner="center" />
+        <h1 className={`relative text-3xl font-extrabold tracking-tight ${tTextTitle}`}>{t.contactTitle}</h1>
+        <p className={`relative text-xs ${isDark ? "text-zinc-400" : "text-violet-950/80 font-bold"}`}>{t.contactSubtitle}</p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-12 items-start">

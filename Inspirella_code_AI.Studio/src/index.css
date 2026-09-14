@@ -99,11 +99,19 @@ body.dark-mode .btn-secondary {
 }
 
 body:not(.dark-mode) .card-premium {
-  @apply border-purple-200 bg-white shadow-[0_4px_25px_rgba(46,16,101,0.06)] hover:shadow-[0_4px_30px_rgba(46,16,101,0.1)];
+  @apply border-purple-200 bg-white shadow-[0_4px_25px_rgba(46,16,101,0.06)];
+}
+body:not(.dark-mode) .card-premium:hover {
+  @apply border-violet-300;
+  box-shadow: 0 4px 30px rgba(46,16,101,0.1), 0 0 24px -6px rgba(139,92,246,0.18);
 }
 
 body.dark-mode .card-premium {
   @apply border-white/10 bg-[#06040a]/40 bg-white/5;
+}
+body.dark-mode .card-premium:hover {
+  @apply border-violet-500/30;
+  box-shadow: 0 0 28px -8px rgba(139,92,246,0.22);
 }
 
 .card-premium-accent {

@@ -25,6 +25,7 @@ import { LanguageCode, UserProfile, TrackerGoal, ResourceItem } from "./types";
 import { TRANSLATIONS, OFF_RESOURCES } from "./data";
 import Navbar from "./components/Navbar";
 import MapboxMap from "./components/MapboxMap";
+import SectionGlow from "./components/SectionGlow";
 import TrackerSystem from "./components/TrackerSystem";
 import { fetchSupabaseConfig, getMapboxConfig } from "./supabaseClient";
 import { DataRepository } from "./data/Repository";
@@ -413,9 +414,10 @@ export default function App() {
               exit={{ opacity: 0 }}
               className="space-y-4"
             >
-              <div>
-                <h1 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-black font-black"}`}>{t.mapHeader}</h1>
-                <p className={`text-xs mt-0.5 ${isDark ? "text-zinc-200" : "text-black font-bold"}`}>{t.mapSub}</p>
+              <div className="relative">
+                <SectionGlow isDark={isDark} corner="top-left" />
+                <h1 className={`relative text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-black font-black"}`}>{t.mapHeader}</h1>
+                <p className={`relative text-xs mt-0.5 ${isDark ? "text-zinc-200" : "text-black font-bold"}`}>{t.mapSub}</p>
               </div>
 
               {/* Render Mapbox Component */}

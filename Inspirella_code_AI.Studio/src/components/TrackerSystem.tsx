@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Plus, Trash2, CheckCircle, Circle, PlusCircle, Trophy, BarChart3, Star, HeartPulse, BrainCircuit, Activity, CalendarClock, AlertTriangle } from "lucide-react";
 import { TrackerGoal, TrackerChecklistItem, LanguageCode } from "../types";
 import { TRANSLATIONS } from "../data";
+import SectionGlow from "./SectionGlow";
 
 interface TrackerSystemProps {
   currentLanguage: LanguageCode;
@@ -222,8 +223,9 @@ export default function TrackerSystem({
       </div>
 
       {/* Goal Creation Deck */}
-      <div className="card-premium p-6 text-left">
-        <h3 className={`text-base font-bold mb-4 flex items-center gap-2 ${isDark ? "text-violet-200" : "text-violet-950"}`}>
+      <div className="card-premium p-6 text-left relative overflow-hidden">
+        <SectionGlow isDark={isDark} corner="top-right" />
+        <h3 className={`relative text-base font-bold mb-4 flex items-center gap-2 ${isDark ? "text-violet-200" : "text-violet-950"}`}>
           <PlusCircle className="h-5 w-5 text-violet-500" />
           {t.createTracker}
         </h3>
