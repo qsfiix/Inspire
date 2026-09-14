@@ -826,6 +826,24 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
                 }`}
               >
                 <div className="space-y-4 text-left">
+                  {/* Real photo only - no generic stock fallback (see Trust and Data Requirements.md) */}
+                  {selectedInst.imageUrl && (
+                    <div>
+                      <div className="relative h-32 w-full rounded-xl overflow-hidden border border-white/10 bg-white/5 shadow-inner">
+                        <img
+                          src={selectedInst.imageUrl}
+                          alt={selectedInst.title}
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover opacity-80 hover:opacity-100 transition duration-300"
+                        />
+                      </div>
+                      {selectedInst.imageAttribution && (
+                        <p className={`mt-1 text-[9px] leading-snug ${isDark ? "text-zinc-500" : "text-violet-950/50"}`}>
+                          {selectedInst.imageAttribution}
+                        </p>
+                      )}
+                    </div>
+                  )}
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3 border-purple-200/10">
                     <div>
                       <h3 className={`text-base font-extrabold flex items-center gap-1.5 leading-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
