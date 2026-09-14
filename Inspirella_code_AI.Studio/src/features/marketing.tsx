@@ -72,7 +72,12 @@ export function HomeView({
       >
         <HeroBackground isDark={isDark} showPhoenixWatermark={splineStatus !== "ready"} />
 
-        <div className="relative grid gap-6 lg:grid-cols-[0.85fr_1.15fr] items-center">
+        {/* items-start (not items-center): with the model column now much
+            taller than the text column, centering vertically pushed the
+            text down from the top of the row, so on first load it wasn't
+            all visible in frame right away. Top-aligning keeps the text
+            flush with the top regardless of how tall the model box is. */}
+        <div className="relative grid gap-6 lg:grid-cols-[0.85fr_1.15fr] items-start">
           {/* Text column */}
           <div className="space-y-8 text-center lg:text-left">
             {/* Live Active Badge */}

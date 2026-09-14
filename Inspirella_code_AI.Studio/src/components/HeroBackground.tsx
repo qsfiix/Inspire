@@ -71,9 +71,14 @@ const EDGES: [number, number][] = [
 export default function HeroBackground({ isDark, showPhoenixWatermark = true }: HeroBackgroundProps) {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
-      {/* Layer 1: slow-drifting gradient blobs */}
+      {/* Layer 1: slow-drifting gradient blobs.
+          Blob A used to sit at -top-24 -left-16 (well past the section's own
+          top edge) - since this wrapper clips to the section's bounds, that
+          pushed the blob's brightest, least-faded region right up against
+          the clip line, reading as a hard edge cutting the glow at the top.
+          Pulled inward so the blur has room to fade to ~0 before the clip. */}
       <div
-        className="hero-blob absolute -top-24 -left-16 h-[28rem] w-[28rem] rounded-full blur-[110px]"
+        className="hero-blob absolute -top-8 -left-8 h-[28rem] w-[28rem] rounded-full blur-[110px]"
         style={{
           background: isDark
             ? "radial-gradient(circle, rgba(139,92,246,0.28) 0%, rgba(99,102,241,0) 70%)"
