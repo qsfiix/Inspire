@@ -787,7 +787,8 @@ export const DataRepository = {
                 id: row.id,
                 text: normalizeText(row.title) ?? "",
                 completed: Boolean(row.is_completed),
-                frequency: fromDbTrackerFrequency(row.frequency)
+                frequency: fromDbTrackerFrequency(row.frequency),
+                stepId: normalizeId(row.metadata?.step_id) ?? undefined
               });
               itemsByGoal.set(row.tracker_goal_id, list);
             }
@@ -867,7 +868,8 @@ export const DataRepository = {
             title: item.text,
             frequency: item.frequency,
             is_completed: item.completed,
-            sort_order: index
+            sort_order: index,
+            metadata: item.stepId ? { step_id: item.stepId } : {}
           }))
         );
         if (itemRows.length > 0) {

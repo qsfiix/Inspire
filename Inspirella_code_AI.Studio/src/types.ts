@@ -125,6 +125,8 @@ export interface TrackerChecklistItem {
   text: string;
   completed: boolean;
   frequency: "daily" | "weekly";
+  /** Present when this item is a small sub-task of one LearningPathStep (see MyPathLadder). */
+  stepId?: string;
 }
 
 export interface ResourceItem extends RecordProvenance {

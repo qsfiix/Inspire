@@ -20,6 +20,7 @@ import { TRANSLATIONS } from "../data";
 import { useEducationEngine } from "../engine/useEducationEngine";
 import { DataRepository } from "../data/Repository";
 import { localizedText } from "../lib/localized";
+import { buildPathTrackerGoal, findPathTrackerGoal } from "../lib/pathTracker";
 
 interface AdvisorReportProps {
   userProfile?: UserProfile | null;
@@ -89,27 +90,11 @@ export default function AdvisorReport({
   // disconnected from the rest of the product - this is the most direct tie,
   // since the path's steps are already structured and ordered).
   const matchedPathTitleText = matchedPath ? localizedText(matchedPath.title, language) : "";
-  const pathTrackerGoalTitle = `Path: ${matchedPathTitleText}`;
-  const isPathInTracker = !!trackers?.some(g => g.title === pathTrackerGoalTitle);
+  const isPathInTracker = !!(matchedPath && findPathTrackerGoal(trackers, matchedPath, language));
 
   const addPathToTracker = () => {
     if (!matchedPath || !onTrackersChange || isPathInTracker) return;
-    const newGoal: TrackerGoal = {
-      id: crypto.randomUUID(),
-      title: pathTrackerGoalTitle,
-      category: "education",
-      description: localizedText(matchedPath.description, language),
-      streak: 0,
-      progress: 0,
-      items: matchedPath.steps.map(step => ({
-        id: crypto.randomUUID(),
-        text: localizedText(step.title, language),
-        completed: false,
-        frequency: "weekly"
-      })),
-      createdAt: new Date().toISOString()
-    };
-    onTrackersChange([newGoal, ...(trackers || [])]);
+    onTrackersChange([buildPathTrackerGoal(matchedPath, language), ...(trackers || [])]);
   };
 
   // AI explanation layer: an optional, explicitly user-triggered narrative on top

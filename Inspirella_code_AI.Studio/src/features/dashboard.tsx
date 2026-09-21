@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { BookOpen, Milestone, Sparkles, User, Pencil, Check, X, CalendarClock, AlertTriangle } from "lucide-react";
 import { SWISS_EDUCATION_LEVELS } from "../data";
 import AdvisorReport from "../components/AdvisorReport";
+import MyPathLadder from "../components/MyPathLadder";
 import SectionGlow from "../components/SectionGlow";
 import { daysUntilDue } from "../components/TrackerSystem";
 import { EducationLevel, LanguageCode, TrackerGoal } from "../types";
@@ -110,6 +111,17 @@ export function DashboardView({
           </button>
         </section>
       )}
+
+      <section>
+        <MyPathLadder
+          userProfile={userProfile}
+          language={currentLanguage}
+          isDark={isDark}
+          trackers={trackers}
+          onTrackersChange={onTrackersChange}
+          onExploreAlternatives={() => handleTabTransition("resources")}
+        />
+      </section>
 
       <section>
         <AdvisorReport
