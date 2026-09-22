@@ -171,7 +171,7 @@ export function HomeView({
               right after that (720->900) narrowed the ratio back down and
               silently re-broke it. Reverted to the confirmed-good ~0.89
               width:height ratio (the 420/520/720 values, not 520/640/900). */}
-          <div className="relative h-[420px] sm:h-[520px] lg:h-[720px]">
+          <div className="hidden lg:block relative lg:h-[720px]">
             <div
               className={`absolute inset-0 rounded-3xl border transition-opacity duration-500 flex items-center justify-center ${
                 isDark ? "border-white/10 bg-white/[0.02]" : "border-violet-950/10 bg-violet-950/[0.02]"

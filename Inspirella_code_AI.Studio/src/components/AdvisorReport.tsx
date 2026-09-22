@@ -406,6 +406,15 @@ export default function AdvisorReport({
                   <div className={`text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 ${isDark ? "text-white/40" : "text-violet-950/60 font-black"}`}>
                     <Route className="h-3.5 w-3.5" />
                     Your Path to Becoming {matchedPathTitleText}
+                    {language !== "de" && (
+                      <span
+                        className={`normal-case font-sans font-normal text-[9px] px-2 py-0.5 rounded-full border ${
+                          isDark ? "text-zinc-400 border-white/10 bg-white/[0.02]" : "text-zinc-500 border-purple-200 bg-black/[0.02]"
+                        }`}
+                      >
+                        {t.pathContentGermanOnly}
+                      </span>
+                    )}
                   </div>
                   {onTrackersChange && (
                     <button

@@ -4,6 +4,7 @@ import { CheckCircle2, Circle, ListPlus, Plus, Sparkles, Trophy } from "lucide-r
 import { LanguageCode, LearningPath, TrackerChecklistItem, TrackerGoal, UserProfile } from "../types";
 import { useEducationEngine } from "../engine/useEducationEngine";
 import { DataRepository } from "../data/Repository";
+import { TRANSLATIONS } from "../data";
 import { localizedText } from "../lib/localized";
 import { buildPathTrackerGoal, findPathTrackerGoal } from "../lib/pathTracker";
 
@@ -60,6 +61,7 @@ export default function MyPathLadder({
   onTrackersChange,
   onExploreAlternatives
 }: MyPathLadderProps) {
+  const t = TRANSLATIONS[language];
   const { recommendation, loading } = useEducationEngine(userProfile || null);
 
   const [learningPaths, setLearningPaths] = useState<LearningPath[]>([]);
@@ -239,6 +241,18 @@ export default function MyPathLadder({
         <div className="flex items-center gap-2">
           {headerIcon}
           <h2 className={`text-base font-bold tracking-tight ${isDark ? "text-white" : "text-violet-950"}`}>My Path</h2>
+          {language !== "de" && (
+            <span
+              className="text-[9px] font-mono px-2 py-0.5 rounded-full border"
+              style={{
+                color: isDark ? "#a79fc4" : "#5C5570",
+                borderColor: isDark ? "#2C2549" : "#E3DEF0",
+                background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)"
+              }}
+            >
+              {t.pathContentGermanOnly}
+            </span>
+          )}
         </div>
         {!goal && onTrackersChange && (
           <button
@@ -253,7 +267,11 @@ export default function MyPathLadder({
         )}
       </div>
 
-      <div className="relative w-full max-w-[820px] mx-auto" style={{ aspectRatio: `${VB_W} / ${VB_H}` }}>
+      <p className="sm:hidden text-[10px] font-mono uppercase tracking-wider text-center mb-1.5" style={{ color: isDark ? "#a79fc4" : "#5C5570" }}>
+        ← swipe to see the full path →
+      </p>
+      <div className="overflow-x-auto -mx-6 px-6">
+        <div className="relative min-w-[640px] sm:min-w-0 sm:w-full sm:max-w-[820px] sm:mx-auto" style={{ aspectRatio: `${VB_W} / ${VB_H}` }}>
         {/* Ambient purple-to-black backdrop, matching the site's glow language */}
         <div
           className="absolute inset-0 rounded-2xl overflow-hidden"
@@ -475,6 +493,7 @@ export default function MyPathLadder({
             </button>
           );
         })}
+        </div>
       </div>
 
       <AnimatePresence mode="wait">

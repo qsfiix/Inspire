@@ -7,7 +7,7 @@ import { GoogleGenAI } from "@google/genai";
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // Behind Railway/any reverse proxy, the real client address is in
 // X-Forwarded-For - without this, req.ip is the proxy's own address and
