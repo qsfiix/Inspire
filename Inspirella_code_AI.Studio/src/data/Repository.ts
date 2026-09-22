@@ -10,7 +10,8 @@ import {
   TrackerGoal,
   TrackerChecklistItem,
   LearningPath,
-  LearningPathStep
+  LearningPathStep,
+  ProfessionInstitutionLink
 } from "../types";
 import { OFF_RESOURCES, SWISS_INSTITUTIONS } from "../data";
 import { normalizeCoordinates, normalizeId, normalizeText, normalizeUrl } from "../lib/validation";
@@ -917,7 +918,7 @@ export const DataRepository = {
     if (isSupabaseActive()) {
       try {
         return getSupabase()
-          .channel("realtime-resources-sync")
+          .channel(`realtime-resources-sync-${crypto.randomUUID()}`)
           .on("postgres_changes", { event: "*", schema: "public", table: "resources" }, callback)
           .subscribe();
       } catch (err) {
@@ -956,7 +957,7 @@ export const DataRepository = {
     await fetchSupabaseConfig();
     if (isSupabaseActive()) {
       try {
-        const channel = getSupabase().channel("realtime-institutions-changes");
+        const channel = getSupabase().channel(`realtime-institutions-changes-${crypto.randomUUID()}`);
         channel
           .on("postgres_changes", { event: "*", schema: "public", table: "institutions" }, callback)
           .on("postgres_changes", { event: "*", schema: "public", table: "schools" }, callback);
@@ -985,12 +986,55 @@ export const DataRepository = {
     return [];
   },
 
+  /** Curated profession -> institution pathways (see `profession_institutions`).
+   *  Two queries + a client-side join, same pattern as getLearningPaths -
+   *  avoids depending on PostgREST FK-embed syntax being set up just right. */
+  getProfessionInstitutionLinks: async (): Promise<ProfessionInstitutionLink[]> => {
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) return [];
+
+    try {
+      const supabase = getSupabase();
+      const [linksRes, instRes] = await Promise.all([
+        supabase.from("profession_institutions").select("*").eq("is_active", true),
+        supabase.from("institutions").select("id, title_en, title_de, title_fr, title_it, city")
+      ]);
+
+      if (linksRes.error || !Array.isArray(linksRes.data)) return [];
+
+      const institutionsById = new Map<string, { title: string; city?: string }>();
+      for (const row of (instRes.data ?? []) as any[]) {
+        const title = pickPlainText(row, "title");
+        if (!title) continue;
+        institutionsById.set(row.id, { title, city: normalizeText(row.city) });
+      }
+
+      const links: ProfessionInstitutionLink[] = [];
+      for (const row of linksRes.data as any[]) {
+        const institution = institutionsById.get(row.institution_id);
+        if (!institution) continue;
+        links.push({
+          id: row.id,
+          professionId: row.profession_id,
+          institutionId: row.institution_id,
+          institutionTitle: institution.title,
+          institutionCity: institution.city,
+          note: normalizeText(row.notes_de)
+        });
+      }
+      return links;
+    } catch (err) {
+      console.warn("Failed to load profession-institution links from Supabase", err);
+      return [];
+    }
+  },
+
   subscribeToProfessions: async (callback: () => void) => {
     await fetchSupabaseConfig();
     if (isSupabaseActive()) {
       try {
         return getSupabase()
-          .channel("realtime-professions-sync")
+          .channel(`realtime-professions-sync-${crypto.randomUUID()}`)
           .on("postgres_changes", { event: "*", schema: "public", table: "professions" }, callback)
           .subscribe();
       } catch (err) {

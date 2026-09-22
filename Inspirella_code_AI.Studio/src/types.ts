@@ -183,6 +183,18 @@ export interface Profession extends RecordProvenance {
   customMetadata?: Record<string, unknown>;
 }
 
+/** A curated, verified link between a profession and an institution that
+ *  genuinely offers a pathway into it (see `profession_institutions`). Not
+ *  every profession has one yet - absent rather than guessed. */
+export interface ProfessionInstitutionLink {
+  id: string;
+  professionId: string;
+  institutionId: string;
+  institutionTitle: string;
+  institutionCity?: string;
+  note?: string;
+}
+
 /** One concrete action within a LearningPath, in order. */
 export interface LearningPathStep {
   id: string;

@@ -18,7 +18,7 @@ import {
   X
 } from "lucide-react";
 import { DataRepository } from "../data/Repository";
-import { Institution, LanguageCode, Profession } from "../types";
+import { Institution, LanguageCode, Profession, ProfessionInstitutionLink } from "../types";
 import { useEducationEngine } from "../engine/useEducationEngine";
 import { localizedList, localizedText } from "../lib/localized";
 import { isProvisional, isTrusted } from "../lib/quality";
@@ -328,6 +328,19 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
   const [searchText, setSearchText] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [selectedProf, setSelectedProf] = useState<Profession | null>(null);
+  const [institutionLinks, setInstitutionLinks] = useState<ProfessionInstitutionLink[]>([]);
+
+  // Curated profession -> institution pathways (see profession_institutions).
+  // Fetched once, catalog-wide, same reasoning as learning_paths in
+  // AdvisorReport: this is small reference data, not worth re-fetching per
+  // selection.
+  useEffect(() => {
+    let active = true;
+    DataRepository.getProfessionInstitutionLinks().then(links => {
+      if (active) setInstitutionLinks(links);
+    });
+    return () => { active = false; };
+  }, []);
 
   // HARD RULE (02_Product/Requirements/Trust and Data Requirements.md): never
   // invent data. A previous version of this component swapped in a mock
@@ -360,6 +373,10 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
     }
   }
   const uniqueCategories: string[] = ["all", ...presentCategories];
+
+  const selectedProfInstitutions = selectedProf
+    ? institutionLinks.filter(link => link.professionId === selectedProf.id)
+    : [];
 
   const needle = searchText.trim().toLowerCase();
   const filtered = professionsList.filter(p => {
@@ -622,6 +639,33 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                           >
                             {ind}
                           </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Where to study this - curated profession_institutions links.
+                      Honest empty: most professions don't have one yet, so this
+                      simply doesn't render rather than claiming full coverage. */}
+                  {selectedProfInstitutions.length > 0 && (
+                    <div className="space-y-1.5 text-left">
+                      <span className="block text-[8px] font-mono uppercase tracking-wider text-violet-400">
+                        Where to study this
+                      </span>
+                      <div className="space-y-1">
+                        {selectedProfInstitutions.map(link => (
+                          <div
+                            key={link.id}
+                            className={`flex items-center gap-2 text-[10px] px-2.5 py-1.5 rounded-lg ${
+                              isDark ? "bg-white/5 border border-white/5 text-zinc-200" : "bg-purple-50 text-violet-950 font-semibold border border-purple-200/40"
+                            }`}
+                          >
+                            <Landmark className="h-3 w-3 text-violet-400 shrink-0" />
+                            <span className="flex-1 min-w-0 truncate">
+                              {link.institutionTitle}
+                              {link.institutionCity ? ` · ${link.institutionCity}` : ""}
+                            </span>
+                          </div>
                         ))}
                       </div>
                     </div>
