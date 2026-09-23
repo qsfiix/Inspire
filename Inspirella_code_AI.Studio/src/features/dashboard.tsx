@@ -435,6 +435,19 @@ export function ProfileView({
            </div>
         )}
 
+        {/* The public Contact page (and its mailto form) drops out of the nav
+            entirely once logged in - see Navbar's privateTabs. Without this,
+            a signed-in user who hits a bug has no visible way to report it
+            short of logging out first. */}
+        <a
+          href="mailto:iinspirella@gmail.com?subject=Inspirella%20-%20Something%20isn't%20working"
+          className={`block w-full py-3 text-xs text-center rounded-lg border transition ${
+            isDark ? "border-white/10 text-zinc-300 hover:bg-white/5" : "border-purple-200 text-violet-950 font-semibold hover:bg-purple-50"
+          }`}
+        >
+          Found a bug or have feedback? Contact us
+        </a>
+
         <button
           onClick={handleLogout}
           className="btn-danger w-full py-3.5 text-xs text-center"
