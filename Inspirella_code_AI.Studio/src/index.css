@@ -54,6 +54,59 @@ h1, h2, h3, h4 {
   font-family: var(--font-display);
 }
 
+/* --- Browser surfaces in the brand palette (audit 2026-09-28) --- */
+::selection {
+  background: rgba(139, 92, 246, 0.45);
+  color: #ffffff;
+}
+body:not(.dark-mode) ::selection {
+  background: rgba(139, 92, 246, 0.25);
+  color: #1e1b4b;
+}
+input,
+textarea {
+  caret-color: #a78bfa;
+}
+:root {
+  accent-color: #8b5cf6;
+}
+
+/* Keyboard focus is always visible. !important because many controls carry a
+   `focus:outline-none` utility from earlier builds; :focus-visible only fires
+   for keyboard navigation, so mouse users see no change. */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid #c4b5fd !important;
+  outline-offset: 2px;
+}
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #a78bfa !important;
+  outline-offset: 1px;
+}
+body:not(.dark-mode) button:focus-visible,
+body:not(.dark-mode) a:focus-visible,
+body:not(.dark-mode) select:focus-visible,
+body:not(.dark-mode) [role="button"]:focus-visible,
+body:not(.dark-mode) input:focus-visible,
+body:not(.dark-mode) textarea:focus-visible {
+  outline-color: #6d28d9 !important;
+}
+
+/* Placeholder contrast: examples must stay readable (>= 4.5:1 on the page). */
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #9d98b5 !important;
+}
+body:not(.dark-mode) input::placeholder,
+body:not(.dark-mode) textarea::placeholder {
+  color: #6b6488 !important;
+}
+
 /* Elite Purple Glow Elements & Accents */
 .glow-bubble-violet {
   filter: blur(120px);
@@ -172,6 +225,268 @@ body.dark-mode .card-premium-glow {
   .hero-blob, .hero-node, .hero-line {
     animation: none !important;
   }
+}
+
+/* --- Design polish pass (2026-09-28) ---
+   Small signature effects in the existing violet palette. Every animated
+   one is switched off under prefers-reduced-motion at the bottom. */
+
+/* Registered so the values can be transitioned/animated (plain custom
+   properties would just snap). */
+@property --spot-opacity {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+@property --beam-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+/* Slowly flowing violet gradient clipped to text - used on one accent
+   word of the hero headline, not whole paragraphs. */
+.text-shimmer {
+  background-image: linear-gradient(90deg, #a78bfa 0%, #e879f9 25%, #818cf8 50%, #c4b5fd 75%, #a78bfa 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: text-shimmer 6s linear infinite;
+}
+body:not(.dark-mode) .text-shimmer {
+  background-image: linear-gradient(90deg, #6d28d9 0%, #a21caf 25%, #4338ca 50%, #7c3aed 75%, #6d28d9 100%);
+}
+@keyframes text-shimmer {
+  to { background-position: 200% center; }
+}
+
+/* A band of light that sweeps across a button every few seconds. */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.45) 50%, transparent 65%);
+  transform: translateX(-120%);
+  /* A few sweeps after load, then only on hover - an endless loop reads as
+     a marquee and pulls the eye forever. */
+  animation: btn-shine 4.5s ease-in-out 1s 3;
+  pointer-events: none;
+}
+.btn-shine:hover::after {
+  animation: btn-shine-once 0.9s ease-out;
+}
+@keyframes btn-shine {
+  0%, 55% { transform: translateX(-120%); }
+  85%, 100% { transform: translateX(120%); }
+}
+@keyframes btn-shine-once {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(120%); }
+}
+
+/* Cursor spotlight inside every premium card. App.tsx writes --sx/--sy on
+   the hovered card from a single delegated pointermove listener; the glow
+   rides on background-image, so it layers over each card's own
+   background-color without an extra element covering the content. */
+.card-premium,
+.card-premium-glow {
+  background-image: radial-gradient(420px circle at var(--sx, 50%) var(--sy, 50%), rgba(139, 92, 246, calc(0.12 * var(--spot-opacity))), transparent 70%);
+  transition: all 0.3s ease, --spot-opacity 0.35s ease;
+}
+body:not(.dark-mode) .card-premium,
+body:not(.dark-mode) .card-premium-glow {
+  background-image: radial-gradient(420px circle at var(--sx, 50%) var(--sy, 50%), rgba(139, 92, 246, calc(0.09 * var(--spot-opacity))), transparent 70%);
+}
+.card-premium:hover,
+.card-premium-glow:hover {
+  --spot-opacity: 1;
+}
+
+/* Perspective tilt towards the cursor (vars written by App.tsx). */
+.tilt-3d {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out, translate 0.3s ease, --spot-opacity 0.35s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tilt-3d { transform: none !important; }
+}
+
+/* A light beam that travels around an element's border. Reserved for
+   one or two "this is the important thing" elements per page. */
+.border-beam {
+  position: relative;
+}
+.border-beam::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--beam-angle), transparent 0%, transparent 72%, rgba(167, 139, 250, 0.9) 82%, rgba(232, 121, 249, 0.95) 88%, transparent 96%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: border-beam 6s linear infinite;
+  pointer-events: none;
+}
+@keyframes border-beam {
+  to { --beam-angle: 360deg; }
+}
+
+/* Two light pulses travelling in opposite directions between the VET and
+   academic cards on the home page - the permeability ("Durchlässigkeit")
+   idea drawn literally: you can move either way. */
+.bridge-track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: rgba(139, 92, 246, 0.18);
+}
+.bridge-track::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 45%;
+  border-radius: inherit;
+  background: linear-gradient(to bottom, transparent, #a78bfa, #e879f9, transparent);
+  animation: bridge-down 2.6s ease-in-out infinite;
+}
+.bridge-track.up::after {
+  background: linear-gradient(to top, transparent, #818cf8, #a78bfa, transparent);
+  animation-name: bridge-up;
+  animation-delay: 1.3s;
+}
+@keyframes bridge-down {
+  from { top: -45%; }
+  to { top: 100%; }
+}
+@keyframes bridge-up {
+  from { top: 100%; }
+  to { top: -45%; }
+}
+
+/* Map: institution marker as a "pillar of light" (MapboxMap.tsx). The core
+   sits exactly on the location (marker anchor = bottom), the beam rises from
+   it and grows on hover/focus. */
+/* Map side panel: institution info blocks glow softly instead of sitting
+   flat on the dark panel (Sofiia 2026-09-28: "там как-то скучно"). */
+body.dark-mode .inst-panel .card-premium,
+body.dark-mode .inst-panel .card-premium-accent {
+  border-color: rgba(167, 139, 250, 0.28);
+  background-color: rgba(76, 29, 149, 0.16);
+  box-shadow: 0 12px 30px -18px rgba(139, 92, 246, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+body.dark-mode .inst-panel .card-premium:hover,
+body.dark-mode .inst-panel .card-premium-accent:hover {
+  border-color: rgba(192, 132, 252, 0.55);
+  box-shadow: 0 14px 34px -14px rgba(167, 139, 250, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+body:not(.dark-mode) .inst-panel .card-premium,
+body:not(.dark-mode) .inst-panel .card-premium-accent {
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 10px 26px -18px rgba(109, 40, 217, 0.45);
+}
+
+/* NEVER set `position` on the marker element itself: Mapbox places every
+   marker with .mapboxgl-marker { position: absolute } + a transform, and a
+   `position: relative` here (loaded after Mapbox's CSS) knocked the pins off
+   their coordinates into normal page flow. The extra rule below pins it. */
+.inspirella-pin.mapboxgl-marker {
+  position: absolute;
+}
+.inspirella-pin {
+  width: 22px;
+  height: 52px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+.inspirella-pin .pin-beam {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  width: 2px;
+  height: 64px;
+  transform: translateX(-50%) scaleY(0.62);
+  transform-origin: bottom;
+  border-radius: 2px;
+  background: linear-gradient(to top, rgba(221, 214, 254, 0.95), rgba(192, 132, 252, 0.5) 55%, rgba(232, 121, 249, 0));
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.9);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+}
+.inspirella-pin .pin-core {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  margin-bottom: 2px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #ffffff 0%, #ddd6fe 45%, #8b5cf6 100%);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.35), 0 0 14px rgba(167, 139, 250, 0.95);
+  transition: transform 0.25s ease;
+}
+.inspirella-pin:hover .pin-beam,
+.inspirella-pin:focus-visible .pin-beam {
+  transform: translateX(-50%) scaleY(1);
+  box-shadow: 0 0 16px rgba(232, 121, 249, 0.95);
+}
+.inspirella-pin:hover .pin-core,
+.inspirella-pin:focus-visible .pin-core {
+  transform: scale(1.25);
+}
+
+/* My Path: sparks rising off the steps already climbed */
+.path-spark {
+  opacity: 0;
+  animation: path-spark 3.4s ease-out infinite;
+}
+@keyframes path-spark {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + 6px), -70px) scale(0.2); }
+}
+
+/* Home hero scroll cue: a drop of light sliding down a hairline */
+.scroll-cue::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: linear-gradient(to bottom, transparent, #a78bfa, transparent);
+  animation: scroll-cue 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes scroll-cue {
+  from { top: -40%; }
+  to { top: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-spark,
+  .scroll-cue::after,
+  .text-shimmer,
+  .btn-shine::after,
+  .border-beam::after,
+  .bridge-track::after {
+    animation: none !important;
+  }
+  .btn-shine::after { display: none; }
 }
 
 

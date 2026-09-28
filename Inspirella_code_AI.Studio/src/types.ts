@@ -91,6 +91,17 @@ export interface Institution extends RecordProvenance {
   imageAttribution?: string;
   admissionRequirements?: Partial<Record<LanguageCode, string>>;
 
+  /** Longer "about this institution and who it's for" narrative - distinct from the short `description`. Absent for most institutions today; fills in gradually. */
+  profile?: Partial<Record<LanguageCode, string>>;
+  /** Which language(s) teaching happens in - important in multilingual Switzerland. */
+  languageEnvironment?: Partial<Record<LanguageCode, string>>;
+  /** What it's like to study/live here day to day. */
+  studentLife?: Partial<Record<LanguageCode, string>>;
+  /** Practical notes on accommodation for students relocating from another canton. */
+  housingNotes?: Partial<Record<LanguageCode, string>>;
+  /** Practical notes on the application process, beyond the formal `admissionRequirements`. */
+  applicationNotes?: Partial<Record<LanguageCode, string>>;
+
   // Trust and quality layer
   status?: string;
   verified?: boolean;
@@ -170,6 +181,17 @@ export interface Profession extends RecordProvenance {
 
   educationRequired?: Partial<Record<LanguageCode, string>>;
 
+  /** Who this profession genuinely suits - interests, strengths, temperament. */
+  targetGroup?: Partial<Record<LanguageCode, string>>;
+  /** What a typical working day actually looks like. */
+  dailyWorkContext?: Partial<Record<LanguageCode, string>>;
+  /** Where people in this profession actually work (employer types, settings). */
+  typicalWorkplace?: Partial<Record<LanguageCode, string>>;
+  /** The realistic, practical side of getting in - beyond the formal `educationRequired`. */
+  admissionReality?: Partial<Record<LanguageCode, string>>;
+  /** Where a career in this profession can lead afterwards. */
+  progressionNotes?: Partial<Record<LanguageCode, string>>;
+
   // Trust and quality layer
   status?: string;
   verified?: boolean;
@@ -189,6 +211,7 @@ export interface Profession extends RecordProvenance {
 export interface ProfessionInstitutionLink {
   id: string;
   professionId: string;
+  professionTitle?: string;
   institutionId: string;
   institutionTitle: string;
   institutionCity?: string;

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Globe, Mail, Phone, Map as MapIcon, Layers, Compass, Maximize2, Minimize2, X, Info, Scale, Check, Plus } from "lucide-react";
+import { Map as MapIcon, Layers, Compass, Maximize2, Minimize2, X, Info, Scale } from "lucide-react";
 import { Coordinates, Institution, LanguageCode } from "../types";
 import { SWISS_INSTITUTIONS, TRANSLATIONS } from "../data";
 import { DataRepository } from "../data/Repository";
-import { localizedText } from "../lib/localized";
 import { hasCoordinates, isWithinSwitzerland, SWISS_BOUNDS } from "../lib/validation";
 import InstitutionCompareModal from "./InstitutionCompareModal";
+import InstitutionDetailCard from "./InstitutionDetailCard";
 
 const MAX_COMPARE = 3;
 
@@ -199,13 +199,14 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
               // No per-marker animate-ping: with the real dataset (91+ institutions and
               // growing) a permanent pulse on every pin at once reads as visual noise
               // rather than a signal. Hover/selection feedback (scale, ring) is enough.
-              const el = document.createElement("div");
-              el.className = "flex items-center justify-center cursor-pointer group";
-              el.innerHTML = `
-                <div class="relative flex h-8 w-8 items-center justify-center rounded-full bg-violet-600/30 border border-violet-400/90 shadow-[0_0_10px_rgba(109,40,217,0.5)] transition duration-300 transform group-hover:scale-125">
-                  <div class="h-3 w-3 rounded-full bg-violet-300"></div>
-                </div>
-              `;
+              // "Pillar of light" marker (index.css .inspirella-pin): a glowing
+              // core on the exact location with a beam rising from it - reads
+              // as 3D over the tilted map and matches the site's glow language.
+              const el = document.createElement("button");
+              el.type = "button";
+              el.className = "inspirella-pin";
+              el.setAttribute("aria-label", inst.title);
+              el.innerHTML = `<span class="pin-beam"></span><span class="pin-core"></span>`;
 
               el.addEventListener("click", () => {
                 setSelectedInst(inst);
@@ -221,7 +222,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
                 });
               });
 
-              new mapboxgl.Marker(el)
+              new mapboxgl.Marker({ element: el, anchor: "bottom" })
                 .setLngLat(inst.coordinates)
                 .addTo(mapInstance.current);
             });
@@ -298,13 +299,13 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
       {/* Map Control Hub Header Overlay (Floating top-left) */}
       <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2 pointer-events-auto">
         <div className={`inline-flex items-center gap-2 rounded-xl border px-3.5 py-1.5 backdrop-blur-md ${
-          isDark ? "bg-white/10 border-white/15 text-white animate-pulse" : "bg-white border-purple-200 text-indigo-950 shadow-sm"
+          isDark ? "bg-zinc-950/85 border-violet-400/25 text-white shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8)]" : "bg-white border-purple-200 text-indigo-950 shadow-sm"
         }`}>
-          <Compass className="h-4 w-4 text-violet-500 animate-spin-slow" />
-          <span className="text-xs font-semibold tracking-wide uppercase font-mono">
-            {mapEngineLoaded ? "Map Connected" : "Directory Map"}
+          <Compass className="h-4 w-4 text-violet-400" />
+          <span className="text-xs font-semibold">
+            {mapEngineLoaded ? "Live map" : "Map"}
           </span>
-          <span className={`text-[10px] px-2 py-0.5 rounded-lg font-mono font-bold shrink-0 ${
+          <span className={`text-xs px-2 py-0.5 rounded-lg font-mono font-bold shrink-0 ${
             isDark ? "bg-violet-500/20 text-violet-200" : "bg-violet-100 text-violet-800"
           }`}>
             {geoInstitutions.length}/{institutions.length} {t.mapMappedLabel}
@@ -314,9 +315,9 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
         {/* Honest note when some records cannot be placed geographically. */}
         {unlocatedCount > 0 && (
           <div
-            className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[10px] font-medium backdrop-blur-md ${
+            className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium backdrop-blur-md ${
               isDark
-                ? "bg-amber-500/10 border-amber-500/25 text-amber-300"
+                ? "bg-zinc-950/85 border-amber-400/40 text-amber-200"
                 : "bg-amber-50 border-amber-300 text-amber-800"
             }`}
             title={t.mapUnlocatedHint}
@@ -329,8 +330,8 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
         <button
           onClick={() => setIs3DMode(!is3DMode)}
           className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-1.5 text-xs font-medium backdrop-blur-md transition-all cursor-pointer ${
-            isDark 
-              ? "bg-white/5 border-white/10 text-zinc-300 hover:text-white hover:bg-white/10" 
+            isDark
+              ? "bg-zinc-950/85 border-violet-400/25 text-zinc-100 hover:bg-zinc-900 hover:border-violet-400/50"
               : "bg-white border-purple-200 text-indigo-950 hover:bg-purple-50 hover:shadow-sm"
           }`}
         >
@@ -342,14 +343,14 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
         <button
           onClick={() => setIsFullscreen(!isFullscreen)}
           className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-1.5 text-xs font-medium backdrop-blur-md transition-all cursor-pointer ${
-            isDark 
-              ? "bg-white/5 border-white/10 text-zinc-300 hover:text-white hover:bg-white/10" 
+            isDark
+              ? "bg-zinc-950/85 border-violet-400/25 text-zinc-100 hover:bg-zinc-900 hover:border-violet-400/50"
               : "bg-white border-purple-200 text-indigo-950 hover:bg-purple-50 hover:shadow-sm"
           }`}
           title="Toggle Fullscreen Mode"
         >
           {isFullscreen ? <Minimize2 className="h-3.5 w-3.5 text-violet-500" /> : <Maximize2 className="h-3.5 w-3.5 text-violet-500" />}
-          <span>{isFullscreen ? "Exit Immersive View" : "Immersive Full Screen"}</span>
+          <span>{isFullscreen ? "Exit full screen" : "Full screen"}</span>
         </button>
       </div>
 
@@ -465,7 +466,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
                       <text 
                         y="-24" 
                         textAnchor="middle" 
-                        className={`text-[9px] font-mono tracking-wide font-bold ${
+                        className={`text-[11px] font-mono tracking-wide font-bold ${
                           isDark ? "fill-zinc-100" : "fill-indigo-950"
                         }`}
                       >
@@ -481,8 +482,8 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
             <div className={`absolute bottom-4 left-4 border backdrop-blur-md rounded-xl p-3.5 max-w-[220px] pointer-events-none shadow-md ${
               isDark ? "bg-white/5 border-white/10" : "bg-white border-purple-200 shadow-md"
             }`}>
-              <span className="block text-[10px] font-bold font-mono text-violet-500 uppercase">Interactive Directory</span>
-              <span className={`block text-[9px] mt-1 leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-extrabold"}`}>
+              <span className="block text-xs font-bold font-mono text-violet-500 uppercase">Interactive Directory</span>
+              <span className={`block text-[11px] mt-1 leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-extrabold"}`}>
                 All academies, high vocational systems, and cantonal research institutes are projected above.
               </span>
             </div>
@@ -491,12 +492,13 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
 
       </div>
 
-      {/* Floating map sidebar panel for institution metrics */}
-      <div className={`w-full lg:w-[360px] h-2/5 lg:h-full shrink-0 border-t lg:border-t-0 lg:border-l backdrop-blur-xl flex flex-col justify-between overflow-y-auto ${
+      {/* Institution side panel. `inst-panel` gives its info blocks the soft
+          violet glow (index.css) - they used to sit flat on near-black. */}
+      <div className={`inst-panel relative w-full lg:w-[360px] h-2/5 lg:h-full shrink-0 border-t lg:border-t-0 lg:border-l backdrop-blur-xl flex flex-col justify-between overflow-y-auto ${
         compareList.length > 0 ? "pb-24" : ""
       } ${
         isDark
-          ? "border-white/10 bg-black/20 text-white"
+          ? "border-violet-400/15 bg-gradient-to-b from-violet-950/50 via-black/40 to-black/30 text-white"
           : "border-purple-250 bg-white text-black"
       }`}>
         <AnimatePresence mode="wait">
@@ -506,195 +508,16 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="p-6 flex-1 flex flex-col justify-between space-y-4 text-left"
+              className="p-6 flex-1 text-left"
             >
-              <div className="space-y-4">
-                {/* Image - only when we actually have a real photo of this institution.
-                    Used to fall back to a generic stock Unsplash photo for every record
-                    without one, which quietly implied it was a picture of the place -
-                    honest empty state instead (see Trust and Data Requirements.md). */}
-                {selectedInst.imageUrl && (
-                  <div>
-                    <div className="relative h-28 w-full rounded-xl overflow-hidden border border-white/10 bg-white/5 shadow-inner">
-                      <img
-                        src={selectedInst.imageUrl}
-                        alt={selectedInst.title}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover opacity-75 mix-blend-luminosity hover:opacity-95 transition duration-300"
-                      />
-                      {selectedInst.category && (
-                        <span className="absolute bottom-2 left-2 rounded bg-violet-950/70 border border-white/10 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider text-white backdrop-blur-md">
-                          {selectedInst.category.replace(/_/g, " ")}
-                        </span>
-                      )}
-                    </div>
-                    {selectedInst.imageAttribution && (
-                      <p className={`mt-1 text-[9px] leading-snug ${isDark ? "text-zinc-500" : "text-violet-950/50"}`}>
-                        {selectedInst.imageAttribution}
-                      </p>
-                    )}
-                  </div>
-                )}
-                {!selectedInst.imageUrl && selectedInst.category && (
-                  <span className="inline-block rounded bg-violet-950/70 border border-white/10 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider text-white backdrop-blur-md">
-                    {selectedInst.category.replace(/_/g, " ")}
-                  </span>
-                )}
-
-                <div>
-                  <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-                    <h3 className={`text-base font-extrabold tracking-tight flex items-center gap-1.5 ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
-                      {selectedInst.title}
-                    </h3>
-                    {(selectedInst.status === "verified" || selectedInst.status === "official" || selectedInst.status === "published" || selectedInst.verified === true) && (
-                      <span className="inline-flex items-center gap-0.5 rounded-full bg-violet-600/20 px-2 py-0.5 text-[8px] font-bold font-mono tracking-wide text-violet-400 border border-violet-500/30">
-                        <span className="h-1 w-1 rounded-full bg-violet-400 animate-pulse"></span>
-                        VERIFIED
-                      </span>
-                    )}
-                    {(selectedInst.status === "draft" || selectedInst.status === "needs_review") && (
-                      <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[8px] font-bold font-mono tracking-wide text-amber-500 border border-amber-500/20">
-                        PROVISIONAL DATA
-                      </span>
-                    )}
-                    {selectedInst.rating && (
-                      <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[8.5px] font-mono font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                        ★ {selectedInst.rating.toFixed(1)}
-                      </span>
-                    )}
-                  </div>
-                  
-                  <span className={`text-[10px] font-mono tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900 font-extrabold bg-violet-100/60 px-2 py-0.5 rounded"}`}>
-                    {selectedInst.canton ? `Canton ${selectedInst.canton}` : t.mapCantonUnknown}
-                    {hasCoordinates(selectedInst)
-                      ? ` • [${selectedInst.coordinates[0].toFixed(3)}, ${selectedInst.coordinates[1].toFixed(3)}]`
-                      : ` • ${t.mapNoCoordinates}`}
-                  </span>
-
-                  {/* Rich Meta Grid (Established Year, Student Count, Region Language) */}
-                  {(selectedInst.establishedYear || selectedInst.studentCount || selectedInst.cantonalLanguage) && (
-                    <div className="grid grid-cols-3 gap-1.5 mt-3">
-                      {selectedInst.establishedYear && (
-                        <div className={`rounded-xl p-2 text-center border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-purple-100/60 border-purple-200 shadow-sm"}`}>
-                          <span className={`block text-[7.5px] font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>Established</span>
-                          <span className={`text-[10px] font-extrabold font-mono ${isDark ? "text-zinc-200" : "text-violet-950"}`}>{selectedInst.establishedYear}</span>
-                        </div>
-                      )}
-                      {selectedInst.studentCount && (
-                        <div className={`rounded-xl p-2 text-center border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-purple-100/60 border-purple-200 shadow-sm"}`}>
-                          <span className={`block text-[7.5px] font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>Students</span>
-                          <span className={`text-[10px] font-extrabold font-mono ${isDark ? "text-zinc-200" : "text-violet-950"}`}>{selectedInst.studentCount >= 1000 ? `${(selectedInst.studentCount/1000).toFixed(0)}k+` : selectedInst.studentCount}</span>
-                        </div>
-                      )}
-                      {selectedInst.cantonalLanguage && (
-                        <div className={`rounded-xl p-2 text-center border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-purple-100/60 border-purple-200 shadow-sm"}`}>
-                          <span className={`block text-[7.5px] font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>Language</span>
-                          <span className={`text-[8.5px] font-extrabold font-mono truncate block ${isDark ? "text-zinc-200" : "text-violet-950"}`}>{selectedInst.cantonalLanguage}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Dynamic Tag Pills Flow */}
-                  {selectedInst.tags && selectedInst.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-3">
-                      {selectedInst.tags.map((tag, idx) => (
-                        <span 
-                          key={idx} 
-                          className={`text-[8.5px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-lg border ${
-                            isDark ? "bg-zinc-900 border-violet-950/30 text-zinc-300" : "bg-purple-100/80 text-violet-950 border-purple-200"
-                          }`}
-                        >
-                          # {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {localizedText(selectedInst.description, currentLanguage) && (
-                  <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
-                    {localizedText(selectedInst.description, currentLanguage)}
-                  </p>
-                )}
-
-                {localizedText(selectedInst.admissionRequirements, currentLanguage) && (
-                  <div className="card-premium-accent p-3.5">
-                    <span className="block text-[10px] font-bold text-violet-500 font-mono uppercase mb-1">
-                      {t.admissionInfo}
-                    </span>
-                    <p className={`text-[10px] leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-bold"}`}>
-                      {localizedText(selectedInst.admissionRequirements, currentLanguage)}
-                    </p>
-                    <p className={`mt-2 text-[9px] leading-relaxed ${isDark ? "text-zinc-500" : "text-violet-950/60 font-semibold"}`}>
-                      {t.verifyWithInstitution}
-                    </p>
-                  </div>
-                )}
-
-                <button
-                  onClick={() => toggleCompare(selectedInst)}
-                  disabled={!isInCompare(selectedInst.id) && compareList.length >= MAX_COMPARE}
-                  title={!isInCompare(selectedInst.id) && compareList.length >= MAX_COMPARE ? t.compareFull : undefined}
-                  className={`w-full flex items-center justify-center gap-1.5 rounded-lg border py-2 text-[10px] font-bold tracking-wide transition disabled:opacity-40 disabled:cursor-not-allowed ${
-                    isInCompare(selectedInst.id)
-                      ? "bg-violet-600/20 border-violet-500/40 text-violet-300"
-                      : isDark
-                      ? "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
-                      : "bg-purple-50 border-purple-200 text-violet-950 hover:bg-purple-100"
-                  }`}
-                >
-                  {isInCompare(selectedInst.id) ? (
-                    <>
-                      <Check className="h-3.5 w-3.5" /> {t.compareRemove}
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="h-3.5 w-3.5" /> {t.compareAdd}
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Department Contact Details */}
-              <div className={`space-y-3 pt-4 border-t ${isDark ? "border-white/10" : "border-purple-200"}`}>
-                <span className={`block text-[10px] font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>
-                  {t.contactInstitution}
-                </span>
-
-                <div className="space-y-2 text-xs">
-                  {selectedInst.email && (
-                    <a
-                      href={`mailto:${selectedInst.email}`}
-                      className={`flex items-center gap-1.5 transition-colors ${
-                        isDark ? "text-zinc-300 hover:text-violet-300" : "text-violet-950 hover:text-violet-600 font-extrabold underline"
-                      }`}
-                    >
-                      <Mail className="h-3.5 w-3.5 text-violet-500 shrink-0" />
-                      <span className="font-mono text-[10px] truncate">{selectedInst.email}</span>
-                    </a>
-                  )}
-
-                  {selectedInst.phone && (
-                    <div className={`flex items-center gap-1.5 ${isDark ? "text-zinc-300" : "text-violet-950 font-bold"}`}>
-                      <Phone className="h-3.5 w-3.5 text-violet-500 shrink-0" />
-                      <span className="font-mono text-[10px]">{selectedInst.phone}</span>
-                    </div>
-                  )}
-
-                  {selectedInst.website && (
-                    <a
-                      href={selectedInst.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-primary flex h-9 w-full items-center justify-center gap-2 text-[10px] tracking-wider py-2"
-                    >
-                      <Globe className="h-3.5 w-3.5" />
-                      <span>{t.visitWebsite}</span>
-                    </a>
-                  )}
-                </div>
-              </div>
+              <InstitutionDetailCard
+                institution={selectedInst}
+                currentLanguage={currentLanguage}
+                theme={theme}
+                isInCompare={isInCompare(selectedInst.id)}
+                compareDisabled={compareList.length >= MAX_COMPARE}
+                onToggleCompare={() => toggleCompare(selectedInst)}
+              />
             </motion.div>
           ) : (
             <div className={`p-6 text-center flex flex-col items-center justify-center h-full ${isDark ? "text-zinc-300" : "text-violet-950 font-bold"}`}>
@@ -712,14 +535,14 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
         }`}>
           <div className="flex items-center gap-1.5">
             <Scale className="h-3.5 w-3.5 text-violet-500 shrink-0" />
-            <span className={`text-[10px] font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>
+            <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>
               {t.compareBarLabel} ({compareList.length}/{MAX_COMPARE})
             </span>
           </div>
           {compareList.map(inst => (
             <span
               key={inst.id}
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold max-w-[140px] ${
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold max-w-[140px] ${
                 isDark ? "bg-white/10 text-zinc-200" : "bg-purple-100 text-violet-950"
               }`}
             >
@@ -731,14 +554,14 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
           ))}
           <button
             onClick={() => setCompareList([])}
-            className={`text-[10px] font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/60 hover:text-violet-950"}`}
+            className={`text-xs font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/60 hover:text-violet-950"}`}
           >
             {t.compareClear}
           </button>
           <button
             onClick={() => setShowCompareModal(true)}
             disabled={compareList.length < 2}
-            className="btn-primary flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {t.compareViewButton}
           </button>

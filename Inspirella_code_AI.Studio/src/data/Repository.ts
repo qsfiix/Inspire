@@ -321,6 +321,11 @@ export const parseDbInstitution = (db: Record<string, any>): Institution | null 
       "admission_requirements",
       "admissions_summary"
     ),
+    profile: pickLocalizedText(db, "institution_profile"),
+    languageEnvironment: pickLocalizedText(db, "language_environment"),
+    studentLife: pickLocalizedText(db, "student_life"),
+    housingNotes: pickLocalizedText(db, "housing_notes"),
+    applicationNotes: pickLocalizedText(db, "application_notes"),
     status: normalizeText(pick(db, "status", "verification_status")),
     verified: asBoolean(pick(db, "verified", "is_verified")),
     rating: asNumber(pick(db, "rating", "data_confidence_score")),
@@ -402,6 +407,11 @@ export const parseDbProfession = (db: Record<string, any>): Profession | null =>
     salaryCHF: asNumber(pick(db, "salaryCHF", "salary_chf", "salary_range_median")),
     outlook: normalizeText(pick(db, "outlook")),
     educationRequired: pickLocalizedText(db, "educationRequired", "education_required", "education_notes"),
+    targetGroup: pickLocalizedText(db, "target_group"),
+    dailyWorkContext: pickLocalizedText(db, "daily_work_context"),
+    typicalWorkplace: pickLocalizedText(db, "typical_workplace"),
+    admissionReality: pickLocalizedText(db, "admission_reality"),
+    progressionNotes: pickLocalizedText(db, "progression_notes"),
     status: normalizeText(pick(db, "status", "verification_status")),
     verified: asBoolean(pick(db, "verified", "is_verified")),
     demandLevel: normalizeText(pick(db, "demandLevel", "demand_level")),
@@ -995,9 +1005,10 @@ export const DataRepository = {
 
     try {
       const supabase = getSupabase();
-      const [linksRes, instRes] = await Promise.all([
+      const [linksRes, instRes, profRes] = await Promise.all([
         supabase.from("profession_institutions").select("*").eq("is_active", true),
-        supabase.from("institutions").select("id, title_en, title_de, title_fr, title_it, city")
+        supabase.from("institutions").select("id, title_en, title_de, title_fr, title_it, city"),
+        supabase.from("professions").select("id, title_en, title_de, title_fr, title_it")
       ]);
 
       if (linksRes.error || !Array.isArray(linksRes.data)) return [];
@@ -1009,6 +1020,13 @@ export const DataRepository = {
         institutionsById.set(row.id, { title, city: normalizeText(row.city) });
       }
 
+      const professionsById = new Map<string, string>();
+      for (const row of (profRes.data ?? []) as any[]) {
+        const title = pickPlainText(row, "title");
+        if (!title) continue;
+        professionsById.set(row.id, title);
+      }
+
       const links: ProfessionInstitutionLink[] = [];
       for (const row of linksRes.data as any[]) {
         const institution = institutionsById.get(row.institution_id);
@@ -1016,6 +1034,7 @@ export const DataRepository = {
         links.push({
           id: row.id,
           professionId: row.profession_id,
+          professionTitle: professionsById.get(row.profession_id),
           institutionId: row.institution_id,
           institutionTitle: institution.title,
           institutionCity: institution.city,

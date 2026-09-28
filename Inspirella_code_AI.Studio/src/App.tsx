@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
+import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import {
   Sparkles,
   ArrowRight,
@@ -36,6 +36,10 @@ import { HomeView, AboutView, ContactView, PrivacyView } from "./features/market
 import { LoginView, OnboardingView } from "./features/auth";
 import { DashboardView, ProfileView } from "./features/dashboard";
 import { ResourcesCareersView } from "./features/resourcesCareers";
+import type { PhoenixSceneStatus } from "./components/phoenix/PhoenixScene";
+
+// three.js is split into its own chunk and loaded after the first paint.
+const PhoenixScene = lazy(() => import("./components/phoenix/PhoenixScene"));
 
 export default function App() {
   const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>("en");
@@ -48,6 +52,14 @@ export default function App() {
   const [mapboxConfig, setMapboxConfig] = useState<{ accessToken?: string; styleUrl?: string }>({});
   const [authError, setAuthError] = useState<string | null>(null);
   const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState<string | null>(null);
+  // The living WebGL backdrop is shared by every page (one canvas, never
+  // remounted, so the particles glide between pages), the map page included;
+  // "error" = no WebGL, pages fall back to solid colours.
+  const [sceneStatus, setSceneStatus] = useState<PhoenixSceneStatus>("loading");
+  // Also on the map page (Sofiia 2026-09-28: the black page there broke the
+  // style) - the ambient galaxy freezes after a few seconds, so running
+  // alongside Mapbox's own WebGL costs next to nothing.
+  const sceneVisible = sceneStatus !== "error";
 
   const handleThemeToggle = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
@@ -104,6 +116,38 @@ export default function App() {
       document.body.style.color = "#1e1b4b";
     }
   }, [theme]);
+
+  // Card spotlight (index.css .card-premium): one delegated listener feeds
+  // the cursor position to whichever premium card is under the pointer.
+  // Written straight to the DOM so mouse movement never re-renders React.
+  // Cards marked .tilt-3d also lean towards the cursor in perspective.
+  useEffect(() => {
+    let tilted: HTMLElement | null = null;
+    const onPointerMove = (e: PointerEvent) => {
+      const target = e.target as Element | null;
+      const tilt = target?.closest?.(".tilt-3d") as HTMLElement | null;
+      if (tilted && tilted !== tilt) {
+        tilted.style.setProperty("--rx", "0deg");
+        tilted.style.setProperty("--ry", "0deg");
+        tilted = null;
+      }
+      const card = target?.closest?.(".card-premium, .card-premium-glow") as HTMLElement | null;
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty("--sx", `${e.clientX - rect.left}px`);
+      card.style.setProperty("--sy", `${e.clientY - rect.top}px`);
+      if (tilt && e.pointerType === "mouse") {
+        const r = tilt.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        tilt.style.setProperty("--rx", `${(-py * 10).toFixed(2)}deg`);
+        tilt.style.setProperty("--ry", `${(px * 12).toFixed(2)}deg`);
+        tilted = tilt;
+      }
+    };
+    document.addEventListener("pointermove", onPointerMove, { passive: true });
+    return () => document.removeEventListener("pointermove", onPointerMove);
+  }, []);
 
   // Bootstrap app state
   useEffect(() => {
@@ -306,9 +350,19 @@ export default function App() {
   const tOption = isDark ? "bg-zinc-950 text-white" : "bg-white text-indigo-950";
 
   return (
-    <div className={`min-h-screen transition-all duration-300 flex flex-col relative select-none ${
-      isDark ? "bg-[#06040a] text-slate-100" : "bg-[#f5f3ff] text-indigo-950"
-    }`}>
+    // reducedMotion="user": every motion animation below honours the OS
+    // "reduce motion" setting (transforms off, fades kept) automatically.
+    <MotionConfig reducedMotion="user">
+    {/* While the backdrop is visible the root is transparent so the fixed
+        WebGL canvas (PhoenixScene, z-index -1) shows through. */}
+    <div className={`min-h-screen transition-colors duration-300 flex flex-col relative select-none ${
+      isDark ? "text-slate-100" : "text-indigo-950"
+    } ${sceneVisible ? "bg-transparent" : isDark ? "bg-[#06040a]" : "bg-[#f5f3ff]"}`}>
+      {sceneStatus !== "error" && (
+        <Suspense fallback={null}>
+          <PhoenixScene isDark={isDark} onStatus={setSceneStatus} />
+        </Suspense>
+      )}
       
       {/* Background layered atmospheric blur circles */}
       <div className={`fixed -top-40 -left-40 h-[500px] w-[500px] rounded-full blur-[120px] pointer-events-none -z-10 transition-colors duration-500 ${
@@ -340,7 +394,7 @@ export default function App() {
           
           {/* VIEW: Public Hero Landing Home */}
           {activeTab === "home" && (
-            <HomeView t={t} isDark={isDark} tTextTitle={tTextTitle} tTextSub={tTextSub} tTextBody={tTextBody} tTextMuted={tTextMuted} tCard={tCard} tCardAccent={tCardAccent} handleTabTransition={handleTabTransition} handleBypassAuth={handleBypassAuth} />
+            <HomeView t={t} isDark={isDark} tTextTitle={tTextTitle} tTextSub={tTextSub} tTextBody={tTextBody} tTextMuted={tTextMuted} tCard={tCard} tCardAccent={tCardAccent} handleTabTransition={handleTabTransition} handleBypassAuth={handleBypassAuth} sceneStatus={sceneStatus} />
           )}
 
           {/* VIEW: About */}
@@ -490,7 +544,7 @@ export default function App() {
       {/* Persistent global footer */}
       <footer className={`border-t py-6 text-center text-xs ${isDark ? "border-violet-950/40 bg-zinc-950 text-zinc-400" : "border-purple-200 bg-purple-100 text-black font-bold"}`}>
         <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="font-mono text-[10px] tracking-widest text-violet-500 uppercase font-black">
+          <span className="font-mono text-xs tracking-widest text-violet-500 uppercase font-black">
             © 2026 Inspirella
           </span>
           <div className="flex items-center gap-4">
@@ -508,5 +562,6 @@ export default function App() {
       </footer>
 
     </div>
+    </MotionConfig>
   );
 }

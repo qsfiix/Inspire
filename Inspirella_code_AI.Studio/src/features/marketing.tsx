@@ -1,4 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import Lenis from "lenis";
+import "lenis/dist/lenis.css";
+import SceneChapters from "../components/phoenix/SceneChapters";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   ArrowRight, 
@@ -13,12 +16,13 @@ import {
   CheckCircle,
   Mail,
   ShieldCheck,
-  ChevronRight
+  ChevronRight,
+  ArrowUpDown
 } from "lucide-react";
 import HeroBackground from "../components/HeroBackground";
 import PlatformStats from "../components/PlatformStats";
-import SplineHero, { SplineHeroStatus } from "../components/SplineHero";
 import SectionGlow from "../components/SectionGlow";
+import Reveal from "../components/Reveal";
 
 export function HomeView({ 
   t, 
@@ -30,10 +34,26 @@ export function HomeView({
   tCard, 
   tCardAccent, 
   handleTabTransition, 
-  handleBypassAuth
+  handleBypassAuth,
+  sceneStatus = "loading"
 }: any) {
   const heroRef = useRef<HTMLElement>(null);
-  const [splineStatus, setSplineStatus] = useState<SplineHeroStatus>("loading");
+
+  // Inertial smooth scrolling on the home page only - makes the scroll
+  // story (particle morphs, reveals) glide instead of stepping with each
+  // wheel notch. Off under prefers-reduced-motion; destroyed on leaving home.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const lenis = new Lenis({ lerp: 0.085, smoothWheel: true });
+    let raf = requestAnimationFrame(function loop(time) {
+      lenis.raf(time);
+      raf = requestAnimationFrame(loop);
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      lenis.destroy();
+    };
+  }, []);
 
   // Cursor-reactive spotlight: written straight to the DOM (not React state)
   // so a 60fps mousemove never triggers a re-render - HeroBackground's
@@ -54,8 +74,12 @@ export function HomeView({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.5 }}
-      className="space-y-20 py-4 max-w-6xl mx-auto"
+      className="relative space-y-20 py-4 max-w-6xl mx-auto"
     >
+      {/* The living backdrop itself (PhoenixScene) is mounted once in App.tsx
+          and follows this page's data-scene-anchor elements. */}
+      <SceneChapters isDark={isDark} labels={String(t.sceneChapters || "").split("|")} />
+
       {/* Premium Cinematic Hero Block. No overflow-hidden/rounded-3xl here
           on purpose - that was the last frame still clipping the Spline
           model and its glow with a rounded edge. HeroBackground keeps its
@@ -68,24 +92,28 @@ export function HomeView({
       <section
         ref={heroRef}
         onMouseMove={handleHeroMouseMove}
-        className="pt-6 pb-14 md:pt-10 md:pb-24 relative left-1/2 -ml-[50vw] w-screen px-4 sm:px-8 lg:px-16"
+        className="pt-6 pb-14 md:pt-10 md:pb-24 lg:py-10 lg:-mt-12 lg:min-h-[calc(100svh-4rem)] lg:flex lg:items-center relative left-1/2 -ml-[50vw] w-screen px-4 sm:px-8 lg:px-16"
       >
-        <HeroBackground isDark={isDark} showPhoenixWatermark={splineStatus !== "ready"} />
+        {/* CSS fallback only when WebGL isn't available */}
+        {sceneStatus === "error" && <HeroBackground isDark={isDark} showPhoenixWatermark />}
 
-        {/* items-start (not items-center): with the model column now much
-            taller than the text column, centering vertically pushed the
-            text down from the top of the row, so on first load it wasn't
-            all visible in frame right away. Top-aligning keeps the text
-            flush with the top regardless of how tall the model box is. */}
-        <div className="relative grid gap-6 lg:grid-cols-[0.85fr_1.15fr] items-start">
+        {/* Desktop: the hero fills exactly one screen below the header
+            (-mt-12 cancels main/page top padding) and both columns are
+            vertically centred, so text and phoenix sit square in the
+            viewport at any window proportion. */}
+        <div className="relative w-full grid gap-6 lg:grid-cols-[0.85fr_1.15fr] items-start lg:items-center">
           {/* Text column */}
           <div className="space-y-8 text-center lg:text-left">
+            {/* Mobile/tablet: the particle phoenix gets its own space above
+                the headline (the desktop column is hidden below lg). */}
+            <div data-scene-anchor="0" className="lg:hidden mx-auto h-56 w-56 sm:h-72 sm:w-72" aria-hidden="true" />
+
             {/* Live Active Badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-mono text-[10px] tracking-wider uppercase transition-all duration-300 ${
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-300 ${
                 isDark
                   ? "bg-white/5 border border-white/10 text-violet-300 shadow-lg shadow-violet-950/20"
                   : "bg-violet-950/10 border border-violet-950/20 text-violet-950 font-bold shadow-sm"
@@ -98,14 +126,40 @@ export function HomeView({
               <span>{t.swissSpecialGroup}</span>
             </motion.div>
 
-            {/* Main Hero Hook */}
-            <h1 className={`text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] max-w-4xl mx-auto lg:mx-0 ${
-              isDark
-                ? "bg-gradient-to-b from-white via-slate-100 to-zinc-400 bg-clip-text text-transparent"
-                : "text-violet-950 filter drop-shadow-[0_2px_10px_rgba(46,16,101,0.06)]"
-            }`}>
-              {t.heroTitle}
-            </h1>
+            {/* Hero headline = the brand slogan (00_Brain/Positioning.md).
+                heroTitle carries "first clause|second clause": the first
+                reads in solid white, the second carries the flowing violet
+                accent. Words rise out of a blur one after another. */}
+            {(() => {
+              const [lead, accent = ""] = String(t.heroTitle).split("|");
+              let wordIndex = 0;
+              const renderWords = (text: string, isAccent: boolean) =>
+                text.trim().split(" ").filter(Boolean).map(word => {
+                  const i = wordIndex++;
+                  return (
+                    <React.Fragment key={`${word}-${i}`}>
+                      <motion.span
+                        aria-hidden="true"
+                        className="inline-block pb-[0.08em]"
+                        initial={{ opacity: 0, y: "0.45em", filter: "blur(14px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        transition={{ delay: 0.25 + i * 0.09, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                      >
+                        <span className={isAccent ? "text-shimmer" : isDark ? "text-zinc-50" : "text-violet-950"}>{word}</span>
+                      </motion.span>{" "}
+                    </React.Fragment>
+                  );
+                });
+              return (
+                <h1
+                  aria-label={`${lead} ${accent}`.trim()}
+                  className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.08] max-w-4xl mx-auto lg:mx-0 text-balance"
+                >
+                  <span className="block">{renderWords(lead, false)}</span>
+                  {accent && <span className="block">{renderWords(accent, true)}</span>}
+                </h1>
+              );
+            })()}
 
             {/* Hero Description Subtitle */}
             <p className={`text-base md:text-xl font-sans max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal ${
@@ -115,7 +169,7 @@ export function HomeView({
             </p>
 
             {/* Primary and secondary Call To Actions */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4 max-w-md mx-auto lg:mx-0">
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4 max-w-xl mx-auto lg:mx-0">
               <div className="relative w-full sm:w-auto">
                 <div
                   className="hero-blob absolute inset-0 -z-10 rounded-xl blur-xl opacity-60"
@@ -129,7 +183,7 @@ export function HomeView({
                 />
                 <button
                   onClick={() => handleTabTransition("login")}
-                  className="btn-primary relative w-full sm:w-auto px-7 py-3.5 text-sm gap-2"
+                  className="btn-primary btn-shine w-full sm:w-auto px-7 py-3.5 text-sm gap-2 whitespace-nowrap"
                 >
                   <span>{t.heroCTA}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -138,7 +192,7 @@ export function HomeView({
 
               <button
                 onClick={handleBypassAuth}
-                className="btn-secondary w-full sm:w-auto px-7 py-3.5 text-sm"
+                className="btn-secondary w-full sm:w-auto px-7 py-3.5 text-sm whitespace-nowrap"
               >
                 <span>{t.exploreCTA}</span>
               </button>
@@ -157,266 +211,228 @@ export function HomeView({
             />
           </div>
 
-          {/* 3D phoenix column - Sofiia's own Spline model of the logo.
-              Stays a tasteful glass panel with a soft pulse while loading/if
-              unavailable, so the layout never shows an empty box.
-              No overflow-hidden here - a canvas can't show content beyond
-              its own pixel bounds anyway, so a DOM clip mask was never the
-              real lever, and this box's absolute pixel SIZE isn't either:
-              Spline's camera (Three.js underneath) keeps vertical FOV fixed
-              and derives horizontal FOV from the container's ASPECT RATIO -
-              so only width:height ratio affects how much is visible on the
-              sides; raw px size only affects sharpness. The hero breakout
-              widened the box and fixed the side crop; bumping height alone
-              right after that (720->900) narrowed the ratio back down and
-              silently re-broke it. Reverted to the confirmed-good ~0.89
-              width:height ratio (the 420/520/720 values, not 520/640/900). */}
-          <div className="hidden lg:block relative lg:h-[720px]">
-            <div
-              className={`absolute inset-0 rounded-3xl border transition-opacity duration-500 flex items-center justify-center ${
-                isDark ? "border-white/10 bg-white/[0.02]" : "border-violet-950/10 bg-violet-950/[0.02]"
-              } ${splineStatus === "ready" ? "opacity-0 pointer-events-none" : "opacity-100"}`}
-            >
-              <span
-                className={`h-3 w-3 rounded-full ${isDark ? "bg-violet-400" : "bg-violet-600"}`}
-                style={{
-                  animationName: "hero-node-pulse",
-                  animationDuration: "2.2s",
-                  animationIterationCount: "infinite",
-                  animationTimingFunction: "ease-in-out",
-                  "--node-opacity-min": 0.25,
-                  "--node-opacity-max": 0.7
-                }}
-              />
-            </div>
-            {/* No CSS scale here on purpose - Sofiia is re-framing/scaling
-                the phoenix natively inside Spline itself instead, so it
-                renders crisp at its own resolution rather than being
-                stretched by a CSS transform (which was softening it). */}
-            <SplineHero className="absolute inset-0" onStatusChange={setSplineStatus} />
+          {/* Phoenix column: an empty anchor the WebGL particle phoenix
+              (PhoenixScene) positions itself on. Without WebGL it shows the
+              flat logo instead, so the column is never an empty box. */}
+          <div data-scene-anchor="0" className="hidden lg:flex relative lg:h-[min(640px,calc(100svh-9rem))] items-center justify-center">
+            {sceneStatus === "error" && (
+              <img src="/logo-mark.png" alt="" className="w-3/4 opacity-90 drop-shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
+            )}
           </div>
+        </div>
+
+        {/* Scroll cue: a light drop running down a thin line */}
+        <div className="hidden md:flex absolute bottom-2 left-1/2 -translate-x-1/2 flex-col items-center gap-2 pointer-events-none" aria-hidden="true">
+          <span className={`text-[11px] font-mono uppercase tracking-[0.3em] ${isDark ? "text-violet-300/60" : "text-violet-900/50"}`}>Scroll</span>
+          <span className={`scroll-cue relative block h-10 w-px overflow-hidden ${isDark ? "bg-white/10" : "bg-violet-900/15"}`} />
         </div>
       </section>
 
-      {/* Switzerland Core Focus Segment (Interactive Visual Comparison) */}
-      <section className="card-premium grid gap-12 lg:grid-cols-12 items-center p-8 md:p-12 relative overflow-hidden">
-        {/* Subtle branding background watermark */}
-        <div className="absolute right-0 bottom-0 text-[180px] font-mono text-violet-500/[0.01] select-none pointer-events-none font-bold">CH</div>
-
-        <div className="space-y-6 lg:col-span-5">
-          <div className="inline-flex items-center gap-1.5">
-            <Globe className="h-4 w-4 text-violet-500" />
-            <span className={`text-xs uppercase tracking-widest font-mono font-bold ${
-              isDark ? "text-violet-300" : "text-violet-900"
-            }`}>
-              Swiss Education Structure
-            </span>
-          </div>
-
-          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight ${tTextTitle}`}>
+      {/* Chapter 02 - Switzerland. The text and a compact two-track diagram
+          sit on the left; the particle Switzerland stands open on the right
+          (it used to hide behind this section's glass card), with the
+          vocational and academic streams flowing across it and crossing at
+          the permeability "bridge". The legend names what the colours mean. */}
+      <section className="relative grid gap-10 lg:gap-14 lg:grid-cols-2 items-center">
+        <Reveal className="order-2 lg:order-1 space-y-6">
+          <h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight text-balance ${tTextTitle}`}>
             {t.whyTitle}
           </h2>
-
-          <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"}`}>
+          <p className={`text-base leading-relaxed max-w-xl ${isDark ? "text-zinc-300" : "text-violet-950/80 font-medium"}`}>
             {t.whyText}
           </p>
-
-          <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"}`}>
+          <p className={`text-base leading-relaxed max-w-xl ${isDark ? "text-zinc-400" : "text-violet-950/75 font-medium"}`}>
             {t.swissSpecialDesc}
           </p>
-        </div>
 
-        {/* Styled Interactive Swiss Education Track Diagram Board */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="card-premium-accent p-6 space-y-4">
-            <span className={`block text-[10px] font-mono uppercase tracking-widest ${tTextMuted} border-b border-violet-900/10 pb-2`}>
-              Swiss Dual Track Permeability Structure
-            </span>
-            
-            {/* VET Vocational Track */}
-            <div className={`p-4 rounded-xl transition duration-300 group ${
-              isDark 
-                ? "bg-white/5 border border-white/10 hover:border-violet-500/40" 
-                : "bg-white border-2 border-violet-950/20 hover:border-violet-600/40 shadow-sm"
-            }`}>
+          {/* The two tracks, with the bridge between them */}
+          <div className="card-premium-accent border-beam p-5 space-y-2">
+            <div className={`p-4 rounded-xl ${isDark ? "bg-white/5 border border-white/10" : "bg-white border border-violet-950/15 shadow-sm"}`}>
               <div className="flex items-center gap-3 mb-1.5">
-                <div className="p-2 rounded-lg bg-orange-500/10 text-orange-400">
+                <div className="p-2 rounded-lg bg-amber-400/15 text-amber-400">
                   <Briefcase className="h-4.5 w-4.5" />
                 </div>
-                <span className={`font-extrabold text-sm ${isDark ? "text-violet-300" : "text-violet-950"}`}>
-                  Vocational System (VET Apprenticeship)
-                </span>
-                <span className="ml-auto text-[9px] uppercase font-mono px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 font-bold">
-                  70% of Swiss Youth
-                </span>
+                <span className={`font-bold text-sm ${isDark ? "text-amber-100" : "text-violet-950"}`}>{t.hmVetTitle}</span>
+                <span className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${isDark ? "bg-amber-400/10 text-amber-300" : "bg-amber-100 text-amber-800"}`}>~70%</span>
               </div>
-              <p className={`text-xs ml-9.5 ${isDark ? "text-zinc-300" : "text-violet-950 font-medium leading-relaxed"}`}>
-                Blend of real paid enterprise workspace training + school room credentials. Providing robust real-world industrial expertise.
+              <p className={`text-sm ml-11 ${isDark ? "text-zinc-300" : "text-violet-950/80"}`}>
+                {t.hmVetText}
               </p>
             </div>
 
-            {/* Permeability Bridge Indicator */}
-            <div className="relative py-2 flex items-center justify-center">
-              <div className="absolute left-0 right-0 border-t border-dashed border-violet-900/20"></div>
-              <div className={`relative px-4 py-1 rounded-full text-[10px] font-mono font-bold flex items-center gap-1.5 ${
-                isDark ? "bg-zinc-950 text-violet-400 border border-violet-900/30" : "bg-violet-100 text-violet-950 border border-violet-950/20"
+            {/* Permeability bridge: light travels both ways between the tracks */}
+            <div className="relative h-12 flex items-center justify-center">
+              <span className="bridge-track left-[22%]" aria-hidden="true" />
+              <span className="bridge-track up right-[22%]" aria-hidden="true" />
+              <div className={`relative px-4 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_20px_-6px_rgba(139,92,246,0.5)] ${
+                isDark ? "bg-zinc-950 text-violet-200 border border-violet-500/40" : "bg-violet-100 text-violet-950 border border-violet-950/20"
               }`}>
-                <span>⇅ Bridge (Durchlässigkeit)</span>
+                <ArrowUpDown className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>Durchlässigkeit</span>
               </div>
             </div>
 
-            {/* Academic Track */}
-            <div className={`p-4 rounded-xl transition duration-300 group ${
-              isDark 
-                ? "bg-white/5 border border-white/10 hover:border-violet-500/40" 
-                : "bg-white border-2 border-violet-950/20 hover:border-violet-600/40 shadow-sm"
-            }`}>
+            <div className={`p-4 rounded-xl ${isDark ? "bg-white/5 border border-white/10" : "bg-white border border-violet-950/15 shadow-sm"}`}>
               <div className="flex items-center gap-3 mb-1.5">
-                <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+                <div className="p-2 rounded-lg bg-violet-400/15 text-violet-300">
                   <GraduationCap className="h-4.5 w-4.5" />
                 </div>
-                <span className={`font-extrabold text-sm ${isDark ? "text-violet-300" : "text-violet-950"}`}>
-                  Federal Academic Sector (ETH / EPFL)
-                </span>
-                <span className="ml-auto text-[9px] uppercase font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-bold">
-                  Research Institutions
-                </span>
+                <span className={`font-bold text-sm ${isDark ? "text-violet-100" : "text-violet-950"}`}>{t.hmAcadTitle}</span>
+                <span className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${isDark ? "bg-violet-400/10 text-violet-200" : "bg-violet-100 text-violet-800"}`}>~30%</span>
               </div>
-              <p className={`text-xs ml-9.5 ${isDark ? "text-zinc-300" : "text-violet-950 font-medium leading-relaxed"}`}>
-                Highly specialized research institutes. Direct entrance via Gymnasiale Maturität or transitional Passerelle bridges.
+              <p className={`text-sm ml-11 ${isDark ? "text-zinc-300" : "text-violet-950/80"}`}>
+                {t.hmAcadText}
               </p>
             </div>
           </div>
+        </Reveal>
+
+        <div className="order-1 lg:order-2 space-y-4">
+          <div data-scene-anchor="1" aria-hidden="true" className="w-full aspect-[16/10]" />
+          <ul className={`space-y-2 text-sm ${isDark ? "text-zinc-300" : "text-violet-950/80 font-medium"}`}>
+            <li className="flex items-center gap-2.5">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-amber-300 shadow-[0_0_10px_rgba(252,211,77,0.8)]" aria-hidden="true" />
+              {t.streamVet}
+            </li>
+            <li className="flex items-center gap-2.5">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-violet-300 shadow-[0_0_10px_rgba(196,181,253,0.8)]" aria-hidden="true" />
+              {t.streamAcademic}
+            </li>
+            <li className="flex items-center gap-2.5">
+              <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${isDark ? "bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" : "bg-fuchsia-600 shadow-[0_0_8px_rgba(192,38,211,0.5)]"}`} aria-hidden="true" />
+              {t.streamBridge}
+            </li>
+          </ul>
         </div>
       </section>
 
-      {/* How it Works Module Grid */}
-      <section className="space-y-12">
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 text-xs font-mono font-bold uppercase tracking-wider">
-            How it Works
-          </div>
-          <h2 className={`text-3xl md:text-4xl font-extrabold ${tTextTitle}`}>{t.howItWorks}</h2>
-          <p className={`text-sm max-w-md mx-auto ${isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"}`}>
-            A clear system to help you make informed educational decisions.
-          </p>
-        </div>
+      {/* Chapter 03 - the path. The particles assemble into the My Path
+          staircase (light climbs it step by step) beside the four steps of
+          how Inspirella works - the same staircase the user later climbs on
+          their dashboard. */}
+      <section className="relative grid gap-10 lg:gap-14 lg:grid-cols-2 items-center">
+        <div data-scene-anchor="2" aria-hidden="true" className="w-full aspect-[4/3]" />
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            {
-              title: t.howStepOnboarding,
-              desc: t.howStepOnboardingDesc,
-              num: "01",
-              icon: Compass,
-              color: "text-amber-400 bg-amber-500/10",
-              targetTab: "login"
-            },
-            {
-              title: t.howStepMap,
-              desc: t.howStepMapDesc,
-              num: "02",
-              icon: Navigation,
-              color: "text-emerald-400 bg-emerald-500/10",
-              targetTab: "map"
-            },
-            {
-              title: t.howStepTracker,
-              desc: t.howStepTrackerDesc,
-              num: "03",
-              icon: TrendingUp,
-              color: "text-violet-400 bg-violet-500/10",
-              targetTab: "tracker"
-            },
-            {
-              title: t.howStepResources,
-              desc: t.howStepResourcesDesc,
-              num: "04",
-              icon: Globe,
-              color: "text-indigo-400 bg-indigo-500/10",
-              targetTab: "resources"
-            }
-          ].map((step, idx) => {
-            const StepIcon = step.icon;
-            return (
-              <div
-                key={idx}
-                onClick={() => handleTabTransition(step.targetTab)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={e => {
-                  if (e.key === "Enter" || e.key === " ") handleTabTransition(step.targetTab);
-                }}
-                className="card-premium p-6 group transition duration-300 relative overflow-hidden flex flex-col justify-between cursor-pointer"
-              >
-                {/* Large elegant subtle background index */}
-                <span className="absolute -top-4 -right-2 text-7xl font-mono font-black opacity-[0.03] select-none group-hover:opacity-[0.06] transition duration-300">
-                  {step.num}
-                </span>
+        <div className="space-y-6">
+          <Reveal className="space-y-4">
+            <h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight text-balance ${tTextTitle}`}>{t.howItWorks}</h2>
+            <p className={`text-base leading-relaxed max-w-xl ${isDark ? "text-zinc-300" : "text-violet-950/80 font-medium"}`}>
+              {t.howItWorksIntro}
+            </p>
+          </Reveal>
 
-                <div className="space-y-4">
-                  <div className={`p-2.5 rounded-xl w-fit ${step.color}`}>
-                    <StepIcon className="h-5 w-5" />
-                  </div>
-                  
-                  <div className="space-y-1.5">
-                    <h3 className={`font-extrabold text-sm tracking-tight ${tTextTitle} group-hover:text-violet-400 transition duration-300`}>
-                      {step.title.substring(3)}
-                    </h3>
-                    <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/85 font-semibold"}`}>
-                      {step.desc}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-4 mt-4 border-t border-violet-900/10 flex items-center text-[10px] uppercase font-mono font-bold tracking-wider text-violet-500 group-hover:text-violet-400 transition">
-                  <span>View Details</span>
-                  <ChevronRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition duration-200" />
-                </div>
-              </div>
-            );
-          })}
+          <ol className="space-y-3">
+            {[
+              { title: t.howStepOnboarding, desc: t.howStepOnboardingDesc, icon: Compass, targetTab: "login" },
+              { title: t.howStepMap, desc: t.howStepMapDesc, icon: Navigation, targetTab: "map" },
+              { title: t.howStepTracker, desc: t.howStepTrackerDesc, icon: TrendingUp, targetTab: "tracker" },
+              { title: t.howStepResources, desc: t.howStepResourcesDesc, icon: Globe, targetTab: "resources" }
+            ].map((step, idx) => {
+              const StepIcon = step.icon;
+              return (
+                <Reveal as="li" key={idx} delay={idx * 0.08}>
+                  <button
+                    onClick={() => handleTabTransition(step.targetTab)}
+                    className="card-premium tilt-3d group w-full flex items-start gap-4 p-4 text-left cursor-pointer hover:-translate-y-0.5"
+                  >
+                    <span
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm font-bold ${
+                        isDark ? "border-violet-400/30 bg-violet-500/10 text-violet-200" : "border-violet-300 bg-violet-50 text-violet-800"
+                      }`}
+                    >
+                      {idx + 1}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className={`flex items-center gap-2 font-bold text-base ${tTextTitle}`}>
+                        <StepIcon className={`h-4 w-4 shrink-0 ${isDark ? "text-violet-300" : "text-violet-700"}`} aria-hidden="true" />
+                        {String(step.title).replace(/^[0-9]+\.\s*/, "")}
+                      </span>
+                      <span className={`mt-1 block text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/75 font-medium"}`}>
+                        {step.desc}
+                      </span>
+                    </span>
+                    <ChevronRight
+                      className={`h-4 w-4 mt-3 shrink-0 transition group-hover:translate-x-1 ${isDark ? "text-violet-300" : "text-violet-700"}`}
+                      aria-hidden="true"
+                    />
+                  </button>
+                </Reveal>
+              );
+            })}
+          </ol>
         </div>
       </section>
 
-      {/* Global Scaling Roadmap Panel */}
-      <section className={`rounded-3xl p-8 md:p-10 max-w-4xl mx-auto border-2 border-dashed relative overflow-hidden ${
-        isDark ? "border-white/10 bg-white/[0.01]" : "border-violet-950/20 bg-violet-950/5 shadow-inner"
+      {/* Global scaling note. Deliberately names no future countries or
+          dates - there's no committed roadmap for any, and showing one would
+          present a plan that doesn't exist (the project's "never invent
+          data" rule). Only claims what's true: Switzerland is live, the data
+          model isn't Switzerland-specific.
+          Chapter 04 - beyond: the particles become a slowly turning globe with
+          an orbit ring beside it (brought back 2026-09-28 at Sofiia's request). */}
+      <section className="relative grid gap-10 lg:gap-14 lg:grid-cols-2 items-center">
+      <Reveal className="order-2 lg:order-1">
+      <div className={`rounded-3xl p-8 md:p-10 border-2 border-dashed relative overflow-hidden ${
+        isDark ? "border-white/10 bg-white/[0.02] backdrop-blur-[2px]" : "border-violet-950/20 bg-violet-950/5 shadow-inner"
       }`}>
-        <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
-          <div className="space-y-4 text-center md:text-left max-w-md">
-            <div className="inline-flex items-center gap-1.5 text-amber-400">
-              <Sparkles className="h-5 w-5 animate-pulse" />
-              <span className="text-xs uppercase font-mono tracking-widest font-bold">Future Scale</span>
-            </div>
+        <div className="flex flex-col gap-8">
+          <div className="space-y-3 text-center md:text-left">
             <h3 className={`text-xl font-bold tracking-tight ${tTextTitle}`}>{t.futureVisionTitle}</h3>
-            <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-bold"}`}>
+            <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"}`}>
               {t.futureVisionDesc}
             </p>
           </div>
 
-          {/* Planned Country Badge Grid */}
-          <div className="grid grid-cols-3 gap-3 w-full md:w-auto">
-            {[
-              { country: "Denmark", code: "DK", status: "Calibration Q4" },
-              { country: "Singapore", code: "SG", status: "Planned H1" },
-              { country: "Japan", code: "JP", status: "Research" }
-            ].map((node, i) => (
-              <div 
-                key={i} 
-                className={`p-3 rounded-xl border flex flex-col items-center justify-center text-center transition duration-300 min-w-[100px] ${
-                  isDark ? "bg-white/5 border-white/10 hover:bg-white/10" : "bg-white border-violet-950/20 hover:border-violet-950/30 shadow-sm"
-                }`}
-              >
-                <span className="text-lg font-black tracking-wider text-violet-500">{node.code}</span>
-                <span className={`text-[10px] font-bold mt-1 ${isDark ? "text-white" : "text-violet-950"}`}>{node.country}</span>
-                <span className="text-[8px] font-mono uppercase bg-violet-500/10 text-violet-400 px-1.5 py-0.5 rounded-full mt-1.5 font-bold">{node.status}</span>
-              </div>
-            ))}
+          {/* Live now vs. open slot - no invented countries or dates */}
+          <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
+            <div className={`p-3 rounded-xl border flex flex-col items-center justify-center text-center min-w-[130px] ${
+              isDark ? "bg-violet-500/10 border-violet-500/40 shadow-[0_8px_24px_-10px_rgba(139,92,246,0.6)]" : "bg-white border-violet-600/40 shadow-sm"
+            }`}>
+              <span className="text-lg font-black tracking-wider text-violet-400">CH</span>
+              <span className={`text-xs font-bold mt-1 ${isDark ? "text-white" : "text-violet-950"}`}>{t.futureVisionLive}</span>
+              <span className={`mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${isDark ? "bg-emerald-500/10 text-emerald-300" : "bg-emerald-50 text-emerald-800"}`}>
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                {t.hmLive}
+              </span>
+            </div>
+            <div className={`p-3 rounded-xl border-2 border-dashed flex flex-col items-center justify-center text-center min-w-[130px] ${
+              isDark ? "border-white/15 text-zinc-400" : "border-violet-950/20 text-violet-950/70"
+            }`}>
+              <span className="text-lg font-black tracking-wider">+</span>
+              <span className="text-xs font-semibold mt-1">{t.futureVisionNext}</span>
+            </div>
           </div>
         </div>
+      </div>
+      </Reveal>
+        <div data-scene-anchor="3" aria-hidden="true" className="order-1 lg:order-2 w-full max-w-[520px] mx-auto aspect-square" />
+      </section>
+
+      {/* Chapter 05 - the finale. The phoenix re-forms beside the one clear
+          action the whole page leads to (peak-end: the last thing a visitor
+          sees is the brand rising and the first step to take). */}
+      <section className="relative grid gap-8 lg:grid-cols-2 items-center pb-10">
+        <Reveal className="space-y-6 text-center lg:text-left order-2">
+          <h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight text-balance ${tTextTitle}`}>
+            {t.finalCtaTitle}
+          </h2>
+          <p className={`text-base md:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 ${isDark ? "text-zinc-300" : "text-violet-950/80 font-medium"}`}>
+            {t.finalCtaText}
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <button
+              onClick={() => handleTabTransition("login")}
+              className="btn-primary btn-shine w-full sm:w-auto px-7 py-3.5 text-sm gap-2 whitespace-nowrap"
+            >
+              <span>{t.heroCTA}</span>
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <button onClick={handleBypassAuth} className="btn-secondary w-full sm:w-auto px-7 py-3.5 text-sm whitespace-nowrap">
+              {t.exploreCTA}
+            </button>
+          </div>
+        </Reveal>
+        <div data-scene-anchor="4" aria-hidden="true" className="order-1 w-full max-w-[560px] mx-auto aspect-square" />
       </section>
     </motion.div>
   );
@@ -683,7 +699,7 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
         {/* Left Hand: Contact Info */}
         <div className="card-premium lg:col-span-5 p-6 space-y-6">
           <div className="space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-violet-500 font-bold">Contact</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-violet-500 font-bold">Contact</span>
             <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-violet-950"}`}>
               An early-stage, independent project
             </h3>
@@ -699,7 +715,7 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
                 <Mail className="h-4 w-4" />
               </div>
               <div>
-                <span className={`block font-mono text-[9px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Email</span>
+                <span className={`block font-mono text-[11px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Email</span>
                 <a
                   href="mailto:iinspirella@gmail.com"
                   className={`font-bold underline underline-offset-2 ${isDark ? "text-zinc-200 hover:text-violet-300" : "text-violet-950"}`}
@@ -723,7 +739,7 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
                   : "bg-emerald-50 border-2 border-emerald-300 text-emerald-950"
               }`}
             >
-              <CheckCircle className="h-10 w-10 text-emerald-400 animate-bounce" />
+              <CheckCircle className="h-10 w-10 text-emerald-400" />
               <div className="space-y-1">
                 <h4 className="text-sm font-extrabold uppercase">Success</h4>
                 <p className="max-w-md mx-auto text-xs">{t.contactSuccess}</p>
@@ -733,7 +749,7 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
             <form onSubmit={handleContactSubmit} className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className={`block text-[10px] font-mono uppercase mb-1.5 font-bold ${tTextSub}`}>
+                  <label className={`block text-xs font-mono uppercase mb-1.5 font-bold ${tTextSub}`}>
                     {t.contactName}
                   </label>
                   <input
@@ -747,7 +763,7 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
                 </div>
 
                 <div>
-                  <label className={`block text-[10px] font-mono uppercase mb-1.5 font-bold ${tTextSub}`}>
+                  <label className={`block text-xs font-mono uppercase mb-1.5 font-bold ${tTextSub}`}>
                     {t.contactEmail}
                   </label>
                   <input
@@ -762,7 +778,7 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
               </div>
 
               <div>
-                <label className={`block text-[10px] font-mono uppercase mb-1.5 font-bold ${tTextSub}`}>
+                <label className={`block text-xs font-mono uppercase mb-1.5 font-bold ${tTextSub}`}>
                   {t.contactMsg}
                 </label>
                 <textarea

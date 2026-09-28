@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Sparkles,
@@ -8,19 +8,26 @@ import {
   Briefcase,
   ExternalLink,
   Lightbulb,
-  Route,
-  CheckCircle2,
   Wand2,
   AlertTriangle,
   Milestone,
-  ListPlus
+  CircleAlert
 } from "lucide-react";
-import { LanguageCode, LearningPath, TrackerGoal, UserProfile } from "../types";
-import { TRANSLATIONS } from "../data";
+import { LanguageCode, TrackerGoal, UserProfile } from "../types";
 import { useEducationEngine } from "../engine/useEducationEngine";
-import { DataRepository } from "../data/Repository";
+import { TRANSLATIONS } from "../data";
+
+// Goal ids -> the same translated labels the onboarding uses.
+const GOAL_LABEL_KEY: Record<string, string> = {
+  study_active: "goals_study",
+  career_pivot: "goals_career",
+  global_compare: "goals_explore",
+  parent_routing: "goals_child",
+};
 import { localizedText } from "../lib/localized";
-import { buildPathTrackerGoal, findPathTrackerGoal } from "../lib/pathTracker";
+
+/** Engine reasons that are trust labels, not reasons for a match (all 4 languages). */
+const PROVISIONAL_REASON = /provisional|vorläufig|provisoire|provvisori/i;
 
 interface AdvisorReportProps {
   userProfile?: UserProfile | null;
@@ -53,6 +60,41 @@ const LANGUAGE_NAMES: Record<LanguageCode, string> = {
   it: "Italian"
 };
 
+/**
+ * Qualitative match label derived from a result's score relative to the
+ * top result in the same list (not an absolute scale - the engine has
+ * none). Raw score stays available in the tooltip for transparency.
+ */
+function MatchBadge({ score, topScore, isDark, reasons, t }: { score: number; topScore: number; isDark: boolean; reasons: string[]; t: Record<string, string> }) {
+  const ratio = topScore > 0 ? score / topScore : 0;
+  // Relative rank alone can't make something a "Strong match": it also needs
+  // at least one real reason (trust labels like "Provisional data" don't count).
+  const realReasons = reasons.filter(r => !PROVISIONAL_REASON.test(r)).length;
+  const ranked = ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : 1;
+  const level = realReasons === 0 ? 1 : realReasons === 1 ? Math.min(ranked, 2) : ranked;
+  const label = level === 3 ? t.arStrong : level === 2 ? t.arGood : t.arWorth;
+  const tone =
+    level === 3
+      ? isDark ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/30" : "text-emerald-800 bg-emerald-50 border-emerald-300"
+      : level === 2
+        ? isDark ? "text-violet-200 bg-violet-500/10 border-violet-500/30" : "text-violet-800 bg-violet-50 border-violet-300"
+        : isDark ? "text-zinc-300 bg-white/5 border-white/10" : "text-zinc-700 bg-zinc-50 border-zinc-300";
+
+  return (
+    <span
+      title={`${score} · ${t.arMatchHint}`}
+      className={`shrink-0 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border whitespace-nowrap ${tone}`}
+    >
+      <span className="flex gap-0.5" aria-hidden="true">
+        {[1, 2, 3].map(i => (
+          <span key={i} className={`h-1.5 w-1.5 rounded-full ${i <= level ? "bg-current" : "bg-current opacity-25"}`} />
+        ))}
+      </span>
+      {label}
+    </span>
+  );
+}
+
 export default function AdvisorReport({
   userProfile,
   interests,
@@ -67,35 +109,15 @@ export default function AdvisorReport({
   const t = TRANSLATIONS[language];
   const isDark = theme !== "light";
 
-  // Learning paths are catalog-wide (not profile-scoped), so they're fetched
-  // once and matched client-side against the engine's top profession - no
-  // need to re-run this alongside useEducationEngine.
-  const [learningPaths, setLearningPaths] = useState<LearningPath[]>([]);
-  useEffect(() => {
-    let active = true;
-    DataRepository.getLearningPaths().then(paths => {
-      if (active) setLearningPaths(paths);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
+  // The engine's scores are unbounded weighted sums, so a raw "SCORE: 35"
+  // means nothing to a user. MatchBadge shows each result relative to the
+  // best one in its own list instead.
+  const topProfessionScore = Math.max(0, ...(recommendation?.professions.map(p => p.score) ?? []));
+  const topInstitutionScore = Math.max(0, ...(recommendation?.institutions.map(i => i.score) ?? []));
 
-  const topProfessionId = recommendation?.professions[0]?.profession.id;
-  const matchedPath = topProfessionId
-    ? learningPaths.find(p => p.targetProfessionId === topProfessionId)
-    : undefined;
-
-  // Bridge to the Life Tracker (Sofiia's review 2026-09-13: the tracker felt
-  // disconnected from the rest of the product - this is the most direct tie,
-  // since the path's steps are already structured and ordered).
-  const matchedPathTitleText = matchedPath ? localizedText(matchedPath.title, language) : "";
-  const isPathInTracker = !!(matchedPath && findPathTrackerGoal(trackers, matchedPath, language));
-
-  const addPathToTracker = () => {
-    if (!matchedPath || !onTrackersChange || isPathInTracker) return;
-    onTrackersChange([buildPathTrackerGoal(matchedPath, language), ...(trackers || [])]);
-  };
+  // The learning path's step list and its "add to tracker" button used to be
+  // repeated here; My Path (just above on the dashboard) is now the one place
+  // the steps live, so this report only explains *why* (audit 2026-09-28).
 
   // AI explanation layer: an optional, explicitly user-triggered narrative on top
   // of the rule-based engine result above. The engine's scored lists remain the
@@ -126,8 +148,8 @@ export default function AdvisorReport({
       if (!res.ok) {
         setAiErrorMessage(
           res.status === 429
-            ? "Too many requests right now. Please try again in a few minutes."
-            : (body && body.message) || "The AI advisor couldn't be reached. Please try again shortly."
+            ? t.arAiBusy
+            : (body && body.message) || t.arAiUnreachable
         );
         setAiState("error");
         return;
@@ -136,13 +158,13 @@ export default function AdvisorReport({
       setAiData(body as AiAdvisorResponse);
       setAiState("success");
     } catch {
-      setAiErrorMessage("The AI advisor couldn't be reached. Please try again shortly.");
+      setAiErrorMessage(t.arAiUnreachable);
       setAiState("error");
     }
   };
 
   const tTextBody = isDark ? "text-zinc-200" : "text-black font-bold";
-  const tTextMuted = isDark ? "text-zinc-300 animate-pulse" : "text-black font-extrabold";
+  const tTextMuted = isDark ? "text-zinc-300" : "text-black font-extrabold";
 
   return (
     <div className="card-premium-glow w-full p-6 relative overflow-hidden text-left">
@@ -159,36 +181,36 @@ export default function AdvisorReport({
       }`}>
         <div className="flex items-center gap-2">
           <BrainCircuit className={`h-5.5 w-5.5 ${isDark ? "text-violet-300" : "text-violet-950"}`} />
-          <h2 className={`text-lg font-bold tracking-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
-            Education Path Engine
+          <h2 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
+            {t.arTitle}
           </h2>
         </div>
-        <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[10px] backdrop-blur-md ${
+        <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium backdrop-blur-md ${
           isDark ? "bg-white/10 border border-white/10 text-violet-300" : "bg-violet-950/10 border border-violet-950/15 text-violet-950 font-bold"
         }`}>
-          <Sparkles className="h-3 w-3 text-yellow-500 animate-pulse" />
-          <span>RULE-BASED SOLVER</span>
+          <Sparkles className="h-3 w-3 text-amber-400" />
+          <span>{t.arRuleBased}</span>
         </div>
       </div>
 
       {/* Consultation Input Scope Tags Box */}
-      <div className={`rounded-xl p-3 border mb-5 flex flex-wrap items-center gap-2 text-[10px] ${
+      <div className={`rounded-xl p-3 border mb-5 flex flex-wrap items-center gap-2 text-xs ${
         isDark ? "bg-white/[0.01] border-white/5" : "bg-violet-50/50 border-purple-200"
       }`}>
-        <span className={`font-mono uppercase tracking-wider text-[9px] mr-1 shrink-0 ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>
-          {userProfile?.isGuest ? "Guest Onboarding Parameters:" : "Personalized Profile Matrix:"}
+        <span className={`font-medium mr-1 shrink-0 ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>
+          {t.arBasedOn}
         </span>
         <div className={`px-2 py-0.5 rounded border ${isDark ? "bg-white/5 border-white/5 text-zinc-300" : "bg-white border-purple-200 text-violet-950 font-extrabold"}`}>
-          Stage: {currentStage.replace("stage_", "")}
+          {t.arStage}: {t[currentStage] || currentStage.replace("stage_", "")}
         </div>
         {interests.length > 0 && (
           <div className={`px-2 py-0.5 rounded border max-w-xs truncate ${isDark ? "bg-white/5 border-white/5 text-zinc-300" : "bg-white border-purple-200 text-violet-950 font-extrabold"}`}>
-            Interests: {interests.join(", ")}
+            {t.arInterests}: {interests.map(i => t["interests_" + i] || i).join(", ")}
           </div>
         )}
         {goals.length > 0 && (
           <div className={`px-2 py-0.5 rounded border max-w-xs truncate ${isDark ? "bg-white/5 border-white/5 text-zinc-300" : "bg-white border-purple-200 text-violet-950 font-extrabold"}`}>
-            Focus: {goals.join(", ").replace(/goals_/g, "")}
+            {t.arFocus}: {goals.map(g => t[GOAL_LABEL_KEY[g.replace(/^goals_/, "")]] || g.replace(/^goals_/, "")).join(", ")}
           </div>
         )}
       </div>
@@ -207,7 +229,7 @@ export default function AdvisorReport({
               <div className="absolute inset-0 rounded-full border-4 border-violet-500 border-t-transparent animate-spin"></div>
               <BrainCircuit className="h-6 w-6 text-violet-500 animate-pulse" />
             </div>
-            <p className={`mt-4 font-mono text-xs ${tTextMuted}`}>Computing deterministic paths...</p>
+            <p className={`mt-4 text-sm ${tTextMuted}`}>{t.arLoading}</p>
           </motion.div>
         ) : error ? (
           <motion.div
@@ -216,7 +238,7 @@ export default function AdvisorReport({
             animate={{ opacity: 1 }}
             className="text-center py-6"
           >
-            <p className="text-sm text-red-500">Engine Error: {error}</p>
+            <p className="text-sm text-red-400">{t.arError}</p>
           </motion.div>
         ) : recommendation ? (
           <motion.div
@@ -227,19 +249,19 @@ export default function AdvisorReport({
             className="space-y-6"
           >
             {/* Primary Path Focus */}
-            <div className={`p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+            <div className={`border-beam p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
               isDark ? "bg-violet-950/20 border-violet-800/30" : "bg-purple-100/60 border-purple-300"
             }`}>
               <div className="space-y-1">
-                <span className={`text-[9px] uppercase tracking-widest font-mono ${isDark ? "text-violet-400" : "text-violet-800 font-extrabold"}`}>Recommended Path Focus</span>
+                <span className={`text-xs font-medium ${isDark ? "text-violet-300" : "text-violet-800 font-bold"}`}>{t.arFocusLabel}</span>
                 <h3 className={`text-lg font-bold flex items-center gap-2 ${isDark ? "text-white" : "text-violet-950"}`}>
                   <ShieldCheck className="h-5 w-5 text-emerald-500" />
                   {recommendation.pathFocus}
                 </h3>
               </div>
-              <div className="sm:text-right max-w-[200px]">
-                <span className={`text-[9px] uppercase tracking-widest font-mono ${isDark ? "text-zinc-400" : "text-zinc-600 font-bold"}`}>Next Best Step</span>
-                <p className={`text-[11px] leading-snug mt-1 ${isDark ? "text-zinc-300" : "text-black font-semibold"}`}>
+              <div className="sm:text-right max-w-[240px]">
+                <span className={`text-xs font-medium ${isDark ? "text-zinc-400" : "text-zinc-600 font-bold"}`}>{t.arNextStep}</span>
+                <p className={`text-sm leading-snug mt-1 ${isDark ? "text-zinc-200" : "text-black font-semibold"}`}>
                   {recommendation.nextBestStep}
                 </p>
               </div>
@@ -250,17 +272,17 @@ export default function AdvisorReport({
               {aiState === "idle" && (
                 <button
                   onClick={requestAiExplanation}
-                  className="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-bold tracking-wide btn-primary"
+                  className="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-bold tracking-wide btn-primary btn-shine"
                 >
                   <Wand2 className="h-3.5 w-3.5" />
-                  Explain my recommendation with AI
+                  {t.arExplainAi}
                 </button>
               )}
 
               {aiState === "loading" && (
                 <div className="flex items-center justify-center gap-2 py-2 text-xs">
                   <Sparkles className="h-3.5 w-3.5 text-violet-500 animate-pulse" />
-                  <span className={isDark ? "text-zinc-300" : "text-zinc-700"}>Asking the AI advisor for a plain-language explanation...</span>
+                  <span className={isDark ? "text-zinc-300" : "text-zinc-700"}>{t.arAiLoading}</span>
                 </div>
               )}
 
@@ -274,7 +296,7 @@ export default function AdvisorReport({
                     onClick={requestAiExplanation}
                     className={`text-[11px] font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/60 hover:text-violet-950"}`}
                   >
-                    Try again
+                    {t.arTryAgain}
                   </button>
                 </div>
               )}
@@ -283,19 +305,18 @@ export default function AdvisorReport({
                 <div className="space-y-3">
                   <div className="flex items-center gap-1.5">
                     <Sparkles className="h-3.5 w-3.5 text-violet-500" />
-                    <span className={`text-[9px] uppercase tracking-widest font-mono ${isDark ? "text-violet-400" : "text-violet-800 font-extrabold"}`}>
-                      AI Perspective{aiData.isFallback ? " — Generic Overview" : ""}
+                    <span className={`text-[11px] uppercase tracking-widest font-mono ${isDark ? "text-violet-400" : "text-violet-800 font-extrabold"}`}>
+                      {t.arAiPerspective}{aiData.isFallback ? t.arAiGeneric : ""}
                     </span>
                   </div>
 
                   {aiData.isFallback && (
-                    <div className={`flex items-start gap-2 rounded-lg border p-2.5 text-[10px] ${
+                    <div className={`flex items-start gap-2 rounded-lg border p-2.5 text-xs ${
                       isDark ? "bg-amber-500/10 border-amber-500/25 text-amber-300" : "bg-amber-50 border-amber-300 text-amber-800"
                     }`}>
                       <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                       <span>
-                        The AI advisor couldn't be reached just now, so this is a generic overview rather than a
-                        response tailored to your profile. The scored results above are unaffected.
+                        {t.arAiFallback}
                       </span>
                     </div>
                   )}
@@ -311,9 +332,9 @@ export default function AdvisorReport({
                           <Milestone className="h-3.5 w-3.5 mt-0.5 text-violet-500 shrink-0" />
                           <div className="min-w-0">
                             <div className={`font-bold text-[11px] ${isDark ? "text-violet-200" : "text-violet-950"}`}>{m.title}</div>
-                            <p className={`text-[10px] mt-0.5 leading-snug ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{m.description}</p>
+                            <p className={`text-xs mt-0.5 leading-snug ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{m.description}</p>
                             {m.timeframe && (
-                              <span className={`text-[9px] font-mono ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>{m.timeframe}</span>
+                              <span className={`text-[11px] font-mono ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>{m.timeframe}</span>
                             )}
                           </div>
                         </li>
@@ -326,7 +347,7 @@ export default function AdvisorReport({
                       {aiData.recommendedInstitutions.map((name, idx) => (
                         <span
                           key={idx}
-                          className={`text-[9.5px] font-mono px-2 py-1 rounded-lg border ${isDark ? "bg-white/5 border-white/10 text-zinc-300" : "bg-purple-100/80 text-violet-950 border-purple-200"}`}
+                          className={`text-[11px] font-mono px-2 py-1 rounded-lg border ${isDark ? "bg-white/5 border-white/10 text-zinc-300" : "bg-purple-100/80 text-violet-950 border-purple-200"}`}
                         >
                           {name}
                         </span>
@@ -340,136 +361,87 @@ export default function AdvisorReport({
             <div className="grid gap-6 md:grid-cols-2">
               {/* Shortlist: Professions */}
               <div className="space-y-3 flex flex-col">
-                <div className={`text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 ${isDark ? "text-white/40" : "text-violet-950/60 font-black"}`}>
-                  <Briefcase className="h-3.5 w-3.5" />
-                  Relevant Careers
+                <div className={`text-sm font-semibold flex items-center gap-1.5 ${isDark ? "text-zinc-200" : "text-violet-950 font-bold"}`}>
+                  <Briefcase className="h-4 w-4 text-violet-400" />
+                  {t.arCareers}
                 </div>
                 {recommendation.professions.length > 0 ? recommendation.professions.map((rp, idx) => (
                   <div key={idx} className="card-premium-accent p-3.5 space-y-2 text-left h-full flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start gap-2">
-                        <span className={`font-black text-[12px] truncate ${isDark ? "text-violet-200" : "text-violet-950"}`}>
+                        <span className={`font-bold text-sm ${isDark ? "text-violet-100" : "text-violet-950"}`}>
                           {localizedText(rp.profession.title, language)}
                         </span>
-                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-mono border ${isDark ? "bg-white/5 border-white/10 text-emerald-400" : "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold"}`}>
-                          SCORE: {rp.score}
-                        </span>
+                        <MatchBadge score={rp.score} topScore={topProfessionScore} isDark={isDark} reasons={rp.matchReasons} t={t} />
                       </div>
-                      <div className={`text-[10px] mt-1.5 space-y-1 ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
-                        {rp.matchReasons.map((reason, i) => (
+                      <div className={`text-xs mt-2 space-y-1 ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                        {rp.matchReasons.filter(r => !PROVISIONAL_REASON.test(r)).map((reason, i) => (
                           <div key={i} className="flex gap-1.5 items-start">
-                            <Lightbulb className="h-3 w-3 mt-0.5 text-amber-500 shrink-0" />
+                            <Lightbulb className="h-3.5 w-3.5 mt-0.5 text-amber-400 shrink-0" />
                             <span className="leading-snug">{reason}</span>
                           </div>
                         ))}
+                        {rp.matchReasons.some(r => PROVISIONAL_REASON.test(r)) && (
+                          <span
+                            title={t.arProvisionalHint}
+                            className={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium border ${
+                              isDark ? "text-amber-200 border-amber-400/30 bg-amber-400/10" : "text-amber-800 border-amber-300 bg-amber-50"
+                            }`}
+                          >
+                            <CircleAlert className="h-3 w-3" aria-hidden="true" />
+                            {t.arProvisional}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
-                )) : <p className="text-[11px] opacity-60">No distinct career matches.</p>}
+                )) : <p className="text-[11px] opacity-60">{t.arNoCareers}</p>}
               </div>
 
               {/* Shortlist: Institutions */}
               <div className="space-y-3 flex flex-col">
-                <div className={`text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 ${isDark ? "text-white/40" : "text-violet-950/60 font-black"}`}>
-                  <Landmark className="h-3.5 w-3.5" />
-                  Suggested Institutions
+                <div className={`text-sm font-semibold flex items-center gap-1.5 ${isDark ? "text-zinc-200" : "text-violet-950 font-bold"}`}>
+                  <Landmark className="h-4 w-4 text-violet-400" />
+                  {t.arStudy}
                 </div>
                 {recommendation.institutions.length > 0 ? recommendation.institutions.map((inst, idx) => (
                   <div key={idx} className="card-premium-accent p-3.5 space-y-2 text-left h-full flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start gap-2">
-                        <span className={`font-black text-[12px] ${isDark ? "text-violet-200" : "text-violet-950"}`}>
+                        <span className={`font-bold text-sm ${isDark ? "text-violet-100" : "text-violet-950"}`}>
                           {inst.institution.title}
                         </span>
-                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-mono border ${isDark ? "bg-white/5 border-white/10 text-emerald-400" : "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold"}`}>
-                          SCORE: {inst.score}
-                        </span>
+                        <MatchBadge score={inst.score} topScore={topInstitutionScore} isDark={isDark} reasons={inst.matchReasons} t={t} />
                       </div>
-                      <div className={`text-[10px] mt-1.5 space-y-1 ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
-                        {inst.matchReasons.map((reason, i) => (
+                      <div className={`text-xs mt-2 space-y-1 ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                        {inst.matchReasons.filter(r => !PROVISIONAL_REASON.test(r)).map((reason, i) => (
                           <div key={i} className="flex gap-1.5 items-start">
-                            <Lightbulb className="h-3 w-3 mt-0.5 text-amber-500 shrink-0" />
+                            <Lightbulb className="h-3.5 w-3.5 mt-0.5 text-amber-400 shrink-0" />
                             <span className="leading-snug">{reason}</span>
                           </div>
                         ))}
+                        {inst.matchReasons.some(r => PROVISIONAL_REASON.test(r)) && (
+                          <span
+                            title={t.arProvisionalHint}
+                            className={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium border ${
+                              isDark ? "text-amber-200 border-amber-400/30 bg-amber-400/10" : "text-amber-800 border-amber-300 bg-amber-50"
+                            }`}
+                          >
+                            <CircleAlert className="h-3 w-3" aria-hidden="true" />
+                            {t.arProvisional}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
-                )) : <p className="text-[11px] opacity-60">No distinct institutions found.</p>}
+                )) : <p className="text-[11px] opacity-60">{t.arNoInstitutions}</p>}
               </div>
             </div>
 
-            {/* Matched learning path: concrete ordered steps toward the top-scored profession */}
-            {matchedPath && matchedPath.steps.length > 0 && (
-              <div className={`pt-4 border-t space-y-3 ${isDark ? "border-white/10" : "border-violet-950/10"}`}>
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <div className={`text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 ${isDark ? "text-white/40" : "text-violet-950/60 font-black"}`}>
-                    <Route className="h-3.5 w-3.5" />
-                    Your Path to Becoming {matchedPathTitleText}
-                    {language !== "de" && (
-                      <span
-                        className={`normal-case font-sans font-normal text-[9px] px-2 py-0.5 rounded-full border ${
-                          isDark ? "text-zinc-400 border-white/10 bg-white/[0.02]" : "text-zinc-500 border-purple-200 bg-black/[0.02]"
-                        }`}
-                      >
-                        {t.pathContentGermanOnly}
-                      </span>
-                    )}
-                  </div>
-                  {onTrackersChange && (
-                    <button
-                      onClick={addPathToTracker}
-                      disabled={isPathInTracker}
-                      className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1.5 rounded-lg transition ${
-                        isPathInTracker
-                          ? (isDark ? "text-emerald-400 bg-emerald-500/10 cursor-default" : "text-emerald-700 bg-emerald-50 cursor-default")
-                          : (isDark ? "text-violet-300 bg-white/5 hover:bg-white/10 cursor-pointer" : "text-violet-700 bg-violet-50 hover:bg-violet-100 cursor-pointer")
-                      }`}
-                    >
-                      {isPathInTracker ? <CheckCircle2 className="h-3 w-3" /> : <ListPlus className="h-3 w-3" />}
-                      {isPathInTracker ? t.advisorPathInTracker : t.advisorAddPathToTracker}
-                    </button>
-                  )}
-                </div>
-                <ol className="space-y-2">
-                  {matchedPath.steps.map((step, idx) => (
-                    <li
-                      key={step.id}
-                      className={`p-3 rounded-lg border flex items-start gap-3 ${
-                        isDark ? "bg-white/[0.02] border-white/10" : "bg-white border-purple-200"
-                      }`}
-                    >
-                      <div className={`shrink-0 h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold mt-0.5 ${
-                        isDark ? "bg-violet-500/20 text-violet-300" : "bg-violet-100 text-violet-800"
-                      }`}>
-                        {idx + 1}
-                      </div>
-                      <div className="min-w-0">
-                        <div className={`font-bold text-[12px] ${isDark ? "text-violet-200" : "text-violet-950"}`}>
-                          {localizedText(step.title, language)}
-                        </div>
-                        {localizedText(step.description, language) && (
-                          <p className={`text-[10px] mt-1 leading-snug ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
-                            {localizedText(step.description, language)}
-                          </p>
-                        )}
-                        {localizedText(step.timeframe, language) && (
-                          <div className={`text-[9px] mt-1 font-mono flex items-center gap-1 ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>
-                            <CheckCircle2 className="h-3 w-3" />
-                            {localizedText(step.timeframe, language)}
-                          </div>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
             {/* Shortlist: Resources */}
             <div className={`pt-4 border-t space-y-3 ${isDark ? "border-white/10" : "border-violet-950/10"}`}>
-              <div className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-white/40" : "text-violet-950/60 font-black"}`}>
-                Actionable Resources
+              <div className={`text-sm font-semibold ${isDark ? "text-zinc-200" : "text-violet-950 font-bold"}`}>
+                {t.arResources}
               </div>
               <div className="grid gap-2 sm:grid-cols-3">
                 {recommendation.resources.length > 0 ? recommendation.resources.map((rawRes, idx) => (
@@ -483,13 +455,13 @@ export default function AdvisorReport({
                     }`}
                   >
                     <div className="flex items-center justify-between gap-1 mb-1">
-                      <span className={`font-bold text-[10px] truncate ${isDark ? "text-violet-300" : "text-violet-900"}`}>
+                      <span className={`font-semibold text-sm leading-snug ${isDark ? "text-violet-200" : "text-violet-900"}`}>
                         {localizedText(rawRes.resource.title, language)}
                       </span>
                       <ExternalLink className="h-3 w-3 opacity-50 shrink-0" />
                     </div>
-                    <div className={`text-[9px] ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
-                      {rawRes.matchReasons[0] || "General recommendation"}
+                    <div className={`text-xs mt-1 ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
+                      {rawRes.matchReasons.find(r => !PROVISIONAL_REASON.test(r)) || t.arGeneral}
                     </div>
                   </a>
                 )) : null}

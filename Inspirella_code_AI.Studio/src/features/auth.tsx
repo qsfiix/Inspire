@@ -120,6 +120,26 @@ const AUTH_TRANSLATIONS: Record<string, Record<string, string>> = {
   }
 };
 
+/**
+ * Login/sign-up layout: the particle phoenix (PhoenixScene, mounted in
+ * App.tsx) settles on the empty anchor on the left, the glass form sits on
+ * the right; on phones the phoenix sits above the form. Fills one screen
+ * below the header on desktop so everything is centred on arrival.
+ */
+const AUTH_STAGE_CLASS =
+  "max-w-6xl mx-auto px-4 py-6 lg:py-4 lg:min-h-[calc(100svh-8rem)] grid gap-4 lg:gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center";
+const AUTH_CARD_COLUMN_CLASS = "w-full max-w-md mx-auto lg:mx-0 lg:justify-self-end";
+
+function AuthPhoenixAnchor() {
+  return (
+    <div
+      data-scene-anchor="0"
+      aria-hidden="true"
+      className="mx-auto h-44 w-44 sm:h-56 sm:w-56 lg:h-[min(560px,calc(100svh-11rem))] lg:w-full"
+    />
+  );
+}
+
 export function LoginView({
   t,
   currentLanguage = "en",
@@ -168,8 +188,10 @@ export function LoginView({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -15 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className="max-w-md mx-auto py-12 px-4"
+        className={AUTH_STAGE_CLASS}
       >
+        <AuthPhoenixAnchor />
+        <div className={AUTH_CARD_COLUMN_CLASS}>
         <div className="card-premium p-8 relative overflow-hidden text-center shadow-2xl rounded-3xl border border-violet-500/20 space-y-4">
           <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600"></div>
           <div className="mx-auto h-12 w-12 rounded-2xl bg-violet-600/10 flex items-center justify-center border border-violet-500/20 text-violet-500">
@@ -192,6 +214,7 @@ export function LoginView({
             {activeLang.signInTabLabel}
           </button>
         </div>
+        </div>
       </motion.div>
     );
   }
@@ -203,8 +226,10 @@ export function LoginView({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="max-w-md mx-auto py-12 px-4"
+      className={AUTH_STAGE_CLASS}
     >
+      <AuthPhoenixAnchor />
+      <div className={AUTH_CARD_COLUMN_CLASS}>
       <div className="card-premium p-8 relative overflow-hidden text-left shadow-2xl rounded-3xl border border-violet-500/20">
         {/* Dynamic visual top indicator flare */}
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600"></div>
@@ -229,7 +254,7 @@ export function LoginView({
               key={m}
               type="button"
               onClick={() => setMode(m)}
-              className={`py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                 mode === m
                   ? "bg-violet-600 text-white shadow"
                   : isDark
@@ -246,7 +271,7 @@ export function LoginView({
         <form onSubmit={onSubmit} className="space-y-5">
           {mode === "signUp" && (
             <div className="space-y-1.5">
-              <label className={`block text-[10px] font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
+              <label className={`block text-xs font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
                 {activeLang.nameLabel}
               </label>
               <div className="relative">
@@ -266,7 +291,7 @@ export function LoginView({
           )}
 
           <div className="space-y-1.5">
-            <label className={`block text-[10px] font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
+            <label className={`block text-xs font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
               {activeLang.emailLabel}
             </label>
             <div className="relative">
@@ -286,7 +311,7 @@ export function LoginView({
           </div>
 
           <div className="space-y-1.5">
-            <label className={`block text-[10px] font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
+            <label className={`block text-xs font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
               {activeLang.passwordLabel}
             </label>
             <div className="relative">
@@ -330,18 +355,18 @@ export function LoginView({
           <button
             type="button"
             onClick={() => setMode(mode === "signUp" ? "signIn" : "signUp")}
-            className={`block w-full text-center text-[10px] font-bold underline-offset-2 hover:underline ${isDark ? "text-violet-400" : "text-violet-700"}`}
+            className={`block w-full text-center text-xs font-bold underline-offset-2 hover:underline ${isDark ? "text-violet-400" : "text-violet-700"}`}
           >
             {mode === "signUp" ? activeLang.switchToSignIn : activeLang.switchToSignUp}
           </button>
 
           {/* Info Disclaimer */}
-          <p className={`text-[10px] text-center leading-relaxed font-sans px-2 ${isDark ? "text-zinc-500" : "text-violet-950/50 font-medium"}`}>
+          <p className={`text-xs text-center leading-relaxed font-sans px-2 ${isDark ? "text-zinc-500" : "text-violet-950/50 font-medium"}`}>
             {activeLang.disclaimer}
           </p>
 
           {/* Beautiful Custom Bypass option */}
-          <div className={`relative flex py-3 items-center text-[9px] font-mono tracking-widest ${isDark ? "text-zinc-500" : "text-violet-900/40 font-bold"}`}>
+          <div className={`relative flex py-3 items-center text-[11px] font-mono tracking-widest ${isDark ? "text-zinc-500" : "text-violet-900/40 font-bold"}`}>
             <div className={`flex-grow border-t ${isDark ? "border-white/5" : "border-violet-950/10"}`}></div>
             <span className="mx-3 uppercase">{activeLang.instantOverride}</span>
             <div className={`flex-grow border-t ${isDark ? "border-white/5" : "border-violet-950/10"}`}></div>
@@ -356,6 +381,7 @@ export function LoginView({
             <span>{activeLang.bypassBtn}</span>
           </button>
         </form>
+      </div>
       </div>
     </motion.div>
   );
@@ -422,10 +448,10 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
         {/* Stepper Wizard Progress Bar & Stage Indicator */}
         <div className="space-y-4">
           <div className="flex items-center justify-between text-xs font-mono">
-            <span className={`text-[10px] uppercase tracking-wider ${isDark ? "text-violet-400 font-bold" : "text-violet-950 font-black animate-pulse"}`}>
+            <span className={`text-xs uppercase tracking-wider ${isDark ? "text-violet-400 font-bold" : "text-violet-950 font-black animate-pulse"}`}>
               {t.onboardTitle || "Educational Calibration"}
             </span>
-            <span className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60"}`}>
+            <span className={`text-xs uppercase font-bold tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60"}`}>
               {stepLabelText} {step + 1} / 3
             </span>
           </div>
@@ -460,7 +486,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
                       setStep(2);
                     }
                   }}
-                  className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full border text-[10px] font-bold transition-all duration-200 cursor-pointer ${
+                  className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold transition-all duration-200 cursor-pointer ${
                     isActive 
                       ? "bg-violet-600 text-white border-violet-500 ring-4 ring-violet-500/20 scale-110 shadow-lg shadow-violet-500/10" 
                       : isCompleted

@@ -10,11 +10,7 @@ import {
   ChevronRight,
   Sparkles,
   Landmark,
-  Mail,
-  Phone,
-  Globe,
   Scale,
-  Plus,
   X
 } from "lucide-react";
 import { DataRepository } from "../data/Repository";
@@ -23,6 +19,7 @@ import { useEducationEngine } from "../engine/useEducationEngine";
 import { localizedList, localizedText } from "../lib/localized";
 import { isProvisional, isTrusted } from "../lib/quality";
 import InstitutionCompareModal from "../components/InstitutionCompareModal";
+import InstitutionDetailCard from "../components/InstitutionDetailCard";
 import SectionGlow from "../components/SectionGlow";
 
 const MAX_COMPARE = 3;
@@ -144,19 +141,21 @@ function ResourcesPanel({
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      {/* Title on its own row: squeezed beside the filter row it used to wrap
+          into a narrow column ("Official Swiss / Resources"). */}
+      <div className="flex flex-col gap-4">
         <div>
-          <h2 className={`text-base font-extrabold tracking-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>{t.resourcesHeader}</h2>
-          <p className={`text-[10.5px] mt-0.5 ${isDark ? "text-zinc-300" : "text-black font-bold"}`}>{t.resourcesSub}</p>
+          <h2 className={`text-lg font-extrabold tracking-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>{t.resourcesHeader}</h2>
+          <p className={`text-xs mt-0.5 ${isDark ? "text-zinc-300" : "text-black font-bold"}`}>{t.resourcesSub}</p>
           {userProfile && (
-            <p className={`text-[10px] mt-1 font-mono uppercase ${isDark ? "text-violet-400" : "text-emerald-700 font-extrabold"}`}>
+            <p className={`text-xs mt-1 font-medium ${isDark ? "text-violet-300" : "text-emerald-800 font-bold"}`}>
               <Sparkles className="inline-block h-3 w-3 mr-1" />
               {userProfile.isGuest ? t.resourcesAdaptedGuest : t.resourcesAdaptedUser}
             </p>
           )}
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2.5 w-full">
           <div className={`relative flex items-center rounded-xl p-1.5 pr-2 w-full sm:w-60 border ${
             isDark ? "bg-zinc-900/60 border-violet-950 text-white" : "bg-white border-purple-300 shadow-sm text-black"
           }`}>
@@ -178,7 +177,7 @@ function ResourcesPanel({
               <button
                 key={cat}
                 onClick={() => setResourceCategoryFilter(cat)}
-                className={`px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider rounded-lg transition shrink-0 cursor-pointer ${
+                className={`px-2.5 py-1 text-xs font-semibold first-letter:uppercase rounded-lg transition shrink-0 cursor-pointer ${
                   resourceCategoryFilter === cat
                     ? isDark ? "bg-violet-900/40 text-violet-300 font-bold" : "bg-violet-600 text-white font-black shadow-sm"
                     : isDark ? "text-zinc-300 hover:text-white" : "text-black hover:text-violet-950 font-bold"
@@ -216,7 +215,7 @@ function ResourcesPanel({
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-1.5">
                 {res.category && (
-                  <span className={`inline-block text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
+                  <span className={`inline-block text-[11px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
                     isDark ? "text-violet-400 bg-violet-950/30 border-violet-800/20" : "text-violet-950 bg-violet-100 border-violet-950/20 font-black shadow-sm"
                   }`}>
                     {res.category.replace(/_/g, " ")}
@@ -224,7 +223,7 @@ function ResourcesPanel({
                 )}
 
                 {isRecommended && (
-                  <span className={`inline-flex items-center gap-1 text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
+                  <span className={`inline-flex items-center gap-1 text-[11px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
                     isDark ? "text-emerald-400 bg-emerald-950/30 border-emerald-800/20" : "text-emerald-700 bg-emerald-100 border-emerald-300 shadow-sm"
                   }`}>
                     <Sparkles className="h-3 w-3" /> {t.recommendedBadge}
@@ -232,25 +231,25 @@ function ResourcesPanel({
                 )}
 
                 {isTrusted(res) && (
-                  <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[8.5px] font-bold font-mono tracking-wide text-emerald-400 border border-emerald-500/20">
+                  <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold font-mono tracking-wide text-emerald-400 border border-emerald-500/20">
                     {t.qualityVerified}
                   </span>
                 )}
 
                 {isProvisional(res) && (
-                  <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[8.5px] font-bold font-mono tracking-wide text-amber-500 border border-amber-500/20">
+                  <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold font-mono tracking-wide text-amber-500 border border-amber-500/20">
                     {t.qualityProvisional}
                   </span>
                 )}
 
                 {typeof res.rating === "number" && (
-                  <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[8px] font-mono font-bold bg-amber-500/15 text-amber-500 border border-amber-500/25">
+                  <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[11px] font-mono font-bold bg-amber-500/15 text-amber-500 border border-amber-500/25">
                     ★ {res.rating.toFixed(1)}
                   </span>
                 )}
 
                 {res.accessCost && (
-                  <span className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[8px] font-bold font-mono border ${
+                  <span className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[11px] font-bold font-mono border ${
                     res.accessCost === "free"
                       ? "bg-sky-500/10 text-sky-400 border-sky-500/20"
                       : "bg-amber-500/10 text-amber-500 border-amber-500/20"
@@ -261,7 +260,7 @@ function ResourcesPanel({
 
                 {res.dataOrigin === "static" && (
                   <span
-                    className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[8px] font-bold font-mono border ${
+                    className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[11px] font-bold font-mono border ${
                       isDark ? "bg-zinc-800/60 text-zinc-400 border-zinc-700" : "bg-zinc-100 text-zinc-600 border-zinc-300"
                     }`}
                     title={t.originCuratedHint}
@@ -285,7 +284,7 @@ function ResourcesPanel({
                   {res.tags.map((tag: string, idx: number) => (
                     <span
                       key={idx}
-                      className={`text-[8.5px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
+                      className={`text-[11px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
                         isDark ? "bg-zinc-900 text-zinc-400 border-violet-900/30" : "bg-purple-100/60 text-violet-950 border-purple-200/50"
                       }`}
                     >
@@ -297,7 +296,7 @@ function ResourcesPanel({
             </div>
 
             <div className={`pt-4 mt-4 border-t flex items-center justify-between ${isRecommended ? (isDark ? "border-emerald-900/30" : "border-emerald-200") : (isDark ? "border-violet-950/40" : "border-purple-200")}`}>
-              <span className={`text-[10px] uppercase font-mono ${isDark ? "text-zinc-400" : "text-black font-black"}`}>
+              <span className={`text-xs uppercase font-mono ${isDark ? "text-zinc-400" : "text-black font-black"}`}>
                 {res.isFederal ? t.resourceFederal : t.resourceSwiss}
               </span>
 
@@ -400,14 +399,14 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
     }`}>
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b pb-4 mb-6 border-purple-200/10 text-left">
         <div>
-          <span className={`block font-mono text-[9px] uppercase tracking-widest ${isDark ? "text-violet-400" : "text-violet-600 font-extrabold"}`}>
+          <span className={`block font-mono text-[11px] uppercase tracking-widest ${isDark ? "text-violet-400" : "text-violet-600 font-extrabold"}`}>
             {t.professionsEyebrow}
           </span>
           <h2 className={`text-base font-extrabold tracking-tight flex items-center gap-1.5 ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
             <Briefcase className="h-4.5 w-4.5 text-violet-500 shrink-0" />
             {t.professionsTitle}
           </h2>
-          <p className={`text-[10.5px] mt-0.5 leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950 font-semibold"}`}>
+          <p className={`text-xs mt-0.5 leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950 font-semibold"}`}>
             {t.professionsSub}
           </p>
         </div>
@@ -432,7 +431,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
               <button
                 key={cat}
                 onClick={() => setCatFilter(cat)}
-                className={`px-2.5 py-1 rounded-lg text-[9px] uppercase font-mono tracking-wider transition cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] uppercase font-mono tracking-wider transition cursor-pointer ${
                   catFilter === cat
                     ? isDark ? "bg-violet-900/40 text-violet-300 border border-violet-800 font-extrabold" : "bg-violet-600 text-white font-black"
                     : isDark ? "text-zinc-400 hover:text-white border border-transparent" : "text-violet-950 hover:text-violet-600 font-extrabold"
@@ -480,7 +479,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                     <span className="block font-bold text-xs truncate">
                       {localizedText(p.title, currentLanguage)}
                     </span>
-                    <div className="flex items-center gap-1.5 text-[9px] font-mono text-zinc-400">
+                    <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
                       {p.category && (
                         <span className={`px-1.5 py-0.5 rounded border ${isDark ? "border-white/10 bg-black" : "border-purple-200 bg-white"}`}>{p.category.toUpperCase()}</span>
                       )}
@@ -529,13 +528,13 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                           <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
                         )}
                         {isProvisional(selectedProf) && (
-                          <span className="ml-2 inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] font-mono font-bold bg-amber-500/15 text-amber-500 border border-amber-500/25">
+                          <span className="ml-2 inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[11px] font-mono font-bold bg-amber-500/15 text-amber-500 border border-amber-500/25">
                             {t.qualityProvisional}
                           </span>
                         )}
                       </h3>
                       {selectedProf.category && (
-                        <span className={`inline-block text-[9px] font-mono px-1.5 py-0.5 mt-1 rounded ${
+                        <span className={`inline-block text-[11px] font-mono px-1.5 py-0.5 mt-1 rounded ${
                           isDark ? "bg-violet-950/40 text-violet-300" : "bg-purple-100 text-violet-950 font-bold"
                         }`}>
                           {selectedProf.category.replace(/_/g, " ").toUpperCase()}
@@ -549,11 +548,11 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                           <Coins className="h-3.5 w-3.5 text-violet-400 shrink-0" />
                           <span className={`font-extrabold ${isDark ? "text-white" : "text-black"}`}>CHF {selectedProf.salaryCHF.toLocaleString()}</span>
                         </div>
-                        <span className="text-[8px] uppercase tracking-wider font-mono text-zinc-400">{t.professionSalaryLabel}</span>
+                        <span className="text-[11px] uppercase tracking-wider font-mono text-zinc-400">{t.professionSalaryLabel}</span>
                       </div>
                     ) : (
                       <div className="text-right">
-                        <span className="text-[9px] uppercase tracking-wider font-mono text-zinc-400">{t.professionSalaryUnknown}</span>
+                        <span className="text-[11px] uppercase tracking-wider font-mono text-zinc-400">{t.professionSalaryUnknown}</span>
                       </div>
                     )}
                   </div>
@@ -564,23 +563,35 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                     </p>
                   )}
 
+                  {currentLanguage !== "de" && selectedProf.targetGroup?.[currentLanguage] && (
+                    <p className="text-[11px] italic text-zinc-400">{t.autoTranslatedNote}</p>
+                  )}
+                  {localizedText(selectedProf.targetGroup, currentLanguage) && (
+                    <div className="card-premium p-3.5">
+                      <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.professionTargetGroupLabel}</span>
+                      <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+                        {localizedText(selectedProf.targetGroup, currentLanguage)}
+                      </p>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
                     <div className="card-premium p-3">
-                      <span className="block text-[8px] font-mono uppercase tracking-wider text-violet-400 mb-1">
+                      <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">
                         {t.professionEducationRequired}
                       </span>
-                      <p className={`text-[10px] leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
+                      <p className={`text-xs leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
                         {localizedText(selectedProf.educationRequired, currentLanguage) || t.dataNotAvailable}
                       </p>
                     </div>
 
                     <div className="card-premium p-3 flex flex-col justify-between text-left">
                       <div>
-                        <span className="block text-[8px] font-mono uppercase tracking-wider text-violet-400 mb-1">
+                        <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">
                           {t.professionVetLabel}
                         </span>
                         {typeof selectedProf.isApprenticeshipPath === "boolean" ? (
-                          <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[8.5px] font-bold font-mono ${
+                          <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-bold font-mono ${
                             selectedProf.isApprenticeshipPath
                               ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                               : "bg-violet-500/10 text-violet-400 border border-violet-500/20"
@@ -588,30 +599,69 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                             {selectedProf.isApprenticeshipPath ? t.professionVetCompatible : t.professionVetTertiary}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[8.5px] font-bold font-mono bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">
+                          <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-bold font-mono bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">
                             {t.dataNotAvailable}
                           </span>
                         )}
                       </div>
 
-                      <div className="pt-2 border-t border-white/5 mt-2 flex items-center justify-between text-[9px] font-mono text-zinc-400">
+                      <div className="pt-2 border-t border-white/5 mt-2 flex items-center justify-between text-[11px] font-mono text-zinc-400">
                         <span>{t.professionDemand}: {selectedProf.demandLevel || t.dataNotAvailable}</span>
                         <span>{t.professionOutlook}: {(selectedProf.outlook || t.dataNotAvailable).toUpperCase()}</span>
                       </div>
                     </div>
                   </div>
 
+                  {(localizedText(selectedProf.dailyWorkContext, currentLanguage) || localizedText(selectedProf.typicalWorkplace, currentLanguage)) && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {localizedText(selectedProf.dailyWorkContext, currentLanguage) && (
+                        <div className="card-premium p-3">
+                          <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.professionDailyWorkLabel}</span>
+                          <p className={`text-xs leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
+                            {localizedText(selectedProf.dailyWorkContext, currentLanguage)}
+                          </p>
+                        </div>
+                      )}
+                      {localizedText(selectedProf.typicalWorkplace, currentLanguage) && (
+                        <div className="card-premium p-3">
+                          <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.professionWorkplaceLabel}</span>
+                          <p className={`text-xs leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
+                            {localizedText(selectedProf.typicalWorkplace, currentLanguage)}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {localizedText(selectedProf.admissionReality, currentLanguage) && (
+                    <div className="card-premium-accent p-3.5">
+                      <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.professionAdmissionRealityLabel}</span>
+                      <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+                        {localizedText(selectedProf.admissionReality, currentLanguage)}
+                      </p>
+                    </div>
+                  )}
+
+                  {localizedText(selectedProf.progressionNotes, currentLanguage) && (
+                    <div className="card-premium p-3.5">
+                      <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.professionProgressionLabel}</span>
+                      <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+                        {localizedText(selectedProf.progressionNotes, currentLanguage)}
+                      </p>
+                    </div>
+                  )}
+
                   {/* Skills Section */}
                   {localizedList(selectedProf.skillsRequired, currentLanguage).length > 0 && (
                     <div className="space-y-1.5 text-left">
-                      <span className="block text-[8px] font-mono uppercase tracking-wider text-violet-400">
+                      <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400">
                         {t.professionSkillsLabel}
                       </span>
                       <div className="flex flex-wrap gap-1">
                         {localizedList(selectedProf.skillsRequired, currentLanguage).map((skill: string, idx: number) => (
                           <span
                             key={idx}
-                            className={`inline-flex items-center gap-1 text-[9px] font-mono px-2 py-0.5 rounded-lg ${
+                            className={`inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-lg ${
                               isDark ? "bg-white/5 border border-white/5 text-zinc-300" : "bg-purple-100 text-violet-950 font-bold border border-purple-200/40"
                             }`}
                           >
@@ -626,14 +676,14 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                   {/* Targeted Industries */}
                   {selectedProf.industries && selectedProf.industries.length > 0 && (
                     <div className="space-y-1.5 text-left">
-                      <span className="block text-[8px] font-mono uppercase tracking-wider text-violet-400">
+                      <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400">
                         {t.professionClustersLabel}
                       </span>
                       <div className="flex flex-wrap gap-1">
                         {selectedProf.industries.map((ind: string, idx: number) => (
                           <span
                             key={idx}
-                            className={`text-[8.5px] font-mono uppercase tracking-widest px-2 py-0.5 rounded ${
+                            className={`text-[11px] font-mono uppercase tracking-widest px-2 py-0.5 rounded ${
                               isDark ? "bg-zinc-950 text-zinc-400 border border-violet-950/20" : "bg-white text-violet-950 font-extrabold border border-purple-200 shadow-sm"
                             }`}
                           >
@@ -649,14 +699,14 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                       simply doesn't render rather than claiming full coverage. */}
                   {selectedProfInstitutions.length > 0 && (
                     <div className="space-y-1.5 text-left">
-                      <span className="block text-[8px] font-mono uppercase tracking-wider text-violet-400">
-                        Where to study this
+                      <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400">
+                        {t.whereToStudyLabel}
                       </span>
                       <div className="space-y-1">
                         {selectedProfInstitutions.map(link => (
                           <div
                             key={link.id}
-                            className={`flex items-center gap-2 text-[10px] px-2.5 py-1.5 rounded-lg ${
+                            className={`flex items-center gap-2 text-xs px-2.5 py-1.5 rounded-lg ${
                               isDark ? "bg-white/5 border border-white/5 text-zinc-200" : "bg-purple-50 text-violet-950 font-semibold border border-purple-200/40"
                             }`}
                           >
@@ -761,14 +811,14 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
     }`}>
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b pb-4 mb-6 border-purple-200/10 text-left">
         <div>
-          <span className={`block font-mono text-[9px] uppercase tracking-widest ${isDark ? "text-violet-400" : "text-violet-600 font-extrabold"}`}>
+          <span className={`block font-mono text-[11px] uppercase tracking-widest ${isDark ? "text-violet-400" : "text-violet-600 font-extrabold"}`}>
             {t.institutionsEyebrow}
           </span>
           <h2 className={`text-base font-extrabold tracking-tight flex items-center gap-1.5 ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
             <Landmark className="h-4.5 w-4.5 text-violet-500 shrink-0" />
             {t.institutionsTitle}
           </h2>
-          <p className={`text-[10.5px] mt-0.5 leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950 font-semibold"}`}>
+          <p className={`text-xs mt-0.5 leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950 font-semibold"}`}>
             {t.institutionsSub}
           </p>
         </div>
@@ -793,7 +843,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
               <button
                 key={cat}
                 onClick={() => setCatFilter(cat)}
-                className={`px-2.5 py-1 rounded-lg text-[9px] uppercase font-mono tracking-wider transition cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] uppercase font-mono tracking-wider transition cursor-pointer ${
                   catFilter === cat
                     ? isDark ? "bg-violet-900/40 text-violet-300 border border-violet-800 font-extrabold" : "bg-violet-600 text-white font-black"
                     : isDark ? "text-zinc-400 hover:text-white border border-transparent" : "text-violet-950 hover:text-violet-600 font-extrabold"
@@ -836,7 +886,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
                 >
                   <div className="space-y-1 truncate pr-1">
                     <span className="block font-bold text-xs truncate">{inst.title}</span>
-                    <div className="flex items-center gap-1.5 text-[9px] font-mono text-zinc-400">
+                    <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
                       {inst.category && (
                         <span className={`px-1.5 py-0.5 rounded border ${isDark ? "border-white/10 bg-black" : "border-purple-200 bg-white"}`}>{inst.category.replace(/_/g, " ").toUpperCase()}</span>
                       )}
@@ -865,151 +915,18 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className={`rounded-2xl p-5 border flex flex-col justify-between space-y-4 h-full ${
+                className={`rounded-2xl p-5 border h-full ${
                   isDark ? "bg-white/[0.01] border-white/5" : "bg-purple-100/30 border-purple-200 shadow-inner"
                 }`}
               >
-                <div className="space-y-4 text-left">
-                  {/* Real photo only - no generic stock fallback (see Trust and Data Requirements.md) */}
-                  {selectedInst.imageUrl && (
-                    <div>
-                      <div className="relative h-32 w-full rounded-xl overflow-hidden border border-white/10 bg-white/5 shadow-inner">
-                        <img
-                          src={selectedInst.imageUrl}
-                          alt={selectedInst.title}
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover opacity-80 hover:opacity-100 transition duration-300"
-                        />
-                      </div>
-                      {selectedInst.imageAttribution && (
-                        <p className={`mt-1 text-[9px] leading-snug ${isDark ? "text-zinc-500" : "text-violet-950/50"}`}>
-                          {selectedInst.imageAttribution}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3 border-purple-200/10">
-                    <div>
-                      <h3 className={`text-base font-extrabold flex items-center gap-1.5 leading-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
-                        {selectedInst.title}
-                        {isTrusted(selectedInst) && <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />}
-                        {isProvisional(selectedInst) && (
-                          <span className="ml-2 inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] font-mono font-bold bg-amber-500/15 text-amber-500 border border-amber-500/25">
-                            {t.qualityProvisional}
-                          </span>
-                        )}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                        {selectedInst.category && (
-                          <span className={`inline-block text-[9px] font-mono px-1.5 py-0.5 rounded ${
-                            isDark ? "bg-violet-950/40 text-violet-300" : "bg-purple-100 text-violet-950 font-bold"
-                          }`}>
-                            {selectedInst.category.replace(/_/g, " ").toUpperCase()}
-                          </span>
-                        )}
-                        <span className={`text-[9px] font-mono ${isDark ? "text-zinc-400" : "text-violet-950/70 font-semibold"}`}>
-                          {selectedInst.canton ? `Canton ${selectedInst.canton}` : t.mapCantonUnknown}
-                        </span>
-                      </div>
-                    </div>
-
-                    {typeof selectedInst.rating === "number" && (
-                      <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[8.5px] font-mono font-bold bg-amber-500/15 text-amber-500 border border-amber-500/25">
-                        ★ {selectedInst.rating.toFixed(1)}
-                      </span>
-                    )}
-                  </div>
-
-                  {localizedText(selectedInst.description, currentLanguage) && (
-                    <p className={`text-[11.5px] leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
-                      {localizedText(selectedInst.description, currentLanguage)}
-                    </p>
-                  )}
-
-                  {(selectedInst.establishedYear || selectedInst.studentCount || selectedInst.cantonalLanguage) && (
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {selectedInst.establishedYear && (
-                        <div className="card-premium p-2 text-center">
-                          <span className="block text-[7.5px] font-mono uppercase tracking-wider text-violet-400">Established</span>
-                          <span className={`text-[10px] font-extrabold font-mono ${isDark ? "text-zinc-200" : "text-violet-950"}`}>{selectedInst.establishedYear}</span>
-                        </div>
-                      )}
-                      {selectedInst.studentCount && (
-                        <div className="card-premium p-2 text-center">
-                          <span className="block text-[7.5px] font-mono uppercase tracking-wider text-violet-400">Students</span>
-                          <span className={`text-[10px] font-extrabold font-mono ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
-                            {selectedInst.studentCount >= 1000 ? `${(selectedInst.studentCount / 1000).toFixed(0)}k+` : selectedInst.studentCount}
-                          </span>
-                        </div>
-                      )}
-                      {selectedInst.cantonalLanguage && (
-                        <div className="card-premium p-2 text-center">
-                          <span className="block text-[7.5px] font-mono uppercase tracking-wider text-violet-400">Language</span>
-                          <span className={`text-[9px] font-extrabold font-mono truncate block ${isDark ? "text-zinc-200" : "text-violet-950"}`}>{selectedInst.cantonalLanguage}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {localizedText(selectedInst.admissionRequirements, currentLanguage) && (
-                    <div className="card-premium-accent p-3.5">
-                      <span className="block text-[8px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.admissionInfo}</span>
-                      <p className={`text-[10px] leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
-                        {localizedText(selectedInst.admissionRequirements, currentLanguage)}
-                      </p>
-                    </div>
-                  )}
-
-                  {selectedInst.tags && selectedInst.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {selectedInst.tags.map((tag, idx) => (
-                        <span key={idx} className={`text-[8.5px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
-                          isDark ? "bg-zinc-900 text-zinc-400 border-violet-900/30" : "bg-purple-100/60 text-violet-950 border-purple-200/50"
-                        }`}>
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2.5">
-                  <button
-                    onClick={() => toggleCompare(selectedInst)}
-                    disabled={!isInCompare(selectedInst.id) && compareList.length >= MAX_COMPARE}
-                    className={`w-full flex items-center justify-center gap-1.5 rounded-lg border py-2 text-[10px] font-bold tracking-wide transition disabled:opacity-40 disabled:cursor-not-allowed ${
-                      isInCompare(selectedInst.id)
-                        ? "bg-violet-600/20 border-violet-500/40 text-violet-300"
-                        : isDark ? "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10" : "bg-purple-50 border-purple-200 text-violet-950 hover:bg-purple-100"
-                    }`}
-                  >
-                    {isInCompare(selectedInst.id) ? (<><Check className="h-3.5 w-3.5" /> {t.compareRemove}</>) : (<><Plus className="h-3.5 w-3.5" /> {t.compareAdd}</>)}
-                  </button>
-
-                  <div className="flex items-center gap-2 text-[10px]">
-                    {selectedInst.email && (
-                      <a href={`mailto:${selectedInst.email}`} className={`inline-flex items-center gap-1 ${isDark ? "text-zinc-300 hover:text-violet-300" : "text-violet-950 hover:text-violet-600 font-semibold"}`}>
-                        <Mail className="h-3 w-3 text-violet-500" /> {selectedInst.email}
-                      </a>
-                    )}
-                    {selectedInst.phone && (
-                      <span className={`inline-flex items-center gap-1 ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
-                        <Phone className="h-3 w-3 text-violet-500" /> {selectedInst.phone}
-                      </span>
-                    )}
-                  </div>
-
-                  {selectedInst.website && (
-                    <a
-                      href={selectedInst.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-primary flex h-9 w-full items-center justify-center gap-2 text-[10px] tracking-wider"
-                    >
-                      <Globe className="h-3.5 w-3.5" /> {t.visitWebsite}
-                    </a>
-                  )}
-                </div>
+                <InstitutionDetailCard
+                  institution={selectedInst}
+                  currentLanguage={currentLanguage}
+                  theme={theme}
+                  isInCompare={isInCompare(selectedInst.id)}
+                  compareDisabled={compareList.length >= MAX_COMPARE}
+                  onToggleCompare={() => toggleCompare(selectedInst)}
+                />
               </motion.div>
             </AnimatePresence>
           ) : (
@@ -1030,12 +947,12 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
         }`}>
           <div className="flex items-center gap-1.5">
             <Scale className="h-3.5 w-3.5 text-violet-500 shrink-0" />
-            <span className={`text-[10px] font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>
+            <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>
               {t.compareBarLabel} ({compareList.length}/{MAX_COMPARE})
             </span>
           </div>
           {compareList.map(inst => (
-            <span key={inst.id} className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold max-w-[140px] ${
+            <span key={inst.id} className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold max-w-[140px] ${
               isDark ? "bg-white/10 text-zinc-200" : "bg-purple-100 text-violet-950"
             }`}>
               <span className="truncate">{inst.title}</span>
@@ -1044,14 +961,14 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
           ))}
           <button
             onClick={() => setCompareList([])}
-            className={`text-[10px] font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/60 hover:text-violet-950"}`}
+            className={`text-xs font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/60 hover:text-violet-950"}`}
           >
             {t.compareClear}
           </button>
           <button
             onClick={() => setShowCompareModal(true)}
             disabled={compareList.length < 2}
-            className="btn-primary flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-wide disabled:opacity-40 disabled:cursor-not-allowed ml-auto"
+            className="btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs tracking-wide disabled:opacity-40 disabled:cursor-not-allowed ml-auto"
           >
             {t.compareViewButton}
           </button>

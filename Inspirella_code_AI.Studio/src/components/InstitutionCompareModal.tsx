@@ -115,7 +115,7 @@ export default function InstitutionCompareModal({
                         </span>
                         <button
                           onClick={() => onRemove(inst.id)}
-                          className={`shrink-0 p-1 rounded transition ${isDark ? "hover:bg-white/10 text-zinc-400" : "hover:bg-purple-100 text-zinc-500"}`}
+                          className={`shrink-0 p-1 rounded transition ${isDark ? "hover:bg-white/10 text-zinc-400" : "hover:bg-purple-100 text-violet-900/70"}`}
                           aria-label={t.compareRemove}
                         >
                           <X className="h-3 w-3" />
@@ -128,7 +128,7 @@ export default function InstitutionCompareModal({
               <tbody>
                 {rows.map(row => (
                   <tr key={row.label} className={`border-b ${isDark ? "border-white/5" : "border-purple-100"}`}>
-                    <td className={`p-2 font-mono uppercase text-[9px] tracking-wider align-top ${isDark ? "text-zinc-400" : "text-violet-950/60 font-bold"}`}>
+                    <td className={`p-2 font-mono uppercase text-[11px] tracking-wider align-top ${isDark ? "text-zinc-400" : "text-violet-950/60 font-bold"}`}>
                       {row.label}
                     </td>
                     {institutions.map(inst => (
@@ -140,11 +140,11 @@ export default function InstitutionCompareModal({
                 ))}
                 {institutions.some(inst => localizedText(inst.description, currentLanguage)) && (
                   <tr>
-                    <td className={`p-2 font-mono uppercase text-[9px] tracking-wider align-top ${isDark ? "text-zinc-400" : "text-violet-950/60 font-bold"}`}>
+                    <td className={`p-2 font-mono uppercase text-[11px] tracking-wider align-top ${isDark ? "text-zinc-400" : "text-violet-950/60 font-bold"}`}>
                       {t.admissionInfo}
                     </td>
                     {institutions.map(inst => (
-                      <td key={inst.id} className={`p-2 align-top text-[10px] leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                      <td key={inst.id} className={`p-2 align-top text-xs leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
                         {localizedText(inst.description, currentLanguage) || noData}
                       </td>
                     ))}

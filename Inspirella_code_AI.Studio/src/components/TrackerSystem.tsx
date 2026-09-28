@@ -190,7 +190,7 @@ export default function TrackerSystem({
             <Trophy className="h-5.5 w-5.5" />
           </div>
           <div>
-            <span className={`block text-[10px] font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Active Goals</span>
+            <span className={`block text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Active Goals</span>
             <span className={`font-sans text-lg font-black block mt-0.5 ${isDark ? "text-white" : "text-violet-950"}`}>{trackers.length} active</span>
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function TrackerSystem({
             <BarChart3 className="h-5.5 w-5.5" />
           </div>
           <div>
-            <span className={`block text-[10px] font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Average Progress</span>
+            <span className={`block text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Average Progress</span>
             <span className={`font-sans text-lg font-black block mt-0.5 ${isDark ? "text-white" : "text-violet-950"}`}>
               {trackers.length > 0
                 ? Math.round(trackers.reduce((acc, curr) => acc + curr.progress, 0) / trackers.length)
@@ -214,7 +214,7 @@ export default function TrackerSystem({
             <Activity className="h-5.5 w-5.5" />
           </div>
           <div>
-            <span className={`block text-[10px] font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Peak Streak</span>
+            <span className={`block text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Peak Streak</span>
             <span className={`font-sans text-lg font-black block mt-0.5 ${isDark ? "text-white" : "text-violet-950"}`}>
               {trackers.length > 0 ? Math.max(...trackers.map(t => t.streak), 0) : 0} days
             </span>
@@ -225,14 +225,14 @@ export default function TrackerSystem({
       {/* Goal Creation Deck */}
       <div className="card-premium p-6 text-left relative overflow-hidden">
         <SectionGlow isDark={isDark} corner="top-right" />
-        <h3 className={`relative text-base font-bold mb-4 flex items-center gap-2 ${isDark ? "text-violet-200" : "text-violet-950"}`}>
+        <h2 className={`relative text-base font-bold mb-4 flex items-center gap-2 ${isDark ? "text-violet-100" : "text-violet-950"}`}>
           <PlusCircle className="h-5 w-5 text-violet-500" />
           {t.createTracker}
-        </h3>
+        </h2>
 
         <form onSubmit={handleCreateGoal} className="grid gap-4 sm:grid-cols-7 items-end">
           <div className="sm:col-span-2">
-            <label className={`block text-[10px] font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>Goal Title *</label>
+            <label className={`block text-xs font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>Goal Title *</label>
             <input
               type="text"
               value={newGoalTitle}
@@ -244,7 +244,7 @@ export default function TrackerSystem({
           </div>
 
           <div className="sm:col-span-2">
-            <label className={`block text-[10px] font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>Brief Details / Milestone</label>
+            <label className={`block text-xs font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>Brief Details / Milestone</label>
             <input
               type="text"
               value={newGoalDesc}
@@ -255,7 +255,7 @@ export default function TrackerSystem({
           </div>
 
           <div className="sm:col-span-1">
-            <label className={`block text-[10px] font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>Category</label>
+            <label className={`block text-xs font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>Category</label>
             <select
               value={newGoalCategory}
               onChange={(e) => setNewGoalCategory(e.target.value as TrackerGoal["category"])}
@@ -271,7 +271,7 @@ export default function TrackerSystem({
           </div>
 
           <div className="sm:col-span-1">
-            <label className={`block text-[10px] font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>{t.trackerDueDateLabel}</label>
+            <label className={`block text-xs font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>{t.trackerDueDateLabel}</label>
             <input
               type="date"
               value={newGoalDueDate}
@@ -297,7 +297,7 @@ export default function TrackerSystem({
         <AnimatePresence mode="popLayout">
           {trackers.length === 0 ? (
             <div className="card-premium md:col-span-2 py-12 text-center p-6 border-dashed">
-              <Star className="h-8 w-8 text-violet-400 mx-auto mb-2 animate-bounce" />
+              <Star className="h-8 w-8 text-violet-400 mx-auto mb-2" />
               <p className={`text-xs font-black ${isDark ? "text-zinc-400" : "text-violet-950"}`}>{t.noTrackers}</p>
             </div>
           ) : (
@@ -320,8 +320,8 @@ export default function TrackerSystem({
                         {getCategoryIcon(goal.category)}
                       </div>
                       <div>
-                        <h4 className={`text-sm font-bold tracking-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>{goal.title}</h4>
-                        <p className={`text-[10px] ${isDark ? "text-zinc-400" : "text-violet-905 block font-bold"}`}>{goal.description || "Active Goal"}</p>
+                        <h3 className={`text-sm font-bold tracking-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>{goal.title}</h3>
+                        <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-905 block font-bold"}`}>{goal.description || "Active Goal"}</p>
                       </div>
                     </div>
 
@@ -335,7 +335,7 @@ export default function TrackerSystem({
 
                   {/* Progress Indicators & Streaks */}
                   <div className="flex items-center justify-between text-xs mb-3 flex-wrap gap-1.5">
-                    <span className={`font-mono text-[10px] uppercase ${isDark ? "text-zinc-300 font-bold" : "text-violet-950 font-extrabold"}`}>
+                    <span className={`font-mono text-xs uppercase ${isDark ? "text-zinc-300 font-bold" : "text-violet-950 font-extrabold"}`}>
                       {t.completionPercentage} • {goal.progress}%
                     </span>
 
@@ -345,7 +345,7 @@ export default function TrackerSystem({
                         const isOverdue = days !== null && days < 0 && goal.progress < 100;
                         const isDueSoon = days !== null && days >= 0 && days <= 7 && goal.progress < 100;
                         return (
-                          <span className={`font-mono text-[10px] flex items-center gap-1.5 px-2.5 py-1 rounded-lg border backdrop-blur-md ${
+                          <span className={`font-mono text-xs flex items-center gap-1.5 px-2.5 py-1 rounded-lg border backdrop-blur-md ${
                             isOverdue
                               ? (isDark ? "bg-red-500/10 text-red-300 border-red-500/20" : "bg-red-50 text-red-700 border-red-200 font-black")
                               : isDueSoon
@@ -363,7 +363,7 @@ export default function TrackerSystem({
                       })()}
 
                       {goal.streak > 0 && (
-                        <span className={`font-mono text-[10px] flex items-center gap-1.5 px-2.5 py-1 rounded-lg border backdrop-blur-md ${
+                        <span className={`font-mono text-xs flex items-center gap-1.5 px-2.5 py-1 rounded-lg border backdrop-blur-md ${
                           isDark ? "bg-white/5 text-amber-300 border-white/10 shadow-[0_0_8px_rgba(245,158,11,0.1)]" : "bg-amber-50 text-amber-950 border-amber-200 font-black shadow-sm"
                         }`}>
                           <Trophy className="h-3.5 w-3.5 text-amber-500 animate-pulse" />

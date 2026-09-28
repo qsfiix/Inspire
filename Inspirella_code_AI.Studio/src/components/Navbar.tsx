@@ -71,14 +71,18 @@ export default function Navbar({
             <span className={`text-xl font-bold tracking-wider transition-colors ${isDark ? "text-white" : "text-indigo-950"}`}>
               INSPIRELLA
             </span>
-            <span className={`block text-[9px] font-mono tracking-widest uppercase transition-colors ${isDark ? "text-violet-400" : "text-violet-600 font-semibold"}`}>
+            <span className={`${isLoggedIn ? "hidden xl:block" : "block"} whitespace-nowrap text-[9px] font-mono tracking-widest uppercase transition-colors ${isDark ? "text-violet-400" : "text-violet-600 font-semibold"}`}>
               Swiss Education Explorer
             </span>
           </div>
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="hidden md:flex space-x-1">
+        {/* Labels stay on one line (whitespace-nowrap); between md and xl
+            there isn't room for five labels, so tabs show icon-only there
+            with the label kept for tooltips and screen readers. The active
+            tab's glowing pill slides between tabs (shared layoutId). */}
+        <nav className="hidden md:flex items-center gap-1">
           {tabsToRender.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -86,21 +90,29 @@ export default function Navbar({
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`relative flex items-center gap-1.5 px-3 py-2 text-sm font-medium transition-all duration-300 rounded-lg cursor-pointer ${
-                  isActive 
-                    ? isDark ? "text-violet-200 bg-white/5" : "text-violet-950 bg-violet-100 font-bold"
-                    : isDark ? "text-white/80 hover:text-white hover:bg-white/5" : "text-black hover:text-black hover:bg-purple-100"
+                title={tab.label}
+                aria-label={tab.label}
+                aria-current={isActive ? "page" : undefined}
+                className={`relative flex items-center gap-1.5 px-2.5 xl:px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors duration-300 rounded-lg cursor-pointer ${
+                  isActive
+                    ? isDark ? "text-white" : "text-violet-950 font-bold"
+                    : isDark ? "text-white/70 hover:text-white hover:bg-white/5" : "text-black/80 hover:text-black hover:bg-purple-100"
                 }`}
               >
-                <Icon className={`h-4 w-4 ${isActive ? "text-violet-500" : ""}`} />
-                {tab.label}
                 {isActive && (
-                  <motion.div
-                    layoutId="activeNavBarIndicator"
-                    className="absolute bottom-0 left-2 right-2 h-0.5 bg-gradient-to-r from-violet-500 to-indigo-500"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  <motion.span
+                    layoutId="activeNavBarPill"
+                    aria-hidden="true"
+                    className={`absolute inset-0 rounded-lg border ${
+                      isDark
+                        ? "bg-violet-500/15 border-violet-400/30 shadow-[0_0_18px_-4px_rgba(139,92,246,0.55)]"
+                        : "bg-violet-100 border-violet-300"
+                    }`}
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
                   />
                 )}
+                <Icon className={`relative h-4 w-4 ${isActive ? "text-violet-400" : ""}`} />
+                <span className={`relative ${isLoggedIn ? "hidden lg:inline" : "inline"}`}>{tab.label}</span>
               </button>
             );
           })}
@@ -143,7 +155,7 @@ export default function Navbar({
 
           {isLoggedIn ? (
             <div className="flex items-center gap-2">
-              <span className={`hidden lg:inline text-xs font-mono border-l pl-3 ${
+              <span className={`hidden xl:inline text-xs font-mono whitespace-nowrap border-l pl-3 ${
                 isDark ? "text-violet-200 border-white/10" : "text-black font-extrabold border-purple-200"
               }`}>
                 {userName || "Explorer"}
@@ -157,7 +169,7 @@ export default function Navbar({
                 }`}
               >
                 <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{t.logout}</span>
+                <span className="hidden sm:inline whitespace-nowrap">{t.logout}</span>
               </button>
             </div>
           ) : (

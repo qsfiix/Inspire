@@ -88,7 +88,7 @@ function StatCount({ value, label, isDark, delay }: { value: number; label: stri
         {display}
         <span className={isDark ? "text-violet-400" : "text-violet-600"}>+</span>
       </span>
-      <span className={`block text-[9px] font-mono uppercase tracking-widest mt-0.5 ${isDark ? "text-zinc-500" : "text-violet-950/50 font-bold"}`}>
+      <span className={`block text-[11px] font-mono uppercase tracking-widest mt-0.5 ${isDark ? "text-zinc-500" : "text-violet-950/50 font-bold"}`}>
         {label}
       </span>
     </div>

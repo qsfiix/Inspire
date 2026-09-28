@@ -109,8 +109,9 @@ export default function HeroBackground({ isDark, showPhoenixWatermark = true }: 
       />
 
       {/* Layer 2: phoenix-mark core - the brand's own symbol, not stock decoration.
-          Hidden once the 3D phoenix model (SplineHero) is on screen, so there's
-          only ever one phoenix rendered at a time. */}
+          Since 2026-09-28 this whole component is only the no-WebGL fallback
+          for the home hero (PhoenixScene draws the particle phoenix otherwise),
+          so there's only ever one phoenix rendered at a time. */}
       {showPhoenixWatermark && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div
