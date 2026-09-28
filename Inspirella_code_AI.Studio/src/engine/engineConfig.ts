@@ -214,11 +214,34 @@ export function isHighDemand(demandLevel?: string): boolean {
 }
 
 /**
- * Evaluates semantic match between strings (case-insensitive)
+ * Whole-word, case-insensitive match of any interest keyword in a title.
+ * Substring matching made short keywords fire inside unrelated German
+ * compounds - "tech" matched "Operationstechnik" (surgery) and "Technische
+ * Kauffrau" (commerce), so those ranked as "Strong match" for a tech profile.
  */
 export function hasSemanticMatch(source: string, targetWords: string[]): boolean {
   if (!source) return false;
-  const s = source.toLowerCase();
-  return targetWords.some(w => s.includes(w.toLowerCase()));
+  return targetWords.some(w => {
+    const escaped = w.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return escaped.length > 0 && new RegExp("(^|[^\\p{L}])" + escaped + "($|[^\\p{L}])", "iu").test(source);
+  });
+}
+
+// Swiss VET certificate abbreviations (DE/FR/IT) that mark an apprenticeship.
+const VET_TITLE_MARKER = /(^|[^\p{L}])(EFZ|EBA|CFC|AFC|AFP)($|[^\p{L}])/u;
+
+/**
+ * Whether a profession is a VET apprenticeship path: true when the flag says
+ * so or any title carries a Swiss VET certificate (EFZ/EBA/CFC/AFC/AFP);
+ * otherwise the stored flag, which is undefined when the data doesn't say.
+ * Many rows have no flag, and treating "unknown" as "academic" is what
+ * labelled EFZ apprenticeships "Matches your academic focus".
+ */
+export function resolveApprenticeship(prof: { title?: unknown; isApprenticeshipPath?: boolean }): boolean | undefined {
+  if (prof.isApprenticeshipPath === true) return true;
+  const titles =
+    typeof prof.title === "string" ? prof.title : prof.title && typeof prof.title === "object" ? Object.values(prof.title as Record<string, string>).join(" ") : "";
+  if (VET_TITLE_MARKER.test(titles)) return true;
+  return prof.isApprenticeshipPath;
 }
 

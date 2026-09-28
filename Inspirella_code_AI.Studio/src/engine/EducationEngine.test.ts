@@ -109,4 +109,48 @@ describe("EducationEngine profession scoring", () => {
     const academicEngine = new EducationEngine(academicProfile, [academicProfession], noInstitutions, noResources);
     expect(academicEngine.run().professions[0].matchReasons).toContain("Matches your academic focus.");
   });
+
+  it("never calls an EFZ apprenticeship an academic match, even without the flag", () => {
+    const academicProfile = makeProfile({ interests: ["academic"] });
+    const unflaggedEfz = makeProfession({ title: { en: "Fachfrau / Fachmann Operationstechnik EFZ" } });
+    const reasons = new EducationEngine(academicProfile, [unflaggedEfz], noInstitutions, noResources).run().professions[0].matchReasons;
+    expect(reasons).not.toContain("Matches your academic focus.");
+  });
+
+  it("treats a profession with unknown track as neither academic nor vocational", () => {
+    const academicProfile = makeProfile({ interests: ["academic"] });
+    const unknown = makeProfession({ title: { en: "Generic Profession" } });
+    const reasons = new EducationEngine(academicProfile, [unknown], noInstitutions, noResources).run().professions[0].matchReasons;
+    expect(reasons).not.toContain("Matches your academic focus.");
+  });
+
+  it("matches interests as whole words, not inside German compounds", () => {
+    const techProfile = makeProfile({ interests: ["tech"] });
+    const compounds = [
+      makeProfession({ id: "op", title: { en: "Operationstechnik EFZ" } }),
+      makeProfession({ id: "kf", title: { en: "Technische Kauffrau" } })
+    ];
+    const result = new EducationEngine(techProfile, compounds, noInstitutions, noResources).run();
+    for (const p of result.professions) expect(p.matchReasons).not.toContain("Matches interest area.");
+
+    const realTech = makeProfession({ title: { en: "Tech Support Specialist" } });
+    const hit = new EducationEngine(techProfile, [realTech], noInstitutions, noResources).run().professions[0];
+    expect(hit.matchReasons).toContain("Matches interest area.");
+  });
+});
+
+describe("EducationEngine ranking is language-independent", () => {
+  it("ranks professions the same whatever the UI language", () => {
+    // "Business" appears only in the English title; the FR title has no keyword.
+    const professions = [
+      makeProfession({ id: "a", title: { de: "Kauffrau / Kaufmann EFZ", en: "Business Administrator EFZ", fr: "Employée / Employé de commerce CFC" } }),
+      makeProfession({ id: "b", title: { de: "Tänzerin / Tänzer", en: "Dancer", fr: "Danseuse / Danseur" } })
+    ];
+    const rank = (language: "en" | "fr" | "de") =>
+      new EducationEngine(makeProfile({ interests: ["business"], language }), professions, noInstitutions, noResources)
+        .run().professions.map(p => p.profession.id);
+    expect(rank("fr")).toEqual(rank("en"));
+    expect(rank("de")).toEqual(rank("en"));
+    expect(rank("en")[0]).toBe("a");
+  });
 });

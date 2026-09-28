@@ -1,5 +1,5 @@
 import { UserProfile, Profession, Institution, ResourceItem, LanguageCode } from "../types";
-import { EngineConfig, hasSemanticMatch, isHighDemand, getTranslatedString } from "./engineConfig";
+import { EngineConfig, hasSemanticMatch, isHighDemand, getTranslatedString, resolveApprenticeship } from "./engineConfig";
 
 export interface ScoredProfession {
   profession: Profession;
@@ -133,8 +133,10 @@ export class EducationEngine {
         matchReasons.push(this.translate("Aligns with your primary interests.", "Stimmt mit Ihren Hauptinteressen überein.", "Correspond à vos intérêts principaux.", "In linea con i tuoi interessi principali."));
       }
 
-      // Semantic matching in description or title
-      const titleStr = getTranslatedString(prof.title, this.lang);
+      // Semantic matching in description or title. The keywords are English
+      // interest ids, so match the English title in every UI language - the
+      // ranking must not change when the visitor switches language.
+      const titleStr = getTranslatedString(prof.title, "en", "de");
       if (titleStr) {
         if (hasSemanticMatch(titleStr, this.profile.interests)) {
           score += EngineConfig.weights.alignment.semanticMatch;
@@ -142,11 +144,13 @@ export class EducationEngine {
         }
       }
 
-      // Check apprentice tag vs goals
-      if (prof.isApprenticeshipPath && this.profile.interests.includes("vocational")) {
+      // Apprenticeship vs academic track. Only an explicitly non-VET
+      // profession earns the academic reason - "unknown" is not "academic".
+      const isVet = resolveApprenticeship(prof);
+      if (isVet === true && this.profile.interests.includes("vocational")) {
         score += EngineConfig.weights.apprenticeship.practicalTrack;
         matchReasons.push(this.translate("Matches practical apprenticeship track.", "Entspricht dem praktischen Ausbildungsweg.", "Correspond à l'apprentissage pratique.", "Corrisponde al percorso di apprendistato pratico."));
-      } else if (!prof.isApprenticeshipPath && this.profile.interests.includes("academic")) {
+      } else if (isVet === false && this.profile.interests.includes("academic")) {
         score += EngineConfig.weights.apprenticeship.academicTrack;
         matchReasons.push(this.translate("Matches your academic focus.", "Entspricht Ihrem akademischen Fokus.", "Correspond à votre orientation académique.", "Corrisponde al tuo focus accademico."));
       }
@@ -183,8 +187,9 @@ export class EducationEngine {
         
         if (profCategory && instCategory && (profCategory.includes(instCategory) || instCategory.includes(profCategory))) return true;
         if (profCategory && instDesc.includes(profCategory)) return true;
-        if (tp.profession.isApprenticeshipPath && (instCategory === "vocational" || instCategory === "technical")) return true;
-        if (!tp.profession.isApprenticeshipPath && instCategory === "university") return true;
+        const vet = resolveApprenticeship(tp.profession);
+        if (vet === true && (instCategory === "vocational" || instCategory === "technical")) return true;
+        if (vet === false && instCategory === "university") return true;
         return false;
       });
 
@@ -380,7 +385,8 @@ export class EducationEngine {
         matchReasons.push(this.translate("Relevant transition support.", "Relevante Unterstützung beim Übergang.", "Soutien de transition pertinent.", "Supporto di transizione rilevante."));
       }
       
-      const titleStr = getTranslatedString(res.title, this.lang);
+      // English keywords -> English title, independent of the UI language.
+      const titleStr = getTranslatedString(res.title, "en", "de");
       if (titleStr) {
         if (this.profile.interests.includes("academic") && titleStr.toLowerCase().includes("university")) {
           score += EngineConfig.weights.alignment.resourceTitleMatch;
