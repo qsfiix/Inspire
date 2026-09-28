@@ -15,6 +15,11 @@ interface ErrorBoundaryState {
  * what crashed, so the fallback must not depend on any of it to render safely.
  */
 export class ErrorBoundary extends React.Component<React.PropsWithChildren, ErrorBoundaryState> {
+  // The project has no @types/react, so React.Component carries no typings;
+  // declared here so tsc (and CI's lint step) knows these members exist.
+  declare props: Readonly<React.PropsWithChildren>;
+  declare state: ErrorBoundaryState;
+
   constructor(props: React.PropsWithChildren) {
     super(props);
     this.state = { hasError: false };
