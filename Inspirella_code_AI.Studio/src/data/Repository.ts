@@ -966,7 +966,7 @@ export const DataRepository = {
     if (isSupabaseActive()) {
       try {
         const supabase = getSupabase();
-        const canonical = await supabase.from("institutions").select("*");
+        const canonical = await fetchAllRows(() => supabase.from("institutions").select("*"));
         const fromCanonical = parseRows(canonical.data, parseDbInstitution);
         if (fromCanonical.length > 0) return fromCanonical;
 
@@ -1006,7 +1006,7 @@ export const DataRepository = {
     await fetchSupabaseConfig();
     if (isSupabaseActive()) {
       try {
-        const { data, error } = await getSupabase().from("professions").select("*");
+        const { data, error } = await fetchAllRows(() => getSupabase().from("professions").select("*"));
         if (!error && Array.isArray(data) && data.length > 0) {
           const parsed = parseRows(data, parseDbProfession);
           if (parsed.length > 0) return parsed;
