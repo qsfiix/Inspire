@@ -1007,7 +1007,7 @@ export const DataRepository = {
       const supabase = getSupabase();
       const [linksRes, instRes, profRes] = await Promise.all([
         supabase.from("profession_institutions").select("*").eq("is_active", true),
-        supabase.from("institutions").select("id, title_en, title_de, title_fr, title_it, city"),
+        supabase.from("institutions").select("id, title_en, title_de, title_fr, title_it, name, city"),
         supabase.from("professions").select("id, title_en, title_de, title_fr, title_it")
       ]);
 
@@ -1015,7 +1015,10 @@ export const DataRepository = {
 
       const institutionsById = new Map<string, { title: string; city?: string }>();
       for (const row of (instRes.data ?? []) as any[]) {
-        const title = pickPlainText(row, "title");
+        // Falls back to `name` since not every institution has title_* set yet -
+        // without this, institutions missing title_* silently drop out of this
+        // map and their profession links vanish from the UI with no error.
+        const title = pickPlainText(row, "title", "name");
         if (!title) continue;
         institutionsById.set(row.id, { title, city: normalizeText(row.city) });
       }

@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-09-28
+Last Updated: 2026-10-01
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -29,6 +29,258 @@ Related Files:
 Новые записи добавляются сверху (последняя дата — первая в файле).
 
 ---
+
+## 2026-10-01 — Закрыт главный пробел связей (Berufsfachschule/Weiterbildungszentrum) + найден и исправлен настоящий фронтенд-баг (282 → 503 связи)
+- по приоритету из вчерашнего аудита: закрыли 20/20 Berufsfachschule и 3/5 Weiterbildungszentrum (Migros Klubschule) без единой связи — для каждой школы нашли официальный список специальностей на её собственном сайте (не гадая) и добавили только подтверждённые совпадения; 2 центра ECAP осознанно оставлены без связей — их описание ("Nachholbildung in bestimmten Branchen") не называет конкретные профессии;
+- **найден и исправлен настоящий баг в коде**, а не только в данных: при проверке GIBZ (17 новых связей) в браузере секция "Professions offered here" не появлялась вообще — хотя в БД всё было корректно. Расследование (JS-инспекция `Repository.ts` прямо в работающем приложении) показало: `getProfessionInstitutionLinks()` строит карту институций по `pickPlainText(row, "title")`, которая проверяет только `title_en/de/fr/it` и НЕ падает обратно на `name` — поэтому любая институция без заполненного `title_de` молча выпадает из карты, и ВСЕ её связи с профессиями пропадают из UI без единой ошибки в консоли;
+- это объясняет и закрывает давний открытый вопрос этой сессии (баг с Wirtschaftsschule KV Zürich, который видели ещё в начале работы и не смогли точно диагностировать) — та же причина;
+- **код**: `src/data/Repository.ts` — `getProfessionInstitutionLinks()` теперь добавляет `name` в SELECT и использует `pickPlainText(row, "title", "name")` как резервный источник;
+- **данные**: `UPDATE institutions SET title_de = name WHERE title_de IS NULL` — закрыто 31 из 31 институции без `title_de` (включая GIBZ, Wirtschaftsschule KV Zürich, EHL, IMD, все добавленные сегодня школы);
+- проверено в браузере до и после фикса: GIBZ — 0 → 17 профессий отображается; Wirtschaftsschule KV Zürich — пусто → "Commercial Clerk (EFZ)" отображается;
+- `npm test` — 56/56 до и после правки кода.
+- итого: 328 профессий, 207 институций, **503 связи** (было 282); из Berufsfachschule/Weiterbildungszentrum без связей остались только 2 (ECAP) — осознанно.
+
+## 2026-09-29 — Аудит базы + исправление profession_type на 150 старых записях
+- полный аудит `professions`/`institutions`/`profession_institutions` (см. отчёт Sofiia в чате той же сессии);
+- найдено и исправлено: 150 из 328 профессий (все, созданные до 28.09) имели `profession_type='unknown'` — классифицированы по названию (EFZ/EBA/HF/FH/eidg. Fachausweis/eidg. Diplom/Universität/остальные вручную) на основе SQL-паттернов + ручной проверки 26 неоднозначных случаев;
+- проверено в браузере: "Cook (EFZ)" теперь корректно показывает "EDUCATION REQUIRED";
+- `npm test` — 56/56.
+- **зафиксированные, но НЕ исправленные в этом раунде пробелы** (см. отчёт): 219/328 профессий и 125/207 институций без единой связи (в основном честно — Gymnasium/Int'l School не должны иметь связи, но 20/48 Berufsfachschule и 5/9 Weiterbildungszentrum — реальный нерешённый бэклог); 182/328 профессий без learning_path («My Path» недоступен); 120/207 институций без логотипа (близко к естественному потолку); DeepL-перевод (_en/_fr/_it) отстаёт на ~40-48% полей у профессий/институций, добавленных в последние дни — вероятно, ночной cron ещё не подхватил; `public_resources_view` содержит всего 5 строк (отдельный, никогда не затрагивавшийся каталог "Web Resources"); поля salary/demand/outlook в UI показывают "Not available" — это архитектурное (данные нигде не пишутся, отдельная неиспользуемая ops-схема), а не пробел данных.
+
+## 2026-09-29 — 2 новые профессии + 7 новых связей, включая NDS-HF-специализации Careum (326 → 328 профессий, 275 → 282 связи)
+- link-gap-closing: Careum Bildungszentrum (Zürich) реально предлагает несколько NDS-HF-специализаций по уходу — добавлены 5 связей: Expertin/Experte Intensivpflege/Anästhesiepflege/Notfallpflege/Psychiatrische Pflege/Pädiatrische Pflege NDS HF → Careum;
+- **Chef/in Bäcker/in-Konditor/in-Confiseur/in mit eidg. Fachausweis** — реальная средняя ступень (Berufsprüfung) между базовым EFZ и существующим Meisterin/Meister-Diplom; связь → Richemont Fachschule (национальный центр компетенций отрасли, точное совпадение);
+- **Meteorologin/Meteorologe** (Natur/Umwelt, университетская профессия) — связь → ETH Zürich (Departement Umweltsystemwissenschaften, сотрудничество с MeteoSchweiz);
+- проверено в браузере: "Meteorologist" рендерится полностью со всеми 5 полями и связью с ETH Zürich;
+- `npm test` — 56/56.
+- итого: 328 профессий, 207 институций, 282 связи.
+
+## 2026-09-29 — 3 новых гимназии в BE/ZH, канton-gap раунд (204 → 207 институций)
+- **Gymnasium und Fachmittelschule Thun** (Seestrasse 66, 3604 Thun) — исторический кампус у озера Тун, рядом с замком Шадау; совмещённая Gymnasium+FMS школа;
+- **Gymnasium Burgdorf** (Pestalozzistrasse 17, 3400 Burgdorf) — единственная кантональная средняя школа в Эмментале;
+- **Kantonsschule Wiedikon** (Goldbrunnenstrasse 80, 8055 Zürich) — Gymnasium+FMS (профили Kommunikation/Information и Pädagogik на площадке Hohlstrasse);
+- найдено через canton-gap проверку: у кантона BE было только 4 гимназии на всю территорию (население ~1 млн) — реальный, а не выдуманный пробел, в отличие от малых кантонов (SH/UR/GL/NW/OW/AR), которые перепроверены и подтверждены как уже на реалистичной глубине;
+- адреса и координаты подтверждены через WebSearch (официальные сайты gymthun.ch/gymburgdorf.ch/kwi.ch) + Nominatim (точные совпадения);
+- фото с Wikimedia Commons найдены для 2 из 3 (Gymnasium Burgdorf — Roland Zumbühl, CC BY-SA 4.0; Kantonsschule Wiedikon — Micha L. Rieser, CC BY-SA 4.0); для Gymnasium Thun категории на Commons нет;
+- связи не добавлялись (общеобразовательные гимназии, как и у всех остальных в каталоге);
+- проверено в браузере: Kantonsschule Wiedikon рендерится полностью с фото и всеми 5 полями;
+- `npm test` — 56/56.
+- итого: 326 профессий, 207 институций, 275 связей.
+
+## 2026-09-29 — 8 новых профессий (балансировка категорий) + 15 новых связей (318 → 326 профессий, 260 → 275 связей)
+- новые профессии, специально нацеленные на самые малочисленные категории (Bildung/Soziales, Medien, Gastgewerbe, Natur — все были на 27-28 против 103 у Industrie/Technik/IT): Katechetin/Katechet, Legasthenie- und Dyskalkulietherapeutin/-therapeut, Radio- und Fernsehtechnologin/-technologe EFZ, Game Designerin/Game Designer FH, Barkeeperin/Barkeeper mit eidg. FA, Diätköchin/Diätkoch mit eidg. FA, Bäuerin/Bauer mit eidg. FA, Geografin/Geograf;
+- связи для новых профессий: Game Designer → ZHdK; Bäuerin/Bauer FA → Plantahof, Inforama Rütti, Strickhof (все три — реальные landwirtschaftliche Bildungszentren с Bäuerinnen-Fachausweis-Lehrgängen);
+- link-gap-closing: нашли и закрыли пробелы у профессий университетского уровня без единой связи — Geografin/Geograf → Zürich/Bern/Genève/Lausanne/Fribourg (5 связей, географические институты подтверждены); Archivarin/Archivar → Universität Bern + HEG Genève (реальная совместная программа MAS ALIS); Schulsozialarbeiterin → FHNW/HETS-Genève/Hochschule Luzern/SUPSI (тот же набор школ, что и у Sozialarbeiterin FH);
+- проверено в браузере: "Geographer" рендерится полностью со всеми 5 полями и всеми 5 связями с университетами (EN UI, DeepL-перевод title_en работает корректно);
+- `npm test` — 56/56.
+- итого: 326 профессий, 204 институции, 275 связей.
+
+## 2026-09-29 — 3 новые профессии + WOSTEP институция (315 → 318 профессий, 203 → 204 институции, 256 → 260 связей)
+- Schulsozialarbeiterin/Schulsozialarbeiter (Bildung/Soziales — школьная социальная работа, растущая область в швейцарских школах);
+- Kunsthistorikerin/Kunsthistoriker (академическая профессия, 3 уверенные связи: Universität Zürich, Universität Basel, Université de Genève — все реально предлагают искусствоведение);
+- Fachpsychologin/Fachpsychologe für Psychotherapie (FSP-признанная специализация, отдельная от общей Psychologin/Psychologe);
+- **WOSTEP – Fondation WOSTEP** (Rue des Saars 99, 2000 Neuchâtel) — международно признанный центр повышения квалификации часовщиков (Haute Horlogerie), основан в 1966 отраслью; адрес и координаты проверены через WebSearch + Nominatim (47.0005681/6.9560702); Wikimedia Commons — категории для WOSTEP не существует, логотип не добавлен;
+- связь Uhrmacherin/Uhrmacher EFZ → WOSTEP (продвинутое обучение после базового EFZ);
+- проверено в браузере: страница WOSTEP рендерится полностью (описание, student life, language, housing, admissions) и корректно показывает "Watchmaker EFZ" под "Professions offered here";
+- `npm test` — 56/56.
+
+## 2026-09-29 — Ещё 1 новая профессия, закрытие сессии (314 → 315)
+- Genetische Beraterin/Berater (генетическое консультирование — молодая, растущая специализация);
+- итого на конец большой сессии 29.09: 203 институции, 315 профессий, 256 связей;
+- `npm test` — 56/56 на протяжении всей сессии.
+
+## 2026-09-29 — Новая институция IHEID + 2 новые профессии международных отношений (312 → 314 профессий, 202 → 203 институции)
+- Geneva Graduate Institute (IHEID) — престижный институт международных отношений и развития в дипломатическом квартале Женевы, рядом с ООН;
+- Новые профессии специально под эту институцию: Expertin für Internationale Beziehungen, Diplomatin/Diplomat (через selective Concours EDA);
+- добавлены 2 связи сразу; найдено реальное фото здания (используется на английской Википедии статьи об институте), CC BY-SA 4.0;
+- **важное наблюдение**: эта институция стартовала с 0 связей и сразу же корректно отобразила обе новые связи после первой же загрузки — уточняет более раннюю находку про возможный "0→1" баг (возможно тот случай был просто временным кэшированием вкладки, а не системной проблемой);
+- итого: 203 институции, 314 профессий, 256 связей;
+- проверено в браузере (IHEID отображается с фото и обеими профессиями), `npm test` — 56/56.
+
+## 2026-09-29 — Ещё 2 новых профессии + 2 связи (310 → 312 профессий, 252 → 254 связи)
+- Профессии: Wirtin/Wirt (кантональный Wirtepatent для владения рестораном/баром), Bildredaktor;
+- связи: Küchenchef (eidg. Diplom) → Hotel & Gastro formation; BKC-Meister (eidg. Diplom) → Richemont Fachschule (точное совпадение);
+- итого: 202 институции, 312 профессии, 254 связи;
+- проверено в браузере (Bildredaktor отображается), `npm test` — 56/56.
+
+## 2026-09-29 — Ещё 2 новых профессии + 2 новых институции: пробел BL (308 → 310 профессий, 200 → 202 институции)
+- Профессии: Küchenchef (eidg. Diplom), Mütter- und Väterberater;
+- Обнаружен пробел: Basel-Landschaft имел 4 гимназия и НИ ОДНОЙ профшколы — добавлены Berufsbildungszentrum Baselland (Muttenz, центральная профшкола BL) и aprentas Ausbildungszentrum Muttenz (учебный центр химической/фарма-индустрии Базеля, несёт Novartis/Syngenta/BASF);
+- добавлены 2 связи: Laborant EFZ + Chemie- und Pharmatechnologe EFZ → aprentas;
+- фото не найдено;
+- итого: 202 институции, 310 профессий, 252 связи;
+- проверено в браузере (aprentas отображается), `npm test` — 56/56.
+
+## 2026-09-29 — Ещё 3 новых профессии + 2 новых институции: театральные школы (305 → 308 профессий, 198 → 200 институций)
+- Профессии: Schadenexperte (страховая экспертиза ущерба), Regisseur (Film/Theater), Museumspädagoge;
+- Институции: Accademia Teatro Dimitri (Verscio/TI, знаменитая школа физического театра/клоунады, основана легендарным клоуном Dimitri, аффилирована с SUPSI), La Manufacture – Haute École des Arts de la Scène (Lausanne, центральная театральная школа Романдии);
+- добавлены 3 связи: Schauspieler → обе школы; Regisseur → La Manufacture;
+- фото не найдено (обе школы без категории на Wikimedia Commons);
+- итого: 200 институций, 308 профессий, 250 связей — круглые числа;
+- проверено в браузере (Accademia Teatro Dimitri отображается), `npm test` — 56/56.
+
+## 2026-09-29 — Ещё 2 новых профессии (303 → 305)
+- Perfusionist (обслуживание аппарата искусственного кровообращения при операциях на сердце), Bademeister (eidg. Fachausweis);
+- итого на конец сессии: 198 институций, 305 профессий, 247 связей;
+- `npm test` — 56/56.
+
+## 2026-09-29 — Раунд связей: коммерческие школы + возможный фронтенд-баг (238 → 247 связей)
+- Закрыл связи: Kauffrau/Kaufmann EFZ → 8 коммерческих школ (Bildungszentrum Wirtschaft Bern, CEJEF Division commerciale, Centro professionale commerciale Lugano, CPNE, École professionnelle commerciale Sion, Kaufmännisches BZ St.Gallen, Kaufmännisches BZ Zug, Wirtschaftsschule KV Zürich); Hotel & Gastro formation Schweiz → Betriebsleiter Hotellerie-Gastronomie (eidg. Diplom);
+- **ВАЖНАЯ НАХОДКА**: при проверке в браузере карточка Wirtschaftsschule KV Zürich НЕ показывает секцию "Professions offered here" несмотря на то, что связь в базе данных стопроцентно корректна (проверено многократно через SQL — правильные profession_id/institution_id, is_active=true везде, verification_status в норме). Проверено на 2 разных вкладках браузера, после полной перезагрузки страницы — не помогло. При этом ETH Zürich и PHZH (у которых УЖЕ была хотя бы одна связь до этой сессии) корректно показывают новые добавленные связи;
+- Рабочая гипотеза (не подтверждена): возможен баг именно для институций, у которых связей было 0 и теперь появилась первая — компонент/запрос может не подхватывать переход "0 → 1" правильно. Это не проблема данных — это может быть фронтенд-баг в `InstitutionDetailCard.tsx` / `Repository.ts`, нужна отдельная сессия с фокусом на код, не на SQL;
+- итого: 198 институций, 303 профессии, 247 связей;
+- `npm test` — 56/56 (тесты не затрагивают этот путь рендеринга, так и не поймали проблему).
+
+## 2026-09-29 — Ещё 3 новых профессии + связи (300 → 303 профессии, 235 → 238 связей)
+- Kommunikationswissenschaftler (университет), Marktforscher, Förster (eidg. FA);
+- связи: Kommunikationswissenschaftler → Universität Zürich (IKMZ) + USI; Förster → Strickhof;
+- итого: 198 институций, 303 профессии, 238 связей;
+- проверено в браузере (Kommunikationswissenschaftler отображается, dashboard рекомендательный движок работает корректно), `npm test` — 56/56.
+
+## 2026-09-29 — Ещё 4 новых профессии + 2 новых институции: сельхозшколы LU/FR (296 → 300 профессий, 196 → 198 институций)
+- Новые профессии (баланс категорий Bildung/Gastgewerbe): Praxisausbildner Soziale Arbeit, Fachperson Kindes- und Erwachsenenschutz (KESB), Metzgermeister (eidg. Diplom), Bäcker-Konditor-Confiseurmeister (eidg. Diplom);
+- Новые институции: Berufsbildungszentrum Natur und Ernährung Sursee (LU, центральная школа молочного дела + садоводство/флористика + гостиничное хозяйство), Landwirtschaftliches Institut Grangeneuve (Posieux/FR, двуязычная сельхозшкола кантона Фрибур);
+- добавлены 3 связи: Milchtechnologe + Florist → BBZN Sursee; Landwirt EFZ → Grangeneuve;
+- фото не найдено (обе — региональные учреждения без категории на Wikimedia Commons);
+- итого: 198 институций, 300 профессий, 235 связей (было 300 ровно профессий — красивое число);
+- проверено в браузере (Grangeneuve отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Финальный короткий раунд сессии: связи + 1 профессия (232 связи, 296 профессий)
+- Раунд связей (18 штук): Kindergartenlehrperson → все 8 педагогических вузов (PH Zürich/Bern/Luzern/Graubünden/Zug, HEP-BEJUNE/Vaud/Wallis), которые до этого показывали только Primarlehrperson; EHB → Berufsfachschullehrperson (точное совпадение — это и есть центральная школа для этой профессии); Betriebsökonom FH → FH Graubünden + Kalaidos; Université de Neuchâtel → Chemiker + Biologe + Historiker;
+- Добавлена финальная профессия: Gefahrgutbeauftragte/Gefahrgutbeauftragter (eidg. FA);
+- итого на конец сессии: 196 институций, 296 профессий, 232 связи;
+- проверено в браузере (PHZH теперь показывает Primary school teacher + Nursery teacher вместо одной), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 2 новых профессии: Medien (293 → 295)
+- Expertin PR und Kommunikationsmanagement (eidg. Diplom), Verlagshersteller;
+- итого на конец этой большой сессии: 196 институций, 295 профессий, 218 связей;
+- проверено в браузере (Verlagshersteller отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё раунд связей (SUPSI+USI, 207 → 215) + новая институция Careum (196 институций, 218 связей)
+- Закрыл связи SUPSI (Ticino) → Betriebsökonom FH + Elektroingenieur FH + Sozialarbeiter FH + Physiotherapeut FH + Pflegefachfrau FH; USI → Architekt (Accademia di Mendrisio!) + Kommunikationsfachfrau + Softwareentwickler;
+- Добавлена новая институция: Careum Bildungszentrum (Zürich, крупный центр подготовки медицинских профессий рядом с университетской больницей) — связи: Fachfrau Gesundheit EFZ + MPA + Pflegefachfrau HF;
+- итого: 196 институций, 293 профессии, 218 связей;
+- проверено в браузере (Careum отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 4 новых профессии (289 → 293) + большой раунд связей (193 → 207)
+- Профессии: Pädiatrische Pflege NDS HF, Still- und Laktationsberater, Pilzkontrolleur, Expertin Rechnungslegung und Controlling (eidg. Diplom);
+- Обнаружен ещё пробел: крупные многопрофильные вузы (FHNW, Hochschule Luzern, Universität St. Gallen) имели неожиданно мало связей — добавлено 14 связей: FHNW → Betriebsökonom FH + Sozialarbeiter FH + Grafikdesigner + UX/UI + Elektroingenieur FH + Maschinenbauingenieur FH + Primarlehrperson + Kindergartenlehrperson; Hochschule Luzern → Betriebsökonom FH + Sozialarbeiter FH + Musiker FH + Grafikdesigner; HSG → Betriebsökonom FH + Aktuar SAV;
+- итого: 195 институций, 293 профессии, 207 связей;
+- проверено в браузере (Hochschule Luzern теперь показывает 6 профессий вместо 2), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 3 новых институции: интернаты Montreux/Villars (192 → 195)
+- Collège Alpin International Beau Soleil (Villars-sur-Ollon, с 1910), Institut Monte Rosa (Territet-Montreux, с 1874, на берегу Женевского озера), Surval Montreux (чисто женский интернат над Montreux);
+- фото найдено для 1 из 3 (Beau Soleil — реальное фото здания, используется на DE/EN/FR Википедии);
+- итого: 195 институций, 289 профессий, 193 связи;
+- проверено в браузере (Beau Soleil отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 3 новых профессии (286 → 289) + раунд связей (183 → 193)
+- Профессии: Käseaffineur, Immobilienbewerter (eidg. FA), Zytotechnologe HF;
+- Обнаружен ещё один пробел: Bauingenieur FH, Landschaftsarchitekt FH, Software-Ingenieur FH имели 0 связей несмотря на очевидные программы в ETH/EPFL/ZHAW/BFH/OST/Hochschule Luzern — закрыл через 10 связей;
+- Также обнаружено: ETH Zürich и EPFL сами имели всего 5-6 связей несмотря на огромный охват программ — теперь у ETH 8;
+- Мелкие кантоны (UR/SH/GL/NW/OW/AR) намеренно НЕ пополнялись дальше — по 2 институции на кантон уже реалистичная глубина для таких маленьких кантонов (аналогично уроку с AI);
+- итого: 192 институции, 289 профессий, 193 связи;
+- проверено в браузере (ETH Zürich — новые Civil Engineer FH и Software Engineer FH отображаются среди 8 профессий; также подтверждён живой немецкий UI перевод), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 3 новых профессии (283 → 286) + 3 новых институции: пробел по Тичино (189 → 192)
+- Профессии: Betriebsleiter Hotellerie-Gastronomie (eidg. Diplom), Interkulturelle Dolmetscherin/Vermittlerin, Wildhüter;
+- Обнаружен пробел: кантон Тичино (TI) имел всего 5 институций — добавлены Liceo Cantonale di Bellinzona, Liceo Cantonale di Locarno, Centro Professionale Tecnico Lugano-Trevano (Canobbio);
+- без связей (общеобразовательные школы + профшкола без проверенного списка ремёсел);
+- итого: 192 институции, 286 профессий, 183 связи;
+- проверено в браузере (CPT Trevano отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 4 новых профессии (279 → 283) + 2 новых институции: полиция + пожарные (187 → 189)
+- Профессии: Psychiatrische Pflege NDS HF, Transportsanitäter, Fachfrau Sterilisationstechnik EFZ, Fachfrau Kredit (eidg. FA);
+- Институции: Interkantonale Polizeischule Hitzkirch (LU, центральная полицейская школа для нескольких кантонов Центральной Швейцарии), ifa — Interkantonales Feuerwehr-Ausbildungszentrum (Balsthal/SO, крупнейший и самый современный учебный центр пожарных Швейцарии);
+- добавлены 2 связи: Polizist → IPH Hitzkirch; Berufsfeuerwehrmann → ifa;
+- проверено (и подтверждён 279/279 и 187/187 = 100% профессий и институций имеют полный 5-польный контент — оба каталога описаний полностью готовы);
+- итого: 189 институций, 283 профессии, 183 связи;
+- проверено в браузере (IPH Hitzkirch отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 4 новых профессии: баланс категорий (275 → 279)
+- Wellness- und Spa-Therapeut (Gesundheit), Fachfrau Systemgastronomie EFZ (Gastgewerbe), Fachperson berufliche Integration (Bildung/Soziales), Naturparkführer (Natur);
+- итого: 279 профессий, 187 институций, 181 связь;
+- проверено в браузере (Naturparkführer отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 4 новых профессии (271 → 275) + 2 новых институции: авиация + инженерия (185 → 187)
+- Новые профессии (баланс категорий): Reiseleiter, Texter, Mediator (Bildung/Soziales), Baumpflegespezialist (eidg. FA);
+- Новые институции: Swiss Aviation Training (Kloten/ZH, учебная организация авиакомпании SWISS для пилотов/бортпроводников/техников), HE-Arc Ingénierie (Saint-Imier/BE, инженерный кампус Haute École Arc в Бернском Юра);
+- добавлены 4 связи: Linienpilot + Flugbegleiter → Swiss Aviation Training; Elektroingenieur FH + Maschinenbauingenieur FH → HE-Arc Ingénierie;
+- фото не найдено (обе институции без категории на Wikimedia Commons);
+- итого: 187 институций, 275 профессий, 181 связь;
+- проверено в браузере (Swiss Aviation Training отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 4 новых профессии (267 → 271) + большой раунд связей profession_institutions (148 → 177)
+- Новые профессии: Berufsberater, Fachperson Soziokulturelle Animation, Fachfrau Suchtberatung, Berufsbildner (все Bildung/Soziales);
+- Обнаружен пробел: старые/крупные профессии (Apotheker, Psychologe) имели 0 связей несмотря на очевидные реальные программы в существующих университетах — нашёл и закрыл через SQL-запрос на профессии с нулевыми связями;
+- Добавлено 29 связей одним махом: Apotheker → Basel+Genève+Lausanne; Psychologe → Zürich+Basel+Bern+Genève+Lausanne+Fribourg; Data Scientist + Pflegeexperte APN + Berufsberater + Gebärdensprachdolmetscher → ZHAW; Innenarchitekt FH → Hochschule Luzern; Psychomotoriktherapeut → HfH; Fachperson Soziokulturelle Animation → HETS-Genève; Kieferorthopäde → те же 4 университета, что и Zahnarzt; Gerichtsschreiber → те же 9, что и Rechtsanwalt;
+- итого: 271 профессия, 185 институций, 177 связей (было 148 — существенный прогресс по приоритету Софии "нам нужна больше связь");
+- проверено в браузере (Pharmacist — новые 3 связи отображаются в "Where to study this"; также подтверждён живой DeepL-перевод UI на английский), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 5 новых профессий: баланс категорий (262 → 267)
+- Целенаправленно взяты недопредставленные категории (Industrie была перекошена — 102 из 267): Gebärdensprachdolmetscher (Bildung/Soziales), Brauer/Mälzer EFZ (Gastgewerbe), Fachfrau Audiovisuelle Medien EFZ + Archivar (Medien), Berufsimker (Natur);
+- итого: 267 профессий.
+
+## 2026-09-28 — Ещё 3 новых институции: закрытие пробелов по кантонам SO/JU (182 → 185)
+- Обнаружен реальный факт при проверке: у Appenzell Innerrhoden (AI) НЕТ собственной профшколы — 45% учеников ездят в AR, остальные в SG/GR/TG/ZH; не стали выдумывать несуществующую институцию, honest gap;
+- вместо этого закрыли пробел по SO/JU: GIBS Grenchen (часовая индустрия), CEJEF - Division technique (Porrentruy, микротехника), CEJEF - Division artisanale (Delémont);
+- без связей profession_institutions (нет проверенных данных по конкретным ремёслам этих школ);
+- итого: 185 институций, 267 профессий, 148 связей;
+- проверено в браузере (Berufsimker отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 4 новых профессии (258 → 262)
+- Innendekorateur EFZ, Kachelofenbauer EFZ, Spengler EFZ, Patentanwalt.
+
+## 2026-09-28 — Ещё 3 новых институции: сельскохозяйственные школы (179 → 182)
+- Plantahof (Landquart/GR, с 1896), Strickhof (Lindau/ZH, с AgroVet-исследовательским центром совместно с ETH+UZH), Inforama Rütti (Zollikofen/BE) — три ведущих швейцарских сельскохозяйственных учебных центра;
+- добавлено 5 связей: Landwirtin/Landwirt EFZ → все три; Gärtnerin/Gärtner EFZ → Strickhof; Agrartechniker HF → Strickhof;
+- фото найдено для 1 из 3 (Plantahof, официальное фото входа с Wikimedia Commons);
+- итого: 182 институции, 262 профессии, 148 связей;
+- проверено в браузере (Plantahof отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 6 новых профессий (252 → 258)
+- Recyclingpraktiker EBA, Helikopterpilot, Flugbegleiter, Zugbegleiter, Fachfrau Betriebssicherheit EFZ, Fahrlehrer (eidg. FA).
+
+## 2026-09-28 — Ещё 3 новых институции: искусство + здравоохранение + коммерция в Берне (176 → 179)
+- F+F Schule für Kunst und Design (Zürich, приватная экспериментальная школа искусств), Berner Bildungszentrum Pflege (Bern/Thun, höhere Fachschule для медсестёр), Bildungszentrum für Wirtschaft und Dienstleistung Bern;
+- добавлена 1 связь: Pflegefachfrau/Pflegefachmann HF → BZ Pflege Bern;
+- фото не найдено ни для одной из трёх (все три — региональные/небольшие учреждения без категории на Wikimedia Commons);
+- итого: 179 институций, 258 профессий, 143 связи;
+- проверено в браузере (bwd Bern отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 6 новых профессий (246 → 252)
+- Expertin Anästhesiepflege NDS HF, Medizinphysiker, Gerichtsschreiber, Kieferorthopäde, Weber EFZ, Modist EFZ;
+- итого: 252 профессии.
+
+## 2026-09-28 — Ещё 4 новых институции: частные школы + интернат в Энгадине (172 → 176)
+- Freies Gymnasium Zürich, Rudolf Steiner Schule Zürich (Waldorf-педагогика), Lyceum Alpinum Zuoz (интернат в Энгадине, альпийский профиль в отличие от женевских), Kantonsschule Wil (SG);
+- без принудительных связей profession_institutions (общеобразовательные школы);
+- фото найдено для 3 из 4 (Freies Gymnasium Zürich, Lyceum Alpinum Zuoz, Kantonsschule Wil — все с Wikimedia Commons, проверенные лицензии); Rudolf Steiner Schule Zürich без фото;
+- итого: 176 институций, 252 профессии, 142 связи;
+- проверено в браузере (Lyceum Alpinum Zuoz отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 7 новых профессий (239 → 246)
+- Medizinische Masseurin (eidg. FA), Werkzeugmacher EFZ, Sommelière (eidg. FA), Fluglotsin, Sprengmeister, Feuerwerker (eidg. FA), Berufsfischer;
+- итого: 246 профессий, 168 институций, 135 связей (на момент этого раунда).
+
+## 2026-09-28 — Ещё 4 новых институции: дизайн + спорт + кондитерское дело (168 → 172)
+- ECAL (Renens/VD, одна из ведущих мировых школ дизайна), HEAD – Genève (дизайн/искусство), Eidgenössische Hochschule für Sport Magglingen (национальный спортивный вуз Швейцарии), Richemont Fachschule (Luzern, центральная школа повышения квалификации для Bäcker-Konditor-Confiseur);
+- добавлены 7 связей: Grafikdesigner/in + UX/UI-Designer/in → ECAL + HEAD; Sportwissenschafter + Fitnessinstruktor → EHSM Magglingen; Bäcker-Konditor-Confiseur EFZ → Richemont;
+- фото найдено для 3 из 4 (ECAL, EHSM Magglingen, Richemont — все официальные фото зданий с подтверждённой лицензией); HEAD Genève без фото;
+- итого: 172 институции, 246 профессий, 142 связи;
+- проверено в браузере (Richemont отображается), `npm test` — 56/56.
+
+## 2026-09-28 — Ещё 8 новых профессий (231 → 239)
+- Wundexperte SAfW, Naturheilpraktiker (eidg. Diplom), Wasserbauer EFZ, Hauswart (eidg. FA), Fachfrau Finanz- und Rechnungswesen (eidg. FA), Diabetesberater NDS, Fachperson Palliative Care NDS, Graveur EFZ;
+- без новых связей (нет проверенных данных по конкретным школам);
+- итого после семи раундов новых профессий за сессию: 239 профессий, 164 институции, 132 связи.
+
+## 2026-09-28 — Ещё 4 новых институции: музыка + кулинария + гастрономия (160 → 168)
+- Culinary Arts Academy Switzerland (Le Bouveret/VS), Hotel & Gastro formation Schweiz (Weggis/LU, национальный центр повышения квалификации GastroSuisse), HEMU (Lausanne, консерватория + HES-SO музыка), Haute École de Musique de Genève;
+- добавлены 3 связи: Köchin/Koch EFZ → Culinary Arts Academy; Musikerin/Musiker FH → HEMU + HEM Genève;
+- фото найдено для 1 из 4 (HEM Genève — официальное фото здания с Wikimedia Commons, CC BY 4.0, загружено самим учреждением);
+- итого: 168 институций, 239 профессий, 135 связей;
+- проверено в браузере (HEM Genève отображается полностью: фото, все поля, "Musician (FH)"), `npm test` — 56/56 (тестов стало больше — видимо, добавлены в параллельной работе, см. записи ниже про DeepL/переводы).
 
 ## 2026-09-28 — Первый большой прогон перевода базы (DeepL), по приоритетам
 - `translate-missing` переписана: переводит по уровням важности (1 — названия профессий/путей/шагов и короткие описания; 2 — основные описания; 3 — детальные панели; 4 — пока не показываемые поля) и только то поле, которое сайт реально показывает (первое заполненное в цепочке summary → description → …). Новый параметр `maxTier`.
