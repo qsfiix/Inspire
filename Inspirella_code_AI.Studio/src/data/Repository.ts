@@ -486,6 +486,28 @@ const parseRows = <T>(rows: unknown, adapter: (row: Record<string, any>) => T | 
     .filter((record): record is T => record !== null);
 };
 
+/**
+ * PostgREST caps an unranged `.select()` at a server-side default (1000 rows
+ * on this project) - rows past that are silently dropped, no error. Tables
+ * like `profession_institutions` and `learning_path_steps` are expected to
+ * keep growing well past that over the life of the project, so any bulk read
+ * of them must paginate rather than trust a single `.select()` to return
+ * everything. Pass the same query builder each call needs via `queryFactory`
+ * since a Supabase query builder can only be awaited once.
+ */
+const PAGE_SIZE = 1000;
+const fetchAllRows = async (queryFactory: () => PromiseLike<{ data: any[] | null; error: any }>) => {
+  const rows: any[] = [];
+  for (let offset = 0; ; offset += PAGE_SIZE) {
+    const { data, error } = await (queryFactory() as any).range(offset, offset + PAGE_SIZE - 1);
+    if (error) return { data: rows, error };
+    const page = Array.isArray(data) ? data : [];
+    rows.push(...page);
+    if (page.length < PAGE_SIZE) break;
+  }
+  return { data: rows, error: null };
+};
+
 // ---------------------------------------------------------------------------
 // Repository
 // ---------------------------------------------------------------------------
@@ -1006,7 +1028,7 @@ export const DataRepository = {
     try {
       const supabase = getSupabase();
       const [linksRes, instRes, profRes] = await Promise.all([
-        supabase.from("profession_institutions").select("*").eq("is_active", true),
+        fetchAllRows(() => supabase.from("profession_institutions").select("*").eq("is_active", true)),
         supabase.from("institutions").select("id, title_en, title_de, title_fr, title_it, name, city"),
         supabase.from("professions").select("id, title_en, title_de, title_fr, title_it")
       ]);
@@ -1079,7 +1101,7 @@ export const DataRepository = {
       const supabase = getSupabase();
       const [pathsRes, stepsRes] = await Promise.all([
         supabase.from("learning_paths").select("*").eq("is_active", true),
-        supabase.from("learning_path_steps").select("*").order("sort_order", { ascending: true })
+        fetchAllRows(() => supabase.from("learning_path_steps").select("*").order("step_order", { ascending: true }))
       ]);
 
       if (pathsRes.error || !Array.isArray(pathsRes.data)) return [];
