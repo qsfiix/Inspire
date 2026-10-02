@@ -30,6 +30,14 @@ Related Files:
 
 ---
 
+## 2026-10-02 (продолжение 3) — BBZ Biel, BBZW Sursee, SAM Bellinzona, EPSIC Lausanne + 11 недостающих профессий (382 → 393 профессий, 218 → 222 институции, 726 → 785 связей, 353 → 364 путей)
+- новые институции (все с `title_de`): **Berufsbildungszentrum Biel-Bienne (BBZ)** (двуязычное, часы/микротехника; Wasenstrasse 5 — координаты уровня улицы, точного номера дома Nominatim не нашёл), **BBZW** (Sursee, Kottenmatte 4; список профессий недоступен на сайте → без связей), **Scuola d'arti e mestieri (SAM) Bellinzona** (4-летние очные программы), **EPSIC Lausanne** (~4000 учащихся, официальный список из 6 доменов);
+- 61 связь из официальных списков (EPSIC 35, BBZ Biel 20, SAM 4, +2 по нечёткому совпадению названий — Mikromechaniker, Hörgeräte-Akustiker);
+- 11 профессий, найденных diff-методом: Mikrozeichnerin, Qualitätsfachfrau Mikrotechnik, Industrielackiererin, Hufschmiedin, Orthopädieschuhmacherin, Schuhmacherin, Fahrzeugschlosserin, Fahrradmechanikerin, Motorradmechanikerin (EFZ); Mechanikpraktikerin, Uhrenarbeiterin (EBA); +11 путей, +66 шагов;
+- фото на Commons не найдены (EPSIC, SAM) либо поиск заблокирован инструментом (BBZ Biel);
+- проверено в приложении через `Repository.ts`: 222 институции, 393 профессии, 785 связей, 364 пути; EPSIC — 35 связей, BBZ Biel — 20, SAM — 4, BBZW — 0;
+- итого: 393 профессии, 222 институции, 785 связей, 364 пути, 2133 шага.
+
 ## 2026-10-02 (продолжение 2) — 4 крупные профшколы Цюриха/Винтертура/Лозанны (377 → 382 профессий, 214 → 218 институций, 687 → 726 связей, 348 → 353 путей)
 - новые институции (адреса точно совпали в Nominatim, `title_de` проставлен сразу): **Technische Berufsschule Zürich (TBZ)** (Ausstellungsstrasse 70), **Baugewerbliche Berufsschule Zürich (BBZ)** (Reishauerstrasse 2), **Berufsbildungsschule Winterthur (BBW)** (Wülflingerstrasse 17), **ETML Lausanne** (Rue de Sébeillon 12; полноценные учебные мастерские — модель, отличная от дуальной);
 - 39 связей из официальных списков: TBZ 14 + 2 новых, BBZ 12 + 5, ETML 6; у BBW связей нет сознательно — на сайте только 10 категорий (Rohbau, Fahrzeugtechnik, Gebäudetechnik…), без названий профессий, угадывать не стали;
