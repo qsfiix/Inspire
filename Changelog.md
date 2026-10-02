@@ -30,6 +30,16 @@ Related Files:
 
 ---
 
+## 2026-10-02 (продолжение 7) — Пилот с субагентами: +29 институций, связи 840 → 1070 (235 → 264 институции)
+- метод: 3 research-агента (только чтение, без доступа на запись в БД) параллельно собирали по официальным сайтам школ адрес, список профессий и тип; **все записи в БД делала я**, после выборочной проверки результатов по официальным сайтам;
+- CPNV, EPC, EPAC (Романдия) — +3 институции, +25 связей;
+- агенты 1 и 2: 16 новых институций (в основном гимназии/профшколы в «тонких» кантонах) со связями;
+- агент 3: 10 институций в SG/ZH/SZ — **BWZ Rapperswil-Jona** (9 связей), **BZR Rorschach-Rheintal** (16), **bzbs Buchs-Sargans** (18), **BZWU Wil-Uzwil** (15), **BZGS St. Gallen** (8, вкл. HF Pflege/Biomedizinische Analytik/Operationstechnik), **BFS Winterthur** (4), **GBW Wetzikon** (9), **WSKVW Winterthur** (4), **HFSZ** (2), **Kantonsschule Küsnacht** (без связей — гимназия); связи добавлены только по спискам самих школ;
+- сверка: все выборочно проверенные адреса и списки совпали с официальными источниками; один спорный адрес (Solothurn) разрешён по тексту официальной страницы и помечен `medium`;
+- моя ошибка: для HFSZ я сначала вписал координаты «на глаз» — сразу исправлены копированием координат BBZ Pfäffikon (тот же адрес); правило: координаты только из Nominatim или с институции с тем же адресом, руками не вводить;
+- не добавлены (нет в каталоге, нужен отдельный раунд): Kunststoffpraktiker EBA, Reifenpraktiker EBA, Strassentransportpraktiker EBA, Gartenbautechniker HF, Marketingmanager HF и др.;
+- итого: 405 профессий, 264 институции, 1070 связей, 376 путей, 2205 шагов; дублей связей 0.
+
 ## 2026-10-02 (продолжение 6) — Fachausweis/Diplom: +12 связей (820 → 832)
 - **KV Business School Zürich** (5): Technische Kauffrau FA, Marketingfachperson FA, Personalfachfrau FA, Sozialversicherungsfachperson FA, Exportfachfrau FA — по официальным категориям курсов школы (Technische Kaufleute, Marketing, HR/Personal und Sozialversicherung, Einkauf/Aussenhandel); Immobilien и Treuhand не привязывали — на сайте нет точных названий экзаменов;
 - **Hotel & Gastro formation Schweiz** (7): Köchin EFZ, Systemgastronomie EFZ, Restaurantservice EFZ, Hotel-Kommunikation EFZ, Küchenangestellte EBA, Diätköchin FA, Sommelier FA, Küchenchef Diplom — по официальной странице «Alle Ausbildungen»;
