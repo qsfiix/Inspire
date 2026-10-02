@@ -30,6 +30,15 @@ Related Files:
 
 ---
 
+## 2026-10-02 (продолжение) — 5 новых институций в «тонких» кантонах + 13 недостающих EFZ/EBA-профессий из официальных списков (364 → 377 профессий, 209 → 214 институций, 568 → 687 связей, 335 → 348 путей)
+- по canton-gap проверке: у GR не было ни одной обычной Berufsfachschule, у VS — одна на весь кантон, у TG — одна. Добавлены (адрес + координаты по Nominatim, официальные сайты): **Gewerbliche Berufsschule Chur (GBC)** — крупнейшая в Граубюндене (~2800 учащихся, 57 профессий), **Kantonsschule Kreuzlingen** (TG), **Bildungszentrum Arbon** (TG, сфера услуг), **Lycée-Collège des Creusets** (Sion, VS), **Berufsfachschule Oberwallis (BFO)** (Brig, VS, 50+ профессий);
+- 83 связи для них — строго из официальных списков профессий этих школ (GBC 39, BFO 40, Arbon 4);
+- фото с Commons: Kantonsschule Kreuzlingen (JoachimKohler-HB, CC BY-SA 4.0), Lycée-Collège des Creusets (Jamcib, CC BY-SA); для GBC/Arbon/BFO фото не найдено;
+- **метод «диф списка школы с каталогом»**: сверка официальных списков с таблицей `professions` выявила 13 реальных профессий, которых не было в каталоге, хотя они стоят в списках 2–6 школ: EFZ — Betriebsinformatikerin, Anlagenführerin, Motorgerätemechanikerin; EBA — Fleischfachassistentin, Schreinerpraktikerin, Automobil-Assistentin, Assistentin Gesundheit und Soziales, Heizungs-/Sanitär-/Unterhaltspraktikerin, Logistikerin EBA, Baupraktikerin, Küchenangestellte; сразу добавлено 36 связей из тех же списков;
+- learning_paths для всех 13 (+78 шагов); бэкфилл `title_de` для Berufsschule Aarau и Kantonsschule Zofingen (вчера забыли проставить);
+- проверено в живом приложении через `Repository.ts`: 214 институций, 377 профессий, 687 связей, 348 путей; GBC — 42 связи, BFO — 49, Arbon — 5;
+- итого: 377 профессий, 214 институций, 687 связей, 348 learning_paths, 2037 шагов.
+
 ## 2026-10-02 — Очень большой раунд: +28 профессий, +51 связь, +28 learning_paths (336 → 364 профессии, 525 → 568 связей, 307 → 335 путей)
 - 9 новых EFZ/EBA-профессий, закрывающих реальные пробелы, найденные в официальных списках школ при вчерашнем линковании: Produktionsmechanikerin, Automatikmonteurin, Montage-Elektrikerin, Fachfrau/Fachmann Betriebsunterhalt, Gebäudeinformatikerin, Entwicklerin digitales Business, Entwässerungstechnologin (все — Industrie), Müllerin и Lebensmitteltechnologin (Gastgewerbe/Nahrung). Эти профессии массово встречались в официальных списках школ (напр. Montage-Elektriker — в 11 школах), но отсутствовали в каталоге;
 - сразу 33 связи для них — строго из уже проверенных официальных списков школ этой сессии, ничего не угадывалось;
