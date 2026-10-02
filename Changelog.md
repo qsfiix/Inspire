@@ -30,6 +30,13 @@ Related Files:
 
 ---
 
+## 2026-10-02 (продолжение 5) — Фрибур, Базель, ещё HF-провайдеры (229 → 235 институций, 807 → 820 связей)
+- новые институции (адреса точно совпали в Nominatim, `title_de` сразу): **Berufsfachschule Freiburg (EMF)** (Chemin du Musée 2; Automatiker/Elektroniker/Informatiker/Polymechaniker, двуязычная), **Berufsfachschule KV Basel** (Klybeckstrasse 191; Kaufleute EFZ/EBA), **Berufsfachschule Gesundheit Baselland (BFG)** (Binningerstrasse 2, Münchenstein; FaGe EFZ, AGS EBA), **WISS** (Zürich, Hohlstrasse 535; Betriebswirtschaft, Informatik, Wirtschaftsinformatik HF), **HFT Graubünden** (Samedan) и **IST Zürich** (Josefstrasse 59) — оба Tourismus HF;
+- 13 связей из официальных списков; фото EMF (Jduplouc1, CC0);
+- не добавлено: CFP Commerce Genève (официальный список в PDF, веб-страница его не отдаёт), SIW (сайт не загрузился);
+- проверено через `Repository.ts`: 235 институций, 820 связей;
+- итого: 397 профессий, 235 институций, 820 связей, 368 путей.
+
 ## 2026-10-02 (продолжение 4) — Höhere Fachschulen (HF): 7 новых провайдеров, 22 связи для HF-профессий (393 → 397 профессий, 222 → 229 институций, 785 → 807 связей, 364 → 368 путей)
 - блок HF-профессий был почти без связей (13 HF-профессий, у большинства 0); нашли и добавили реальных провайдеров, подтверждая программу на официальном сайте каждого: **medi – Zentrum für medizinische Bildung (Bern)** (одним махом даёт Rettungssanität, Operationstechnik, Radiologie (MTR), Dentalhygiene, Biomedizinische Analytik и Aktivierung — 6 связей), **Emergency Schulungszentrum Zofingen** (Rettungssanität HF), **Schweizerische Bauschule Aarau (SBA)** (Bauführung HF), **STFW Winterthur** (Elektrotechnik, Systemtechnik, Gebäudetechnik, Informatik HF), **ibW Höhere Fachschule Südostschweiz** (Chur; Betriebswirtschaft, Banking, Informatik, Wirtschaftsinformatik, Elektrotechnik, Gebäudetechnik), **KV Business School Zürich** (Betriebswirtschaft HF, Recht HF, Banking), **HFT Luzern** (Tourismus HF);
 - 4 новые HF-профессии из списков STFW/KV: Elektrotechnikerin HF, Systemtechnikerin HF (Automation), Gebäudetechnikerin HF (HLKS), Rechtsfachfrau/-fachmann HF (+4 пути);
