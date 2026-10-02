@@ -30,6 +30,13 @@ Related Files:
 
 ---
 
+## 2026-10-02 (продолжение 6) — Fachausweis/Diplom: +12 связей (820 → 832)
+- **KV Business School Zürich** (5): Technische Kauffrau FA, Marketingfachperson FA, Personalfachfrau FA, Sozialversicherungsfachperson FA, Exportfachfrau FA — по официальным категориям курсов школы (Technische Kaufleute, Marketing, HR/Personal und Sozialversicherung, Einkauf/Aussenhandel); Immobilien и Treuhand не привязывали — на сайте нет точных названий экзаменов;
+- **Hotel & Gastro formation Schweiz** (7): Köchin EFZ, Systemgastronomie EFZ, Restaurantservice EFZ, Hotel-Kommunikation EFZ, Küchenangestellte EBA, Diätköchin FA, Sommelier FA, Küchenchef Diplom — по официальной странице «Alle Ausbildungen»;
+- проверка: дублирующихся связей во всей таблице нет;
+- + diff списка Hotel & Gastro formation с каталогом: 8 недостающих профессий высшего уровня — Chefköchin FA, Bereichsleiterin Restauration FA, Bereichsleiterin Hotellerie-Hauswirtschaft FA, Chef de Réception FA, Gastro-Betriebsleiterin FA, Leiterin Restauration Diplom, Leiterin Gemeinschaftsgastronomie Diplom, Gastro-Unternehmerin Diplom (Gastgewerbe было одной из самых тонких категорий); все с путями (+48 шагов) и связью с Hotel & Gastro formation;
+- итого: 405 профессий, 235 институций, 840 связей, 376 путей, 2205 шагов; дублей связей 0; не-`other` профессий без пути 0.
+
 ## 2026-10-02 (продолжение 5) — Фрибур, Базель, ещё HF-провайдеры (229 → 235 институций, 807 → 820 связей)
 - новые институции (адреса точно совпали в Nominatim, `title_de` сразу): **Berufsfachschule Freiburg (EMF)** (Chemin du Musée 2; Automatiker/Elektroniker/Informatiker/Polymechaniker, двуязычная), **Berufsfachschule KV Basel** (Klybeckstrasse 191; Kaufleute EFZ/EBA), **Berufsfachschule Gesundheit Baselland (BFG)** (Binningerstrasse 2, Münchenstein; FaGe EFZ, AGS EBA), **WISS** (Zürich, Hohlstrasse 535; Betriebswirtschaft, Informatik, Wirtschaftsinformatik HF), **HFT Graubünden** (Samedan) и **IST Zürich** (Josefstrasse 59) — оба Tourismus HF;
 - 13 связей из официальных списков; фото EMF (Jduplouc1, CC0);
