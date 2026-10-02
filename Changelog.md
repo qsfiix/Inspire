@@ -30,6 +30,14 @@ Related Files:
 
 ---
 
+## 2026-10-02 (продолжение 4) — Höhere Fachschulen (HF): 7 новых провайдеров, 22 связи для HF-профессий (393 → 397 профессий, 222 → 229 институций, 785 → 807 связей, 364 → 368 путей)
+- блок HF-профессий был почти без связей (13 HF-профессий, у большинства 0); нашли и добавили реальных провайдеров, подтверждая программу на официальном сайте каждого: **medi – Zentrum für medizinische Bildung (Bern)** (одним махом даёт Rettungssanität, Operationstechnik, Radiologie (MTR), Dentalhygiene, Biomedizinische Analytik и Aktivierung — 6 связей), **Emergency Schulungszentrum Zofingen** (Rettungssanität HF), **Schweizerische Bauschule Aarau (SBA)** (Bauführung HF), **STFW Winterthur** (Elektrotechnik, Systemtechnik, Gebäudetechnik, Informatik HF), **ibW Höhere Fachschule Südostschweiz** (Chur; Betriebswirtschaft, Banking, Informatik, Wirtschaftsinformatik, Elektrotechnik, Gebäudetechnik), **KV Business School Zürich** (Betriebswirtschaft HF, Recht HF, Banking), **HFT Luzern** (Tourismus HF);
+- 4 новые HF-профессии из списков STFW/KV: Elektrotechnikerin HF, Systemtechnikerin HF (Automation), Gebäudetechnikerin HF (HLKS), Rechtsfachfrau/-fachmann HF (+4 пути);
+- не закрыто сознательно: Podologe HF (единственный провайдер Zofingen — на сайте школы программа не подтвердилась), Zytotechnologe HF (в Швейцарии это скорее HFP «Experte Zytodiagnostik», название в каталоге спорное), Maschinentechniker HF (ни одна проверенная школа не заявила), NDS-программы (Diabetes, Palliative Care, Wundexpertise);
+- HF-школы в каталоге типизированы как `Berufsfachschule`/`vocational_school` (как SHL и Careum);
+- проверено через `Repository.ts`: 229 институций, 397 профессий, 807 связей, 368 путей;
+- итого: 397 профессий, 229 институций, 807 связей, 368 путей, 2157 шагов; HF-профессий без связей: 13 → 7.
+
 ## 2026-10-02 (продолжение 3) — BBZ Biel, BBZW Sursee, SAM Bellinzona, EPSIC Lausanne + 11 недостающих профессий (382 → 393 профессий, 218 → 222 институции, 726 → 785 связей, 353 → 364 путей)
 - новые институции (все с `title_de`): **Berufsbildungszentrum Biel-Bienne (BBZ)** (двуязычное, часы/микротехника; Wasenstrasse 5 — координаты уровня улицы, точного номера дома Nominatim не нашёл), **BBZW** (Sursee, Kottenmatte 4; список профессий недоступен на сайте → без связей), **Scuola d'arti e mestieri (SAM) Bellinzona** (4-летние очные программы), **EPSIC Lausanne** (~4000 учащихся, официальный список из 6 доменов);
 - 61 связь из официальных списков (EPSIC 35, BBZ Biel 20, SAM 4, +2 по нечёткому совпадению названий — Mikromechaniker, Hörgeräte-Akustiker);
