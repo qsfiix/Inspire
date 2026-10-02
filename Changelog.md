@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-01
+Last Updated: 2026-10-02
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -29,6 +29,28 @@ Related Files:
 Новые записи добавляются сверху (последняя дата — первая в файле).
 
 ---
+
+## 2026-10-02 — Очень большой раунд: +28 профессий, +51 связь, +28 learning_paths (336 → 364 профессии, 525 → 568 связей, 307 → 335 путей)
+- 9 новых EFZ/EBA-профессий, закрывающих реальные пробелы, найденные в официальных списках школ при вчерашнем линковании: Produktionsmechanikerin, Automatikmonteurin, Montage-Elektrikerin, Fachfrau/Fachmann Betriebsunterhalt, Gebäudeinformatikerin, Entwicklerin digitales Business, Entwässerungstechnologin (все — Industrie), Müllerin и Lebensmitteltechnologin (Gastgewerbe/Nahrung). Эти профессии массово встречались в официальных списках школ (напр. Montage-Elektriker — в 11 школах), но отсутствовали в каталоге;
+- сразу 33 связи для них — строго из уже проверенных официальных списков школ этой сессии, ничего не угадывалось;
+- ещё 19 профессий по всем категориям: Natur (Hydrologin, Umweltnaturwissenschaftlerin, Meisterlandwirtin dipl., Winzerin FA), Bildung (Kindheitspädagogin HF, Aktivierungsfachperson HF), Medien (Medientechnologin EFZ, Fotomedienfachfrau EFZ, Moderatorin, Cutterin, Pressesprecherin), Wirtschaft (Büroassistentin EBA, Projektmanagerin, Compliance Officer, Unternehmensberaterin), Gesundheit (Medizinische Praxiskoordinatorin FA, Fachperson Operationstechnik HF, Orthopädistin EFZ, Trainerin Leistungssport dipl.); 6 из них — честно `other` (без фиксированного пути);
+- 10 связей для них (ETH, Uni Bern, агроцентры, GBS St.Gallen, ABZ, EHSM Magglingen);
+- **learning_paths для всех новых профессий** (кроме `other`) тем же SQL-шаблоном: 307 → 335 путей (+28, включая 6 из вчерашнего раунда), +168 шагов; 0 непривязанных не-`other` профессий осталось;
+- проверено в работающем приложении через `Repository.ts`: 364 профессии, 568 связей, 335 путей, у Produktionsmechanikerin 6 шагов и 5 связей;
+- `tsc --noEmit` чисто, `npm test` 56/56.
+- итого: 364 профессии, 209 институций, 568 связей, 335 learning_paths.
+
+## 2026-10-01 — 8 новых профессий + 2 новые институции в Аргау (328 → 336 профессий, 207 → 209 институций, 503 → 518 связей)
+- новые профессии в категориях Wirtschaft (3: Finanzplanerin/Finanzplaner FA, Risk Managerin/Manager Diplom, Betreibungs- und Konkursbeamtin/-beamter FA), Bildung (2: Fachlehrperson Textiles und Technisches Gestalten, Case Managerin/Manager Berufsbildung FA), Medien (2: Community-Managerin/-Manager, Verlagslektorin/Verlagslektor — оба честно без фиксированного пути), Natur (1: Agronomin/Agronom, университетская профессия, отдельно от практической Landwirtin EFZ);
+- связи: Agronomin → ETH Zürich; Fachlehrperson TTG → PHZH + PH Bern;
+- **кантон-gap находка**: Aargau (4-й по населению кантон) имел всего 6 институций — реальный пробел, как раньше у Bern. Добавлены **Berufsschule Aarau** (Tellistrasse 58, 5001 Aarau, 15 EFZ-специальностей по официальному списку — Bäckerei, Chemie, Coiffure, Elektro, Logistik, Zeichnen и др.) и **Kantonsschule Zofingen** (Strengelbacherstrasse 25B, 4800 Zofingen, Westaargau);
+- 12 связей для Berufsschule Aarau по официальному списку школы;
+- фото с Wikimedia Commons для обеих институций (Roland Zumbühl / Napa, оба CC BY-SA);
+- проверено через `Repository.ts` напрямую в браузере: 209 институций, Berufsschule Aarau — фото + все 12 связей резолвятся;
+- `npm test` — 56/56.
+- итого: 336 профессий, 209 институций, 518 связей.
+- **+ link-gap-closing**: Hebamme FH → ZHAW+BFH; Ergotherapeutin FH → ZHAW; Bibliothekarin FH → Fachhochschule Graubünden (HTW Chur, Informationswissenschaft); Übersetzerin/Übersetzer → ZHAW (Institut für Übersetzen und Dolmetschen); Lehrperson Sekundarstufe II (Gymnasium) → Universität Zürich + Universität Bern (Lehrdiplom für Maturitätsschulen). +7 связей.
+- финальный итог раунда: 336 профессий, 209 институций, **525 связей**.
 
 ## 2026-10-01 — Закрыты все пункты вчерашнего аудита: закоммичен фикс title_de, найден и исправлен ВТОРОЙ баг (1000-строчный лимит PostgREST), добавлены 148 learning_paths
 - закоммичено (по OK Sofiia): правка `Repository.ts` из предыдущей записи (title_de fallback на `name`) — `data-layer-trust-refactor@4c381d3`;
