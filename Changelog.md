@@ -30,6 +30,14 @@ Related Files:
 
 ---
 
+## 2026-10-02 (продолжение 2) — 4 крупные профшколы Цюриха/Винтертура/Лозанны (377 → 382 профессий, 214 → 218 институций, 687 → 726 связей, 348 → 353 путей)
+- новые институции (адреса точно совпали в Nominatim, `title_de` проставлен сразу): **Technische Berufsschule Zürich (TBZ)** (Ausstellungsstrasse 70), **Baugewerbliche Berufsschule Zürich (BBZ)** (Reishauerstrasse 2), **Berufsbildungsschule Winterthur (BBW)** (Wülflingerstrasse 17), **ETML Lausanne** (Rue de Sébeillon 12; полноценные учебные мастерские — модель, отличная от дуальной);
+- 39 связей из официальных списков: TBZ 14 + 2 новых, BBZ 12 + 5, ETML 6; у BBW связей нет сознательно — на сайте только 10 категорий (Rohbau, Fahrzeugtechnik, Gebäudetechnik…), без названий профессий, угадывать не стали;
+- 5 новых профессий, найденных diff-методом: Veranstaltungsfachfrau/-fachmann EFZ, Physiklaborantin/-laborant EFZ, Boden-Parkettlegerin/-leger EFZ, Architekturmodellbauerin/-bauer EFZ, Metallbaukonstrukteurin/-konstrukteur EFZ (+5 путей, +30 шагов);
+- фото: ETML (Roromomo22, CC BY-SA 4.0); для TBZ/BBZ/BBW фото на Commons не нашли (поиск по Gewerbeschule-запросу инструмент браузера блокирует);
+- проверено в живом приложении через `Repository.ts`: 218 институций, 382 профессии, 726 связей, 353 пути; TBZ — 16 связей, BBZ — 17, ETML — 6, BBW — 0 (ожидаемо);
+- итого: 382 профессии, 218 институций, 726 связей, 353 пути, 2067 шагов; 0 институций без `title_de`, 0 не-`other` профессий без пути.
+
 ## 2026-10-02 (продолжение) — 5 новых институций в «тонких» кантонах + 13 недостающих EFZ/EBA-профессий из официальных списков (364 → 377 профессий, 209 → 214 институций, 568 → 687 связей, 335 → 348 путей)
 - по canton-gap проверке: у GR не было ни одной обычной Berufsfachschule, у VS — одна на весь кантон, у TG — одна. Добавлены (адрес + координаты по Nominatim, официальные сайты): **Gewerbliche Berufsschule Chur (GBC)** — крупнейшая в Граубюндене (~2800 учащихся, 57 профессий), **Kantonsschule Kreuzlingen** (TG), **Bildungszentrum Arbon** (TG, сфера услуг), **Lycée-Collège des Creusets** (Sion, VS), **Berufsfachschule Oberwallis (BFO)** (Brig, VS, 50+ профессий);
 - 83 связи для них — строго из официальных списков профессий этих школ (GBC 39, BFO 40, Arbon 4);
