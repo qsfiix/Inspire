@@ -495,8 +495,38 @@ const parseRows = <T>(rows: unknown, adapter: (row: Record<string, any>) => T | 
  * everything. Pass the same query builder each call needs via `queryFactory`
  * since a Supabase query builder can only be awaited once.
  */
+/**
+ * `professions`/`resources` carry their category as a foreign key
+ * (`profession_category_id`, `resource_category_id`), while the parsers read a
+ * plain `category` value. Without this lookup the filter chips were fed only by
+ * the legacy free-text `sector` column (set on ~14 of 400+ professions), so the
+ * category filters showed just a handful of entries.
+ */
+export const withLookupCategory = (
+  rows: any[],
+  fkColumn: string,
+  codesById: Map<string, string>
+): any[] =>
+  rows.map(row => {
+    const code = row && typeof row === "object" ? codesById.get(row[fkColumn]) : undefined;
+    return code ? { ...row, category: code } : row;
+  });
+
+const fetchCodeLookup = async (table: string): Promise<Map<string, string>> => {
+  const codes = new Map<string, string>();
+  try {
+    const { data, error } = await getSupabase().from(table).select("id, code");
+    if (!error && Array.isArray(data)) {
+      for (const row of data) if (row?.id && row?.code) codes.set(String(row.id), String(row.code));
+    }
+  } catch (err) {
+    console.warn(`Failed to load category lookup '${table}'`, err);
+  }
+  return codes;
+};
+
 const PAGE_SIZE = 1000;
-const fetchAllRows = async (queryFactory: () => PromiseLike<{ data: any[] | null; error: any }>) => {
+const fetchAllRows =async (queryFactory: () => PromiseLike<{ data: any[] | null; error: any }>) => {
   const rows: any[] = [];
   for (let offset = 0; ; offset += PAGE_SIZE) {
     const { data, error } = await (queryFactory() as any).range(offset, offset + PAGE_SIZE - 1);
@@ -922,9 +952,13 @@ export const DataRepository = {
     await fetchSupabaseConfig();
     if (isSupabaseActive()) {
       try {
-        const { data, error } = await getSupabase().from("resources").select("*");
+        const supabase = getSupabase();
+        const [{ data, error }, categoryCodes] = await Promise.all([
+          supabase.from("resources").select("*"),
+          fetchCodeLookup("resource_categories")
+        ]);
         if (!error && Array.isArray(data) && data.length > 0) {
-          const parsed = parseRows(data, parseDbResource);
+          const parsed = parseRows(withLookupCategory(data, "resource_category_id", categoryCodes), parseDbResource);
           if (parsed.length > 0) {
             const merged = [...parsed, ...withOrigin(OFF_RESOURCES, "static")];
             const seen = new Set<string>();
@@ -1006,9 +1040,13 @@ export const DataRepository = {
     await fetchSupabaseConfig();
     if (isSupabaseActive()) {
       try {
-        const { data, error } = await fetchAllRows(() => getSupabase().from("professions").select("*"));
+        const supabase = getSupabase();
+        const [{ data, error }, categoryCodes] = await Promise.all([
+          fetchAllRows(() => supabase.from("professions").select("*")),
+          fetchCodeLookup("profession_categories")
+        ]);
         if (!error && Array.isArray(data) && data.length > 0) {
-          const parsed = parseRows(data, parseDbProfession);
+          const parsed = parseRows(withLookupCategory(data, "profession_category_id", categoryCodes), parseDbProfession);
           if (parsed.length > 0) return parsed;
         }
       } catch (err) {
