@@ -30,6 +30,12 @@ Related Files:
 
 ---
 
+## 2026-10-03 (продолжение) — Фильтры категорий на сайте: найдена и исправлена причина
+- жалоба: в фильтре «Berufe» (инженер, закон, здоровье) мало профессий. Причина: у всех 425 профессий категория в БД есть (`profession_category_id`), но сайт читал старое текстовое поле `sector` (заполнено у 14 из 425), поэтому чипов было ~8 и они почти пустые;
+- исправление (код, `Repository.ts`, пока не закоммичено — ждёт OK): профессии и ресурсы получают `category` из справочников `profession_categories` / `resource_categories` (`withLookupCategory` + `fetchCodeLookup`, при ошибке справочника — прежнее поведение). Проверено в живом приложении: чипы Berufe — 7 настоящих категорий, «Industrie, Technik, IT» показывает 132 профессии; чипы Web-Ressourcen — категории из `resource_categories`;
+- данные: у 20 институций не было `institution_group` (чип категории) — заполнено; у 3 гимназий не было `institution_subgroup` — заполнено;
+- на будущее: каждая новая профессия/институция/ресурс обязательно получает категорию (правило записано в память); ресурсов пока всего 24 — задача на будущее расширить.
+
 ## 2026-10-03 — Вторая сессия с агентами: +26 институций, +20 профессий (264 → 290 институций, 405 → 425 профессий, 1070 → 1296 связей)
 - 4 research-агента параллельно (только чтение; запись в БД — только я): школы Центральной/Восточной Швейцарии, Миттельланда/Северо-Запада, Романдии/Тичино и официальные факты по недостающим профессиям (berufsberatung.ch / becc.admin.ch). Лимит сессии прервал агентов посреди работы — после сброса возобновила их через SendMessage, и они дошли до конца без потерь;
 - **26 новых институций** (адреса сверены в Nominatim, координаты из Nominatim, `title_de` и описания сразу): BZ Emme (Burgdorf), bzi Interlaken, WST Thun, BZZ Horgen, BSMG Zürich, BSB Bülach, BSZ Zofingen, BZF Rheinfelden, CPT Locarno, CPT Mendrisio, SCC Bellinzona, EPTM Sion, CEPM Morges, CEPV Vevey, CFP Arts Genève, ESSG Posieux, BBZG Sursee, KV Luzern, bgs Chur, KV Chur, BZT Frauenfeld, BfGS Weinfelden, BZWW Weinfelden, HKV Schaffhausen, BZGS Glarus, Gewerbeschule Samedan; 219 связей строго по спискам самих школ (+7 связей новых профессий со старыми школами);
