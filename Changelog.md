@@ -30,6 +30,15 @@ Related Files:
 
 ---
 
+## 2026-10-03 (продолжение 2) — Веб-ресурсы: 24 → 86 (+62 проверенных)
+- 4 агента по темам: выбор профессии/Lehrstellen/Schnupperlehre; Studium и Weiterbildung; Stipendien, жильё, страховки и быт студентов; интеграция, языки, признание дипломов, Quereinstieg, родители/учителя. Запись в БД — только я;
+- проверка: каждый URL после отчёта агента я открыла сама (HTTP 200 + заголовок страницы совпал с описанием) — все ссылки живые. Агенты сами отбраковали ch.ch (404), lena.zh.ch, lehrstellenboerse.ch (сертификат), precheck.ch, eduqua.ch (сертификат), studyprogrammes.ch (пусто);
+- в базу вошли официальные сайты Bund/Kantone (SEM, BAG, SECO, 9 кантональных Stipendienstellen: ZH/BE/BS/GE/VD/TI/FR/VS/GR), ассоциации и некоммерческие организации (SVEB, ODEC, SwissSkills, ICT-Berufsbildung, KV Schweiz, ROCK YOUR LIFE, студенческое жильё WOKO/WoVe/FMEL/Stuwo), страницы по-французски и по-итальянски с пометкой языка;
+- сознательно не добавлены: bildung-schweiz.ch (рекламное), VSS-UNES, K-HF (политика), Nuit de l'apprentissage (сезонное мероприятие), recognition.swiss (дубль reconnaissance.swiss), einfach-besser.ch (оператор не подтверждён);
+- у всех новых: категория (`resource_category_id`), формат, аудитория, `provider_type`, охват (national/cantonal), `price_type` (free/paid/freemium — в таблице есть CHECK), `verification_status='verified'`; у 10 старых ресурсов дозаполнен формат;
+- проверено в живом приложении: на странице Web-Ressourcen 90 карточек (86 из БД + 4 статических), 10 чипов категорий из `resource_categories`;
+- итого по категориям: pathway_guide 23, scholarship_support 14, official_portal 12, integration_support 11, language_learning 7, profession_info 7, continuing_education 5, admissions_info 3, higher_education_info 3, school_directory 1.
+
 ## 2026-10-03 (продолжение) — Фильтры категорий на сайте: найдена и исправлена причина
 - жалоба: в фильтре «Berufe» (инженер, закон, здоровье) мало профессий. Причина: у всех 425 профессий категория в БД есть (`profession_category_id`), но сайт читал старое текстовое поле `sector` (заполнено у 14 из 425), поэтому чипов было ~8 и они почти пустые;
 - исправление (код, `Repository.ts`, пока не закоммичено — ждёт OK): профессии и ресурсы получают `category` из справочников `profession_categories` / `resource_categories` (`withLookupCategory` + `fetchCodeLookup`, при ошибке справочника — прежнее поведение). Проверено в живом приложении: чипы Berufe — 7 настоящих категорий, «Industrie, Technik, IT» показывает 132 профессии; чипы Web-Ressourcen — категории из `resource_categories`;
