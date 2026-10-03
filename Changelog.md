@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-02
+Last Updated: 2026-10-05
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -29,6 +29,14 @@ Related Files:
 Новые записи добавляются сверху (последняя дата — первая в файле).
 
 ---
+
+## 2026-10-05 — Berufsprüfungen и höhere Fachprüfungen: +322 профессии (538 → 860), +322 пути
+- **Что добавлено:** 199 профессий с **eidg. Fachausweis (Berufsprüfung)** и 123 с **eidg. Diplom (höhere Fachprüfung)** — у каждой профессии категория (7 категорий фильтра), описание задач, места работы, дальнейшие шаги (Weiterbildung) и честный текст о допуске: «Zulassung regelt die Prüfungsordnung» — конкретные требования подставляли **только** там, где они были на официальной странице;
+- **Источники:** страницы berufsberatung.ch/de/berufe/<slug> (агенты читали, я проверял дубликаты по названиям и кодам и вносил сам); данные о допуске/длительности/организаторе на большинстве страниц отсутствуют — поэтому в тексте допуска только отсылка к Prüfungsordnung и ориентировочная длительность подготовки там, где она указана на странице;
+- **Пути:** для всех новых Fachausweis/Diplom создан путь из 6 шагов (Berufsfeld verstehen → Zulassung/Grundausbildung → Vorbereitungskurs vergleichen → absolvieren → Prüfung → nächster Schritt) по шаблону уже существующих FA/Diplom-путей: +322 пути, +1932 шага;
+- **Сознательно пропущено:** Galvaniker HFP и Holzbildhauermeister HFP (экзамен больше не проводится), Reisefachmann BP (курсы сейчас не предлагаются), Motorradfahrlehrer (нет собственного экзамена, дополнение к Fahrlehrer), Innendekorateur (нет страницы), Logistiker HFP (в каталоге уже есть «Logistikfachfrau / Logistikfachmann mit eidg. Diplom»), отдельные Sportlehrer (Judo, Kanu и т. д.) — на сайте есть одна общая страница «Sportartenlehrer/in BP», добавлена как одна профессия; **не найдены/не загрузились:** Handwerker Denkmalpflege, Fachmann Treuhand und Beratung (в каталоге есть Treuhänder), PR-Fachmann, Polier Stuckateur-Trockenbauer, Kundendienstberater Automobilgewerbe, Lastwagen-/Busfahrlehrer, Feuerverzinker, Grafik-Designer HFP, Uhrmachermeister HFP, Zollfahnder HFP, Grenzwächter, Leiter Technische Dokumentation HFP, Drechslermeister HFP — повторить, когда у агентов снова будет лимит на поиск;
+- итого: **860 профессий** (251 Fachausweis, 150 Diplom; у всех категория; дубликатов названий 0), 310 институций, 1406 связей, **831 путь, 4935 шагов**; без пути остаются только 42 старые профессии типа «other»;
+- **ещё не сделано:** связи новых профессий со школами/курсами (Vorbereitungskurse), семейства бакалавриата FH/Uni/PH, практический путь «Lehre → Berufsmatura → Fachhochschule».
 
 ## 2026-10-04 — Возврат к профессиям и институциям: официальные реестры, +113 профессий, +20 институций (425 → 538 профессий, 290 → 310 институций, 1296 → 1406 связей)
 - **Официальные реестры вместо поиска наугад.** Агенты выгрузили полные списки из реестра SBFI (becc.admin.ch) и berufsberatung.ch: **247** действующих Grundbildungen (186 EFZ + 61 EBA), **~270 Berufsprüfungen и ~140 höhere Fachprüfungen** (≈416 строк), 70 HF-программ, 113 семейств бакалавриата (FH/Uni/PH). Эти списки — основа для сверки с каталогом (сохранены в Changelog как цифры; названия — в отчётах агентов);
