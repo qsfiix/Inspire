@@ -30,6 +30,15 @@ Related Files:
 
 ---
 
+## 2026-10-03 — Вторая сессия с агентами: +26 институций, +20 профессий (264 → 290 институций, 405 → 425 профессий, 1070 → 1296 связей)
+- 4 research-агента параллельно (только чтение; запись в БД — только я): школы Центральной/Восточной Швейцарии, Миттельланда/Северо-Запада, Романдии/Тичино и официальные факты по недостающим профессиям (berufsberatung.ch / becc.admin.ch). Лимит сессии прервал агентов посреди работы — после сброса возобновила их через SendMessage, и они дошли до конца без потерь;
+- **26 новых институций** (адреса сверены в Nominatim, координаты из Nominatim, `title_de` и описания сразу): BZ Emme (Burgdorf), bzi Interlaken, WST Thun, BZZ Horgen, BSMG Zürich, BSB Bülach, BSZ Zofingen, BZF Rheinfelden, CPT Locarno, CPT Mendrisio, SCC Bellinzona, EPTM Sion, CEPM Morges, CEPV Vevey, CFP Arts Genève, ESSG Posieux, BBZG Sursee, KV Luzern, bgs Chur, KV Chur, BZT Frauenfeld, BfGS Weinfelden, BZWW Weinfelden, HKV Schaffhausen, BZGS Glarus, Gewerbeschule Samedan; 219 связей строго по спискам самих школ (+7 связей новых профессий со старыми школами);
+- **20 новых профессий** (все подтверждены агентом на berufsberatung.ch): Kunststoffpraktiker, Reifenpraktiker, Strassentransportpraktiker, Bekleidungsnäher, Dekorationsnäher, Spengler-/Metallbau-/Agrar-/Maler-/Formen-/Holzbearbeiter-praktiker (EBA); Industriepolsterer, Raumausstatter, Wohntextilgestalter, Büchsenmacher, Holzindustriefachmann, Formenbauer (EFZ); Gartenbautechniker, Marketingmanager, Holztechniker Holzindustrie (HF) + 20 путей (+120 шагов);
+- побочная находка: у 111 институций `canton_id` был NULL (фронтенд читает текстовое поле `canton`, поэтому на сайте ничего не ломалось) — заполнено по `canton`; у PHZH и ZHAW не было кантона/города — исправлено;
+- не добавлено сознательно (не подтверждено): BWZT Wattwil (нет списка профессий), BBM Kreuzlingen (неясно, какой из двух адресов основной), Hotelfachschule Thun и BzG Basel-Stadt (противоречия в источниках), CFPne Genève и ECCG Sierre (адрес/список неполные), BZS Surselva (список только на ретороманском);
+- в БД теперь есть уникальный индекс `profession_institutions_pair_uidx (profession_id, institution_id, relation_type)` — дубли связей невозможны;
+- итого: 425 профессий, 290 институций, 1296 связей, 396 путей, 2325 шагов; не-`other` профессий без пути 0; `npm test` 56/56.
+
 ## 2026-10-02 (продолжение 7) — Пилот с субагентами: +29 институций, связи 840 → 1070 (235 → 264 институции)
 - метод: 3 research-агента (только чтение, без доступа на запись в БД) параллельно собирали по официальным сайтам школ адрес, список профессий и тип; **все записи в БД делала я**, после выборочной проверки результатов по официальным сайтам;
 - CPNV, EPC, EPAC (Романдия) — +3 институции, +25 связей;
