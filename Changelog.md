@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-06
+Last Updated: 2026-10-07
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -29,6 +29,15 @@ Related Files:
 Новые записи добавляются сверху (последняя дата — первая в файле).
 
 ---
+
+## 2026-10-07 — Сверка с berufsberatung.ch: +797 профессий (923 → 1720), у всех категория и путь
+- **Повод:** Sofiia: berufsberatung.ch — самый доверенный сайт в швейцарских школах (~1530 профессий), к этому числу надо стремиться и периодически сверяться. Источник — публичный `https://www.berufsberatung.ch/sitemap.xml`: **1549 страниц /de/berufe/** (EFZ 186, EBA 61, BP 240, HFP 136, HF 54 и ~870 «Berufe ohne geregelte Ausbildung» вроде Barista, Jockey, Türsteher, Broker, Kinesiologe);
+- **Сверка:** скрипт `03_Data/berufsberatung_sync/compare_sitemap.js` (сопоставляет slug и названия с нашим каталогом через публичный REST-ключ; секретов не требует) — не хватало ~800 профессий, почти все «без регламентированной обучения» + 18 регулируемых (NDS HF, Kaufmann EBA, Kapitän Binnenschifffahrt EFZ, UX/UI-Designer BP и др.);
+- **Загрузка:** страницы скачаны локально, 19 агентов (по ~42 страницы) переформулировали описания **своими словами** (задачи, место работы, путь в профессию, Weiterbildung, личные требования; название и факты о допуске — без изменений), автоматическая проверка на совпадения 6-грамм с оригиналом (порог 25 %) прошла для всех партий, структура проверена по каждой записи. Внесено **797 профессий** (780 типа other, 7 university, 6 fh_bachelor, 4 hf_diploma), у каждой категория (7 категорий фильтра) и путь из 6 шагов (+839 путей включая 42 старых «other», +5034 шага). Код и slug = slug на berufsberatung.ch, поэтому следующая сверка идёт точно по slug;
+- **Технически:** для массовой вставки временно разворачивалась Edge Function `tmp-bulk-load-professions` с секретным токеном; сразу после загрузки она переписана в «410 gone» (удалить в Supabase Dashboard → Edge Functions нельзя через доступные мне инструменты);
+- **Итого:** **1720 профессий** (у всех категория, дубликатов названий 0), **1734 пути, 10355 шагов**, у каждой профессии есть путь; 310 институций, 1406 связей. Каталог теперь шире списка berufsberatung.ch, потому что содержит и наши направления бакалавриата и варианты EFZ/EBA;
+- **Остаётся (91 по скрипту, в основном ложные срабатывания, т. к. у нас старые названия):** текущие официальные названия, под которыми у нас лежат старые (Glaser→Glasbauer EFZ, Storenbauer→Fachmann/-frau Sonnenschutz und Storentechnik EFZ, Metzger→Fleischfachmann EFZ, Restaurantservice→Restaurantfachmann EFZ, Hauswirtschaft→Hotellerie-Hauswirtschaft EFZ и др.) — предложить переименование; не добавлены прекращённые (Galvaniker HFP, Holzbildhauermeister HFP, Bankwirtschafter HF).
+- **Дальше:** связи новых профессий с учебными заведениями; сверка берёт ~1 раз в сессию; позже гимназический путь (Prima, Sekunda, Tertia, Quarta).
 
 ## 2026-10-06 — Бакалавриат (FH/Uni) и практический путь «Lehre → Berufsmatura → Fachhochschule» (860 → 923 профессии, 831 → 895 путей)
 - **63 новых направления бакалавриата** (Studienrichtungen с berufsberatung.ch/de/studienrichtungen/<slug>): 33 типа FH (Aviatik, Mechatronik, Design, Film, Visuelle Kommunikation, Hospitality, Tourismus, Gesundheitswissenschaften и др.) и 30 университетского типа (Philosophie, Theologie, Gender Studies, 12 языков и литератур, Archäologie, Biochemie и др.). Названия имеют вид «<направление> (Bachelorstudium)»; у каждого категория (копия категории похожей профессии), описание, содержание, места работы, допуск (по типам вузов) и дальнейшие Master-пути с официальной страницы; для каждого путь «studieren» из 6 шагов (+63 пути, +378 шагов). В каталоге теперь 62 FH- и 70 университетских записей;
