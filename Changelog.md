@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-07
+Last Updated: 2026-10-08
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -29,6 +29,14 @@ Related Files:
 Новые записи добавляются сверху (последняя дата — первая в файле).
 
 ---
+
+## 2026-10-08 — Связи профессий с учебными заведениями (+628), переименования на актуальные названия (1406 → 2034 связей)
+- **Связи с вузами и школами:** 15 агентов сверяли официальные сайты учебных заведений (программы бакалавриата, HF-Bildungsgänge, школьные сетки профессий) с нашими профессиями. **A (вузы, 54 заведения):** ETH, EPFL, 13 университетов, 30 FH, 10 PH → +~430 связей университетских и FH-профессий/направлений; **B (HF):** +~70 связей HF-профессий с HF-школами (Pflege HF, Betriebswirtschafter HF, IT/Technik HF и др.); **C (EFZ/EBA без школы):** +80 связей редких профессий с Berufsfachschulen. Принцип: связь только если официальная страница заведения (или кантона/ассоциации) показывает программу; сомнительные пары (другой кампус, неподтверждённые) отброшены вручную. Часть ссылок опирается на выдачу поиска или общий раздел сайта — отмечено агентами, но в базе источник не хранится;
+- **Итого:** 2034 связи (было 1406), связанных профессий 446 из 1722. **Не связаны:** почти все BP/HFP (подготовительные курсы ведут отраслевые ассоциации, которых нет среди наших институций) и ~800 профессий без регламентированного обучения; у многих редких EFZ/EBA школа находится вне нашего списка (Sursee Verkehrswegbauer, Brienz, Wattwil-STF и т. п.) или в немецких центрах — нужны новые институции;
+- **Переименования на актуальные названия (проверено по sitemap: старых slug там больше нет; EFZ остаётся EFZ):** Glaserin→Glasbauerin EFZ, Storenbauerin→Fachfrau/Fachmann Sonnenschutz und Storentechnik EFZ, Metzgerin→Fleischfachfrau EFZ, Restaurantservice→Restaurantfachfrau EFZ, Hauswirtschaft→Hotellerie-Hauswirtschaft EFZ, Textilpflegerin→Fachfrau/Fachmann Textilpflege EFZ, Systemgastronomie→Systemgastronomiefachfrau EFZ, Hörgeräte-Akustikerin→Hörsystemakustikerin EFZ, Brauerin/Mälzerin→Brau- und Getränketechnologin EFZ, Kachelofenbauerin→Ofenbauerin EFZ; «Logistikfachfrau mit eidg. Diplom» → «Logistikerin mit eidg. Diplom». **Не переименованы** (разные профессии): Zootierpfleger EFZ (специализация) рядом с новым Tierpfleger EFZ, «Hauswirtschaftspraktiker EBA» (старое) рядом с «Praktiker Hotellerie-Hauswirtschaft EBA», «Bäuerin/Bauer FA» рядом с «Bäuerlicher Haushaltleiter BP» — под вопросом, решать с Sofiia;
+- **Исправлены типы** у 15 профессий, попавших из партии с типом other: все с суффиксами EFZ/EBA/BP/HFP/NDS HF теперь с правильным типом и нормализованными названиями (Kaufmann EBA, Kapitän Binnenschifffahrt EFZ, Tierpfleger EFZ, Brunnenmeister/Pisten-/Rettungsdienst/Denkmalpflege/Sozialbegleiter/Transportsanitäter/Wildhüter/UX-Designer BP, Treuhandexperte HFP, 4 NDS HF);
+- **Добавлено 2 профессии**, которых действительно не было: Glasbaupraktiker/in EBA, Industriekeramiker/in EFZ (+пути);
+- **Повторная сверка с sitemap** теперь показывает ~80 «недостающих», это ложные срабатывания из-за разных форм названий (slug с «-in-expert-expertin…», старые названия); прекращённые экзамены (Galvaniker HFP, Holzbildhauermeister HFP, Feuerverzinker, Grafik-Designer HFP, Zollfahnder, Grenzwächter и др.) на сайте больше не перечислены, их добавлять не нужно.
 
 ## 2026-10-07 — Сверка с berufsberatung.ch: +797 профессий (923 → 1720), у всех категория и путь
 - **Повод:** Sofiia: berufsberatung.ch — самый доверенный сайт в швейцарских школах (~1530 профессий), к этому числу надо стремиться и периодически сверяться. Источник — публичный `https://www.berufsberatung.ch/sitemap.xml`: **1549 страниц /de/berufe/** (EFZ 186, EBA 61, BP 240, HFP 136, HF 54 и ~870 «Berufe ohne geregelte Ausbildung» вроде Barista, Jockey, Türsteher, Broker, Kinesiologe);
