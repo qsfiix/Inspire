@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-05
+Last Updated: 2026-10-06
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -29,6 +29,15 @@ Related Files:
 Новые записи добавляются сверху (последняя дата — первая в файле).
 
 ---
+
+## 2026-10-06 — Бакалавриат (FH/Uni) и практический путь «Lehre → Berufsmatura → Fachhochschule» (860 → 923 профессии, 831 → 895 путей)
+- **63 новых направления бакалавриата** (Studienrichtungen с berufsberatung.ch/de/studienrichtungen/<slug>): 33 типа FH (Aviatik, Mechatronik, Design, Film, Visuelle Kommunikation, Hospitality, Tourismus, Gesundheitswissenschaften и др.) и 30 университетского типа (Philosophie, Theologie, Gender Studies, 12 языков и литератур, Archäologie, Biochemie и др.). Названия имеют вид «<направление> (Bachelorstudium)»; у каждого категория (копия категории похожей профессии), описание, содержание, места работы, допуск (по типам вузов) и дальнейшие Master-пути с официальной страницы; для каждого путь «studieren» из 6 шагов (+63 пути, +378 шагов). В каталоге теперь 62 FH- и 70 университетских записей;
+- **Сознательно пропущено** как уже покрытое каталогом: Betriebswirtschaft, Informatik, Kommunikation/Medien, Erdwissenschaften (есть Betriebsökonom FH, Bachelor FH Informatik, Kommunikationswissenschaftler, Geologe); из реестра остаются «Fachdidaktik», «Sonderpädagogik», «Unterricht Mittelschulen» (в основном магистерский уровень);
+- **Названий конкретных Hochschulen на страницах нет** — только число программ; связи направлений с вузами не создавались;
+- **Новый admission-путь** `lehre_berufsmatura_fachhochschule` («Von der Berufslehre über die Berufsmatura an die Fachhochschule», шаблон, 8 шагов: Doppelqualifikation → BM 1 / BM 2 / eidg. BM-Prüfung → 5 Ausrichtungen → Aufnahmeverfahren → BM abschliessen → FH-Zulassung (BM + verwandter Beruf; иначе ≥1 Jahr Arbeitswelterfahrung, часть направлений — Eignungsabklärung) → FH wählen (Bachelor 3 Jahre Vollzeit) → опционально Passerelle/HF/Berufsprüfung). Источники: SBFI, berufsberatung.ch, swissuniversities. **Важно:** официально Ausrichtungen пять, не шесть; сроки и правила приёма кантональные — в пути даны как примеры (Bern, Zürich) с призывом проверить свой кантон;
+- **Не подтверждено (не внесено):** таблица «Ausrichtung → Fachbereich FH» (RLP-PDF не читается), точные правила Praxisjahr для Gesundheit/Soziale Arbeit/Kunst, стоимость Passerelle и условия приёма в HF;
+- итого: **923 профессии** (у всех категория, дубликатов 0), **895 путей, 5321 шаг**, 310 институций, 1406 связей; без пути только 42 старые профессии типа «other»;
+- **дальше:** связи новых FA/Diplom/Bachelor с учебными заведениями; повторный поиск не найденных BP/HFP; позже — гимназический путь (Prima, Sekunda, Tertia, Quarta).
 
 ## 2026-10-05 — Berufsprüfungen и höhere Fachprüfungen: +322 профессии (538 → 860), +322 пути
 - **Что добавлено:** 199 профессий с **eidg. Fachausweis (Berufsprüfung)** и 123 с **eidg. Diplom (höhere Fachprüfung)** — у каждой профессии категория (7 категорий фильтра), описание задач, места работы, дальнейшие шаги (Weiterbildung) и честный текст о допуске: «Zulassung regelt die Prüfungsordnung» — конкретные требования подставляли **только** там, где они были на официальной странице;
