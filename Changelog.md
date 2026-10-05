@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-09
+Last Updated: 2026-10-10
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -29,6 +29,15 @@ Related Files:
 Новые записи добавляются сверху (последняя дата — первая в файле).
 
 ---
+
+## 2026-10-10 — Ресурсы по Matura/Passerelle/FH-допуску, провайдеры курсов BP/HFP (+125 учреждений, +~480 связей)
+- **Tierpfleger-дубль:** «Zootierpfleger EFZ» слит в «Tierpfleger EFZ» (по решению Sofiia). Остальные 3 пары (разные квалификационные ступени) оставлены как есть.
+- **Ресурсы (+140, всего 352):** допуск в FH (Berufsmaturität, Fachmaturität, Passerelle, Arbeitswelterfahrung, PiBS, HF→FH/Professional Bachelor; страницы swissuniversities, SBFI, berufsberatung.ch, FHNW/HSLU/ZHAW/OST/BFH/HES-SO/ZHdK/Kalaidos/FFHS/FHGR/SUPSI), Lehrstelle (Suche, Schnupperlehre, Lehrvertrag, Lohn, Case Management/Lehrabbruch, Brückenangebote, üK, QV), Nachholbildung для взрослых (Validierung, Art. 32, кантональные порталы), стипендии (EDK-список, TG/LU/SG/AG). Все с категорией, форматом, аудиторией; коды `mp_*`.
+- **Связи профессия → учебное заведение для Berufsprüfung / höhere Fachprüfung:** агенты P1–P10 нашли, где реально проводятся подготовительные курсы (каждый курс подтверждён страницей провайдера). Итог: Fachausweis связано 161 из 258, Diplom 84 из 151 (раньше заметно меньше). Всего `profession_institutions` = 2571.
+- **Новые учреждения (+125, всего 435):** Careum Weiterbildung, Campus Sursee, suissetec, HSO, Benedict, Feusi, BVS/BBS, AKAD, STS, Prävensana, JardinSuisse, Gastro-Bildungszentren, GET, SFG Aargau и др. Адреса прочитаны только с официальных сайтов, координаты через Nominatim; тип `continuing_education_center` или `vocational_school`, группа `vocational_and_professional_education`, `bld_0380`–`bld_0504`. Дубли по адресу (WBZ Lenzburg, HBU Uster, AKAD Zürich, zb Baden) привязаны к уже существующим записям.
+- **Сознательно не связано** (нет школы с собственной локацией или не подтверждён курс): ассоциации без школы, Klubschule Migros, HWZ, KV Basel (не исследованы), ряд пфлеге-дипломов (EPSanté ещё без программ). Ссылки на Strickhof/BZBS/BWZ Obwalden/Inforama отброшены там, где курс идёт в другом месте.
+- **Открыто:** слабые/неуверенные привязки не хранят источник; пары CERUNIQ/Bildungspark Dagmersellen — две записи по одному адресу; ~800 `other`-профессий без связей; ресурсы ещё не привязаны к learning paths (`path_resource_links` пуст, фронтенд эту таблицу не читает).
+- Область: только данные Supabase (таблицы `resources`, `institutions`, `profession_institutions`).
 
 ## 2026-10-09 — Гимназия и академический путь: Quarta → Prima (895+ путей → +1 admission-путь)
 - **Новый путь** `gymnasium_quarta_bis_prima` («Durchs Gymnasium zur Matura: Quarta, Tertia, Sekunda, Prima», шаблон, 8 шагов): названия классов → приём в своём кантоне (примеры ZH/BE/BS/LU) → Quarta (GYM1) → Tertia (GYM2) → Sekunda (GYM3) → Prima (GYM4) и Matura → после Matura (Uni/ETH/PH без допэкзамена, FH ≥1 года Arbeitswelterfahrung, Medizin/EMS, Bachelor/Master) → опционально альтернативы (FMS, WMS/IMS, Berufsmatura, Passerelle);
