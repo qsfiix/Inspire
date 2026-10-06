@@ -430,7 +430,7 @@ export default function App() {
 
           {/* VIEW: Onboarding Questionnaire */}
           {activeTab === "onboarding" && (
-            <OnboardingView t={t} currentLanguage={currentLanguage} isDark={isDark} submitOnboarding={async (interests: string[], goals: string[], stage: string, route?: RouteBackground) => {
+            <OnboardingView t={t} currentLanguage={currentLanguage} isDark={isDark} initialProfile={userProfile} submitOnboarding={async (interests: string[], goals: string[], stage: string, route?: RouteBackground) => {
               if (!userProfile) return;
               const completedProfile: UserProfile = {
                 ...userProfile,

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { DataRepository } from "../data/Repository";
 import { motion, AnimatePresence } from "motion/react";
 import {
   GraduationCap,
@@ -484,14 +485,14 @@ function OnboardingChoice({
   );
 }
 
-export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboarding }: any) {
+export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboarding, initialProfile }: any) {
   const c = getOnboardingCopy(currentLanguage);
   const [step, setStep] = useState(0);
 
   // Existing answers (unchanged data model).
-  const [onboardInterests, setOnboardInterests] = useState<string[]>([]);
-  const [onboardGoals, setOnboardGoals] = useState<string[]>([]);
-  const [onboardStage, setOnboardStage] = useState<string>("");
+  const [onboardInterests, setOnboardInterests] = useState<string[]>(initialProfile?.interests ?? []);
+  const [onboardGoals, setOnboardGoals] = useState<string[]>(initialProfile?.goals ?? []);
+  const [onboardStage, setOnboardStage] = useState<string>(initialProfile?.currentStage ?? "");
 
   // Route answers (all optional).
   const [targetLevel, setTargetLevel] = useState<RouteBackground["targetLevel"]>();
@@ -505,6 +506,34 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
   const [birthYear, setBirthYear] = useState<string>("");
   const [levels, setLevels] = useState<Record<string, CefrLevel>>({});
   const [firstLang, setFirstLang] = useState<string>("");
+
+  // Re-opening the survey must not wipe earlier answers: prefill from saved route data.
+  useEffect(() => {
+    let active = true;
+    DataRepository.getRouteBackground().then(saved => {
+      if (!active || !saved) return;
+      if (saved.targetLevel) setTargetLevel(saved.targetLevel);
+      if (saved.targetStartYear) setStartYear(saved.targetStartYear);
+      if (saved.studyModePreference) setStudyMode(saved.studyModePreference);
+      if (typeof saved.livesInSwitzerland === "boolean") setLivesInCh(saved.livesInSwitzerland);
+      if (saved.highestEducation) setHighestEdu(saved.highestEducation);
+      if (saved.highestEducationCountryCode) setEduCountry(saved.highestEducationCountryCode);
+      if (saved.diplomaRecognitionStatus) setRecognition(saved.diplomaRecognitionStatus);
+      if (saved.workExperienceYears !== undefined) setWorkYears(String(saved.workExperienceYears));
+      if (saved.birthYear !== undefined) setBirthYear(String(saved.birthYear));
+      if (saved.languageLevels.length > 0) {
+        const next: Record<string, CefrLevel> = {};
+        for (const l of saved.languageLevels) {
+          if (l.level === "native") setFirstLang(l.languageCode);
+          else next[l.languageCode] = l.level;
+        }
+        setLevels(next);
+      }
+    }).catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const currentYear = new Date().getFullYear();
   const lastStep = ONBOARDING_STEPS.length - 1;

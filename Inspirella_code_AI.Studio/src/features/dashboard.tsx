@@ -4,6 +4,7 @@ import { BookOpen, Milestone, Sparkles, User, Pencil, Check, X, CalendarClock, A
 import { SWISS_EDUCATION_LEVELS } from "../data";
 import AdvisorReport from "../components/AdvisorReport";
 import MyPathLadder from "../components/MyPathLadder";
+import PersonalRoute from "../components/PersonalRoute";
 import SectionGlow from "../components/SectionGlow";
 import Reveal from "../components/Reveal";
 import { daysUntilDue } from "../components/TrackerSystem";
@@ -117,6 +118,15 @@ export function DashboardView({
           onExploreAlternatives={() => handleTabTransition("resources")}
         />
       </section>
+
+      <Reveal as="section">
+        <PersonalRoute
+          userProfile={userProfile}
+          language={currentLanguage}
+          isDark={isDark}
+          onRefine={() => handleTabTransition("onboarding")}
+        />
+      </Reveal>
 
       <Reveal as="section">
         <AdvisorReport

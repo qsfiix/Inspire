@@ -272,6 +272,12 @@ export interface LearningPathStep {
   title: Partial<Record<LanguageCode, string>>;
   description?: Partial<Record<LanguageCode, string>>;
   timeframe?: Partial<Record<LanguageCode, string>>;
+  /** 1-based position inside the path (learning_path_steps.step_order). */
+  order?: number;
+  /** info | action | resource | milestone | exam | document | application */
+  stepType?: string;
+  officialUrl?: string;
+  isOptional?: boolean;
 }
 
 /**
@@ -291,6 +297,10 @@ export interface LearningPath extends RecordProvenance {
 
   /** Present when this path leads to a specific profession (see Profession.id). */
   targetProfessionId?: string;
+
+  /** Where the path starts and ends, e.g. "efz" -> "fh_bachelor". */
+  entryLevelCode?: string;
+  exitLevelCode?: string;
 
   steps: LearningPathStep[];
 }

@@ -449,7 +449,11 @@ const parseDbLearningPathStep = (db: Record<string, any>): LearningPathStep | nu
     id,
     title,
     description: pickLocalizedText(db, "summary", "description", "long_description", "details"),
-    timeframe: pickLocalizedText(db, "recommended_timeline")
+    timeframe: pickLocalizedText(db, "recommended_timeline"),
+    order: asNumber(pick(db, "step_order")),
+    stepType: normalizeText(pick(db, "step_type")),
+    officialUrl: normalizeUrl(pick(db, "official_url")),
+    isOptional: asBoolean(pick(db, "is_optional"))
   };
 };
 
@@ -474,6 +478,8 @@ const parseDbLearningPath = (
     description: pickLocalizedText(db, "summary", "description", "short_description", "long_description"),
     pathType: normalizeText(pick(db, "pathType", "path_type", "goal_type")),
     targetProfessionId: normalizeId(pick(db, "targetProfessionId", "target_profession_id")) ?? undefined,
+    entryLevelCode: normalizeText(pick(db, "entry_level_code")),
+    exitLevelCode: normalizeText(pick(db, "exit_level_code")),
     steps: stepsByPath.get(id) ?? [],
     dataOrigin: "cloud"
   };
@@ -1261,7 +1267,8 @@ export const DataRepository = {
     try {
       const supabase = getSupabase();
       const [pathsRes, stepsRes] = await Promise.all([
-        supabase.from("learning_paths").select("*").eq("is_active", true),
+        // 1700+ profession paths exist, past PostgREST's 1000-row cap: paginate or newer template paths vanish.
+        fetchAllRows(() => supabase.from("learning_paths").select("*").eq("is_active", true).order("id", { ascending: true })),
         fetchAllRows(() => supabase.from("learning_path_steps").select("*").order("step_order", { ascending: true }))
       ]);
 
