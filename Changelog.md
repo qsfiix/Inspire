@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-10
+Last Updated: 2026-10-11
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -29,6 +29,13 @@ Related Files:
 Новые записи добавляются сверху (последняя дата — первая в файле).
 
 ---
+
+## 2026-10-11 — Практический путь Lehrstelle → Berufsmaturität → Fachhochschule закрыт
+- Путь `lehre_berufsmatura_fachhochschule` расширен с 8 до 15 шагов: добавлены Schnuppern, поиск Lehrstelle (LENA), Lehrvertrag, поддержка при трудностях (Case Management), выбор FH, Eignungsabklärung, финансирование (Stipendien), старт и Bachelor; у каждого нового шага есть `official_url` на проверенный ресурс. Старые шаги и их id сохранены (порядок сдвинут), описания шагов «FH wählen» и «Alternativen» обновлены (HF → verkürztes FH-Studium, PiBS, Professional Bachelor).
+- Новый путь `efz_ohne_berufsmatura_zur_fachhochschule` (8 шагов): EFZ без BM → BM 2, EBMP, HF + verkürztes Studium, Zulassung auf Dossier, höhere Berufsbildung как отдельная карьерная лестница, финансирование, подтверждение допуска в выбранной FH.
+- Заполнены `website_url` у 13 вузов (BFH, FHNW, HSLU, OST, FHGR, HES-SO, Kalaidos, ZHdK, PH Bern/GR/LU, EHB, HfH); все адреса проверены, отвечают 200.
+- Без новых агентов (экономия токенов по просьбе Sofiia): только SQL по уже собранным и проверенным ресурсам.
+- Открыто: нет данных, какие Berufsfachschulen предлагают BM и в каких Ausrichtungen; пока в путях только ссылки на кантональные страницы. 4 FH-Bachelor без школ (Orthoptik, Berufsmilitärpilot, Korrepetitor, Leiter Sozialdienst).
 
 ## 2026-10-10 — Ресурсы по Matura/Passerelle/FH-допуску, провайдеры курсов BP/HFP (+125 учреждений, +~480 связей)
 - **Tierpfleger-дубль:** «Zootierpfleger EFZ» слит в «Tierpfleger EFZ» (по решению Sofiia). Остальные 3 пары (разные квалификационные ступени) оставлены как есть.
