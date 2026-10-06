@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-12
+Last Updated: 2026-10-13
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -29,6 +29,10 @@ Related Files:
 Новые записи добавляются сверху (последняя дата — первая в файле).
 
 ---
+
+## 2026-10-13 — Слой данных для маршрута пользователя (код, без UI, не закоммичен)
+- `types.ts`: `RouteBackground`, `LanguageLevel`, `CefrLevel`; `localMockDB.ts`: ключ `inspirella_route_background`; `Repository.ts`: `getRouteBackground()` / `saveRouteBackground()` (облако для залогиненных, локально для гостей). Гражданство и статус проживания уходят в облако только при заданном `sensitiveDataConsentAt`; иначе остаются на устройстве.
+- Проверено: `tsc --noEmit` без ошибок, `vitest` 56/56. Экранов и вызовов пока нет, это заготовка под онбординг. Изменения в рабочей копии не закоммичены (ждут решения Sofiia).
 
 ## 2026-10-12 — BM-школы, академический путь, фундамент модели пользователя
 - **Berufsmaturität по школам:** один агент прошёл официальные списки 24 кантонов; 83 наших Berufsfachschulen получили записи в `institution_focus_areas`: код `berufsmaturitaet` (BM1/BM2, Ausrichtungen и источник в `note`) плюс `bm_tals`/`bm_nll`/`bm_wd`/`bm_gk`/`bm_gs` для фильтрации. Всего 178 строк; уверенность `medium` для VD, NE, FR, VS, OW, NW, GE (часть данных из поисковых сниппетов). Для BE, части TG, GR и VD нет деталей по Ausrichtung («Details bei der Schule erfragen»). AR без BM. Не найдено/не подтверждено: часть Wallis (EPCA Sion, BFO Brig), Fribourg (EPC, EPAI, ESSG), Bellinzona (CPC/CPT vs SCC/SAM). 26 BM-школ из списков отсутствуют в нашей базе (в `out_BM.json`, не добавлены).
