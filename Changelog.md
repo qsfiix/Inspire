@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-14
+Last Updated: 2026-10-15
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -30,13 +30,19 @@ Related Files:
 
 ---
 
+## 2026-10-15 — Онбординг: 6 шагов, цель первой, шаги маршрута
+- `OnboardingView` (features/auth.tsx) переписан: порядок Цели → «Куда идёшь» (уровень цели, год старта, формат, «живу ли уже в Швейцарии») → Этап → Интересы → Образование (диплом, страна, признание, опыт, год рождения) → Языки (CEFR + родной). Обязательны только цели, этап и интересы; новые шаги можно пропустить («Skip this step»), после шага целей доступно «Finish now». Тексты новых шагов на en/de/fr/it в `features/onboardingCopy.ts` (de/fr/it написаны в форме «du/tu», как у молодой аудитории; старые тексты остались в форме «Sie»).
+- Ответы маршрута сохраняются через `DataRepository.saveRouteBackground` (App.tsx), только если что-то отвечено. Нейтральный ответ «живу ли в Швейцарии» лежит в `profile_background.notes`.
+- Юридические данные (гражданство, разрешение на пребывание) в онбординге НЕ собираются (решение Sofiia: платформа ещё не настолько доверенная). Поля в БД и в `RouteBackground` остаются на будущее.
+- Проверено: tsc без ошибок, vitest 56/56, ручной проход всех 6 шагов в браузере (локальное сохранение, ошибок в консоли нет).
+
 ## 2026-10-14 — Недостающие BM-школы добавлены как учреждения (+19)
 - Из 26 BM-школ, найденных в официальных списках, но отсутствовавших в базе: 3 оказались уже созданными провайдерами (HKV Aarau, zB Baden, BFB Biel — им добавлены данные по BM), 19 созданы как `vocational_school` (`bld_0507`–`bld_0525`: BMZ Zürich, BMS Winterthur, BSFH, BBZ Freiamt, WMS/IMS Basel, KBS Lachen/Schwyz/Glarus, WKS Bern, ceff, ESC La Neuveville, WMS Biel, 7 школ Ticino минус одна) с 41 строкой `institution_focus_areas`. Адреса сверены с сайтами школ скриптом; сайты отвечают.
 - Не добавлены (адрес не подтверждён на загруженной странице): BFS Basel, BBZW Emmen и Willisau (сайт `beruf.lu.ch/bbzw` адрес не показывает), Scuola professionale per sportivi d'élite Tenero (геокод только на уровне города).
 
-## 2026-10-13 — Слой данных для маршрута пользователя (код, без UI, не закоммичен)
+## 2026-10-13 — Слой данных для маршрута пользователя (код, без UI)
 - `types.ts`: `RouteBackground`, `LanguageLevel`, `CefrLevel`; `localMockDB.ts`: ключ `inspirella_route_background`; `Repository.ts`: `getRouteBackground()` / `saveRouteBackground()` (облако для залогиненных, локально для гостей). Гражданство и статус проживания уходят в облако только при заданном `sensitiveDataConsentAt`; иначе остаются на устройстве.
-- Проверено: `tsc --noEmit` без ошибок, `vitest` 56/56. Экранов и вызовов пока нет, это заготовка под онбординг. Изменения в рабочей копии не закоммичены (ждут решения Sofiia).
+- Проверено: `tsc --noEmit` без ошибок, `vitest` 56/56. Экранов и вызовов пока нет, это заготовка под онбординг.
 
 ## 2026-10-12 — BM-школы, академический путь, фундамент модели пользователя
 - **Berufsmaturität по школам:** один агент прошёл официальные списки 24 кантонов; 83 наших Berufsfachschulen получили записи в `institution_focus_areas`: код `berufsmaturitaet` (BM1/BM2, Ausrichtungen и источник в `note`) плюс `bm_tals`/`bm_nll`/`bm_wd`/`bm_gk`/`bm_gs` для фильтрации. Всего 178 строк; уверенность `medium` для VD, NE, FR, VS, OW, NW, GE (часть данных из поисковых сниппетов). Для BE, части TG, GR и VD нет деталей по Ausrichtung («Details bei der Schule erfragen»). AR без BM. Не найдено/не подтверждено: часть Wallis (EPCA Sion, BFO Brig), Fribourg (EPC, EPAI, ESSG), Bellinzona (CPC/CPT vs SCC/SAM). 26 BM-школ из списков отсутствуют в нашей базе (в `out_BM.json`, не добавлены).

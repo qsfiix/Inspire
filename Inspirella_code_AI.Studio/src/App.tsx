@@ -21,7 +21,7 @@ import {
   Milestone
 } from "lucide-react";
 
-import { LanguageCode, UserProfile, TrackerGoal, ResourceItem } from "./types";
+import { LanguageCode, UserProfile, TrackerGoal, ResourceItem, RouteBackground } from "./types";
 import { TRANSLATIONS, OFF_RESOURCES } from "./data";
 import Navbar from "./components/Navbar";
 import MapboxMap from "./components/MapboxMap";
@@ -430,7 +430,7 @@ export default function App() {
 
           {/* VIEW: Onboarding Questionnaire */}
           {activeTab === "onboarding" && (
-            <OnboardingView t={t} currentLanguage={currentLanguage} isDark={isDark} submitOnboarding={async (interests: string[], goals: string[], stage: string) => {
+            <OnboardingView t={t} currentLanguage={currentLanguage} isDark={isDark} submitOnboarding={async (interests: string[], goals: string[], stage: string, route?: RouteBackground) => {
               if (!userProfile) return;
               const completedProfile: UserProfile = {
                 ...userProfile,
@@ -441,6 +441,12 @@ export default function App() {
               };
               setUserProfile(completedProfile);
               await DataRepository.saveProfile(completedProfile);
+              if (route) {
+                const answered = Object.entries(route).some(([k, v]) =>
+                  k === "languageLevels" ? (v as unknown[]).length > 0 : v !== undefined
+                );
+                if (answered) await DataRepository.saveRouteBackground(route);
+              }
               setActiveTab("dashboard");
             }} />
           )}

@@ -42,6 +42,52 @@ export interface UserProfile {
   bio?: string; // Free-text "about me", written by the user themselves
 }
 
+export type CefrLevel = "none" | "A1" | "A2" | "B1" | "B2" | "C1" | "C2" | "native";
+
+export interface LanguageLevel {
+  languageCode: string;
+  level: CefrLevel;
+  certificateName?: string;
+  certificateYear?: number;
+  /** true until the user attaches a certificate */
+  isSelfAssessed: boolean;
+}
+
+/**
+ * Optional personal facts that decide which route fits a user (admission rules,
+ * permits, language requirements, diploma recognition). Everything is optional.
+ * `citizenshipCountryCodes` and `residenceStatus` are sensitive: they are synced
+ * to the cloud only when `sensitiveDataConsentAt` is set; otherwise they stay on
+ * this device. Mirrors the `profile_background` / `profile_language_levels` tables.
+ */
+export interface RouteBackground {
+  citizenshipCountryCodes?: string[];
+  residenceStatus?:
+    | "swiss_citizen" | "permit_c" | "permit_b" | "permit_l" | "permit_g" | "permit_f"
+    | "permit_n" | "permit_s" | "not_in_switzerland" | "other" | "prefer_not_to_say";
+  plannedArrivalDate?: string; // ISO date
+  arrivedInSwitzerlandYear?: number;
+  birthYear?: number;
+  swissSchoolingYears?: number;
+  highestEducation?:
+    | "none" | "compulsory_school" | "upper_secondary_general" | "upper_secondary_vocational"
+    | "tertiary_professional" | "bachelor" | "master" | "doctorate" | "other";
+  highestEducationCountryCode?: string;
+  diplomaRecognitionStatus?: "not_needed" | "not_checked" | "in_progress" | "recognised" | "not_recognised" | "unknown";
+  workExperienceYears?: number;
+  targetLevel?:
+    | "apprenticeship" | "berufsmatura" | "gymnasium" | "higher_vocational"
+    | "university_of_applied_sciences" | "university" | "continuing_education"
+    | "job_entry" | "language_course" | "undecided";
+  targetStartYear?: number;
+  studyModePreference?: "full_time" | "part_time" | "work_study" | "any";
+  financingPlan?: "self" | "family" | "scholarship" | "employer" | "loan" | "mixed" | "unknown";
+  sensitiveDataConsentAt?: string; // ISO timestamp
+  /** Neutral, non-legal answer: does the user already live in Switzerland? Stored in profile_background.notes. */
+  livesInSwitzerland?: boolean;
+  languageLevels: LanguageLevel[];
+}
+
 export interface EducationPathStep {
   id: string;
   title: Record<LanguageCode, string>;

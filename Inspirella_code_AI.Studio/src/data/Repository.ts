@@ -11,7 +11,10 @@ import {
   TrackerChecklistItem,
   LearningPath,
   LearningPathStep,
-  ProfessionInstitutionLink
+  ProfessionInstitutionLink,
+  RouteBackground,
+  LanguageLevel,
+  CefrLevel
 } from "../types";
 import { OFF_RESOURCES, SWISS_INSTITUTIONS } from "../data";
 import { normalizeCoordinates, normalizeId, normalizeText, normalizeUrl } from "../lib/validation";
@@ -704,6 +707,125 @@ export const DataRepository = {
       } catch (e) {
         console.warn("Failed syncing profile to Supabase", e);
       }
+    }
+  },
+
+  // Route background (permit, language levels, diploma, goal) - the facts that decide
+  // which route fits a user. Tables `profile_background` + `profile_language_levels`
+  // (RLS: owner only). Guests stay local-only. Sensitive fields (citizenship, residence
+  // status) leave the device only when the user has given explicit consent
+  // (`sensitiveDataConsentAt`); without it the cloud row keeps them empty.
+  getRouteBackground: async (): Promise<RouteBackground> => {
+    await fetchSupabaseConfig();
+    const local: RouteBackground = LocalMockDB.getRouteBackground() ?? { languageLevels: [] };
+
+    if (isSupabaseActive()) {
+      try {
+        const supabase = getSupabase();
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (!userError && userData?.user) {
+          const uid = userData.user.id;
+          const [bgRes, langRes] = await Promise.all([
+            supabase.from("profile_background").select("*").eq("profile_id", uid).maybeSingle(),
+            supabase.from("profile_language_levels").select("*").eq("profile_id", uid)
+          ]);
+          if (!bgRes.error && !langRes.error) {
+            const r: any = bgRes.data;
+            const num = (v: unknown) => (typeof v === "number" ? v : v == null ? undefined : Number(v));
+            const cloud: RouteBackground = {
+              // Sensitive values are kept on the device if the cloud copy is empty.
+              citizenshipCountryCodes: r?.citizenship_country_codes?.length
+                ? r.citizenship_country_codes
+                : local.citizenshipCountryCodes,
+              residenceStatus: r?.residence_status ?? local.residenceStatus,
+              plannedArrivalDate: r?.planned_arrival_date ?? undefined,
+              arrivedInSwitzerlandYear: r?.arrived_in_switzerland_year ?? undefined,
+              birthYear: r?.birth_year ?? undefined,
+              swissSchoolingYears: r?.swiss_schooling_years ?? undefined,
+              highestEducation: r?.highest_education_code ?? undefined,
+              highestEducationCountryCode: r?.highest_education_country_code ?? undefined,
+              diplomaRecognitionStatus: r?.diploma_recognition_status ?? undefined,
+              workExperienceYears: num(r?.work_experience_years),
+              targetLevel: r?.target_level_code ?? undefined,
+              targetStartYear: r?.target_start_year ?? undefined,
+              studyModePreference: r?.study_mode_preference ?? undefined,
+              financingPlan: r?.financing_plan ?? undefined,
+              sensitiveDataConsentAt: r?.sensitive_data_consent_at ?? local.sensitiveDataConsentAt,
+              livesInSwitzerland:
+                typeof r?.notes?.lives_in_switzerland === "boolean"
+                  ? r.notes.lives_in_switzerland
+                  : local.livesInSwitzerland,
+              languageLevels: (langRes.data ?? []).map((l: any): LanguageLevel => ({
+                languageCode: l.language_code,
+                level: l.cefr_level as CefrLevel,
+                certificateName: l.certificate_name ?? undefined,
+                certificateYear: l.certificate_year ?? undefined,
+                isSelfAssessed: Boolean(l.is_self_assessed)
+              }))
+            };
+            return cloud;
+          }
+        }
+      } catch (e) {
+        console.warn("Failed fetching route background from Supabase", e);
+      }
+    }
+    return local;
+  },
+
+  saveRouteBackground: async (bg: RouteBackground): Promise<void> => {
+    await fetchSupabaseConfig();
+    // Local copy always holds everything, including sensitive fields.
+    LocalMockDB.saveRouteBackground(bg);
+
+    if (!isSupabaseActive()) return;
+    try {
+      const supabase = getSupabase();
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData?.user) return;
+      const uid = userData.user.id;
+      const consented = Boolean(bg.sensitiveDataConsentAt);
+
+      const { error } = await supabase.from("profile_background").upsert({
+        profile_id: uid,
+        citizenship_country_codes: consented ? bg.citizenshipCountryCodes ?? [] : [],
+        residence_status: consented ? bg.residenceStatus ?? null : null,
+        planned_arrival_date: bg.plannedArrivalDate ?? null,
+        arrived_in_switzerland_year: bg.arrivedInSwitzerlandYear ?? null,
+        birth_year: bg.birthYear ?? null,
+        swiss_schooling_years: bg.swissSchoolingYears ?? null,
+        highest_education_code: bg.highestEducation ?? null,
+        highest_education_country_code: bg.highestEducationCountryCode ?? null,
+        diploma_recognition_status: bg.diplomaRecognitionStatus ?? null,
+        work_experience_years: bg.workExperienceYears ?? null,
+        target_level_code: bg.targetLevel ?? null,
+        target_start_year: bg.targetStartYear ?? null,
+        study_mode_preference: bg.studyModePreference ?? null,
+        financing_plan: bg.financingPlan ?? null,
+        sensitive_data_consent_at: bg.sensitiveDataConsentAt ?? null,
+        notes: { lives_in_switzerland: bg.livesInSwitzerland ?? null }
+      });
+      if (error) {
+        console.warn("Failed saving route background", error.message);
+        return;
+      }
+
+      // Same replace-per-save pattern as the other child tables of profiles.
+      await supabase.from("profile_language_levels").delete().eq("profile_id", uid);
+      if (bg.languageLevels.length > 0) {
+        await supabase.from("profile_language_levels").insert(
+          bg.languageLevels.map(l => ({
+            profile_id: uid,
+            language_code: l.languageCode,
+            cefr_level: l.level,
+            certificate_name: l.certificateName ?? null,
+            certificate_year: l.certificateYear ?? null,
+            is_self_assessed: l.isSelfAssessed
+          }))
+        );
+      }
+    } catch (e) {
+      console.warn("Failed syncing route background to Supabase", e);
     }
   },
 

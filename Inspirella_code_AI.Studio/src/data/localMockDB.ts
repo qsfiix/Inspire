@@ -1,6 +1,7 @@
-import { TrackerGoal, UserProfile } from "../types";
+import { RouteBackground, TrackerGoal, UserProfile } from "../types";
 
 const PROFILE_KEY = "inspirella_profile";
+const ROUTE_KEY = "inspirella_route_background";
 const TRACKERS_KEY = "inspirella_trackers";
 
 /**
@@ -48,6 +49,17 @@ export const LocalMockDB = {
     writeJson(PROFILE_KEY, profile);
   },
 
+  getRouteBackground(): RouteBackground | null {
+    const bg = readJson<RouteBackground>(ROUTE_KEY);
+    if (!bg || typeof bg !== "object") return null;
+    if (!Array.isArray(bg.languageLevels)) bg.languageLevels = [];
+    return bg;
+  },
+
+  saveRouteBackground(bg: RouteBackground): void {
+    writeJson(ROUTE_KEY, bg);
+  },
+
   getTrackers(): TrackerGoal[] {
     const trackers = readJson<TrackerGoal[]>(TRACKERS_KEY);
     return Array.isArray(trackers) ? trackers : [];
@@ -76,6 +88,7 @@ export const LocalMockDB = {
     try {
       localStorage.removeItem(PROFILE_KEY);
       localStorage.removeItem(TRACKERS_KEY);
+      localStorage.removeItem(ROUTE_KEY);
     } catch (err) {
       console.warn("Could not clear local Inspirella data.", err);
     }
