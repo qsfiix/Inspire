@@ -80,3 +80,34 @@ export function bestSwissLanguageRank(route: RouteBackground | undefined): numbe
     .map(l => CEFR_RANK[l.level]);
   return ranks.length ? Math.max(...ranks) : 0;
 }
+
+/**
+ * professions.profession_category_id carries codes like industry_technology_it.
+ * Onboarding interests are coarse ids; this maps the ones that name a field.
+ * "academic" and "vocational" describe a track, not a field, and are handled
+ * by the apprenticeship/academic signals instead.
+ */
+export const INTEREST_CATEGORIES: Record<string, string[]> = {
+  tech: ["industry_technology_it"],
+  business: ["economy_management_trade"],
+  arts: ["media_communication"]
+};
+
+export function interestMatchesCategory(interests: string[], category: string | undefined): boolean {
+  if (!category) return false;
+  return interests.some(i => INTEREST_CATEGORIES[i]?.includes(category));
+}
+
+/** Which institution subgroups realistically deliver a stated target level. */
+export const TARGET_INSTITUTION_SUBGROUPS: Record<string, string[]> = {
+  apprenticeship: ["vocational_school"],
+  berufsmatura: ["vocational_school"],
+  higher_vocational: ["vocational_school", "continuing_education_center"],
+  university_of_applied_sciences: ["university_of_applied_sciences"],
+  university: ["university", "federal_institute_of_technology"]
+};
+
+export function institutionFitsTarget(route: RouteBackground | undefined, subgroup: string | undefined): boolean {
+  if (!route?.targetLevel || !subgroup) return false;
+  return TARGET_INSTITUTION_SUBGROUPS[route.targetLevel]?.includes(subgroup) ?? false;
+}

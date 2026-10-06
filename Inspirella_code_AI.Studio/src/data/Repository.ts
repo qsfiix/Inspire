@@ -442,7 +442,7 @@ export const parseDbProfession = (db: Record<string, any>): Profession | null =>
   return profession;
 };
 
-const parseDbLearningPathStep = (db: Record<string, any>): LearningPathStep | null => {
+export const parseDbLearningPathStep = (db: Record<string, any>): LearningPathStep | null => {
   const id = normalizeId(pick(db, "id"));
   const title = pickLocalizedText(db, "title", "name");
   if (!id || !title) return null;
@@ -465,7 +465,7 @@ const parseDbLearningPathStep = (db: Record<string, any>): LearningPathStep | nu
  * `learning_path_id`, pre-grouped by the caller since Supabase doesn't
  * nest child rows for us).
  */
-const parseDbLearningPath = (
+export const parseDbLearningPath = (
   db: Record<string, any>,
   stepsByPath: Map<string, LearningPathStep[]>
 ): LearningPath | null => {

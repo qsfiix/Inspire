@@ -177,7 +177,9 @@ function plan(path: LearningPath, kind: SegmentKind, entry: EntryState, first: b
   const steps: PlannedStep[] = ordered.map(step => {
     if (step.order !== undefined && done.has(step.order)) return { step, status: "done", isCurrent: false };
     if (!first) return { step, status: "later", isCurrent: false };
-    const isCurrent = !currentAssigned && !step.isOptional;
+    // First open step is the current one, even if it is optional: some paths (for
+    // example the variants of the EFZ-to-FH path) are made of optional choices.
+    const isCurrent = !currentAssigned;
     if (isCurrent) currentAssigned = true;
     return { step, status: "todo", isCurrent };
   });
@@ -194,6 +196,26 @@ const TYPE_TO_TARGET: Record<string, TargetState> = {
   fh_bachelor: "university_of_applied_sciences",
   university: "university"
 };
+
+export interface LanguageGapInfo {
+  studyLanguage: string;
+  required: number;
+  requiredLabel: string;
+  gap: boolean;
+}
+
+/** Study language (canton, then target region, then German) and whether the stated level is below the usual start level. */
+export function languageGapInfo(route: RouteBackground | undefined, profile: UserProfile | null, target: TargetState): LanguageGapInfo {
+  const studyLanguage =
+    languageOfCanton(profile?.preferredCanton) ??
+    (profile?.targetLanguageRegion && LANGUAGE_PATH[profile.targetLanguageRegion] ? profile.targetLanguageRegion : undefined) ??
+    "de";
+  const required = requiredLanguageRank(target, studyLanguage);
+  const level = route?.languageLevels.find(l => l.languageCode === studyLanguage)?.level;
+  const hasAny = bestSwissLanguageRank(route) !== null;
+  const gap = required > 0 && hasAny && (level ? CEFR_RANK[level] ?? 0 : 0) < required;
+  return { studyLanguage, required, requiredLabel: RANK_LABEL[required] ?? "", gap };
+}
 
 export function buildPersonalRoute(
   route: RouteBackground | undefined,

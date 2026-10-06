@@ -1,5 +1,6 @@
 import { UserProfile, Profession, Institution, ResourceItem, LanguageCode, RouteBackground } from "../types";
-import { bestSwissLanguageRank, languageFit, professionRouteSignal } from "./routeSignals";
+import { institutionFitsTarget, interestMatchesCategory, languageFit, professionRouteSignal } from "./routeSignals";
+import { deriveEntry, languageGapInfo, TargetState } from "./pathPlanner";
 import { EngineConfig, hasSemanticMatch, isHighDemand, getTranslatedString, resolveApprenticeship } from "./engineConfig";
 
 export interface ScoredProfession {
@@ -96,28 +97,49 @@ export class EducationEngine {
 
   private determineNextBestStep(pathFocus: string): string {
     const stage = this.profile.currentStage;
+    const target: TargetState = this.route?.targetLevel ?? "undecided";
+    const t = (en: string, de: string, fr: string, it: string) => this.translate(en, de, fr, it);
 
-    // A stated language gap or a language-first goal changes the very next step.
-    const studyTargets = ["university_of_applied_sciences", "university", "berufsmatura", "higher_vocational"];
-    const swissRank = bestSwissLanguageRank(this.route);
-    if (
-      this.route?.targetLevel === "language_course" ||
-      (this.route?.targetLevel && studyTargets.includes(this.route.targetLevel) && swissRank !== null && swissRank < 3)
-    ) {
-      return this.translate(
-        "Build your language level first: aim for at least B1 in the language of instruction.",
-        "Baue zuerst dein Sprachniveau auf: Ziel ist mindestens B1 in der Unterrichtssprache.",
-        "Renforce d'abord ton niveau de langue : vise au moins le B1 dans la langue d'enseignement.",
-        "Rafforza prima il tuo livello linguistico: punta ad almeno B1 nella lingua di insegnamento."
+    // 1. A language gap or a language-first goal comes before anything else.
+    const lang = languageGapInfo(this.route, this.profile, target);
+    if (target === "language_course" || lang.gap) {
+      const level = target === "language_course" ? "B1" : lang.requiredLabel || "B2";
+      return t(
+        `Build your language level first: aim for at least ${level} in the language of instruction.`,
+        `Baue zuerst dein Sprachniveau auf: Ziel ist mindestens ${level} in der Unterrichtssprache.`,
+        `Renforce d'abord ton niveau de langue : vise au moins le ${level} dans la langue d'enseignement.`,
+        `Rafforza prima il tuo livello linguistico: punta ad almeno ${level} nella lingua di insegnamento.`
       );
     }
-    
+
+    // 2. With a stated education the next step follows from where the user stands.
+    if (this.route?.highestEducation) {
+      const { entry } = deriveEntry(this.route, this.profile);
+      const toFh = target === "university_of_applied_sciences" || target === "berufsmatura";
+      if (entry === "sek1") {
+        if (target === "university") return t("Prepare the Gymnasium admission in your canton and check its exam dates.", "Bereite die Aufnahme ins Gymnasium in deinem Kanton vor und prüfe die Prüfungstermine.", "Prépare l'admission au gymnase de ton canton et vérifie les dates d'examen.", "Prepara l'ammissione al liceo nel tuo cantone e controlla le date degli esami.");
+        if (toFh) return t("Look for an apprenticeship that allows the Berufsmatura and try a Schnupperlehre.", "Suche eine Lehrstelle, die die Berufsmaturität erlaubt, und schnuppere in Berufen.", "Cherche une place d'apprentissage compatible avec la maturité professionnelle et fais un stage découverte.", "Cerca un posto di apprendistato compatibile con la maturità professionale e prova uno stage di orientamento.");
+        return t("Try a Schnupperlehre in a few professions and start your apprenticeship search.", "Schnuppere in einigen Berufen und starte die Lehrstellensuche.", "Fais des stages découverte dans quelques professions et commence la recherche d'une place d'apprentissage.", "Prova qualche stage di orientamento e inizia la ricerca di un posto di apprendistato.");
+      }
+      if (entry === "no_qualification") return t("Talk to your canton's career guidance about getting your vocational qualification as an adult.", "Sprich mit der Berufsberatung deines Kantons über den Berufsabschluss für Erwachsene.", "Parle à l'orientation professionnelle de ton canton du diplôme professionnel pour adultes.", "Parla con l'orientamento professionale del tuo cantone della qualifica professionale per adulti.");
+      if (entry === "efz") {
+        if (target === "higher_vocational") return t("Compare Höhere Fachschule, Berufsprüfung and höhere Fachprüfung and check their admission rules.", "Vergleiche Höhere Fachschule, Berufsprüfung und höhere Fachprüfung und prüfe die Zulassung.", "Compare école supérieure, brevet fédéral et diplôme fédéral et vérifie les conditions d'admission.", "Confronta scuola specializzata superiore, esame professionale e esame professionale superiore e verifica l'ammissione.");
+        if (toFh || target === "university") return t("Choose how to get your Berufsmatura: after the apprenticeship or through the federal exam.", "Wähle, wie du die Berufsmaturität erreichst: nach der Lehre oder mit der eidgenössischen Prüfung.", "Choisis comment obtenir la maturité professionnelle : après l'apprentissage ou par l'examen fédéral.", "Scegli come ottenere la maturità professionale: dopo l'apprendistato o con l'esame federale.");
+      }
+      if (entry === "matura") {
+        if (toFh) return t("Plan your work experience (at least a year) and check the admission rules of your Fachhochschule.", "Plane deine Arbeitswelterfahrung (mindestens ein Jahr) und prüfe die Zulassung deiner Fachhochschule.", "Planifie ton expérience du monde du travail (au moins un an) et vérifie les conditions de ta haute école spécialisée.", "Pianifica la tua esperienza lavorativa (almeno un anno) e verifica l'ammissione della tua scuola universitaria professionale.");
+        if (target === "university") return t("Check the admission rules of your target university, some programmes have an aptitude test.", "Prüfe die Zulassung deiner Wunschuniversität, manche Studiengänge haben einen Eignungstest.", "Vérifie les conditions d'admission de ton université, certaines filières ont un test d'aptitudes.", "Verifica l'ammissione della tua università, alcuni corsi hanno un test attitudinale.");
+      }
+      if (entry === "hf" && (toFh || target === "university")) return t("Ask your target Fachhochschule about shortened admission for HF graduates.", "Frage deine Fachhochschule nach dem verkürzten Einstieg für HF-Absolventinnen und -Absolventen.", "Demande à ta haute école spécialisée l'admission abrégée pour les diplômés ES.", "Chiedi alla tua scuola universitaria professionale l'ammissione abbreviata per i diplomati SSS.");
+      if (entry === "bachelor" || entry === "master") return t("Explore master programmes, doctoral options or continuing education.", "Erkunde Masterstudiengänge, Doktorat oder Weiterbildungen.", "Explore les masters, le doctorat ou la formation continue.", "Esplora master, dottorato o formazione continua.");
+    }
+
     for (const rule of EngineConfig.rules.nextSteps) {
       if (rule.stagesAny.includes(stage)) {
         return getTranslatedString(rule.label, this.lang);
       }
     }
-    
+
     return getTranslatedString(EngineConfig.rules.defaultNextStep, this.lang);
   }
 
@@ -146,6 +168,7 @@ export class EducationEngine {
       // social_care - not the fixed "engineering"/"IT" labels this used to check for),
       // so the "tech" interest is matched against every sector that is actually tech-adjacent.
       if (this.profile.interests.includes(prof.category) ||
+          interestMatchesCategory(this.profile.interests, prof.category) ||
           (this.profile.interests.includes("tech") &&
             (prof.category === "technology" || prof.category === "engineering" || prof.category === "IT" || prof.category === "science"))) {
         score += EngineConfig.weights.alignment.primaryInterest;
@@ -178,6 +201,10 @@ export class EducationEngine {
         score += EngineConfig.weights.route.chosenProfession;
         matchReasons.unshift(this.translate("Your chosen target profession.", "Dein gewählter Wunschberuf.", "La profession cible que tu as choisie.", "La professione obiettivo che hai scelto."));
       }
+
+      // Tie-breaker: richer records first, so equal matches do not surface in alphabetical order.
+
+      score += Math.max(0, 6 - (prof.incompleteFields?.length ?? 6)) * EngineConfig.weights.route.dataRichness;
 
       const routeSignal = professionRouteSignal(this.route, prof.professionType);
       if (routeSignal === "target-match") {
@@ -309,6 +336,14 @@ export class EducationEngine {
         // Assuming if they specify a language, bilingual programs might be of interest
         score += EngineConfig.weights.regional.bilingualBonus;
         matchReasons.push(this.translate("Suitable for bilingual study options.", "Zweisprachige Studienmöglichkeiten.", "Options d'études bilingues.", "Opzioni di studio bilingue."));
+      }
+
+      if (institutionFitsTarget(this.route, inst.subgroup)) {
+
+        score += EngineConfig.weights.route.institutionTargetMatch;
+
+        matchReasons.push(this.translate("Offers the level you are aiming for.", "Bietet die Stufe, die du anstrebst.", "Propose le niveau que tu vises.", "Offre il livello a cui punti."));
+
       }
 
       const fit = languageFit(this.route, inst.cantonalLanguage);
