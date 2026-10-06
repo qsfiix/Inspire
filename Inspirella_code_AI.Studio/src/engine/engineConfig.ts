@@ -51,6 +51,12 @@ export interface EngineConfigType {
     institution: {
       highRating: number;
     };
+    route: {
+      targetLevelMatch: number;
+      prerequisiteGap: number;
+      languageFit: number;
+      languageGap: number;
+    };
     regional: {
       cantonMatch: number;
       languageRegionMatch: number;
@@ -100,6 +106,13 @@ export const EngineConfig: EngineConfigType = {
     },
     institution: {
       highRating: 10,
+    },
+    // Stated route answers outrank interest signals: the goal is what the user told us first.
+    route: {
+      targetLevelMatch: 40,
+      prerequisiteGap: -15,
+      languageFit: 15,
+      languageGap: -25,
     },
     regional: {
       cantonMatch: 25,

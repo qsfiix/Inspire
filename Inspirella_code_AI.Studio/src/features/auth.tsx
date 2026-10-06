@@ -47,9 +47,9 @@ const AUTH_TRANSLATIONS: Record<string, Record<string, string>> = {
   },
   de: {
     welcomeTitle: "Willkommen bei Inspirella",
-    welcomeSubtitle: "Erstellen Sie Ihr Konto, um die Schweizer Bildungslandschaft zu erkunden und Ihre Ziele zu verfolgen.",
-    signInSubtitle: "Melden Sie sich an, um dort weiterzumachen, wo Sie aufgehört haben.",
-    nameLabel: "Ihr Name",
+    welcomeSubtitle: "Erstelle dein Konto, um die Schweizer Bildungslandschaft zu erkunden und deine Ziele zu verfolgen.",
+    signInSubtitle: "Melde dich an, um dort weiterzumachen, wo du aufgehört hast.",
+    nameLabel: "Dein Name",
     emailLabel: "E-Mail-Adresse",
     passwordLabel: "Passwort",
     submitBtn: "Konto erstellen & fortfahren",
@@ -60,21 +60,21 @@ const AUTH_TRANSLATIONS: Record<string, Record<string, string>> = {
     emailPlaceholder: "z.B. marie@domain.ch",
     passwordPlaceholder: "Mindestens 8 Zeichen",
     backHome: "Zurück zur Startseite",
-    disclaimer: "Ihr Konto wird sicher über Supabase gespeichert, damit Ihr Profil auf allen Geräten verfügbar ist.",
+    disclaimer: "Dein Konto wird sicher über Supabase gespeichert, damit dein Profil auf allen Geräten verfügbar ist.",
     stepLabel: "Schritt",
     signUpTabLabel: "Konto erstellen",
     signInTabLabel: "Anmelden",
     switchToSignIn: "Bereits ein Konto? Jetzt anmelden",
     switchToSignUp: "Neu hier? Konto erstellen",
     confirmEmailTitle: "Bitte E-Mail bestätigen",
-    confirmEmailMessage: "Wir haben einen Bestätigungslink an {email} gesendet. Bestätigen Sie ihn und melden Sie sich anschliessend unten an.",
-    genericAuthError: "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    confirmEmailMessage: "Wir haben einen Bestätigungslink an {email} gesendet. Bestätige ihn und melde dich anschliessend unten an.",
+    genericAuthError: "Etwas ist schiefgelaufen. Bitte versuche es erneut."
   },
   fr: {
     welcomeTitle: "Bienvenue chez Inspirella",
-    welcomeSubtitle: "Créez votre compte pour explorer le système éducatif dual suisse et suivre votre progression.",
-    signInSubtitle: "Connectez-vous pour reprendre là où vous en étiez.",
-    nameLabel: "Votre Nom",
+    welcomeSubtitle: "Crée ton compte pour explorer le système éducatif dual suisse et suivre ta progression.",
+    signInSubtitle: "Connecte-toi pour reprendre là où tu en étais.",
+    nameLabel: "Ton Nom",
     emailLabel: "Adresse E-mail",
     passwordLabel: "Mot de passe",
     submitBtn: "Créer un compte & continuer",
@@ -85,15 +85,15 @@ const AUTH_TRANSLATIONS: Record<string, Record<string, string>> = {
     emailPlaceholder: "ex. marie@domain.ch",
     passwordPlaceholder: "Au moins 8 caractères",
     backHome: "Retour à l'accueil",
-    disclaimer: "Votre compte est créé et stocké en toute sécurité via Supabase, afin que votre profil vous suive sur tous vos appareils.",
+    disclaimer: "Ton compte est créé et stocké en toute sécurité via Supabase, afin que ton profil te suive sur tous tes appareils.",
     stepLabel: "Étape",
     signUpTabLabel: "Créer un compte",
     signInTabLabel: "Se connecter",
     switchToSignIn: "Déjà un compte ? Se connecter",
     switchToSignUp: "Nouveau ici ? Créer un compte",
-    confirmEmailTitle: "Vérifiez votre boîte mail",
-    confirmEmailMessage: "Nous avons envoyé un lien de confirmation à {email}. Confirmez-le, puis connectez-vous ci-dessous.",
-    genericAuthError: "Une erreur est survenue. Veuillez réessayer."
+    confirmEmailTitle: "Vérifie ta boîte mail",
+    confirmEmailMessage: "Nous avons envoyé un lien de confirmation à {email}. Confirme-le, puis connecte-toi ci-dessous.",
+    genericAuthError: "Une erreur est survenue. Réessaie."
   },
   it: {
     welcomeTitle: "Benvenuto in Inspirella",
@@ -560,8 +560,8 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
     goals: {
       title: t.chooseGoals || "Define Desired Outcomes",
       subtitle:
-        currentLanguage === "de" ? "Definieren Sie ein oder mehrere gewünschte Ziele."
-        : currentLanguage === "fr" ? "Définissez un ou plusieurs objectifs d'orientation."
+        currentLanguage === "de" ? "Definiere ein oder mehrere gewünschte Ziele."
+        : currentLanguage === "fr" ? "Définis un ou plusieurs objectifs d'orientation."
         : currentLanguage === "it" ? "Definisci uno o più obiettivi formativi o professionali."
         : "Select your primary intentions for utilizing Inspirella guidance."
     },
@@ -569,16 +569,16 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
     stage: {
       title: t.chooseStage || "Declare Your Current Stage",
       subtitle:
-        currentLanguage === "de" ? "Wählen Sie Ihre aktuelle Ausbildungs- oder Berufsphase (Einzelauswahl)."
-        : currentLanguage === "fr" ? "Sélectionnez votre profil d'activité d'une seule option."
+        currentLanguage === "de" ? "Wähle deine aktuelle Ausbildungs- oder Berufsphase (Einzelauswahl)."
+        : currentLanguage === "fr" ? "Sélectionne ton profil d'activité (une seule option)."
         : currentLanguage === "it" ? "Seleziona la tua attuale fase accademica o lavorativa."
         : "Select your current secondary or vocational standing."
     },
     interests: {
       title: t.chooseInterests || "Select Spheres of Interest",
       subtitle:
-        currentLanguage === "de" ? "Wählen Sie ein oder mehrere Interessengebiete aus."
-        : currentLanguage === "fr" ? "Sélectionnez un ou plusieurs domaines d'intérêt."
+        currentLanguage === "de" ? "Wähle ein oder mehrere Interessengebiete aus."
+        : currentLanguage === "fr" ? "Sélectionne un ou plusieurs domaines d'intérêt."
         : currentLanguage === "it" ? "Seleziona una o più aree di interesse principale."
         : "Select one or more spheres you would like to investigate."
     },

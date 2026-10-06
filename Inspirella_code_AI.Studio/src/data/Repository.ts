@@ -426,6 +426,7 @@ export const parseDbProfession = (db: Record<string, any>): Profession | null =>
     isApprenticeshipPath: asBoolean(
       pick(db, "isApprenticeshipPath", "is_apprenticeship_path", "isApprenticesPath")
     ),
+    professionType: normalizeText(pick(db, "professionType", "profession_type")),
     customMetadata: asMetadata(pick(db, "customMetadata", "custom_metadata")),
     dataOrigin: "cloud"
   };

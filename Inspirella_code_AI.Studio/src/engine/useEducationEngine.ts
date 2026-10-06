@@ -21,10 +21,11 @@ export function useEducationEngine(profile: UserProfile | null) {
       try {
         setLoading(true);
         // Load the core datasets required for analysis
-        const [professions, institutions, resources] = await Promise.all([
+        const [professions, institutions, resources, route] = await Promise.all([
           DataRepository.getProfessions(),
           DataRepository.getInstitutions(),
-          DataRepository.getResources()
+          DataRepository.getResources(),
+          DataRepository.getRouteBackground()
         ]);
 
         if (!active) return;
@@ -34,7 +35,8 @@ export function useEducationEngine(profile: UserProfile | null) {
           profile,
           professions,
           institutions,
-          resources
+          resources,
+          route
         );
 
         // Run the engine

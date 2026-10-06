@@ -164,7 +164,7 @@ Please write your response formatted as JSON. Return a JSON object with:
   ]
 }
 
-Ensure the output is strictly valid JSON matching the schema above, and matches their preferred language (${language}).`;
+Ensure the output is strictly valid JSON matching the schema above, and matches their preferred language (${language}). Address the user informally and warmly (German "du", French "tu", Italian "tu").`;
 
     const response = await ai.models.generateContent({
       model: "gemini-3.5-flash",

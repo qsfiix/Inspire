@@ -1,4 +1,5 @@
-import { UserProfile, Profession, Institution, ResourceItem, LanguageCode } from "../types";
+import { UserProfile, Profession, Institution, ResourceItem, LanguageCode, RouteBackground } from "../types";
+import { bestSwissLanguageRank, languageFit, professionRouteSignal } from "./routeSignals";
 import { EngineConfig, hasSemanticMatch, isHighDemand, getTranslatedString, resolveApprenticeship } from "./engineConfig";
 
 export interface ScoredProfession {
@@ -33,13 +34,16 @@ export class EducationEngine {
   private institutions: Institution[];
   private resources: ResourceItem[];
   private lang: LanguageCode;
+  private route?: RouteBackground;
 
   constructor(
     profile: UserProfile,
     professions: Profession[],
     institutions: Institution[],
-    resources: ResourceItem[]
+    resources: ResourceItem[],
+    route?: RouteBackground
   ) {
+    this.route = route;
     this.profile = profile;
     this.professions = professions;
     this.institutions = institutions;
@@ -92,6 +96,21 @@ export class EducationEngine {
 
   private determineNextBestStep(pathFocus: string): string {
     const stage = this.profile.currentStage;
+
+    // A stated language gap or a language-first goal changes the very next step.
+    const studyTargets = ["university_of_applied_sciences", "university", "berufsmatura", "higher_vocational"];
+    const swissRank = bestSwissLanguageRank(this.route);
+    if (
+      this.route?.targetLevel === "language_course" ||
+      (this.route?.targetLevel && studyTargets.includes(this.route.targetLevel) && swissRank !== null && swissRank < 3)
+    ) {
+      return this.translate(
+        "Build your language level first: aim for at least B1 in the language of instruction.",
+        "Baue zuerst dein Sprachniveau auf: Ziel ist mindestens B1 in der Unterrichtssprache.",
+        "Renforce d'abord ton niveau de langue : vise au moins le B1 dans la langue d'enseignement.",
+        "Rafforza prima il tuo livello linguistico: punta ad almeno B1 nella lingua di insegnamento."
+      );
+    }
     
     for (const rule of EngineConfig.rules.nextSteps) {
       if (rule.stagesAny.includes(stage)) {
@@ -130,7 +149,7 @@ export class EducationEngine {
           (this.profile.interests.includes("tech") &&
             (prof.category === "technology" || prof.category === "engineering" || prof.category === "IT" || prof.category === "science"))) {
         score += EngineConfig.weights.alignment.primaryInterest;
-        matchReasons.push(this.translate("Aligns with your primary interests.", "Stimmt mit Ihren Hauptinteressen überein.", "Correspond à vos intérêts principaux.", "In linea con i tuoi interessi principali."));
+        matchReasons.push(this.translate("Aligns with your primary interests.", "Stimmt mit deinen Hauptinteressen überein.", "Correspond à tes intérêts principaux.", "In linea con i tuoi interessi principali."));
       }
 
       // Semantic matching in description or title. The keywords are English
@@ -152,7 +171,16 @@ export class EducationEngine {
         matchReasons.push(this.translate("Matches practical apprenticeship track.", "Entspricht dem praktischen Ausbildungsweg.", "Correspond à l'apprentissage pratique.", "Corrisponde al percorso di apprendistato pratico."));
       } else if (isVet === false && this.profile.interests.includes("academic")) {
         score += EngineConfig.weights.apprenticeship.academicTrack;
-        matchReasons.push(this.translate("Matches your academic focus.", "Entspricht Ihrem akademischen Fokus.", "Correspond à votre orientation académique.", "Corrisponde al tuo focus accademico."));
+        matchReasons.push(this.translate("Matches your academic focus.", "Entspricht deinem akademischen Fokus.", "Correspond à ton orientation académique.", "Corrisponde al tuo focus accademico."));
+      }
+
+      const routeSignal = professionRouteSignal(this.route, prof.professionType);
+      if (routeSignal === "target-match") {
+        score += EngineConfig.weights.route.targetLevelMatch;
+        matchReasons.push(this.translate("Fits the level you are aiming for.", "Passt zur Stufe, die du anstrebst.", "Correspond au niveau que tu vises.", "Corrisponde al livello a cui punti."));
+      } else if (routeSignal === "prerequisite-gap") {
+        score += EngineConfig.weights.route.prerequisiteGap;
+        matchReasons.push(this.translate("Needs an earlier qualification first.", "Setzt zuerst einen früheren Abschluss voraus.", "Nécessite d'abord un diplôme préalable.", "Richiede prima un titolo precedente."));
       }
 
       return { profession: prof, score, matchReasons };
@@ -229,7 +257,7 @@ export class EducationEngine {
         for (const interest of this.profile.interests) {
           if (descStr.toLowerCase().includes(interest.toLowerCase())) {
             score += EngineConfig.weights.alignment.genericInterest;
-            const msg = this.translate("Matches your specific interests.", "Passt zu Ihren spezifischen Interessen.", "Correspond à vos intérêts spécifiques.", "Corrisponde ai tuoi interessi specifici.");
+            const msg = this.translate("Matches your specific interests.", "Passt zu deinen spezifischen Interessen.", "Correspond à tes intérêts spécifiques.", "Corrisponde ai tuoi interessi specifici.");
             if (!matchReasons.includes(msg)) {
               matchReasons.push(msg);
             }
@@ -244,7 +272,7 @@ export class EducationEngine {
       // 1. Explicit Canton Match
       if (this.profile.preferredCanton && canton.toLowerCase() === this.profile.preferredCanton.toLowerCase()) {
         score += EngineConfig.weights.regional.cantonMatch;
-        matchReasons.push(this.translate("Relevant for your canton context.", "Relevant für Ihren Kantonskontext.", "Pertinent pour le contexte de votre canton.", "Rilevante per il tuo cantone."));
+        matchReasons.push(this.translate("Relevant for your canton context.", "Relevant für deinen Kantonskontext.", "Pertinent pour le contexte de ton canton.", "Rilevante per il tuo cantone."));
       }
 
       // 2. Language Region Match (using profile.targetLanguageRegion or profile.language)
@@ -268,7 +296,7 @@ export class EducationEngine {
 
       if (langMatch) {
         score += EngineConfig.weights.regional.languageRegionMatch;
-        matchReasons.push(this.translate("Matches your preferred language region.", "Entspricht Ihrer bevorzugten Sprachregion.", "Correspond à votre région linguistique préférée.", "Corrisponde alla tua regione linguistica preferita."));
+        matchReasons.push(this.translate("Matches your preferred language region.", "Entspricht deiner bevorzugten Sprachregion.", "Correspond à ta région linguistique préférée.", "Corrisponde alla tua regione linguistica preferita."));
       }
 
       // 3. Bilingual Bonus
@@ -276,6 +304,15 @@ export class EducationEngine {
         // Assuming if they specify a language, bilingual programs might be of interest
         score += EngineConfig.weights.regional.bilingualBonus;
         matchReasons.push(this.translate("Suitable for bilingual study options.", "Zweisprachige Studienmöglichkeiten.", "Options d'études bilingues.", "Opzioni di studio bilingue."));
+      }
+
+      const fit = languageFit(this.route, inst.cantonalLanguage);
+      if (fit?.kind === "fit") {
+        score += EngineConfig.weights.route.languageFit;
+        matchReasons.push(this.translate("Your language level fits the language of instruction.", "Dein Sprachniveau passt zur Unterrichtssprache.", "Ton niveau de langue correspond à la langue d'enseignement.", "Il tuo livello linguistico è adatto alla lingua di insegnamento."));
+      } else if (fit?.kind === "gap") {
+        score += EngineConfig.weights.route.languageGap;
+        matchReasons.push(this.translate("Instruction is in a language you have not reached B2 in yet.", "Unterricht in einer Sprache, in der du noch nicht B2 erreicht hast.", "Enseignement dans une langue où tu n'as pas encore atteint le B2.", "Insegnamento in una lingua in cui non hai ancora raggiunto il B2."));
       }
 
       return { institution: inst, score, matchReasons };
@@ -316,7 +353,7 @@ export class EducationEngine {
         const pCanton = this.profile.preferredCanton.toLowerCase();
         if (resDescLower.includes(pCanton) || resTitleLower.includes(pCanton) || res.tags?.some(tag => tag.toLowerCase().includes(pCanton))) {
           score += EngineConfig.weights.regional.cantonMatch;
-          matchReasons.push(this.translate("Relevant for your canton context.", "Relevant für Ihren Kantonskontext.", "Pertinent pour le contexte de votre canton.", "Rilevante per il tuo cantone."));
+          matchReasons.push(this.translate("Relevant for your canton context.", "Relevant für deinen Kantonskontext.", "Pertinent pour le contexte de ton canton.", "Rilevante per il tuo cantone."));
         }
       }
 
@@ -332,7 +369,7 @@ export class EducationEngine {
 
       if (languageBonus) {
         score += EngineConfig.weights.regional.languageRegionMatch;
-        matchReasons.push(this.translate("Matches your preferred language region.", "Entspricht Ihrer bevorzugten Sprachregion.", "Correspond à votre région linguistique préférée.", "Corrisponde alla tua regione linguistica preferita."));
+        matchReasons.push(this.translate("Matches your preferred language region.", "Entspricht deiner bevorzugten Sprachregion.", "Correspond à ta région linguistique préférée.", "Corrisponde alla tua regione linguistica preferita."));
       }
 
       // Route connection from Institutions -> Resources
@@ -352,8 +389,8 @@ export class EducationEngine {
         score += EngineConfig.weights.alignment.resourceRouteMatch;
         const msg = this.translate(
           `Supports your path to ${connectedInstitution.institution.title}`,
-          `Unterstützt Ihren Weg zu ${connectedInstitution.institution.title}`,
-          `Soutient votre parcours vers ${connectedInstitution.institution.title}`,
+          `Unterstützt deinen Weg zu ${connectedInstitution.institution.title}`,
+          `Soutient ton parcours vers ${connectedInstitution.institution.title}`,
           `Supporta il tuo percorso verso ${connectedInstitution.institution.title}`
         );
         if (!matchReasons.includes(msg)) matchReasons.push(msg);

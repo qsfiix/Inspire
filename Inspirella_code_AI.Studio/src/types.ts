@@ -248,6 +248,8 @@ export interface Profession extends RecordProvenance {
   skillsRequired?: Partial<Record<LanguageCode, string[]>>;
   industries?: string[];
   isApprenticeshipPath?: boolean;
+  /** professions.profession_type: apprenticeship_efz, fachausweis, fh_bachelor, ... */
+  professionType?: string;
   customMetadata?: Record<string, unknown>;
 }
 
