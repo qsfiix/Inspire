@@ -1,6 +1,10 @@
 export type RouteCopy = Record<string, string>;
 
 const en: RouteCopy = {
+  cantonLinkLabel: "Official page for {canton}",
+  yourCanton: "Your canton",
+  careerGuidanceFor: "Career guidance in {canton}",
+  bridgeFor: "Bridge year offers in {canton}",
   profSuggested: "Recommended for you",
   profTitle: "Your target profession",
   profHint: "Optional. Pick a profession to see its own steps and the schools that train for it.",
@@ -71,6 +75,10 @@ const en: RouteCopy = {
 };
 
 const de: RouteCopy = {
+  cantonLinkLabel: "Offizielle Seite für {canton}",
+  yourCanton: "Dein Kanton",
+  careerGuidanceFor: "Berufsberatung in {canton}",
+  bridgeFor: "Brückenangebote in {canton}",
   profSuggested: "Für dich empfohlen",
   profTitle: "Dein Wunschberuf",
   profHint: "Freiwillig. Wähle einen Beruf, um seine eigenen Schritte und die Schulen dafür zu sehen.",
@@ -141,6 +149,10 @@ const de: RouteCopy = {
 };
 
 const fr: RouteCopy = {
+  cantonLinkLabel: "Page officielle pour {canton}",
+  yourCanton: "Ton canton",
+  careerGuidanceFor: "Orientation professionnelle en {canton}",
+  bridgeFor: "Offres transitoires en {canton}",
   profSuggested: "Recommandé pour toi",
   profTitle: "Ta profession cible",
   profHint: "Facultatif. Choisis une profession pour voir ses propres étapes et les écoles qui y mènent.",
@@ -211,6 +223,10 @@ const fr: RouteCopy = {
 };
 
 const it: RouteCopy = {
+  cantonLinkLabel: "Pagina ufficiale per {canton}",
+  yourCanton: "Il tuo cantone",
+  careerGuidanceFor: "Orientamento professionale in {canton}",
+  bridgeFor: "Offerte transitorie in {canton}",
   profSuggested: "Consigliato per te",
   profTitle: "La tua professione obiettivo",
   profHint: "Facoltativo. Scegli una professione per vedere i suoi passi e le scuole che vi preparano.",

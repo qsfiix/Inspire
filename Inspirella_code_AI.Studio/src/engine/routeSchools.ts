@@ -28,6 +28,30 @@ export const STEP_SCHOOLS: Record<string, SchoolSelector> = {
   "specialized_baccalaureate_to_uas:6": { subgroups: ["university_of_applied_sciences", "teacher_education"] }
 };
 
+/**
+ * Steps where the user's own canton matters: the route card shows the official
+ * cantonal page for the topic (resources.canton_code + topic_code).
+ */
+export const STEP_CANTON_TOPICS: Record<string, string> = {
+  "start_vocational_training:1": "lehrstellen",
+  "start_vocational_training:2": "lehrstellen",
+  "lehre_berufsmatura_fachhochschule:1": "lehrstellen",
+  "lehre_berufsmatura_fachhochschule:2": "lehrstellen",
+  "lehre_berufsmatura_fachhochschule:7": "berufsmaturitaet",
+  "lehre_berufsmatura_fachhochschule:13": "stipends",
+  "efz_ohne_berufsmatura_zur_fachhochschule:2": "berufsmaturitaet",
+  "efz_ohne_berufsmatura_zur_fachhochschule:7": "stipends",
+  "gymnasium_quarta_bis_prima:2": "gymnasium",
+  "academic_matura_to_university:7": "stipends",
+  "matura_zur_fachhochschule:8": "stipends",
+  "specialized_baccalaureate_to_uas:3": "fms",
+  "adult_berufsabschluss_nachholen:1": "adult_qualification",
+  "adult_berufsabschluss_nachholen:2": "adult_qualification",
+  "adult_berufsabschluss_nachholen:6": "stipends",
+  "passerelle_to_university:2": "passerelle",
+  "vet_to_professional_education:6": "stipends"
+};
+
 export const BM_ORIENTATIONS = ["tals", "nll", "wd", "gk", "gs"] as const;
 
 export interface FocusEntry {

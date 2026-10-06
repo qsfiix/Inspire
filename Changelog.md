@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-20
+Last Updated: 2026-10-21
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -30,6 +30,13 @@ Related Files:
 
 ---
 
+## 2026-10-21 — Закрытие дыр: кантональные страницы, HF-школы, языковые пороги
+- **Кантональный слой для персонализации:** в `resources` добавлены `canton_code` и `topic_code` (миграция); 170 существовавших кантональных ресурсов размечены по URL и теме (stipends, gymnasium, berufsmaturitaet, fms, lehrstellen, bridge, adult_qualification, career_guidance). Два агента нашли недостающие официальные страницы кантонов: +109 ресурсов (все ссылки проверены, 403/429 от ботов приняты, 404 отброшены). Покрытие 26 кантонов × 8 тем: stipends 26/26, career_guidance 25/26, bridge и lehrstellen по 23/26, gymnasium 23/26, berufsmaturitaet 22/26, adult_qualification 23/26; FMS 19/26 (в UR, NW, OW, SZ собственной FMS нет).
+- **Карточка маршрута:** выбор кантона (`Dein Kanton`) вверху карточки; в шагах Lehrstelle, BM, FMS, Gymnasium, Passerelle, Stipendien показывается официальная страница именно этого кантона; рядом Berufsberatung и Brückenangebote кантона. Кантон сохраняется в профиле.
+- **HF:** агент нашёл школы для 25 HF-профессий без связей: +15 новых учреждений и +32 связи (`bld_0542`–`bld_0556`; остальные привязаны к уже существующим). Не найдено: Diabetesberaterin NDS, Zytotechnologin, Palliative Care NDS (на странице Careum это не NDS HF), skyguide (нет адреса), CPNV/CPNE (ещё в процессе признания).
+- **Языковые пороги** по немецкому, французскому и итальянскому уточнены в шагах языковых путей: Uni Luzern C1, Basel C1 (рекомендация), HSG B2 (Assessment-Jahr), Fribourg и Neuchâtel B2, BFH Soziale Arbeit и FHGR C1, PH FHNW/SG C2 (PH Luzern «in der Regel» C2), USI-Italian-Bachelors B2. Агент использовал curl и Python сверх задания (только чтение).
+- **Остаётся без данных:** общий уровень HES-SO и HSLU, HF (ibW, ZbW, TBZ, GBS), немецкий для Lehre/BM по кантонам, общий порог SUPSI и PHBern. В коде порог для немецкого вуза C1, для французского и итальянского B2.
+- **Не закрыто:** описания шагов существуют только на немецком (ждём DeepL 28 октября).
 ## 2026-10-20 — Маршрут, «Mein Weg» и рекомендации сведены в один план
 - **Выбранная профессия управляет всем дашбордом:** движок рекомендаций закрепляет её первой (`route.chosenProfession` = 1000, причина «Dein gewählter Wunschberuf»), поэтому «Mein Weg» (лестница) и «Warum diese Empfehlungen» берут именно её. Раньше три блока жили отдельно и могли предлагать разные профессии.
 - **Подсказки в карточке маршрута:** пока профессия не выбрана, под полем поиска показываются три лучшие профессии из движка («Für dich empfohlen»); клик выбирает профессию и сразу обновляет все блоки без перезагрузки (событие `inspirella:route-changed` из `saveRouteBackground`).

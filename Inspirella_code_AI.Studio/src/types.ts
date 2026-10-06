@@ -261,6 +261,13 @@ export interface Profession extends RecordProvenance {
 /** A curated, verified link between a profession and an institution that
  *  genuinely offers a pathway into it (see `profession_institutions`). Not
  *  every profession has one yet - absent rather than guessed. */
+/** An official cantonal page for one topic (resources.canton_code + topic_code). */
+export interface CantonalLink {
+  topic: string;
+  title: Partial<Record<LanguageCode, string>>;
+  url: string;
+}
+
 export interface ProfessionInstitutionLink {
   id: string;
   professionId: string;

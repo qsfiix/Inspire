@@ -12,6 +12,7 @@ import {
   LearningPath,
   LearningPathStep,
   ProfessionInstitutionLink,
+  CantonalLink,
   RouteBackground,
   LanguageLevel,
   CefrLevel
@@ -1266,6 +1267,33 @@ export const DataRepository = {
       console.warn("Failed to load profession-institution links from Supabase", err);
       return [];
     }
+  },
+
+  /** Official cantonal pages (stipends, gymnasium admission, Lehrstellen, ...) for one canton, grouped by topic. */
+  getCantonalLinks: async (canton: string): Promise<Map<string, CantonalLink[]>> => {
+    const out = new Map<string, CantonalLink[]>();
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive() || !/^[A-Za-z]{2}$/.test(canton)) return out;
+    try {
+      const { data, error } = await getSupabase()
+        .from("resources")
+        .select("title_de, title_en, title_fr, title_it, official_url, topic_code")
+        .eq("canton_code", canton.toUpperCase())
+        .eq("is_active", true)
+        .not("topic_code", "is", null);
+      if (error || !Array.isArray(data)) return out;
+      for (const row of data as any[]) {
+        const url = normalizeUrl(row.official_url);
+        const title = pickLocalizedText(row, "title");
+        if (!url || !title || !row.topic_code) continue;
+        const list = out.get(row.topic_code) ?? [];
+        list.push({ topic: row.topic_code, title, url });
+        out.set(row.topic_code, list);
+      }
+    } catch (err) {
+      console.warn("Failed to load cantonal links", err);
+    }
+    return out;
   },
 
   /** Institutions linked to one profession (profession_institutions), for the route card. */

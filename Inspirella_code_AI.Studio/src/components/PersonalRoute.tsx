@@ -6,9 +6,9 @@ import { buildPersonalRoute, PlannedSegment, PersonalRoute as PersonalRouteModel
 import { getTranslatedString } from "../engine/engineConfig";
 import { getOnboardingCopy } from "../features/onboardingCopy";
 import { getRouteCopy } from "./personalRouteCopy";
-import { BM_ORIENTATIONS, STEP_SCHOOLS, suggestSchools, FocusEntry, SchoolSelector } from "../engine/routeSchools";
+import { BM_ORIENTATIONS, STEP_CANTON_TOPICS, STEP_SCHOOLS, suggestSchools, FocusEntry, SchoolSelector } from "../engine/routeSchools";
 import { TARGET_TYPES } from "../engine/routeSignals";
-import type { Institution, LanguageCode, LearningPath, Profession, RouteBackground, UserProfile } from "../types";
+import type { CantonalLink, Institution, LanguageCode, LearningPath, Profession, RouteBackground, UserProfile } from "../types";
 
 const CANTONS = ["AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR", "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG", "TI", "UR", "VD", "VS", "ZG", "ZH"];
 
@@ -17,6 +17,7 @@ interface SchoolContext {
   focus: Map<string, FocusEntry[]>;
   canton: string;
   onCantonChange: (canton: string) => void;
+  cantonLinks: Map<string, CantonalLink[]>;
 }
 
 interface PersonalRouteProps {
@@ -232,6 +233,21 @@ function SegmentView({
                       </a>
                     )}
                   </div>
+                  {status !== "done" && step.order !== undefined && schools.canton && STEP_CANTON_TOPICS[segment.code + ":" + step.order] &&
+                    (schools.cantonLinks.get(STEP_CANTON_TOPICS[segment.code + ":" + step.order]) ?? []).slice(0, 2).map(link => (
+                      <a
+                        key={link.url}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex items-center gap-1 text-[11px] underline ${isDark ? "text-violet-300" : "text-violet-800"}`}
+                      >
+                        <ExternalLink className="h-3 w-3 shrink-0" />
+                        <span>
+                          {copy.cantonLinkLabel.replace("{canton}", schools.canton)}: {getTranslatedString(link.title, language, "de")}
+                        </span>
+                      </a>
+                    ))}
                   {status !== "done" && step.order !== undefined && STEP_SCHOOLS[segment.code + ":" + step.order] && (
                     <StepSchools stepKey={segment.code + ":" + step.order} ctx={schools} isDark={isDark} copy={copy} />
                   )}
@@ -317,11 +333,24 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
     };
   }, []);
 
+  const [cantonLinks, setCantonLinks] = useState<Map<string, CantonalLink[]>>(new Map());
+  useEffect(() => {
+    let active = true;
+    if (!canton) {
+      setCantonLinks(new Map());
+      return;
+    }
+    DataRepository.getCantonalLinks(canton).then(links => active && setCantonLinks(links));
+    return () => {
+      active = false;
+    };
+  }, [canton]);
+
   const handleCanton = (value: string) => {
     setCanton(value);
     if (value) onProfileUpdate?.({ preferredCanton: value });
   };
-  const schools: SchoolContext = { institutions, focus, canton, onCantonChange: handleCanton };
+  const schools: SchoolContext = { institutions, focus, canton, onCantonChange: handleCanton, cantonLinks };
 
   useEffect(() => {
     let active = true;
@@ -393,6 +422,33 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
               ))}
             </ul>
           )}
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs" data-testid="route-canton">
+            <label className="flex items-center gap-1.5">
+              <span className={muted}>{copy.yourCanton}</span>
+              <select
+                value={canton}
+                onChange={e => handleCanton(e.target.value)}
+                className={`rounded-lg border px-2 py-1 text-[11px] font-semibold ${isDark ? "bg-white/[0.03] border-white/10 text-white" : "bg-white border-purple-200 text-violet-950"}`}
+              >
+                <option value="">-</option>
+                {CANTONS.map(code => (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {canton &&
+              ["career_guidance", "bridge"].flatMap(topic =>
+                (cantonLinks.get(topic) ?? []).slice(0, 1).map(link => (
+                  <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-1 underline ${isDark ? "text-violet-300" : "text-violet-800"}`}>
+                    {(topic === "career_guidance" ? copy.careerGuidanceFor : copy.bridgeFor).replace("{canton}", canton)}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                ))
+              )}
+          </div>
 
           <div className="space-y-2" data-testid="route-profession">
             <span className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-violet-300" : "text-violet-800"}`}>{copy.profTitle}</span>
