@@ -174,6 +174,11 @@ export class EducationEngine {
         matchReasons.push(this.translate("Matches your academic focus.", "Entspricht deinem akademischen Fokus.", "Correspond à ton orientation académique.", "Corrisponde al tuo focus accademico."));
       }
 
+      if (this.route?.targetProfessionId && prof.id === this.route.targetProfessionId) {
+        score += EngineConfig.weights.route.chosenProfession;
+        matchReasons.unshift(this.translate("Your chosen target profession.", "Dein gewählter Wunschberuf.", "La profession cible que tu as choisie.", "La professione obiettivo che hai scelto."));
+      }
+
       const routeSignal = professionRouteSignal(this.route, prof.professionType);
       if (routeSignal === "target-match") {
         score += EngineConfig.weights.route.targetLevelMatch;

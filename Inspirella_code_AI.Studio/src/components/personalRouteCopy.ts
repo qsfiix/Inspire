@@ -1,6 +1,7 @@
 export type RouteCopy = Record<string, string>;
 
 const en: RouteCopy = {
+  profSuggested: "Recommended for you",
   profTitle: "Your target profession",
   profHint: "Optional. Pick a profession to see its own steps and the schools that train for it.",
   profSearch: "Search a profession…",
@@ -70,6 +71,7 @@ const en: RouteCopy = {
 };
 
 const de: RouteCopy = {
+  profSuggested: "Für dich empfohlen",
   profTitle: "Dein Wunschberuf",
   profHint: "Freiwillig. Wähle einen Beruf, um seine eigenen Schritte und die Schulen dafür zu sehen.",
   profSearch: "Beruf suchen…",
@@ -139,6 +141,7 @@ const de: RouteCopy = {
 };
 
 const fr: RouteCopy = {
+  profSuggested: "Recommandé pour toi",
   profTitle: "Ta profession cible",
   profHint: "Facultatif. Choisis une profession pour voir ses propres étapes et les écoles qui y mènent.",
   profSearch: "Chercher une profession…",
@@ -208,6 +211,7 @@ const fr: RouteCopy = {
 };
 
 const it: RouteCopy = {
+  profSuggested: "Consigliato per te",
   profTitle: "La tua professione obiettivo",
   profHint: "Facoltativo. Scegli una professione per vedere i suoi passi e le scuole che vi preparano.",
   profSearch: "Cerca una professione…",

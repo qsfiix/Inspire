@@ -787,6 +787,8 @@ export const DataRepository = {
     await fetchSupabaseConfig();
     // Local copy always holds everything, including sensitive fields.
     LocalMockDB.saveRouteBackground(bg);
+    // Let every engine instance (route card, My Path, advisor report) recompute.
+    if (typeof window !== "undefined") window.dispatchEvent(new Event("inspirella:route-changed"));
 
     if (!isSupabaseActive()) return;
     try {

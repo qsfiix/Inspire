@@ -109,6 +109,17 @@ export function DashboardView({
         </section>
       )}
 
+      <Reveal as="section">
+        <PersonalRoute
+          userProfile={userProfile}
+          language={currentLanguage}
+          isDark={isDark}
+          onRefine={() => handleTabTransition("onboarding")}
+          onProfileUpdate={onProfileUpdate}
+        />
+      </Reveal>
+
+
       <section>
         <MyPathLadder
           userProfile={userProfile}
@@ -119,16 +130,6 @@ export function DashboardView({
           onExploreAlternatives={() => handleTabTransition("resources")}
         />
       </section>
-
-      <Reveal as="section">
-        <PersonalRoute
-          userProfile={userProfile}
-          language={currentLanguage}
-          isDark={isDark}
-          onRefine={() => handleTabTransition("onboarding")}
-          onProfileUpdate={onProfileUpdate}
-        />
-      </Reveal>
 
       <Reveal as="section">
         <AdvisorReport

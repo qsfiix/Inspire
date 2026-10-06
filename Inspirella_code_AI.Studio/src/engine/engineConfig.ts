@@ -56,6 +56,7 @@ export interface EngineConfigType {
       prerequisiteGap: number;
       languageFit: number;
       languageGap: number;
+      chosenProfession: number;
     };
     regional: {
       cantonMatch: number;
@@ -113,6 +114,8 @@ export const EngineConfig: EngineConfigType = {
       prerequisiteGap: -15,
       languageFit: 15,
       languageGap: -25,
+      // The profession the user picked themselves always ranks first.
+      chosenProfession: 1000,
     },
     regional: {
       cantonMatch: 25,

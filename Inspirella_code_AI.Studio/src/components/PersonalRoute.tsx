@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Check, ChevronDown, ChevronUp, Circle, ExternalLink, Info, Route as RouteIcon } from "lucide-react";
 import { DataRepository } from "../data/Repository";
+import { useEducationEngine } from "../engine/useEducationEngine";
 import { buildPersonalRoute, PlannedSegment, PersonalRoute as PersonalRouteModel } from "../engine/pathPlanner";
 import { getTranslatedString } from "../engine/engineConfig";
 import { getOnboardingCopy } from "../features/onboardingCopy";
@@ -256,6 +257,8 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
   const [professions, setProfessions] = useState<Profession[]>([]);
   const [profQuery, setProfQuery] = useState("");
   const [profInstitutionIds, setProfInstitutionIds] = useState<string[]>([]);
+  const { recommendation } = useEducationEngine(userProfile);
+  const suggested = (recommendation?.professions ?? []).filter(rp => rp.profession.id !== route?.targetProfessionId).slice(0, 3);
 
   useEffect(() => {
     let active = true;
@@ -412,6 +415,21 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
                   aria-label={copy.profTitle}
                   className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold ${isDark ? "bg-white/[0.03] border-white/10 text-white" : "bg-white border-purple-200 text-violet-950"}`}
                 />
+                {profQuery.trim().length < 2 && suggested.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className={`text-[11px] ${muted}`}>{copy.profSuggested}:</span>
+                    {suggested.map(rp => (
+                      <button
+                        key={rp.profession.id}
+                        type="button"
+                        onClick={() => updateRoute({ targetProfessionId: rp.profession.id })}
+                        className={`rounded-full border px-2.5 py-1 text-[11px] font-bold cursor-pointer ${isDark ? "border-violet-500/50 text-violet-200 hover:bg-violet-950/40" : "border-violet-400 text-violet-900 hover:bg-violet-100"}`}
+                      >
+                        {getTranslatedString(rp.profession.title, language, "de")}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {profQuery.trim().length < 2 && <p className={`text-[11px] ${muted}`}>{copy.profHint}</p>}
                 {profQuery.trim().length >= 2 && profMatches.length === 0 && <p className={`text-[11px] ${muted}`}>{copy.profNone}</p>}
                 {profMatches.length > 0 && (
