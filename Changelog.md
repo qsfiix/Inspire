@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-17
+Last Updated: 2026-10-18
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -30,6 +30,11 @@ Related Files:
 
 ---
 
+## 2026-10-18 — Школы прямо в шагах персонального маршрута
+- В шагах маршрута, где нужно выбрать школу, появилась кнопка «Schulen anzeigen (N)»: список заведений с кантоном, сайтом и деталями. Привязка (`engine/routeSchools.ts`, `STEP_SCHOOLS`): BM-школы к шагам «BM-Unterricht» и «BM 2 nach der Lehre» (105 школ с типами BM1/BM2), FH к шагам выбора Fachhochschule, Gymnasien к пути Quarta–Prima, университеты и ETH к шагу заявки, Fachmittelschulen и PH к пути через FMS.
+- Сортировка: сначала твой кантон, потом тот же языковой регион, затем остальные. Для BM есть фильтр по Ausrichtung (TALS, NLL, WD, GK, GS). Кантон выбирается прямо в карточке и сохраняется в профиле (`preferredCanton`, раньше нигде не задавался), поэтому он теперь влияет и на рекомендации движка.
+- Данные: `Institution.subgroup`, `DataRepository.getInstitutionFocusAreas()` (пагинация, публичное чтение), 5 новых тестов (87 из 87), проверено в браузере на живой базе (Zürich-школы первыми, типы BM видны).
+- Не привязано (нет данных или слишком общий выбор): школы для Lehre, провайдеры HF/BP/HFP (зависят от профессии, лежат в `profession_institutions`), языковые школы.
 ## 2026-10-17 — Персональный маршрут: планировщик, данные и карточка на дашборде
 - **Аудит данных перед сборкой маршрута:** были пустые шаблоны (старт Lehre, французский/итальянский, Uni), три «скелета» без текстов, не было путей Matura → FH, взрослая Nachholbildung, Fachmittelschule, признание иностранных дипломов и требований к языку вузов. Закрыто так:
   - **Новые/заполненные пути:** `start_vocational_training` (8 шагов), `vet_to_professional_education` (8, HF/BP/HFP), `matura_zur_fachhochschule` (9), `adult_berufsabschluss_nachholen` (7), `specialized_baccalaureate_to_uas` (9, FMS → Fachmaturität → FH/PH), `recognise_foreign_qualification` (11), `learn_french_b2` и `learn_italian_b1` (по 5), `learn_german_b2` +2 шага (какой уровень нужен вузам, какой сертификат). Дубли `enter_university` и `vet_to_uas_via_berufsmaturitaet` выключены (`is_active=false`).

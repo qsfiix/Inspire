@@ -116,6 +116,9 @@ export interface Institution extends RecordProvenance {
   id: string;
   title: string;
 
+  /** institutions.institution_subgroup, e.g. gymnasium, university_of_applied_sciences, fachmittelschule. */
+  subgroup?: string;
+
   /** Controlled classification. Absent when the source row has no usable type. */
   category?: string;
 

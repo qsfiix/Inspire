@@ -1,6 +1,20 @@
 export type RouteCopy = Record<string, string>;
 
 const en: RouteCopy = {
+  schoolsShow: "Show schools",
+  schoolsHide: "Hide schools",
+  schoolsCanton: "Your canton",
+  schoolsAll: "All of Switzerland",
+  schoolsNone: "No school found for this filter yet.",
+  schoolsMore: "Show more",
+  schoolsHint: "Check admission rules and dates with the school itself.",
+  website: "Website",
+  orientationAll: "All orientations",
+  orient_tals: "Technology, architecture, life sciences",
+  orient_nll: "Nature, landscape, food",
+  orient_wd: "Business and services",
+  orient_gk: "Design and art",
+  orient_gs: "Health and social",
   title: "Your personal route",
   subtitle: "Built from your answers. It sharpens as you add more.",
   loading: "Building your route…",
@@ -39,6 +53,20 @@ const en: RouteCopy = {
 };
 
 const de: RouteCopy = {
+  schoolsShow: "Schulen anzeigen",
+  schoolsHide: "Schulen ausblenden",
+  schoolsCanton: "Dein Kanton",
+  schoolsAll: "Ganze Schweiz",
+  schoolsNone: "Für diesen Filter ist noch keine Schule erfasst.",
+  schoolsMore: "Mehr anzeigen",
+  schoolsHint: "Prüfe Aufnahmeregeln und Termine bei der Schule selbst.",
+  website: "Website",
+  orientationAll: "Alle Ausrichtungen",
+  orient_tals: "Technik, Architektur, Life Sciences",
+  orient_nll: "Natur, Landschaft, Lebensmittel",
+  orient_wd: "Wirtschaft und Dienstleistungen",
+  orient_gk: "Gestaltung und Kunst",
+  orient_gs: "Gesundheit und Soziales",
   title: "Dein persönlicher Weg",
   subtitle: "Aus deinen Antworten gebaut. Er wird genauer, je mehr du ergänzt.",
   loading: "Dein Weg wird zusammengestellt…",
@@ -77,6 +105,20 @@ const de: RouteCopy = {
 };
 
 const fr: RouteCopy = {
+  schoolsShow: "Afficher les écoles",
+  schoolsHide: "Masquer les écoles",
+  schoolsCanton: "Ton canton",
+  schoolsAll: "Toute la Suisse",
+  schoolsNone: "Aucune école enregistrée pour ce filtre pour l'instant.",
+  schoolsMore: "Afficher plus",
+  schoolsHint: "Vérifie les conditions d'admission et les dates auprès de l'école elle-même.",
+  website: "Site web",
+  orientationAll: "Toutes les orientations",
+  orient_tals: "Technique, architecture, sciences de la vie",
+  orient_nll: "Nature, paysage, alimentation",
+  orient_wd: "Économie et services",
+  orient_gk: "Arts visuels et design",
+  orient_gs: "Santé et social",
   title: "Ton parcours personnel",
   subtitle: "Construit à partir de tes réponses. Il gagne en précision quand tu en ajoutes.",
   loading: "Construction de ton parcours…",
@@ -115,6 +157,20 @@ const fr: RouteCopy = {
 };
 
 const it: RouteCopy = {
+  schoolsShow: "Mostra le scuole",
+  schoolsHide: "Nascondi le scuole",
+  schoolsCanton: "Il tuo cantone",
+  schoolsAll: "Tutta la Svizzera",
+  schoolsNone: "Nessuna scuola registrata per questo filtro per ora.",
+  schoolsMore: "Mostra altro",
+  schoolsHint: "Verifica le condizioni di ammissione e le date presso la scuola stessa.",
+  website: "Sito web",
+  orientationAll: "Tutti gli indirizzi",
+  orient_tals: "Tecnica, architettura, scienze della vita",
+  orient_nll: "Natura, paesaggio, alimentazione",
+  orient_wd: "Economia e servizi",
+  orient_gk: "Arti visive e design",
+  orient_gs: "Salute e sociale",
   title: "Il tuo percorso personale",
   subtitle: "Costruito dalle tue risposte. Diventa più preciso quando ne aggiungi altre.",
   loading: "Costruzione del tuo percorso…",

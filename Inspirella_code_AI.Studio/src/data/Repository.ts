@@ -306,6 +306,7 @@ export const parseDbInstitution = (db: Record<string, any>): Institution | null 
     id,
     title,
     category: normalizeText(pick(db, "category", "institution_type", "type", "institution_group")),
+    subgroup: normalizeText(pick(db, "subgroup", "institution_subgroup")),
     coordinates,
     canton: normalizeText(pick(db, "canton", "region")),
     // `summary_*` has full en/de/fr/it coverage in the live schema; `description_de`
@@ -1146,6 +1147,28 @@ export const DataRepository = {
       }
     }
     return withOrigin(SWISS_INSTITUTIONS, "static");
+  },
+
+  /** Focus-area codes per institution id (e.g. berufsmaturitaet, bm_wd, fachmittelschule) with their source note. */
+  getInstitutionFocusAreas: async (): Promise<Map<string, { code: string; note?: string }[]>> => {
+    const out = new Map<string, { code: string; note?: string }[]>();
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) return out;
+    try {
+      const supabase = getSupabase();
+      const { data } = await fetchAllRows(() =>
+        supabase.from("institution_focus_areas").select("institution_id, focus_area_code, note").order("id", { ascending: true })
+      );
+      for (const row of data ?? []) {
+        if (!row?.institution_id || !row?.focus_area_code) continue;
+        const list = out.get(String(row.institution_id)) ?? [];
+        list.push({ code: String(row.focus_area_code), note: row.note ?? undefined });
+        out.set(String(row.institution_id), list);
+      }
+    } catch (err) {
+      console.warn("Failed to load institution focus areas", err);
+    }
+    return out;
   },
 
   subscribeToInstitutions: async (callback: () => void) => {

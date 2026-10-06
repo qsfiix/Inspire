@@ -18,7 +18,8 @@ export function DashboardView({
   theme,
   handleTabTransition,
   trackers = [],
-  onTrackersChange
+  onTrackersChange,
+  onProfileUpdate
 }: any) {
   const [selectedSystemLevel, setSelectedSystemLevel] = useState<EducationLevel | null>(SWISS_EDUCATION_LEVELS[2]);
 
@@ -125,6 +126,7 @@ export function DashboardView({
           language={currentLanguage}
           isDark={isDark}
           onRefine={() => handleTabTransition("onboarding")}
+          onProfileUpdate={onProfileUpdate}
         />
       </Reveal>
 

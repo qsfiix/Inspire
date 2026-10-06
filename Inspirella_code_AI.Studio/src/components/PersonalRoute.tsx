@@ -5,13 +5,24 @@ import { buildPersonalRoute, PlannedSegment, PersonalRoute as PersonalRouteModel
 import { getTranslatedString } from "../engine/engineConfig";
 import { getOnboardingCopy } from "../features/onboardingCopy";
 import { getRouteCopy } from "./personalRouteCopy";
-import type { LanguageCode, LearningPath, RouteBackground, UserProfile } from "../types";
+import { BM_ORIENTATIONS, STEP_SCHOOLS, suggestSchools, FocusEntry } from "../engine/routeSchools";
+import type { Institution, LanguageCode, LearningPath, RouteBackground, UserProfile } from "../types";
+
+const CANTONS = ["AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR", "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG", "TI", "UR", "VD", "VS", "ZG", "ZH"];
+
+interface SchoolContext {
+  institutions: Institution[];
+  focus: Map<string, FocusEntry[]>;
+  canton: string;
+  onCantonChange: (canton: string) => void;
+}
 
 interface PersonalRouteProps {
   userProfile: UserProfile | null;
   language: LanguageCode;
   isDark: boolean;
   onRefine: () => void;
+  onProfileUpdate?: (patch: Partial<UserProfile>) => void;
 }
 
 const NOTE_KEYS: Record<string, string> = {
@@ -24,12 +35,113 @@ const NOTE_KEYS: Record<string, string> = {
   "matura-no-bm-needed": "note_matura_no_bm_needed"
 };
 
+function StepSchools({
+  stepKey,
+  ctx,
+  isDark,
+  copy
+}: {
+  key?: React.Key;
+  stepKey: string;
+  ctx: SchoolContext;
+  isDark: boolean;
+  copy: Record<string, string>;
+}) {
+  const selector = STEP_SCHOOLS[stepKey];
+  const [open, setOpen] = useState(false);
+  const [orientation, setOrientation] = useState("");
+  const [showAll, setShowAll] = useState(false);
+  if (!selector) return null;
+  const all = suggestSchools(selector, ctx.institutions, ctx.focus, {
+    canton: ctx.canton || undefined,
+    requireFocus: orientation ? "bm_" + orientation : undefined
+  });
+  const visible = showAll ? all : all.slice(0, 6);
+  const muted = isDark ? "text-zinc-400" : "text-violet-950/70";
+  const field =
+    "rounded-lg border px-2 py-1 text-[11px] font-semibold " +
+    (isDark ? "bg-white/[0.03] border-white/10 text-white" : "bg-white border-purple-200 text-violet-950");
+
+  return (
+    <div className="pt-1">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        className={"text-[11px] font-bold underline cursor-pointer " + (isDark ? "text-violet-300" : "text-violet-800")}
+      >
+        {open ? copy.schoolsHide : copy.schoolsShow + " (" + all.length + ")"}
+      </button>
+      {open && (
+        <div className="mt-2 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-1.5 text-[11px]">
+              <span className={muted}>{copy.schoolsCanton}</span>
+              <select className={field} value={ctx.canton} onChange={e => ctx.onCantonChange(e.target.value)}>
+                <option value="">{copy.schoolsAll}</option>
+                {CANTONS.map(code => (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {selector.bm && (
+              <select className={field} value={orientation} onChange={e => setOrientation(e.target.value)} aria-label={copy.orientationAll}>
+                <option value="">{copy.orientationAll}</option>
+                {BM_ORIENTATIONS.map(o => (
+                  <option key={o} value={o}>
+                    {copy["orient_" + o]}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+          {visible.length === 0 && <p className={"text-[11px] " + muted}>{copy.schoolsNone}</p>}
+          <ul className="space-y-1.5">
+            {visible.map(({ institution, detail, inCanton }) => (
+              <li
+                key={institution.id}
+                className={
+                  "flex flex-wrap items-baseline gap-x-2 rounded-lg border px-2.5 py-1.5 text-[11px] " +
+                  (inCanton ? (isDark ? "border-violet-500/60" : "border-violet-500") : isDark ? "border-white/5" : "border-purple-200")
+                }
+              >
+                <span className={"font-bold " + (isDark ? "text-white" : "text-violet-950")}>{institution.title}</span>
+                <span className={muted}>{[institution.canton, detail].filter(Boolean).join(" · ")}</span>
+                {institution.website && (
+                  <a
+                    href={institution.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={"ml-auto inline-flex items-center gap-1 underline " + (isDark ? "text-violet-300" : "text-violet-800")}
+                  >
+                    {copy.website}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+          {all.length > visible.length && (
+            <button type="button" onClick={() => setShowAll(true)} className={"text-[11px] underline cursor-pointer " + muted}>
+              {copy.schoolsMore}
+            </button>
+          )}
+          <p className={"text-[10px] " + muted}>{copy.schoolsHint}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SegmentView({
   segment,
   language,
   isDark,
   copy,
-  defaultOpen
+  defaultOpen,
+  schools
 }: {
   key?: React.Key;
   segment: PlannedSegment;
@@ -37,6 +149,7 @@ function SegmentView({
   isDark: boolean;
   copy: Record<string, string>;
   defaultOpen: boolean;
+  schools: SchoolContext;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const title = getTranslatedString(segment.path.title, language, "de");
@@ -112,6 +225,9 @@ function SegmentView({
                       </a>
                     )}
                   </div>
+                  {status !== "done" && step.order !== undefined && STEP_SCHOOLS[segment.code + ":" + step.order] && (
+                    <StepSchools stepKey={segment.code + ":" + step.order} ctx={schools} isDark={isDark} copy={copy} />
+                  )}
                 </div>
               </li>
             );
@@ -122,12 +238,35 @@ function SegmentView({
   );
 }
 
-export default function PersonalRoute({ userProfile, language, isDark, onRefine }: PersonalRouteProps) {
+export default function PersonalRoute({ userProfile, language, isDark, onRefine, onProfileUpdate }: PersonalRouteProps) {
   const copy = getRouteCopy(language);
   const onboardingCopy = getOnboardingCopy(language);
   const [templates, setTemplates] = useState<LearningPath[] | null>(null);
   const [route, setRoute] = useState<RouteBackground | undefined>();
   const [showAlternatives, setShowAlternatives] = useState(false);
+  const [institutions, setInstitutions] = useState<Institution[]>([]);
+  const [focus, setFocus] = useState<Map<string, FocusEntry[]>>(new Map());
+  const [canton, setCanton] = useState<string>(userProfile?.preferredCanton ?? "");
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([DataRepository.getInstitutions(), DataRepository.getInstitutionFocusAreas()])
+      .then(([list, focusMap]) => {
+        if (!active) return;
+        setInstitutions(list);
+        setFocus(focusMap);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleCanton = (value: string) => {
+    setCanton(value);
+    if (value) onProfileUpdate?.({ preferredCanton: value });
+  };
+  const schools: SchoolContext = { institutions, focus, canton, onCantonChange: handleCanton };
 
   useEffect(() => {
     let active = true;
@@ -211,6 +350,7 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine 
                 isDark={isDark}
                 copy={copy}
                 defaultOpen={index === 0}
+                schools={schools}
               />
             ))}
           </div>
@@ -235,6 +375,7 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine 
                     isDark={isDark}
                     copy={copy}
                     defaultOpen={false}
+                    schools={schools}
                   />
                 ))}
             </div>

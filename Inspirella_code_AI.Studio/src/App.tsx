@@ -299,6 +299,14 @@ export default function App() {
   };
 
   // Navigation redirect wrapper for secure zone checking
+  // Small profile patches from child views (for example the canton picked in the route card).
+  const handleProfileUpdate = async (patch: Partial<UserProfile>) => {
+    if (!userProfile) return;
+    const next = { ...userProfile, ...patch };
+    setUserProfile(next);
+    await DataRepository.saveProfile(next);
+  };
+
   const handleTabTransition = (tabId: string) => {
     if (!isLoggedIn && ["dashboard", "map", "resources", "tracker", "profile"].includes(tabId)) {
       setActiveTab("login");
@@ -454,6 +462,7 @@ export default function App() {
           {/* VIEW: Personalized Dashboard & Home */}
           {activeTab === "dashboard" && (
             <DashboardView
+              onProfileUpdate={handleProfileUpdate}
               t={t}
               isDark={isDark}
               currentLanguage={currentLanguage}
