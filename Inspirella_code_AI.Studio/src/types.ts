@@ -85,6 +85,8 @@ export interface RouteBackground {
   sensitiveDataConsentAt?: string; // ISO timestamp
   /** Neutral, non-legal answer: does the user already live in Switzerland? Stored in profile_background.notes. */
   livesInSwitzerland?: boolean;
+  /** Wunschberuf: professions.id the user picked in the route card. Stored in profile_background.notes. */
+  targetProfessionId?: string;
   languageLevels: LanguageLevel[];
 }
 

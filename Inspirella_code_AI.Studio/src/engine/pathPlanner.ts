@@ -1,5 +1,5 @@
 import type { LearningPath, LearningPathStep, RouteBackground, UserProfile } from "../types";
-import { bestSwissLanguageRank, STUDY_LEVEL_RANK } from "./routeSignals";
+import { bestSwissLanguageRank, STUDY_LEVEL_RANK, TARGET_TYPES } from "./routeSignals";
 
 /**
  * Builds a personal route out of the curated path templates in
@@ -21,7 +21,7 @@ export interface PlannedStep {
   isCurrent: boolean;
 }
 
-export type SegmentKind = "main" | "language" | "recognition" | "alternative";
+export type SegmentKind = "main" | "language" | "recognition" | "profession" | "alternative";
 
 export interface PlannedSegment {
   code: string;
@@ -37,7 +37,8 @@ export type RouteNote =
   | "language-gap"
   | "recognition-needed"
   | "second-apprenticeship"
-  | "matura-no-bm-needed";
+  | "matura-no-bm-needed"
+  | "profession-level-mismatch";
 
 export interface PersonalRoute {
   entry: EntryState;
@@ -183,21 +184,37 @@ function plan(path: LearningPath, kind: SegmentKind, entry: EntryState, first: b
   return { code: path.code ?? "", kind, path, steps };
 }
 
+/** Which target level a chosen profession implies when the user stated none. */
+const TYPE_TO_TARGET: Record<string, TargetState> = {
+  apprenticeship_efz: "apprenticeship",
+  apprenticeship_eba: "apprenticeship",
+  fachausweis: "higher_vocational",
+  diplom: "higher_vocational",
+  hf_diploma: "higher_vocational",
+  fh_bachelor: "university_of_applied_sciences",
+  university: "university"
+};
+
 export function buildPersonalRoute(
   route: RouteBackground | undefined,
   profile: UserProfile | null,
   templates: LearningPath[],
-  now = new Date()
+  now = new Date(),
+  professionType?: string
 ): PersonalRoute {
   const byCode = new Map(templates.filter(t => t.code).map(t => [t.code as string, t]));
   const { entry: derived, assumed } = deriveEntry(route, profile, now);
-  const target: TargetState = route?.targetLevel ?? "undecided";
+  const impliedTarget = professionType ? TYPE_TO_TARGET[professionType] : undefined;
+  const target: TargetState = route?.targetLevel ?? impliedTarget ?? "undecided";
   const notes: RouteNote[] = [];
+  if (route?.targetLevel && professionType && TARGET_TYPES[route.targetLevel] && !TARGET_TYPES[route.targetLevel].includes(professionType)) {
+    notes.push("profession-level-mismatch");
+  }
 
   // Unknown entry is planned as a school student, with a hint to say more.
   const planEntry: EntryState = derived === "unknown" ? "sek1" : derived;
   if (assumed) notes.push("entry-assumed");
-  if (!route?.targetLevel) notes.push("target-missing");
+  if (target === "undecided") notes.push("target-missing");
 
   const lookupTarget: TargetState = ["language_course", "job_entry", "continuing_education"].includes(target) ? "undecided" : target;
   const rule = RULES[`${planEntry}|${lookupTarget}`] ?? { main: [], alternatives: [] };
@@ -250,6 +267,12 @@ export function buildPersonalRoute(
         seg.steps = seg.steps.map(s => (s.status === "todo" ? { ...s, status: "later", isCurrent: false } : s));
       }
     });
+  }
+
+  // 3b. The chosen profession's own path comes after the way to the right level.
+  if (route?.targetProfessionId) {
+    const own = templates.find(t => t.targetProfessionId === route.targetProfessionId && t.steps.length > 0);
+    if (own) segments.push(plan(own, "profession", planEntry, segments.length === 0));
   }
 
   // 4. Alternatives (never mixed into the main route).

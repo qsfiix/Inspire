@@ -506,6 +506,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
   const [birthYear, setBirthYear] = useState<string>("");
   const [levels, setLevels] = useState<Record<string, CefrLevel>>({});
   const [firstLang, setFirstLang] = useState<string>("");
+  const [targetProfessionId, setTargetProfessionId] = useState<string | undefined>();
 
   // Re-opening the survey must not wipe earlier answers: prefill from saved route data.
   useEffect(() => {
@@ -516,6 +517,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
       if (saved.targetStartYear) setStartYear(saved.targetStartYear);
       if (saved.studyModePreference) setStudyMode(saved.studyModePreference);
       if (typeof saved.livesInSwitzerland === "boolean") setLivesInCh(saved.livesInSwitzerland);
+      if (saved.targetProfessionId) setTargetProfessionId(saved.targetProfessionId);
       if (saved.highestEducation) setHighestEdu(saved.highestEducation);
       if (saved.highestEducationCountryCode) setEduCountry(saved.highestEducationCountryCode);
       if (saved.diplomaRecognitionStatus) setRecognition(saved.diplomaRecognitionStatus);
@@ -566,6 +568,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
       targetStartYear: startYear,
       studyModePreference: studyMode,
       livesInSwitzerland: livesInCh,
+      targetProfessionId,
       highestEducation: highestEdu,
       highestEducationCountryCode: eduCountry && eduCountry !== "XX" ? eduCountry : undefined,
       diplomaRecognitionStatus: recognition,

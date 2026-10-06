@@ -763,6 +763,8 @@ export const DataRepository = {
                 typeof r?.notes?.lives_in_switzerland === "boolean"
                   ? r.notes.lives_in_switzerland
                   : local.livesInSwitzerland,
+              targetProfessionId:
+                typeof r?.notes?.target_profession_id === "string" ? r.notes.target_profession_id : local.targetProfessionId,
               languageLevels: (langRes.data ?? []).map((l: any): LanguageLevel => ({
                 languageCode: l.language_code,
                 level: l.cefr_level as CefrLevel,
@@ -811,7 +813,7 @@ export const DataRepository = {
         study_mode_preference: bg.studyModePreference ?? null,
         financing_plan: bg.financingPlan ?? null,
         sensitive_data_consent_at: bg.sensitiveDataConsentAt ?? null,
-        notes: { lives_in_switzerland: bg.livesInSwitzerland ?? null }
+        notes: { lives_in_switzerland: bg.livesInSwitzerland ?? null, target_profession_id: bg.targetProfessionId ?? null }
       });
       if (error) {
         console.warn("Failed saving route background", error.message);
@@ -1220,7 +1222,8 @@ export const DataRepository = {
       const [linksRes, instRes, profRes] = await Promise.all([
         fetchAllRows(() => supabase.from("profession_institutions").select("*").eq("is_active", true)),
         supabase.from("institutions").select("id, title_en, title_de, title_fr, title_it, name, city"),
-        supabase.from("professions").select("id, title_en, title_de, title_fr, title_it")
+        // 1700+ professions: an unranged select would silently stop at 1000 rows.
+        fetchAllRows(() => supabase.from("professions").select("id, title_en, title_de, title_fr, title_it").order("id", { ascending: true }))
       ]);
 
       if (linksRes.error || !Array.isArray(linksRes.data)) return [];
@@ -1259,6 +1262,24 @@ export const DataRepository = {
       return links;
     } catch (err) {
       console.warn("Failed to load profession-institution links from Supabase", err);
+      return [];
+    }
+  },
+
+  /** Institutions linked to one profession (profession_institutions), for the route card. */
+  getProfessionInstitutionIds: async (professionId: string): Promise<string[]> => {
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive() || !professionId) return [];
+    try {
+      const { data, error } = await getSupabase()
+        .from("profession_institutions")
+        .select("institution_id")
+        .eq("profession_id", professionId)
+        .eq("is_active", true);
+      if (error || !Array.isArray(data)) return [];
+      return data.map((row: any) => String(row.institution_id));
+    } catch (err) {
+      console.warn("Failed to load institutions for profession", err);
       return [];
     }
   },

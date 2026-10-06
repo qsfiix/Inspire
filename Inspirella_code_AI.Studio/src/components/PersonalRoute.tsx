@@ -5,8 +5,9 @@ import { buildPersonalRoute, PlannedSegment, PersonalRoute as PersonalRouteModel
 import { getTranslatedString } from "../engine/engineConfig";
 import { getOnboardingCopy } from "../features/onboardingCopy";
 import { getRouteCopy } from "./personalRouteCopy";
-import { BM_ORIENTATIONS, STEP_SCHOOLS, suggestSchools, FocusEntry } from "../engine/routeSchools";
-import type { Institution, LanguageCode, LearningPath, RouteBackground, UserProfile } from "../types";
+import { BM_ORIENTATIONS, STEP_SCHOOLS, suggestSchools, FocusEntry, SchoolSelector } from "../engine/routeSchools";
+import { TARGET_TYPES } from "../engine/routeSignals";
+import type { Institution, LanguageCode, LearningPath, Profession, RouteBackground, UserProfile } from "../types";
 
 const CANTONS = ["AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR", "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG", "TI", "UR", "VD", "VS", "ZG", "ZH"];
 
@@ -32,23 +33,28 @@ const NOTE_KEYS: Record<string, string> = {
   "language-gap": "note_language_gap",
   "recognition-needed": "note_recognition_needed",
   "second-apprenticeship": "note_second_apprenticeship",
-  "matura-no-bm-needed": "note_matura_no_bm_needed"
+  "matura-no-bm-needed": "note_matura_no_bm_needed",
+  "profession-level-mismatch": "note_profession_level_mismatch"
 };
 
 function StepSchools({
   stepKey,
   ctx,
   isDark,
-  copy
+  copy,
+  selectorOverride,
+  defaultOpen = false
 }: {
   key?: React.Key;
   stepKey: string;
   ctx: SchoolContext;
   isDark: boolean;
   copy: Record<string, string>;
+  selectorOverride?: SchoolSelector;
+  defaultOpen?: boolean;
 }) {
-  const selector = STEP_SCHOOLS[stepKey];
-  const [open, setOpen] = useState(false);
+  const selector = selectorOverride ?? STEP_SCHOOLS[stepKey];
+  const [open, setOpen] = useState(defaultOpen);
   const [orientation, setOrientation] = useState("");
   const [showAll, setShowAll] = useState(false);
   if (!selector) return null;
@@ -247,6 +253,52 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [focus, setFocus] = useState<Map<string, FocusEntry[]>>(new Map());
   const [canton, setCanton] = useState<string>(userProfile?.preferredCanton ?? "");
+  const [professions, setProfessions] = useState<Profession[]>([]);
+  const [profQuery, setProfQuery] = useState("");
+  const [profInstitutionIds, setProfInstitutionIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    DataRepository.getProfessions()
+      .then(list => active && setProfessions(list))
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const chosenProf = useMemo(
+    () => professions.find(p => p.id === route?.targetProfessionId),
+    [professions, route?.targetProfessionId]
+  );
+
+  useEffect(() => {
+    let active = true;
+    if (!route?.targetProfessionId) {
+      setProfInstitutionIds([]);
+      return;
+    }
+    DataRepository.getProfessionInstitutionIds(route.targetProfessionId).then(ids => active && setProfInstitutionIds(ids));
+    return () => {
+      active = false;
+    };
+  }, [route?.targetProfessionId]);
+
+  const updateRoute = (patch: Partial<RouteBackground>) => {
+    const next: RouteBackground = { ...(route ?? { languageLevels: [] }), ...patch };
+    setRoute(next);
+    DataRepository.saveRouteBackground(next).catch(() => undefined);
+  };
+
+  const profMatches = useMemo(() => {
+    const q = profQuery.trim().toLowerCase();
+    if (q.length < 2) return [];
+    const wanted = route?.targetLevel ? TARGET_TYPES[route.targetLevel] : undefined;
+    return professions
+      .filter(p => Object.values(p.title ?? {}).some(text => typeof text === "string" && text.toLowerCase().includes(q)))
+      .sort((a, b) => Number(!!wanted?.includes(b.professionType ?? "")) - Number(!!wanted?.includes(a.professionType ?? "")))
+      .slice(0, 8);
+  }, [professions, profQuery, route?.targetLevel]);
 
   useEffect(() => {
     let active = true;
@@ -283,8 +335,8 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
   }, [userProfile]);
 
   const personal: PersonalRouteModel | null = useMemo(
-    () => (templates ? buildPersonalRoute(route, userProfile, templates) : null),
-    [templates, route, userProfile]
+    () => (templates ? buildPersonalRoute(route, userProfile, templates, new Date(), chosenProf?.professionType) : null),
+    [templates, route, userProfile, chosenProf?.professionType]
   );
 
   const muted = isDark ? "text-zinc-400" : "text-violet-950/70";
@@ -338,6 +390,69 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
               ))}
             </ul>
           )}
+
+          <div className="space-y-2" data-testid="route-profession">
+            <span className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-violet-300" : "text-violet-800"}`}>{copy.profTitle}</span>
+            {chosenProf ? (
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className={`rounded-full px-3 py-1 font-bold ${isDark ? "bg-violet-950/40 text-violet-200" : "bg-violet-100 text-violet-900"}`}>
+                  {getTranslatedString(chosenProf.title, language, "de")}
+                </span>
+                <span className={muted}>{copy["type_" + (chosenProf.professionType ?? "other")] ?? copy.type_other}</span>
+                <button type="button" onClick={() => updateRoute({ targetProfessionId: undefined })} className={`underline cursor-pointer ${muted}`}>
+                  {copy.profRemove}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <input
+                  value={profQuery}
+                  onChange={e => setProfQuery(e.target.value)}
+                  placeholder={copy.profSearch}
+                  aria-label={copy.profTitle}
+                  className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold ${isDark ? "bg-white/[0.03] border-white/10 text-white" : "bg-white border-purple-200 text-violet-950"}`}
+                />
+                {profQuery.trim().length < 2 && <p className={`text-[11px] ${muted}`}>{copy.profHint}</p>}
+                {profQuery.trim().length >= 2 && profMatches.length === 0 && <p className={`text-[11px] ${muted}`}>{copy.profNone}</p>}
+                {profMatches.length > 0 && (
+                  <ul className="space-y-1">
+                    {profMatches.map(p => (
+                      <li key={p.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateRoute({ targetProfessionId: p.id });
+                            setProfQuery("");
+                          }}
+                          className={`flex w-full items-baseline justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-[11px] cursor-pointer ${isDark ? "border-white/10 hover:border-violet-500" : "border-purple-200 hover:border-violet-600"}`}
+                        >
+                          <span className={`font-bold ${isDark ? "text-white" : "text-violet-950"}`}>{getTranslatedString(p.title, language, "de")}</span>
+                          <span className={muted}>{copy["type_" + (p.professionType ?? "other")] ?? copy.type_other}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+            {chosenProf && (
+              <div className={`rounded-2xl border p-3 ${isDark ? "border-white/10" : "border-purple-200 bg-violet-50/40"}`}>
+                <span className={`block text-xs font-black ${isDark ? "text-white" : "text-violet-950"}`}>{copy.profSchools}</span>
+                {profInstitutionIds.length === 0 ? (
+                  <p className={`text-[11px] ${muted}`}>{copy.profNoSchools}</p>
+                ) : (
+                  <StepSchools
+                    stepKey={"profession:" + chosenProf.id}
+                    ctx={schools}
+                    isDark={isDark}
+                    copy={copy}
+                    selectorOverride={{ ids: new Set(profInstitutionIds) }}
+                    defaultOpen
+                  />
+                )}
+              </div>
+            )}
+          </div>
 
           {personal.segments.length === 0 && personal.alternatives.length === 0 && <p className={`text-xs ${muted}`}>{copy.empty}</p>}
 

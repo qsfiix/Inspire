@@ -13,6 +13,8 @@ export interface SchoolSelector {
   focus?: string;
   /** Show the Berufsmaturität orientation filter (TALS, WD, ...). */
   bm?: boolean;
+  /** Match exactly these institution ids (used for the schools of a chosen profession). */
+  ids?: Set<string>;
 }
 
 export const STEP_SCHOOLS: Record<string, SchoolSelector> = {
@@ -70,7 +72,8 @@ export function suggestSchools(
     const focus = focusByInstitution.get(inst.id) ?? [];
     const bySubgroup = selector.subgroups?.includes(inst.subgroup ?? "") ?? false;
     const byFocus = selector.focus ? focus.some(f => f.code === selector.focus) : false;
-    if (!bySubgroup && !byFocus) return false;
+    const byId = selector.ids?.has(inst.id) ?? false;
+    if (!bySubgroup && !byFocus && !byId) return false;
     if (options.requireFocus && !focus.some(f => f.code === options.requireFocus)) return false;
     return true;
   });
