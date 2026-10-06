@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-11
+Last Updated: 2026-10-12
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -29,6 +29,13 @@ Related Files:
 Новые записи добавляются сверху (последняя дата — первая в файле).
 
 ---
+
+## 2026-10-12 — BM-школы, академический путь, фундамент модели пользователя
+- **Berufsmaturität по школам:** один агент прошёл официальные списки 24 кантонов; 83 наших Berufsfachschulen получили записи в `institution_focus_areas`: код `berufsmaturitaet` (BM1/BM2, Ausrichtungen и источник в `note`) плюс `bm_tals`/`bm_nll`/`bm_wd`/`bm_gk`/`bm_gs` для фильтрации. Всего 178 строк; уверенность `medium` для VD, NE, FR, VS, OW, NW, GE (часть данных из поисковых сниппетов). Для BE, части TG, GR и VD нет деталей по Ausrichtung («Details bei der Schule erfragen»). AR без BM. Не найдено/не подтверждено: часть Wallis (EPCA Sion, BFO Brig), Fribourg (EPC, EPAI, ESSG), Bellinzona (CPC/CPT vs SCC/SAM). 26 BM-школ из списков отсутствуют в нашей базе (в `out_BM.json`, не добавлены).
+- **Академический путь:** `academic_matura_to_university` 3 → 10 шагов (что даёт Matura, сравнение вузов, Medizin/Numerus Clausus, Anmeldung, финансирование, Bachelor, Master, альтернативы); `passerelle_to_university` 3 → 5 шагов; у всех шагов описания и проверенные ссылки. `website_url` заполнены у Uni St.Gallen и Fribourg.
+- **4 «осиротевшие» FH-профессии:** Orthoptistin переведена в `hf_diploma` (это HF) и привязана к новой школе ZAG Winterthur (`bld_0506`, Turbinenstrasse 5); Leiter Sozialdienst привязан к 8 FH из Sozialarbeiter FH; Korrepetitor — к FHNW; Berufsmilitärpilot без школ (обучение в Luftwaffe).
+- **Модель пользователя (миграция `profile_route_background_and_language_levels`):** таблицы `profile_background` (гражданство, статус/разрешение, год рождения, годы школы в CH, высший диплом и признание, опыт, цель, год старта, формат учёбы, финансирование, согласие на чувствительные данные) и `profile_language_levels` (CEFR по языкам, сертификат). RLS: только владелец. Фронтенд их пока не использует; данных нет.
+- Работа с одним агентом (по просьбе Sofiia экономить токены).
 
 ## 2026-10-11 — Практический путь Lehrstelle → Berufsmaturität → Fachhochschule закрыт
 - Путь `lehre_berufsmatura_fachhochschule` расширен с 8 до 15 шагов: добавлены Schnuppern, поиск Lehrstelle (LENA), Lehrvertrag, поддержка при трудностях (Case Management), выбор FH, Eignungsabklärung, финансирование (Stipendien), старт и Bachelor; у каждого нового шага есть `official_url` на проверенный ресурс. Старые шаги и их id сохранены (порядок сдвинут), описания шагов «FH wählen» и «Alternativen» обновлены (HF → verkürztes FH-Studium, PiBS, Professional Bachelor).
