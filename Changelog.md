@@ -30,6 +30,13 @@ Related Files:
 
 ---
 
+## 2026-10-07 — Мелкие дыры в данных: сайты школ, ссылки профессий, языковой порог
+
+- У всех 17 школ без сайта проставлен официальный сайт (каждый домен проверен запросом; у Gymnase de Morges сначала нашёлся `gymmorges.ch` — это гимнастический клуб, правильный домен `gymnase-morges.ch`). Для 4 гимназий без адреса добавлены улица и индекс (координаты уже были). Теперь 0 школ без сайта и без адреса.
+- Профессии без школ: добавлены 3 связи — Medizinphysiker/in → ETH Zürich (MAS Medizinphysik), Berufsoffizier/in → ETH Zürich (Militärakademie), Psychotherapeut/in → IKP (аккредитованная программа по PsyG). Остальные 6 (Berufsmilitärpilot, Flugverkehrsleiter HF, Zytotechnologe HF, Diabetesberater/in NDS, Palliative Care NDS, Marktforscher) без подтверждённой школы не связаны.
+- Языковой порог в шаге `learn_german_b2` (шаг 7): добавлены Hochschule Luzern (Technik & Architektur, C1, официальная страница) и BFH Pflege/Hebamme/Soziale Arbeit (C1, официальная страница BFH). SUPSI и HES-SO Bachelor по-прежнему без общего подтверждённого порога.
+- «73 школы без описания» — не дыра: у всех есть полный профиль (`institution_profile_de` и 4 других поля), пусто лишь короткое `description`.
+
 ## 2026-10-07 — Калибровка на 15 живых профилях
 
 - Новый скрипт `Inspirella_code_AI.Studio/scripts/calibrate.ts` (`npx tsx scripts/calibrate.ts [p01..p15]`, `DETAIL=1` показывает баллы): прогоняет 15 персон (школьник→FH, Gymnasium→Uni, EFZ→FH, взрослый без диплома, беженец A1, франкофон, итальянский язык и др.) через планировщик пути и движок на живых данных.
