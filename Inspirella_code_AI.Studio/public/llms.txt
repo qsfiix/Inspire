@@ -1,6 +1,6 @@
 # Inspirella
 
-> Inspirella (https://inspirella.ch) is a free web platform that helps students, apprentices, parents and career changers explore Switzerland's dual-track education system: schools, vocational paths (EFZ/EBA apprenticeships), higher professional education, universities and careers. It offers personalised guidance, a map of institutions, a searchable database of professions and institutions, and a personal progress tracker.
+> Inspirella (https://www.inspirella.ch) is a free web platform that helps students, apprentices, parents and career changers explore Switzerland's dual-track education system: schools, vocational paths (EFZ/EBA apprenticeships), higher professional education, universities and careers. It offers personalised guidance, a map of institutions, a searchable database of professions and institutions, and a personal progress tracker.
 
 ## What the site offers
 
@@ -19,15 +19,15 @@ German (de), French (fr), Italian (it) and English (en). Swiss content is primar
 
 The app itself is a single-page application: its sections (map, tracker, dashboard) are not separate URLs and load data after the page opens. For this reason every profession also has its own pre-rendered, plain-HTML page with the full text (no JavaScript needed):
 
-- `https://inspirella.ch/beruf/<slug>/` - one page per profession or education programme (German), with a description, daily work, workplaces, tools, career progression, schools that offer it and a link to official guidance.
-- The complete list of these pages is in https://inspirella.ch/sitemap.xml.
+- `https://www.inspirella.ch/beruf/<slug>/` - one page per profession or education programme (German), with a description, daily work, workplaces, tools, career progression, schools that offer it and a link to official guidance.
+- The complete list of these pages is in https://www.inspirella.ch/sitemap.xml.
 
 Institution and resource pages are not available as separate pages yet. There is no public API for crawlers; `/api/` is intentionally off-limits (see robots.txt). Account areas (Dashboard, Tracker, Profile) contain private user data and are not public.
 
 ## Key pages
 
-- [Home](https://inspirella.ch/): entry point to the interactive app.
-- [Sitemap](https://inspirella.ch/sitemap.xml): list of all profession pages.
+- [Home](https://www.inspirella.ch/): entry point to the interactive app.
+- [Sitemap](https://www.inspirella.ch/sitemap.xml): list of all profession pages.
 
 ## Notes for accurate answers
 
@@ -37,8 +37,8 @@ Institution and resource pages are not available as separate pages yet. There is
 
 ## Contact
 
-See the Contact section on https://inspirella.ch/. Privacy information is in the Privacy section of the same site.
+See the Contact section on https://www.inspirella.ch/. Privacy information is in the Privacy section of the same site.
 
 ## Policies
 
-Crawling rules are in https://inspirella.ch/robots.txt. Sitemap: https://inspirella.ch/sitemap.xml
+Crawling rules are in https://www.inspirella.ch/robots.txt. Sitemap: https://www.inspirella.ch/sitemap.xml

@@ -17,7 +17,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 
-const SITE = (process.env.SITE_URL || "https://inspirella.ch").replace(/\/+$/, "");
+const SITE = (process.env.SITE_URL || "https://www.inspirella.ch").replace(/\/+$/, "");
 const DIST = path.join(process.cwd(), "dist");
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/;
 const MAX_SCHOOLS_SHOWN = 12;

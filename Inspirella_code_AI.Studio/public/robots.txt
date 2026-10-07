@@ -1,11 +1,11 @@
-# robots.txt for https://inspirella.ch
+# robots.txt for https://www.inspirella.ch
 #
 # Policy: open to search engines and the big AI assistants (so Inspirella can be
 # found and cited), closed to SEO/marketing scrapers and bulk AI-training crawlers.
 # Note: robots.txt is a polite request, not enforcement. Real protection
 # (rate limits, input validation) lives in server.ts.
 
-Sitemap: https://inspirella.ch/sitemap.xml
+Sitemap: https://www.inspirella.ch/sitemap.xml
 
 # ---------------------------------------------------------------------------
 # 1. Allowed: search engines and AI assistants
