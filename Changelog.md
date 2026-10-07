@@ -30,6 +30,12 @@ Related Files:
 
 ---
 
+## 2026-10-07 — Школы для EFZ/EBA-профессий и находка про несуществующие профессии
+
+- 4 агента (E1–E4, ~470k токенов суммарно) искали, где преподаётся школьная часть Lehre для 63 EFZ/EBA-профессий без школ. Все 43 URL из ответов проверены запросом; адреса новых школ взяты с их сайтов, координаты через Nominatim (SfG BB Stettlen — по ориентиру Bernapark).
+- Добавлено 8 школ (`bld_0557`–`bld_0564`): BFS Verkehrswegbau (Oberkirch), Schule für Gestaltung Bern und Biel (Stettlen), Berufsfachschule Gipser SMGV (Wallisellen), Schule für Holzbildhauerei (Brienz), Ausbildungszentrum Seilbahnen Schweiz (Meiringen), INFORAMA Seeland (Ins), Strickhof Wädenswil и Winterthur-Wülflingen. Всего 42 новых связи профессия↔школа (Verkehrswegbau-Berufe, Holzbildhauer/Küfer/Geigenbauer/Korb- и Flechtwerk/Holzhandwerker, Gemüsegärtner, Winzer/Weinfachfrau, Pferdefachfrau, Tierpfleger, Kauffrau EBA, Textil, Uhrmacher Produktion, Sonnenschutz u. д.). Слабая связь Polisseuse→CFPT отброшена.
+- **Находка:** 31 строка без школ — это в основном профессии, которых в таком виде нет в справочнике berufsberatung.ch (Bankkauffrau EFZ, Giesserei-Mechaniker, Modist, Weber, Werkzeugmacher, Zweiradmechaniker, Drucktechnologe, Buchbinder, Sattler, Isolierer, Wasserbauer, Fischwirt, Radio-/Fernsehtechnologe, Bühnentechnik/Audiovisuelle Medien/Betriebssicherheit EFZ, Reiseverkehrsfachfrau, Sozialbegleiter/Justizvollzug/Brunnenmeister EFZ (на деле Fachausweis), Operationstechnik EFZ (на деле HF), Hotel-/Gastronomiefachassistent EBA, Recyclingpraktiker EBA, Maschinenbau-Praktiker EBA). У большинства уже есть актуальный преемник в базе (Kauffrau EFZ, Gusstechnologe, Bekleidungsgestalter, Gewebegestalter, Fahrrad-/Motorradmechaniker, Medientechnologe, Bindetechnologe, Recyclist EFZ, Restaurant-/Küchenangestellte EBA, Mechanikpraktiker EBA). Это строки из раундов, написанных по памяти, без сверки с berufsberatung.ch. Решение по ним (скрыть/объединить/удалить) ждёт Софию.
+
 ## 2026-10-07 — Мелкие дыры в данных: сайты школ, ссылки профессий, языковой порог
 
 - У всех 17 школ без сайта проставлен официальный сайт (каждый домен проверен запросом; у Gymnase de Morges сначала нашёлся `gymmorges.ch` — это гимнастический клуб, правильный домен `gymnase-morges.ch`). Для 4 гимназий без адреса добавлены улица и индекс (координаты уже были). Теперь 0 школ без сайта и без адреса.
