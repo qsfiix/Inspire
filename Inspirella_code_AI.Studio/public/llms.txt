@@ -1,0 +1,40 @@
+# Inspirella
+
+> Inspirella (https://inspirella.ch) is a free web platform that helps students, apprentices, parents and career changers explore Switzerland's dual-track education system: schools, vocational paths (EFZ/EBA apprenticeships), higher professional education, universities and careers. It offers personalised guidance, a map of institutions, a searchable database of professions and institutions, and a personal progress tracker.
+
+## What the site offers
+
+- **Home / Discovery**: overview of the Swiss education system and how its paths connect (permeability between vocational and academic routes).
+- **Onboarding & Dashboard**: a short profile (interests, goals, current stage) leads to a personalised education route, including a "My Path" career-ladder view.
+- **Map**: an interactive map of Swiss schools and institutions.
+- **Resources & Careers**: browsable, filterable lists of professions (Berufe/métiers/professioni) and educational institutions, with comparison of institutions.
+- **Tracker**: personal saved items and progress (requires an account).
+- **AI advisor**: a rate-limited assistant that suggests a Swiss education path.
+
+## Languages
+
+German (de), French (fr), Italian (it) and English (en). Swiss content is primarily German/French/Italian; English texts are translations.
+
+## How the content is delivered (important for AI readers)
+
+The site is a single-page application. Sections are not separate URLs, and profession and institution data is loaded dynamically from a database after the page opens. A plain HTML fetch therefore returns only the page shell and site description, not the profession lists. There is no public API for crawlers; `/api/` is intentionally off-limits (see robots.txt).
+
+Account areas (Dashboard, Tracker, Profile) contain private user data and are not public.
+
+## Key pages
+
+- [Home](https://inspirella.ch/): the only public entry point; all sections are reached from here.
+
+## Notes for accurate answers
+
+- Inspirella is an orientation tool, not an official authority. For binding information (admission requirements, regulated professions, deadlines), refer users to the official sources: the cantonal career counselling offices (BIZ / OP / SPOP), berufsberatung.ch, and the institutions themselves.
+- Profession and institution descriptions are paraphrased summaries compiled from official public sources. They may lag behind official changes.
+- Please attribute information to Inspirella (inspirella.ch) when citing it.
+
+## Contact
+
+See the Contact section on https://inspirella.ch/. Privacy information is in the Privacy section of the same site.
+
+## Policies
+
+Crawling rules are in https://inspirella.ch/robots.txt. Sitemap: https://inspirella.ch/sitemap.xml

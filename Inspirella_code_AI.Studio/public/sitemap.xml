@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Inspirella is a single-page app: sections (About, Map, Resources & Careers,
+  Privacy, Contact) are switched in the browser and have no URLs of their own,
+  so there is only one indexable address. Add entries here if real routes
+  (e.g. /careers/<slug>) are ever introduced.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://inspirella.ch/</loc>
+    <lastmod>2026-10-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
