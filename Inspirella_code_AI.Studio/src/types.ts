@@ -290,6 +290,55 @@ export interface LearningPathStep {
   stepType?: string;
   officialUrl?: string;
   isOptional?: boolean;
+  /** Set on micro steps of a ladder template: the phase (parent step) they belong to. */
+  parentStepId?: string;
+  /** Personalisation hook of a ladder micro step: profession_facts | canton_links | firms | resources | schools | alternatives | fh_followups. */
+  hook?: string;
+  hookTopic?: string;
+  /** Micro steps of a phase (ladder templates only). */
+  substeps?: LearningPathStep[];
+}
+
+/** A firm that trains apprentices (training_companies), pilot directory. */
+export interface TrainingCompany {
+  id: string;
+  name: string;
+  street?: string;
+  postalCode?: string;
+  city?: string;
+  canton?: string;
+  website?: string;
+  trainingUrl?: string;
+  /** profession_categories codes, e.g. industry_technology_it. */
+  sectorCodes: string[];
+  languages: string[];
+  schnupperlehre?: boolean;
+  /** Ids of the professions the firm's own page names. */
+  professionIds: string[];
+}
+
+/** Practical facts for one profession (profession_facts). */
+export interface ProfessionFacts {
+  professionId: string;
+  durationYears?: number;
+  schoolLevel?: string;
+  aptitudeTests: string[];
+  bmPossible?: string;
+  bmDirections: string[];
+  fhFollowups: string[];
+  weiterbildung: string[];
+  typicalWorkplaces?: string;
+  sourceUrl?: string;
+}
+
+/** A national or cantonal how-to resource by topic (resources.topic_code). */
+export interface TopicResource {
+  topic: string;
+  title: Partial<Record<LanguageCode, string>>;
+  url: string;
+  language?: string;
+  official: boolean;
+  provider?: string;
 }
 
 /**

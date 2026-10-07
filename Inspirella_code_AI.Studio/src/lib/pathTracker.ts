@@ -29,13 +29,26 @@ export function buildPathTrackerGoal(path: LearningPath, language: LanguageCode)
     description: localizedText(path.description, language),
     streak: 0,
     progress: 0,
-    items: path.steps.map(step => ({
-      id: crypto.randomUUID(),
-      text: localizedText(step.title, language),
-      completed: false,
-      frequency: "weekly",
-      stepId: step.id
-    })),
+    // A ladder phase carries micro steps: each one becomes its own checklist item, tagged with the phase.
+    items: path.steps.flatMap(step =>
+      step.substeps && step.substeps.length > 0
+        ? step.substeps.map(sub => ({
+            id: crypto.randomUUID(),
+            text: localizedText(sub.title, language),
+            completed: false,
+            frequency: "weekly" as const,
+            stepId: step.id
+          }))
+        : [
+            {
+              id: crypto.randomUUID(),
+              text: localizedText(step.title, language),
+              completed: false,
+              frequency: "weekly" as const,
+              stepId: step.id
+            }
+          ]
+    ),
     createdAt: new Date().toISOString()
   };
 }

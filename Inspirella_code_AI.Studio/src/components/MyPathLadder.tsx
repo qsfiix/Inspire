@@ -1,8 +1,10 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ArrowRight, CheckCircle2, ListPlus, Plus, Sparkles, Trophy, GitBranch } from "lucide-react";
-import { LanguageCode, LearningPath, TrackerChecklistItem, TrackerGoal, UserProfile } from "../types";
-import { useEducationEngine } from "../engine/useEducationEngine";
+import { LanguageCode, LearningPath, RouteBackground, TrackerChecklistItem, TrackerGoal, UserProfile } from "../types";
+import { useEducationEngine, ROUTE_CHANGED_EVENT } from "../engine/useEducationEngine";
+import { LADDER_CODE, instantiateLadder, ladderApplies } from "../engine/ladder";
+import LadderSubsteps from "./LadderSubsteps";
 import { DataRepository } from "../data/Repository";
 import { TRANSLATIONS } from "../data";
 import { localizedText } from "../lib/localized";
@@ -123,6 +125,21 @@ export default function MyPathLadder({
     };
   }, []);
 
+  // The user's route answers decide whether the detailed apprenticeship ladder fits.
+  const [route, setRoute] = useState<RouteBackground | undefined>();
+  useEffect(() => {
+    let active = true;
+    const load = () => {
+      DataRepository.getRouteBackground().then(r => active && setRoute(r ?? undefined));
+    };
+    load();
+    window.addEventListener(ROUTE_CHANGED_EVENT, load);
+    return () => {
+      active = false;
+      window.removeEventListener(ROUTE_CHANGED_EVENT, load);
+    };
+  }, []);
+
   const [selected, setSelected] = useState<Selection>(null);
   // The step that was just completed (index, or -1 for the goal itself) -
   // drives a short celebration: the glass fills with light, feather-dust
@@ -149,10 +166,15 @@ export default function MyPathLadder({
     return rankedProfessions.findIndex(rp => learningPaths.some(p => p.targetProfessionId === rp.profession.id));
   }, [rankedProfessions, learningPaths]);
 
+  const mainProfession = mainIndex >= 0 ? rankedProfessions[mainIndex]?.profession : undefined;
+  // Apprenticeship professions get the detailed ladder (small steps with firms,
+  // links and schools for this user); every other profession keeps its own path.
   const mainPath = useMemo(() => {
-    const id = mainIndex >= 0 ? rankedProfessions[mainIndex]?.profession.id : undefined;
-    return id ? learningPaths.find(p => p.targetProfessionId === id) : undefined;
-  }, [mainIndex, rankedProfessions, learningPaths]);
+    if (!mainProfession) return undefined;
+    const template = learningPaths.find(p => p.code === LADDER_CODE);
+    if (template && ladderApplies(mainProfession, route, userProfile ?? null)) return instantiateLadder(template, mainProfession, language);
+    return learningPaths.find(p => p.targetProfessionId === mainProfession.id);
+  }, [mainProfession, learningPaths, route, userProfile, language]);
 
   const altCandidates = useMemo(() => {
     return rankedProfessions
@@ -960,6 +982,9 @@ export default function MyPathLadder({
               const step = steps[idx];
               const items = itemsForStep(idx);
               const itemsDone = items.filter(i => i.completed).length;
+              const hasSub = !!step.substeps && step.substeps.length > 0;
+              const subTitles = new Set((step.substeps ?? []).map(sub => localizedText(sub.title, language)));
+              const ownItems = hasSub ? items.filter(i => !subTitles.has(i.text)) : items;
               const s = stateOf(idx);
               return (
                 <div className="space-y-2">
@@ -990,6 +1015,20 @@ export default function MyPathLadder({
                     <div className="text-[11px] font-mono text-emerald-500">{localizedText(step.timeframe, language)}</div>
                   )}
 
+                  {hasSub && mainProfession && (
+                    <LadderSubsteps
+                      step={step}
+                      items={items}
+                      canTick={!!goal}
+                      onToggle={toggleItem}
+                      profession={mainProfession}
+                      profile={userProfile ?? null}
+                      route={route}
+                      language={language}
+                      isDark={isDark}
+                      alternatives={altCandidates.map(a => a.profession)}
+                    />
+                  )}
                   {goal ? (
                     <div className="space-y-1.5 pt-1">
                       {items.length > 0 && (
@@ -1002,7 +1041,7 @@ export default function MyPathLadder({
                           />
                         </div>
                       )}
-                      {items.map(item => (
+                      {ownItems.map(item => (
                         <button
                           key={item.id}
                           onClick={() => toggleItem(item.id)}

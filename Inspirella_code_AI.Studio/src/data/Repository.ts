@@ -11,6 +11,9 @@ import {
   TrackerChecklistItem,
   LearningPath,
   LearningPathStep,
+  ProfessionFacts,
+  TopicResource,
+  TrainingCompany,
   ProfessionInstitutionLink,
   CantonalLink,
   RouteBackground,
@@ -455,7 +458,10 @@ export const parseDbLearningPathStep = (db: Record<string, any>): LearningPathSt
     order: asNumber(pick(db, "step_order")),
     stepType: normalizeText(pick(db, "step_type")),
     officialUrl: normalizeUrl(pick(db, "official_url")),
-    isOptional: asBoolean(pick(db, "is_optional"))
+    isOptional: asBoolean(pick(db, "is_optional")),
+    parentStepId: normalizeId(pick(db, "parent_step_id")) ?? undefined,
+    hook: normalizeText(pick(db, "hook")),
+    hookTopic: normalizeText(pick(db, "hook_topic"))
   };
 };
 
@@ -1358,9 +1364,112 @@ export const DataRepository = {
         stepsByPath.set(pathId, list);
       }
 
+      // Ladder templates: micro steps hang under their phase instead of being flat steps.
+      for (const [pathId, list] of stepsByPath) {
+        if (!list.some(s => s.parentStepId)) continue;
+        const phases = list.filter(s => !s.parentStepId);
+        const byId = new Map(phases.map(p => [p.id, p]));
+        for (const s of list) {
+          if (!s.parentStepId) continue;
+          const parent = byId.get(s.parentStepId);
+          if (parent) (parent.substeps ??= []).push(s);
+        }
+        for (const p of phases) p.substeps?.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        stepsByPath.set(pathId, phases);
+      }
+
       return parseRows(pathsRes.data, row => parseDbLearningPath(row, stepsByPath));
     } catch (err) {
       console.warn("Failed to load learning paths from Supabase", err);
+      return [];
+    }
+  },
+
+  /** Pilot directory of firms that train apprentices, with the professions each one names. */
+  getTrainingCompanies: async (): Promise<TrainingCompany[]> => {
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) return [];
+    try {
+      const supabase = getSupabase();
+      const [firms, links] = await Promise.all([
+        fetchAllRows(() => supabase.from("training_companies").select("*").order("id", { ascending: true })),
+        fetchAllRows(() => supabase.from("training_company_professions").select("company_id, profession_id").order("id", { ascending: true }))
+      ]);
+      if (firms.error || !Array.isArray(firms.data)) return [];
+      const byFirm = new Map<string, string[]>();
+      for (const l of Array.isArray(links.data) ? links.data : []) {
+        const list = byFirm.get(l.company_id) ?? [];
+        list.push(l.profession_id);
+        byFirm.set(l.company_id, list);
+      }
+      return firms.data.map(f => ({
+        id: String(f.id),
+        name: String(f.name),
+        street: normalizeText(f.street_address),
+        postalCode: normalizeText(f.postal_code),
+        city: normalizeText(f.city),
+        canton: normalizeText(f.canton),
+        website: normalizeUrl(f.website_url),
+        trainingUrl: normalizeUrl(f.training_url),
+        sectorCodes: Array.isArray(f.sector_codes) ? f.sector_codes : [],
+        languages: Array.isArray(f.languages) ? f.languages : [],
+        schnupperlehre: typeof f.schnupperlehre === "boolean" ? f.schnupperlehre : undefined,
+        professionIds: byFirm.get(f.id) ?? []
+      }));
+    } catch (err) {
+      console.warn("Failed to load training companies", err);
+      return [];
+    }
+  },
+
+  /** Practical facts (school level, tests, Berufsmatura, follow-ups) for professions that have them. */
+  getProfessionFacts: async (): Promise<ProfessionFacts[]> => {
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) return [];
+    try {
+      const { data, error } = await getSupabase().from("profession_facts").select("*");
+      if (error || !Array.isArray(data)) return [];
+      return data.map(f => ({
+        professionId: String(f.profession_id),
+        durationYears: asNumber(f.duration_years),
+        schoolLevel: normalizeText(f.school_level_de),
+        aptitudeTests: Array.isArray(f.aptitude_tests) ? f.aptitude_tests : [],
+        bmPossible: normalizeText(f.bm_possible),
+        bmDirections: Array.isArray(f.bm_directions) ? f.bm_directions : [],
+        fhFollowups: Array.isArray(f.fh_followups) ? f.fh_followups : [],
+        weiterbildung: Array.isArray(f.weiterbildung) ? f.weiterbildung : [],
+        typicalWorkplaces: normalizeText(f.typical_workplaces_de),
+        sourceUrl: normalizeUrl(f.source_url)
+      }));
+    } catch (err) {
+      console.warn("Failed to load profession facts", err);
+      return [];
+    }
+  },
+
+  /** How-to resources for the given topic codes (national ones plus the canton's own). */
+  getTopicResources: async (topics: string[], canton?: string): Promise<TopicResource[]> => {
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive() || topics.length === 0) return [];
+    try {
+      const { data, error } = await getSupabase()
+        .from("resources")
+        .select("*")
+        .in("topic_code", topics)
+        .eq("is_active", true)
+        .or(canton ? `canton_code.is.null,canton_code.eq.${canton.toUpperCase()}` : "canton_code.is.null");
+      if (error || !Array.isArray(data)) return [];
+      return data
+        .map((r): TopicResource | null => {
+          const title = pickLocalizedText(r, "title", "name");
+          const url = normalizeUrl(r.official_url);
+          return title && url
+            ? { topic: String(r.topic_code), title, url, language: normalizeText(r.language_code), official: r.is_official === true, provider: normalizeText(r.provider_name) }
+            : null;
+        })
+        .filter((r): r is TopicResource => r !== null);
+    } catch (err) {
+      console.warn("Failed to load topic resources", err);
       return [];
     }
   },

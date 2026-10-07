@@ -397,7 +397,7 @@ type OnboardingStepId = "goals" | "target" | "stage" | "interests" | "education"
 // are optional and skippable.
 const ONBOARDING_STEPS: { id: OnboardingStepId; required: boolean }[] = [
   { id: "goals", required: true },
-  { id: "target", required: false },
+  { id: "target", required: true },
   { id: "stage", required: true },
   { id: "interests", required: true },
   { id: "education", required: false },
@@ -544,6 +544,8 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
     if (id === "goals") return onboardGoals.length > 0;
     if (id === "stage") return !!onboardStage;
     if (id === "interests") return onboardInterests.length > 0;
+    // The ladder differs for people who live in Switzerland and those who plan to move here.
+    if (id === "target") return livesInCh !== undefined;
     return true; // optional route steps
   };
   const currentMeta = ONBOARDING_STEPS[step];
@@ -956,7 +958,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
                 {c.skipStep}
               </button>
             )}
-            {step > 0 && step < lastStep && isStepValid("goals") && (
+            {step > 0 && step < lastStep && isStepValid("goals") && isStepValid("target") && (
               <button
                 type="button"
                 onClick={finish}
