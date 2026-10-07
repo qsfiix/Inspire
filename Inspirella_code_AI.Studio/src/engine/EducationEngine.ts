@@ -210,6 +210,9 @@ export class EducationEngine {
       if (routeSignal === "target-match") {
         score += EngineConfig.weights.route.targetLevelMatch;
         matchReasons.push(this.translate("Fits the level you are aiming for.", "Passt zur Stufe, die du anstrebst.", "Correspond au niveau que tu vises.", "Corrisponde al livello a cui punti."));
+      } else if (routeSignal === "partial-match") {
+        score += EngineConfig.weights.route.partialLevelMatch;
+        matchReasons.push(this.translate("Shorter entry route that leads on to an EFZ.", "Kürzerer Einstieg, der zum EFZ weiterführt.", "Voie d'entrée plus courte qui mène au CFC.", "Via d'ingresso più breve che porta all'AFC."));
       } else if (routeSignal === "prerequisite-gap") {
         score += EngineConfig.weights.route.prerequisiteGap;
         matchReasons.push(this.translate("Needs an earlier qualification first.", "Setzt zuerst einen früheren Abschluss voraus.", "Nécessite d'abord un diplôme préalable.", "Richiede prima un titolo precedente."));

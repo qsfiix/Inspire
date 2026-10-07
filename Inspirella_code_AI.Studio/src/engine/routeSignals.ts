@@ -19,7 +19,7 @@ export const TARGET_TYPES: Record<string, string[]> = {
 const NEEDS_PRIOR_QUALIFICATION = new Set(["fh_bachelor", "university", "hf_diploma", "fachausweis", "diplom"]);
 const LOW_EDUCATION = new Set(["none", "compulsory_school"]);
 
-export type ProfessionRouteSignal = "target-match" | "prerequisite-gap" | null;
+export type ProfessionRouteSignal = "target-match" | "partial-match" | "prerequisite-gap" | null;
 
 export function professionRouteSignal(
   route: RouteBackground | undefined,
@@ -27,7 +27,16 @@ export function professionRouteSignal(
 ): ProfessionRouteSignal {
   if (!route || !professionType) return null;
   const wanted = route.targetLevel ? TARGET_TYPES[route.targetLevel] : undefined;
-  if (wanted?.includes(professionType)) return "target-match";
+  if (wanted?.includes(professionType)) {
+    // An EBA (2 years) is a legitimate entry and leads on to an EFZ, but for most people
+    // who say "apprenticeship" the EFZ is the goal. It only counts as a full match when
+    // the stated Swiss language level is below B1.
+    if (route.targetLevel === "apprenticeship" && professionType === "apprenticeship_eba") {
+      const rank = bestSwissLanguageRank(route);
+      return rank !== null && rank < 3 ? "target-match" : "partial-match";
+    }
+    return "target-match";
+  }
   // Only flag a gap when the user has not stated a target: otherwise a
   // deliberately ambitious goal would be ranked down for being ambitious.
   if (

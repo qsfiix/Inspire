@@ -82,3 +82,14 @@ describe("languageGapInfo", () => {
     expect(info.gap).toBe(true);
   });
 });
+
+describe("EBA versus EFZ for an apprenticeship target", () => {
+  it("counts an EBA as a full match only below B1 in a Swiss language", async () => {
+    const { professionRouteSignal } = await import("./routeSignals");
+    const b1 = route({ targetLevel: "apprenticeship", languageLevels: [{ languageCode: "de", level: "B1" }] } as Partial<RouteBackground>);
+    const a1 = route({ targetLevel: "apprenticeship", languageLevels: [{ languageCode: "de", level: "A1" }] } as Partial<RouteBackground>);
+    expect(professionRouteSignal(b1, "apprenticeship_efz")).toBe("target-match");
+    expect(professionRouteSignal(b1, "apprenticeship_eba")).toBe("partial-match");
+    expect(professionRouteSignal(a1, "apprenticeship_eba")).toBe("target-match");
+  });
+});

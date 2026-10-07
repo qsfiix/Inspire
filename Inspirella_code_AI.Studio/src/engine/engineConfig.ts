@@ -53,6 +53,7 @@ export interface EngineConfigType {
     };
     route: {
       targetLevelMatch: number;
+      partialLevelMatch: number;
       prerequisiteGap: number;
       languageFit: number;
       languageGap: number;
@@ -113,6 +114,7 @@ export const EngineConfig: EngineConfigType = {
     // Stated route answers outrank interest signals: the goal is what the user told us first.
     route: {
       targetLevelMatch: 40,
+      partialLevelMatch: 15,
       prerequisiteGap: -15,
       languageFit: 15,
       languageGap: -25,
