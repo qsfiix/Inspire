@@ -30,6 +30,13 @@ Related Files:
 
 ---
 
+## 2026-10-07 — Настоящие профессии возвращены с правильным уровнем
+
+- Возвращены (`is_active=true`) 13 профессий, которые были скрыты только из-за неверного уровня в моей записи: Lokführer/in (без «EFZ»; обучение у железной дороги, лицензия BAV, позже по желанию Berufsprüfung), Patentanwalt/-anwältin (отдельный федеральный экзамен, не HFP), Heilpädagoge (Master, тип «university»), Mediator/in (титул SDM), Museumspädagoge (CAS), Katechet/in, Perfusionist/in (MAS FH), Aktuar/in SAV (титул союза), Wundexperte SAfW, Still- und Laktationsberater/in, Praxisausbildner/in Soziale Arbeit, Gefahrgutbeauftragte (курс со Schulungsnachweis, не Fachausweis) и Trainer/in Leistungssport (на деле Fachausweis, название и тип исправлены).
+- Тип у большинства — «other»; у всех пути обучения переписаны (шаги 2–5): вместо шаблонных «Vorbereitungskurs / Eidgenössische Diplomprüfung ablegen» теперь реальный путь с оговоркой «не федеральный диплом». Только немецкий текст; переводы изменённых названий и шагов обнулены до волны DeepL после 28 октября.
+- Не возвращены сознательно: Lerntherapeut/in (уже есть в базе как отдельная строка, `lerntherapeut_in`), Fachpsychologe für Psychotherapie FSP (дублирует Psychotherapeut/in), Mütter- und Väterberater/in (официальной квалификации с таким названием не нашлось).
+- Проверено в браузере: Lokführer, Patentanwalt, Heilpädagoge («Universitärer Abschluss»), Gefahrgutbeauftragte и Trainer («Eidg. Fachausweis») находятся в поиске профессий.
+
 ## 2026-10-07 — Сверка регламентированных профессий с официальными источниками
 
 - Автоматическая сверка по списку slug'ов berufsberatung.ch оказалась ненадёжной (названия там устроены иначе, часть настоящих профессий не находится), поэтому 66 строк типов EFZ/EBA/Fachausweis/Diplom/HF из ранних раундов проверили 2 агента по официальным страницам (berufsberatung.ch, SBFI, организации-держатели экзаменов). Итог: существуют как есть 7, переименованы 24, другой уровень 22, не найдены 13.
