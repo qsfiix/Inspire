@@ -1199,7 +1199,7 @@ export const DataRepository = {
       try {
         const supabase = getSupabase();
         const [{ data, error }, categoryCodes] = await Promise.all([
-          fetchAllRows(() => supabase.from("professions").select("*")),
+          fetchAllRows(() => supabase.from("professions").select("*").eq("is_active", true).order("id", { ascending: true })),
           fetchCodeLookup("profession_categories")
         ]);
         if (!error && Array.isArray(data) && data.length > 0) {
@@ -1380,7 +1380,7 @@ export const DataRepository = {
       const supabase = getSupabase();
       const [instRes, profRes, pathRes] = await Promise.all([
         supabase.from("institutions").select("*", { count: "exact", head: true }),
-        supabase.from("professions").select("*", { count: "exact", head: true }),
+        supabase.from("professions").select("*", { count: "exact", head: true }).eq("is_active", true),
         supabase.from("learning_paths").select("*", { count: "exact", head: true }).eq("is_active", true)
       ]);
 

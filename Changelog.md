@@ -30,6 +30,12 @@ Related Files:
 
 ---
 
+## 2026-10-07 — Несуществующие EFZ/EBA-профессии скрыты
+
+- 26 профессий (Bankkauffrau EFZ, Giesserei-Mechaniker, Modist, Weber, Werkzeugmacher, Zweiradmechaniker, Drucktechnologe, Buchbinder, Sattler, Fischwirt, Isolierer, Wasserbauer, Radio-/Fernsehtechnologe, Fachfrau/-mann Bühnentechnik, Audiovisuelle Medien, Betriebssicherheit, Reiseverkehrsfachfrau, «Sozialbegleiter EFZ», Hotel-/Gastronomiefachassistent EBA, «Brunnenmeister EFZ», «Operationstechnik EFZ», «Justizvollzug EFZ», «Sterilisationstechnik EFZ», Recyclingpraktiker EBA, Maschinenbau-Praktiker EBA) переведены в `is_active=false` вместе с их 26 путями обучения. Ничего не удалено; вернуть можно `update professions set is_active=true where code in (...)` (коды в `Changelog` выше и в `scratchpad/work8`).
+- Код: `DataRepository.getProfessions` и счётчик на странице теперь читают только `is_active=true` (раньше фильтра не было), сортировка по `id` для стабильной пагинации. В каталоге 1695 активных профессий. Проверено в браузере: поиск профессии больше не находит Modist и Bankkauffrau.
+- Не тронуты, потому что существуют (школы за границей): Apparateglasbläser, Papiertechnologe, Kapitän der Binnenschifffahrt, Nautische Fachfrau, Glasbaupraktiker; Lokführer EFZ оставлен до уточнения.
+
 ## 2026-10-07 — Школы для EFZ/EBA-профессий и находка про несуществующие профессии
 
 - 4 агента (E1–E4, ~470k токенов суммарно) искали, где преподаётся школьная часть Lehre для 63 EFZ/EBA-профессий без школ. Все 43 URL из ответов проверены запросом; адреса новых школ взяты с их сайтов, координаты через Nominatim (SfG BB Stettlen — по ориентиру Bernapark).

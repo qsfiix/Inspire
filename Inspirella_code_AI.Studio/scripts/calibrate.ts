@@ -64,7 +64,7 @@ const PERSONAS: Persona[] = [
   const lookup = async (table: string) => new Map<string, string>((await all(table)).map((r: any) => [String(r.id), String(r.code)] as [string, string]));
   const [profCats, resCats] = await Promise.all([lookup("profession_categories"), lookup("resource_categories")]);
   const [profRows, instRows, resRows, pathRows, stepRows, focusRows] = await Promise.all([
-    all("professions"),
+    all("professions", "&is_active=eq.true"),
     all("institutions"),
     all("resources"),
     all("learning_paths", "&is_active=eq.true"),
