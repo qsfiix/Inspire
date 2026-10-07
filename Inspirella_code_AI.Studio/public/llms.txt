@@ -17,13 +17,17 @@ German (de), French (fr), Italian (it) and English (en). Swiss content is primar
 
 ## How the content is delivered (important for AI readers)
 
-The site is a single-page application. Sections are not separate URLs, and profession and institution data is loaded dynamically from a database after the page opens. A plain HTML fetch therefore returns only the page shell and site description, not the profession lists. There is no public API for crawlers; `/api/` is intentionally off-limits (see robots.txt).
+The app itself is a single-page application: its sections (map, tracker, dashboard) are not separate URLs and load data after the page opens. For this reason every profession also has its own pre-rendered, plain-HTML page with the full text (no JavaScript needed):
 
-Account areas (Dashboard, Tracker, Profile) contain private user data and are not public.
+- `https://inspirella.ch/beruf/<slug>/` - one page per profession or education programme (German), with a description, daily work, workplaces, tools, career progression, schools that offer it and a link to official guidance.
+- The complete list of these pages is in https://inspirella.ch/sitemap.xml.
+
+Institution and resource pages are not available as separate pages yet. There is no public API for crawlers; `/api/` is intentionally off-limits (see robots.txt). Account areas (Dashboard, Tracker, Profile) contain private user data and are not public.
 
 ## Key pages
 
-- [Home](https://inspirella.ch/): the only public entry point; all sections are reached from here.
+- [Home](https://inspirella.ch/): entry point to the interactive app.
+- [Sitemap](https://inspirella.ch/sitemap.xml): list of all profession pages.
 
 ## Notes for accurate answers
 

@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "Inspirella_code_AI.Studio", "run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "inspirella-prod-build",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-e", "process.env.NODE_ENV='production';process.env.PORT='3100';process.chdir('Inspirella_code_AI.Studio');require(process.cwd()+'/dist/server.cjs')"],
+      "port": 3100
     }
   ]
 }

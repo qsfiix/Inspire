@@ -233,7 +233,23 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
+    app.use(
+      express.static(distPath, {
+        setHeaders: (res, filePath) => {
+          // Pre-rendered pages only change on deploy: let browsers and a CDN
+          // (Cloudflare) keep them, so bot traffic rarely reaches this server.
+          const p = filePath.replace(/\\/g, "/");
+          if (p.includes("/dist/beruf/") || p.endsWith("/dist/sitemap.xml")) {
+            res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=86400");
+          }
+        }
+      })
+    );
+    // An unknown profession address must be a real 404, not the app shell with
+    // status 200 (search engines would index it as a "soft 404").
+    app.get("/beruf/*", (req, res) => {
+      res.status(404).sendFile(path.join(distPath, "index.html"));
+    });
     // Serve SPA index.html for all routes in production
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
