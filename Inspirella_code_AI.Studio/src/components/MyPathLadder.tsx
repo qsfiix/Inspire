@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ArrowRight, CheckCircle2, ListPlus, Plus, Sparkles, Trophy, GitBranch } from "lucide-react";
 import { LanguageCode, LearningPath, RouteBackground, TrackerChecklistItem, TrackerGoal, UserProfile } from "../types";
 import { useEducationEngine, ROUTE_CHANGED_EVENT } from "../engine/useEducationEngine";
-import { LADDER_CODE, instantiateLadder, ladderApplies } from "../engine/ladder";
+import { LADDER_CODE, PHASE_BY_ORDER, PLAN_B_TEXT, instantiateLadder, ladderApplies, lehrbeginnYear, phaseWindow, planBSeason, windowLabel } from "../engine/ladder";
 import LadderSubsteps from "./LadderSubsteps";
 import { DataRepository } from "../data/Repository";
 import { TRANSLATIONS } from "../data";
@@ -1014,6 +1014,27 @@ export default function MyPathLadder({
                   {localizedText(step.timeframe, language) && (
                     <div className="text-[11px] font-mono text-emerald-500">{localizedText(step.timeframe, language)}</div>
                   )}
+                  {mainPath.code === LADDER_CODE && (() => {
+                    const start = lehrbeginnYear(route);
+                    const key = PHASE_BY_ORDER[step.order ?? 0];
+                    const win = phaseWindow(key, start.year);
+                    if (!win) return null;
+                    const label = windowLabel(win, start.year, start.assumed, language);
+                    const planB = planBSeason(start.year) && (key === "bewerben" || key === "gespraech" || key === "entscheid");
+                    return (
+                      <div className="space-y-1">
+                        <div className={`text-[11px] ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                          {label.text} · <span className={win.state === "now" ? (isDark ? "text-amber-300" : "text-amber-700") : ""}>{label.status}</span>
+                        </div>
+                        {label.note && <div className={`text-[10px] ${isDark ? "text-zinc-500" : "text-zinc-500"}`}>{label.note}</div>}
+                        {planB && (
+                          <div className={`rounded-lg border px-2.5 py-1.5 text-[11px] ${isDark ? "border-amber-300/30 bg-amber-400/10 text-amber-100" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
+                            {PLAN_B_TEXT[language] ?? PLAN_B_TEXT.de}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {hasSub && mainProfession && (
                     <LadderSubsteps

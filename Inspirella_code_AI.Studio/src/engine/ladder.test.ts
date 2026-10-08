@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { factLines, instantiateLadder, ladderApplies, rankFirms } from "./ladder";
+import { factLines, instantiateLadder, ladderApplies, lehrbeginnYear, phaseWindow, planBSeason, rankFirms, windowLabel } from "./ladder";
 import type { LearningPath, Profession, ProfessionFacts, TrainingCompany, UserProfile } from "../types";
 
 const prof = { id: "p1", title: { de: "Informatikerin / Informatiker EFZ", en: "IT specialist EFZ" }, professionType: "apprenticeship_efz", category: "industry_technology_it" } as unknown as Profession;
@@ -54,5 +54,39 @@ describe("factLines", () => {
     expect(factLines(facts, null)).toEqual(["Lehrdauer: 4 Jahre", "Arbeitsorte: Büro", "Danach zum Beispiel: HF Informatik"]);
     expect(factLines(facts, "requirements")).toEqual(["Schulniveau: obligatorische Schule", "Eignungstests: Multicheck"]);
     expect(factLines(undefined, null)).toEqual([]);
+  });
+});
+
+describe("time windows", () => {
+  const oct2026 = new Date(2026, 9, 8);
+  it("takes the wished start year, otherwise 16th birthday, otherwise next August", () => {
+    expect(lehrbeginnYear({ languageLevels: [], targetStartYear: 2028 }, oct2026)).toEqual({ year: 2028, assumed: false });
+    expect(lehrbeginnYear({ languageLevels: [], birthYear: 2011 }, oct2026)).toEqual({ year: 2027, assumed: false });
+    expect(lehrbeginnYear({ languageLevels: [], birthYear: 2005 }, oct2026)).toEqual({ year: 2027, assumed: true });
+    expect(lehrbeginnYear(undefined, oct2026)).toEqual({ year: 2027, assumed: true });
+    expect(lehrbeginnYear(undefined, new Date(2026, 3, 1)).year).toBe(2026);
+  });
+  it("places the phases before the start and reports where we are", () => {
+    const w = phaseWindow("schnuppern", 2027, oct2026)!;
+    expect(w.from.getFullYear()).toBe(2026);
+    expect(w.from.getMonth()).toBe(0);
+    expect(w.to!.getMonth()).toBe(8);
+    expect(w.state).toBe("past");
+    expect(phaseWindow("dossier", 2027, new Date(2026, 6, 1))!.state).toBe("now");
+    expect(phaseWindow("bewerben", 2027, oct2026)!.state).toBe("now");
+    expect(phaseWindow("lehre", 2027, oct2026)!.to).toBeNull();
+    expect(phaseWindow("fh", 2027)).toBeUndefined();
+  });
+  it("formats a label in the user's language and flags assumed years", () => {
+    const w = phaseWindow("orient", 2027, oct2026)!;
+    const de = windowLabel(w, 2027, true, "de");
+    expect(de.text).toContain("August 2027");
+    expect(de.note).toBeDefined();
+    expect(windowLabel(w, 2027, false, "fr").text).toContain("août 2027");
+  });
+  it("raises the Plan B flag only between March and August of the start year", () => {
+    expect(planBSeason(2027, new Date(2027, 1, 15))).toBe(false);
+    expect(planBSeason(2027, new Date(2027, 3, 15))).toBe(true);
+    expect(planBSeason(2027, new Date(2027, 7, 15))).toBe(false);
   });
 });

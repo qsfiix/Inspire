@@ -1,6 +1,6 @@
 Status: Canonical
 Owner: Sofiia
-Last Updated: 2026-10-07
+Last Updated: 2026-10-08
 Purpose: хронологический журнал заметных изменений в проекте Inspirella (код, документы, данные), чтобы человек и будущие ИИ-агенты могли быстро понять, что и когда менялось, не поднимая весь git log.
 Related Files:
 - ./Decisions.md
@@ -29,6 +29,13 @@ Related Files:
 Новые записи добавляются сверху (последняя дата — первая в файле).
 
 ---
+
+## 2026-10-08 — Лестница выше маршрута; сроки и план Б по дате
+
+- На дашборде блок My Path (лестница) теперь стоит выше карточки «Dein persönlicher Weg»: сначала визуализация, подробности ниже (просьба Софии).
+- **Календарь сроков.** Для каждой ступени лестницы показывается ориентировочное окно, считая назад от начала Lehre (август года Y; год берётся из ответа «год старта», иначе 16-й день рождения, иначе ближайший август, с пометкой «год предположен»): Orientieren авг Y-2 – янв Y-1, Schnuppern янв–сен Y-1, Dossier июн–сен Y-1, Bewerben авг Y-1 – фев Y, Vorstellungsgespräch сен Y-1 – мар Y, Entscheiden ноя Y-1 – апр Y, Lehre с августа Y. Формулировка «Richtwert»: у популярных профессий места заканчиваются раньше, кантоны различаются. Статус «jetzt aktuell / kommt noch / Zeitfenster vorbei, du kannst trotzdem noch handeln». Переводы на de/en/fr/it.
+- **План Б по дате.** С марта до августа года старта на ступенях Bewerben, Vorstellungsgespräch и Entscheiden появляется спокойное напоминание про Brückenangebote, 10. Schuljahr и Zwischenjahr (поиск при этом не прекращается).
+- Код: `engine/ladder.ts` (`lehrbeginnYear`, `phaseWindow`, `windowLabel`, `planBSeason`), панель шага в `MyPathLadder`. +4 теста (всего 115). Проверено в браузере (октябрь 2026, старт 2027: Bewerben «Aug. 2026 – Feb. 2027 · jetzt aktuell»).
 
 ## 2026-10-07 — Справочник Lehrbetriebe для лестницы (пилот ZH/BE/AG/LU/SG)
 
