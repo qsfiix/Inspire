@@ -13,7 +13,7 @@ import { FocusEntry, suggestSchools } from "../engine/routeSchools";
  * database; when nothing fits, the step says so instead of guessing.
  */
 
-const LADDER_TOPICS = ["schnupperlehre", "bewerbung_dossier", "lebenslauf", "bewerbungsschreiben", "vorstellungsgespraech", "eignungstests", "lehrstellen_portal", "lehrvertrag", "lehrstart", "plan_b"];
+const LADDER_TOPICS = ["schnupperlehre", "bewerbung_dossier", "lebenslauf", "bewerbungsschreiben", "vorstellungsgespraech", "eignungstests", "lehrstellen_portal", "lehrvertrag", "lehrstart", "plan_b", "berufsmatura_info"];
 
 interface LadderData {
   firms: TrainingCompany[];
@@ -154,9 +154,11 @@ export default function LadderExtras({ step, profession, profile, language, isDa
   }, [hook]);
 
   useEffect(() => {
-    if (hook !== "resources" || !topic || !LADDER_TOPICS.includes(topic)) return;
+    // The Berufsmatura step also shows plain-language information next to the schools.
+    const wanted = hook === "resources" ? topic : hook === "schools" && topic === "bm" ? "berufsmatura_info" : null;
+    if (!wanted || !LADDER_TOPICS.includes(wanted)) return;
     let active = true;
-    DataRepository.getTopicResources([topic], canton).then(r => active && setResources(r));
+    DataRepository.getTopicResources([wanted], canton).then(r => active && setResources(r));
     return () => {
       active = false;
     };
@@ -291,6 +293,20 @@ export default function LadderExtras({ step, profession, profile, language, isDa
                   {ui.training} <ExternalLink className="h-3 w-3" />
                 </a>
               )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {hook === "schools" && topic === "bm" && shownResources.length > 0 && (
+        <div className="space-y-1">
+          <div className={head}>{ui.linksHead}</div>
+          {shownResources.map(r => (
+            <div key={r.url}>
+              <a href={r.url} target="_blank" rel="noreferrer" className={linkCls}>
+                {localizedText(r.title, language)} <ExternalLink className="h-3 w-3" />
+              </a>
+              {r.provider && <span className={`ml-1 text-[10px] ${muted}`}>{r.provider}</span>}
             </div>
           ))}
         </div>
