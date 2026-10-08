@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ExternalLink, MapPin } from "lucide-react";
-import type { CantonalLink, Institution, LanguageCode, LearningPathStep, Profession, ProfessionFacts, RouteBackground, TopicResource, TrainingCompany, UserProfile } from "../types";
+import type { CantonalLink, Institution, LanguageCode, LearningPathStep, Profession, ProfessionFacts, RouteBackground, TopicResource, TrackerGoal, TrainingCompany, UserProfile } from "../types";
 import { DataRepository } from "../data/Repository";
 import { localizedText } from "../lib/localized";
 import { factLines, rankFirms } from "../engine/ladder";
 import { FocusEntry, suggestSchools } from "../engine/routeSchools";
+import { findApplicationsGoal, firmSignalScore, firmSignals, newItem, signalForFirm, withApplicationItem } from "../lib/trackerOps";
+import { trackerUi } from "./trackerUi";
 
 /**
  * The personal part of one ladder micro step: what the generic step text becomes
@@ -131,9 +133,12 @@ interface Props {
   language: LanguageCode;
   isDark: boolean;
   alternatives: Profession[];
+  /** The user's tracker: firms can be added to the application board, and impressions reorder the firms. */
+  trackers?: TrackerGoal[];
+  onTrackersChange?: (updated: TrackerGoal[]) => void;
 }
 
-export default function LadderExtras({ step, profession, profile, language, isDark, alternatives }: Props) {
+export default function LadderExtras({ step, profession, profile, language, isDark, alternatives, trackers, onTrackersChange }: Props) {
   const ui = UI[language] ?? UI.de;
   const canton = profile?.preferredCanton?.toUpperCase();
   const hook = step.hook;
@@ -189,10 +194,24 @@ export default function LadderExtras({ step, profession, profile, language, isDa
 
   const facts = data?.facts.get(profession.id);
   const lines = useMemo(() => factLines(facts, topic), [facts, topic]);
+  const signals = useMemo(() => firmSignals(trackers), [trackers]);
   const firms = useMemo(
-    () => (data ? rankFirms(data.firms, profession, profile, { schnupperlehre: topic === "schnupperlehre", limit: 5 }) : []),
-    [data, profession, profile, topic]
+    () => (data ? rankFirms(data.firms, profession, profile, { schnupperlehre: topic === "schnupperlehre", limit: 5, adjust: f => firmSignalScore(signalForFirm(signals, f)) }) : []),
+    [data, profession, profile, topic, signals]
   );
+  const tui = trackerUi(language);
+  const appsGoal = findApplicationsGoal(trackers);
+  const firmOnBoard = (f: TrainingCompany) => !!appsGoal?.items.some(i => i.kind === "application" && (i.firm?.id === f.id || i.firm?.name === f.name));
+  const firmInLog = (f: TrainingCompany) => !!appsGoal?.items.some(i => i.kind === "schnupper" && (i.firm?.id === f.id || i.firm?.name === f.name));
+  const goalTexts = { title: tui.boardTitle, description: tui.boardHint };
+  const addFirmToBoard = (f: TrainingCompany) => {
+    if (!trackers || !onTrackersChange || firmOnBoard(f)) return;
+    onTrackersChange(withApplicationItem(trackers, goalTexts, newItem(f.name, { kind: "application", appStatus: "planned", firm: { id: f.id, name: f.name, url: f.trainingUrl } })));
+  };
+  const addFirmToLog = (f: TrainingCompany) => {
+    if (!trackers || !onTrackersChange || firmInLog(f)) return;
+    onTrackersChange(withApplicationItem(trackers, goalTexts, newItem(`${tui.kindLabel.schnupper} · ${f.name}`, { kind: "schnupper", firm: { id: f.id, name: f.name, url: f.trainingUrl } })));
+  };
   const schools = useMemo(() => {
     if (!data || hook !== "schools") return [];
     if (topic === "bm") return suggestSchools({ focus: "berufsmaturitaet", bm: true }, data.institutions, data.focus, { canton, limit: 4 });
@@ -288,10 +307,29 @@ export default function LadderExtras({ step, profession, profile, language, isDa
                   ))}
                 </div>
               )}
+              {(() => {
+                const sig = signalForFirm(signals, firm);
+                const score = firmSignalScore(sig);
+                const text = sig?.status === "rejected" || sig?.status === "declined" ? tui.signalRejected : score > 0 ? tui.signalGood : score < 0 ? tui.signalBad : null;
+                return text ? <div className={`mt-1 text-[10px] font-semibold ${score > 0 ? "text-emerald-500" : "text-amber-500"}`}>{text}</div> : null;
+              })()}
               {firm.trainingUrl && (
                 <a href={firm.trainingUrl} target="_blank" rel="noreferrer" className={`${linkCls} mt-1`}>
                   {ui.training} <ExternalLink className="h-3 w-3" />
                 </a>
+              )}
+              {onTrackersChange && (
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {topic === "schnupperlehre" ? (
+                    <button type="button" onClick={() => addFirmToLog(firm)} disabled={firmInLog(firm)} className={`${chip} cursor-pointer disabled:cursor-default disabled:opacity-70`}>
+                      {firmInLog(firm) ? tui.inLog : tui.toLog}
+                    </button>
+                  ) : (
+                    <button type="button" onClick={() => addFirmToBoard(firm)} disabled={firmOnBoard(firm)} className={`${chip} cursor-pointer disabled:cursor-default disabled:opacity-70`}>
+                      {firmOnBoard(firm) ? tui.onBoard : tui.toBoard}
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           ))}

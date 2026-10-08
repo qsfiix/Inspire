@@ -182,6 +182,23 @@ export interface TrackerGoal {
   isExample?: boolean;
   /** Optional target date (ISO "YYYY-MM-DD"). Drives the dashboard's due/overdue reminders. */
   dueDate?: string;
+  /** "applications" holds the firm board and the Schnupperlehre log; "path" a ladder; undefined = a goal the user made. */
+  kind?: TrackerGoalKind;
+}
+
+export type TrackerGoalKind = "path" | "applications";
+
+/** task = plain to-do; schnupper / interview = a dated appointment; deadline = a hard date; document = paper for the dossier; application = a firm on the board. */
+export type TrackerItemKind = "task" | "schnupper" | "interview" | "deadline" | "document" | "application";
+
+/** Where an application stands. */
+export type ApplicationStatus = "planned" | "sent" | "interview" | "offer" | "rejected" | "declined";
+
+export interface TrackerFirmRef {
+  /** training_companies.id when the firm comes from our directory. */
+  id?: string;
+  name: string;
+  url?: string;
 }
 
 export interface TrackerChecklistItem {
@@ -191,6 +208,20 @@ export interface TrackerChecklistItem {
   frequency: "daily" | "weekly";
   /** Present when this item is a small sub-task of one LearningPathStep (see MyPathLadder). */
   stepId?: string;
+  /** Date it should happen by or on ("YYYY-MM-DD"). */
+  dueAt?: string;
+  kind?: TrackerItemKind;
+  /** Free note of the user. */
+  note?: string;
+  /** Set on a generated sub-task: the id of the micro-step item it belongs to. */
+  parentId?: string;
+  firm?: TrackerFirmRef;
+  /** Board column of an application item. */
+  appStatus?: ApplicationStatus;
+  /** Schnupperlehre log: 1 to 5. */
+  rating?: number;
+  /** Schnupperlehre log: would the user apply there? */
+  wouldApply?: boolean;
 }
 
 export interface ResourceItem extends RecordProvenance {

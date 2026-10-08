@@ -71,7 +71,7 @@ export function rankFirms(
   firms: TrainingCompany[],
   profession: Pick<Profession, "id" | "category">,
   profile: UserProfile | null,
-  opts: { schnupperlehre?: boolean; limit?: number } = {}
+  opts: { schnupperlehre?: boolean; limit?: number; /** Extra score for a firm from the user's own tracker (Schnupperlehre impressions, rejections). */ adjust?: (firm: TrainingCompany) => number } = {}
 ): RankedFirm[] {
   const canton = profile?.preferredCanton?.toUpperCase();
   const lang = languageOfCanton(canton) ?? (profile?.targetLanguageRegion || undefined);
@@ -99,6 +99,7 @@ export function rankFirms(
         reasons.push("schnupperlehre");
         score += opts.schnupperlehre ? 25 : 5;
       }
+      if (opts.adjust) score += opts.adjust(f);
       return { firm: f, reasons, score };
     })
     .sort((a, b) => b.score - a.score || a.firm.name.localeCompare(b.firm.name));

@@ -7,6 +7,7 @@ import { LADDER_CODE, PHASE_BY_ORDER, PLAN_B_TEXT, instantiateLadder, ladderAppl
 import { buildPersonalRoute } from "../engine/pathPlanner";
 import { getOnboardingCopy } from "../features/onboardingCopy";
 import LadderSubsteps from "./LadderSubsteps";
+import { expandLadderSubtasks, patchItem as patchTrackerItem, toggleItem as toggleTrackerItem } from "../lib/trackerOps";
 import GoalPicker from "./GoalPicker";
 import { DataRepository } from "../data/Repository";
 import { TRANSLATIONS } from "../data";
@@ -77,6 +78,7 @@ const GOAL_NAMES: Record<LanguageCode, Record<string, string>> = {
   fr: { gymnasium: "Gymnase (maturité)", apprenticeship: "Apprentissage (CFC)", berufsmatura: "Maturité professionnelle", university_of_applied_sciences: "Haute école spécialisée", university: "Université ou EPF", higher_vocational: "Formation professionnelle supérieure", language_course: "Cours de langue" },
   it: { gymnasium: "Liceo (maturità)", apprenticeship: "Apprendistato (AFC)", berufsmatura: "Maturità professionale", university_of_applied_sciences: "Scuola universitaria professionale", university: "Università o PF", higher_vocational: "Formazione professionale superiore", language_course: "Corso di lingua" }
 };
+const EXPAND_BUTTON: Record<LanguageCode, string> = { de: "Teilaufgaben mit Terminen ergänzen", en: "Add detailed subtasks with dates", fr: "Ajouter des sous-tâches avec dates", it: "Aggiungi sottocompiti con date" };
 const OPEN_TRACKER: Record<LanguageCode, string> = { de: "Im Tracker öffnen", en: "Open in tracker", fr: "Ouvrir dans le suivi", it: "Apri nel tracker" };
 
 type StepState = "done" | "current" | "upcoming";
@@ -327,19 +329,32 @@ export default function MyPathLadder({
   const litPath = toPath(beamPoints.slice(0, litCount));
   const dimPath = toPath(beamPoints.slice(Math.max(0, litCount - 1)));
 
+  /** Sub-tasks with dates for the ladder: only the detailed Lehre ladder has templates. */
+  const withSubtasks = (g: TrackerGoal): TrackerGoal =>
+    mainPath.code === LADDER_CODE && anyProfession
+      ? expandLadderSubtasks(g, mainPath, language, { beruf: anyProfession.title[language] ?? anyProfession.title.de ?? "", startYear: lehrbeginnYear(route).year })
+      : g;
+  const canExpand = !!goal && mainPath.code === LADDER_CODE && !goal.items.some(i => i.parentId);
+
   const addToTracker = () => {
     if (!onTrackersChange || goal) return;
-    onTrackersChange([buildPathTrackerGoal(mainPath, language), ...(trackers || [])]);
+    onTrackersChange([withSubtasks(buildPathTrackerGoal(mainPath, language)), ...(trackers || [])]);
+  };
+
+  const patchGoalItem = (itemId: string, patch: Partial<TrackerChecklistItem>) => {
+    if (!onTrackersChange || !goal || !trackers) return;
+    onTrackersChange(trackers.map(g => (g.id === goal.id ? patchTrackerItem(g, itemId, patch) : g)));
+  };
+
+  const addSubtasksToGoal = () => {
+    if (!onTrackersChange || !goal || !trackers) return;
+    onTrackersChange(trackers.map(g => (g.id === goal.id ? withSubtasks(g) : g)));
   };
 
   const toggleItem = (itemId: string) => {
     if (!goal || !onTrackersChange || !trackers) return;
-    const updatedItems = goal.items.map(it => (it.id === itemId ? { ...it, completed: !it.completed } : it));
-    const updatedGoal: TrackerGoal = {
-      ...goal,
-      items: updatedItems,
-      progress: Math.round((updatedItems.filter(i => i.completed).length / updatedItems.length) * 100)
-    };
+    const updatedGoal = toggleTrackerItem(goal, itemId);
+    const updatedItems = updatedGoal.items;
     onTrackersChange(trackers.map(g => (g.id === goal.id ? updatedGoal : g)));
 
     // Did this tick finish its step (or the whole path)? Same per-step
@@ -476,6 +491,12 @@ export default function MyPathLadder({
             <button onClick={addToTracker} className="btn-primary btn-shine gap-1.5 text-[11px] px-3.5 py-2">
               <ListPlus className="h-3.5 w-3.5" />
               {TRACK_BUTTON[language] ?? TRACK_BUTTON.de}
+            </button>
+          )}
+          {canExpand && onTrackersChange && (
+            <button onClick={addSubtasksToGoal} className="btn-primary gap-1.5 text-[11px] px-3.5 py-2">
+              <ListPlus className="h-3.5 w-3.5" />
+              {EXPAND_BUTTON[language] ?? EXPAND_BUTTON.de}
             </button>
           )}
           {goal && onOpenTracker && (
@@ -1121,6 +1142,10 @@ export default function MyPathLadder({
                       language={language}
                       isDark={isDark}
                       alternatives={altCandidates.map(a => a.profession)}
+                      goalItems={goal?.items}
+                      onPatchItem={patchGoalItem}
+                      trackers={trackers}
+                      onTrackersChange={onTrackersChange}
                     />
                   )}
                   {goal ? (

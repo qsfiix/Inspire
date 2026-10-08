@@ -4,6 +4,10 @@ import { Plus, Trash2, CheckCircle, Circle, PlusCircle, Trophy, BarChart3, Star,
 import { TrackerGoal, TrackerChecklistItem, LanguageCode } from "../types";
 import { TRANSLATIONS } from "../data";
 import SectionGlow from "./SectionGlow";
+import TrackerNextUp from "./TrackerNextUp";
+import TrackerBoard from "./TrackerBoard";
+import { trackerUi, whenText } from "./trackerUi";
+import { addItem, daysTo, goalProgress, newItem, onItemGoal, patchItem, removeItem, toggleItem } from "../lib/trackerOps";
 
 interface TrackerSystemProps {
   currentLanguage: LanguageCode;
@@ -38,7 +42,9 @@ export default function TrackerSystem({
   const [newGoalDueDate, setNewGoalDueDate] = useState("");
   const [newItemTexts, setNewItemTexts] = useState<Record<string, string>>({}); // goalId: text
   const t = TRANSLATIONS[currentLanguage];
+  const ui = trackerUi(currentLanguage);
   const isDark = theme !== "light";
+  const shownGoals = trackers.filter(g => g.kind !== "applications");
 
   const tCard = isDark
     ? "border border-violet-800/20 bg-[#0e0a16]/45 text-white"
@@ -86,85 +92,31 @@ export default function TrackerSystem({
   const handleAddChecklistItem = (goalId: string) => {
     const text = newItemTexts[goalId];
     if (!text || !text.trim()) return;
-
-    const updated = trackers.map(g => {
-      if (g.id === goalId) {
-        const newItem: TrackerChecklistItem = {
-          id: crypto.randomUUID(),
-          text: text,
-          completed: false,
-          frequency: "daily"
-        };
-        const nextItems = [...g.items, newItem];
-        return {
-          ...g,
-          items: nextItems,
-          progress: calculateProgress(nextItems)
-        };
-      }
-      return g;
-    });
-
-    onTrackersChange(updated);
-    setNewItemTexts({
-      ...newItemTexts,
-      [goalId]: ""
-    });
+    onTrackersChange(trackers.map(g => (g.id === goalId ? addItem(g, newItem(text.trim(), { frequency: "daily" })) : g)));
+    setNewItemTexts({ ...newItemTexts, [goalId]: "" });
   };
 
   const handleToggleItem = (goalId: string, itemId: string) => {
     const updated = trackers.map(g => {
-      if (g.id === goalId) {
-        const nextItems = g.items.map(i => {
-          if (i.id === itemId) {
-            return { ...i, completed: !i.completed };
-          }
-          return i;
-        });
-
-        // Calculate progress
-        const nextProgress = calculateProgress(nextItems);
-        // If items are completed, boost streak incrementally
-        let nextStreak = g.streak;
-        if (nextProgress === 100 && g.progress < 100) {
-          nextStreak += 1;
-        } else if (nextProgress < 100 && g.progress === 100) {
-          nextStreak = Math.max(0, nextStreak - 1);
-        }
-
-        return {
-          ...g,
-          items: nextItems,
-          progress: nextProgress,
-          streak: nextStreak
-        };
-      }
-      return g;
+      if (g.id !== goalId) return g;
+      const next = toggleItem(g, itemId);
+      // If items are completed, boost streak incrementally
+      let nextStreak = g.streak;
+      if (next.progress === 100 && g.progress < 100) nextStreak += 1;
+      else if (next.progress < 100 && g.progress === 100) nextStreak = Math.max(0, nextStreak - 1);
+      return { ...next, streak: nextStreak };
     });
-
     onTrackersChange(updated);
   };
 
   const handleDeleteItem = (goalId: string, itemId: string) => {
-    const updated = trackers.map(g => {
-      if (g.id === goalId) {
-        const nextItems = g.items.filter(i => i.id !== itemId);
-        return {
-          ...g,
-          items: nextItems,
-          progress: calculateProgress(nextItems)
-        };
-      }
-      return g;
-    });
-    onTrackersChange(updated);
+    onTrackersChange(trackers.map(g => (g.id === goalId ? removeItem(g, itemId) : g)));
   };
 
-  const calculateProgress = (items: TrackerChecklistItem[]): number => {
-    if (items.length === 0) return 0;
-    const completed = items.filter(i => i.completed).length;
-    return Math.round((completed / items.length) * 100);
+  const handlePatchItem = (itemId: string, patch: Partial<TrackerChecklistItem>) => {
+    onTrackersChange(onItemGoal(trackers, itemId, g => patchItem(g, itemId, patch)));
   };
+
 
   const getCategoryIcon = (cat: TrackerGoal["category"]) => {
     switch (cat) {
@@ -181,6 +133,67 @@ export default function TrackerSystem({
     }
   };
 
+  /** One checklist row: tick, date, kind, note. Sub-tasks (parentId) are drawn indented under their step. */
+  const renderItem = (goal: TrackerGoal, item: TrackerChecklistItem, nested: boolean, children: TrackerChecklistItem[]) => {
+    const days = item.completed ? null : daysTo(item.dueAt);
+    const kindLabel = item.kind && item.kind !== "task" && item.kind !== "application" ? ui.kindLabel[item.kind] : null;
+    const muted = isDark ? "text-zinc-400" : "text-zinc-600";
+    return (
+      <div key={item.id} className={`card-premium-accent text-xs ${nested ? "ml-5 p-2" : "p-2.5"}`}>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => handleToggleItem(goal.id, item.id)}
+            className={`flex-1 flex items-center gap-2.5 text-left transition relative cursor-pointer font-bold ${
+              item.completed ? "text-zinc-500 line-through" : isDark ? "text-zinc-100" : "text-violet-950"
+            }`}
+          >
+            {item.completed ? (
+              <CheckCircle className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
+            ) : (
+              <Circle className={`h-4.5 w-4.5 shrink-0 ${isDark ? "text-zinc-500" : "text-violet-950/60"}`} />
+            )}
+            <span>{item.text}</span>
+          </button>
+          <button
+            onClick={() => handleDeleteItem(goal.id, item.id)}
+            aria-label={ui.remove}
+            className="text-red-500 hover:text-red-700 p-1.5 rounded-lg transition-colors cursor-pointer hover:bg-red-500/10"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="mt-1 flex flex-wrap items-center gap-2 pl-7">
+          {kindLabel && (
+            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${isDark ? "border-violet-400/30 text-violet-200" : "border-violet-300 text-violet-800"}`}>{kindLabel}</span>
+          )}
+          <input
+            type="date"
+            value={item.dueAt ?? ""}
+            onChange={e => handlePatchItem(item.id, { dueAt: e.target.value || undefined })}
+            aria-label={ui.date}
+            className={`rounded-md border px-1.5 py-0.5 text-[11px] ${isDark ? "bg-white/5 border-white/15 text-white" : "bg-white border-violet-200 text-black"}`}
+          />
+          {days !== null && (
+            <span className={`text-[11px] font-semibold ${days < 0 ? "text-red-500" : days <= 2 ? "text-amber-500" : muted}`}>{whenText(days, ui)}</span>
+          )}
+          {children.length > 0 && (
+            <span className={`text-[11px] ${muted}`}>{ui.subtasks.replace("{done}", String(children.filter(c => c.completed).length)).replace("{total}", String(children.length))}</span>
+          )}
+          {item.firm && <span className={`text-[11px] ${muted}`}>{item.firm.name}</span>}
+        </div>
+        {!nested && (
+          <input
+            value={item.note ?? ""}
+            onChange={e => handlePatchItem(item.id, { note: e.target.value || undefined })}
+            placeholder={ui.notePlaceholder}
+            aria-label={ui.note}
+            className={`mt-1.5 ml-7 w-[calc(100%-1.75rem)] rounded-md border px-2 py-1 text-[11px] outline-none ${isDark ? "bg-white/5 border-white/10 text-white placeholder-zinc-500" : "bg-white border-violet-200 text-black placeholder-zinc-500"}`}
+          />
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-8">
       {/* Intro Metrics Banner */}
@@ -191,7 +204,7 @@ export default function TrackerSystem({
           </div>
           <div>
             <span className={`block text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Active Goals</span>
-            <span className={`font-sans text-lg font-black block mt-0.5 ${isDark ? "text-white" : "text-violet-950"}`}>{trackers.length} active</span>
+            <span className={`font-sans text-lg font-black block mt-0.5 ${isDark ? "text-white" : "text-violet-950"}`}>{shownGoals.length} active</span>
           </div>
         </div>
 
@@ -202,8 +215,8 @@ export default function TrackerSystem({
           <div>
             <span className={`block text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Average Progress</span>
             <span className={`font-sans text-lg font-black block mt-0.5 ${isDark ? "text-white" : "text-violet-950"}`}>
-              {trackers.length > 0
-                ? Math.round(trackers.reduce((acc, curr) => acc + curr.progress, 0) / trackers.length)
+              {shownGoals.length > 0
+                ? Math.round(shownGoals.reduce((acc, curr) => acc + curr.progress, 0) / shownGoals.length)
                 : 0}% Done
             </span>
           </div>
@@ -216,11 +229,15 @@ export default function TrackerSystem({
           <div>
             <span className={`block text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Peak Streak</span>
             <span className={`font-sans text-lg font-black block mt-0.5 ${isDark ? "text-white" : "text-violet-950"}`}>
-              {trackers.length > 0 ? Math.max(...trackers.map(t => t.streak), 0) : 0} days
+              {shownGoals.length > 0 ? Math.max(...shownGoals.map(t => t.streak), 0) : 0} days
             </span>
           </div>
         </div>
       </div>
+
+      {/* Dates and reminders, application board, Schnupperlehre diary */}
+      <TrackerNextUp language={currentLanguage} isDark={isDark} trackers={trackers} onTrackersChange={onTrackersChange} />
+      <TrackerBoard language={currentLanguage} isDark={isDark} trackers={trackers} onTrackersChange={onTrackersChange} />
 
       {/* Goal Creation Deck */}
       <div className="card-premium p-6 text-left relative overflow-hidden">
@@ -295,13 +312,13 @@ export default function TrackerSystem({
       {/* Trackers List Grid */}
       <div className="grid gap-6 md:grid-cols-2">
         <AnimatePresence mode="popLayout">
-          {trackers.length === 0 ? (
+          {shownGoals.length === 0 ? (
             <div className="card-premium md:col-span-2 py-12 text-center p-6 border-dashed">
               <Star className="h-8 w-8 text-violet-400 mx-auto mb-2" />
               <p className={`text-xs font-black ${isDark ? "text-zinc-400" : "text-violet-950"}`}>{t.noTrackers}</p>
             </div>
           ) : (
-            trackers.map((goal) => (
+            shownGoals.map((goal) => (
               <motion.div
                 key={goal.id}
                 layout
@@ -405,34 +422,16 @@ export default function TrackerSystem({
                 </div>
 
                 {/* Checklist Container */}
-                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                  {goal.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="card-premium-accent p-2.5 text-xs flex items-center justify-between"
-                    >
-                      <button
-                        onClick={() => handleToggleItem(goal.id, item.id)}
-                        className={`flex-1 flex items-center gap-2.5 text-left transition relative cursor-pointer font-bold ${
-                          item.completed ? "text-zinc-500 line-through" : isDark ? "text-zinc-100" : "text-violet-950"
-                        }`}
-                      >
-                        {item.completed ? (
-                          <CheckCircle className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <Circle className={`h-4.5 w-4.5 shrink-0 ${isDark ? "text-zinc-500" : "text-violet-950/60"}`} />
-                        )}
-                        <span>{item.text}</span>
-                      </button>
-
-                      <button
-                        onClick={() => handleDeleteItem(goal.id, item.id)}
-                        className={`text-red-500 hover:text-red-700 p-1.5 rounded-lg transition-colors cursor-pointer hover:bg-red-500/10`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  ))}
+                <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
+                  {goal.items.filter(i => !i.parentId).map(item => {
+                    const children = goal.items.filter(c => c.parentId === item.id);
+                    return (
+                      <div key={item.id} className="space-y-1">
+                        {renderItem(goal, item, false, children)}
+                        {children.map(child => renderItem(goal, child, true, []))}
+                      </div>
+                    );
+                  })}
                 </div>
               </motion.div>
             ))

@@ -8,6 +8,7 @@ import PersonalRoute from "../components/PersonalRoute";
 import SectionGlow from "../components/SectionGlow";
 import Reveal from "../components/Reveal";
 import { daysUntilDue } from "../components/TrackerSystem";
+import TrackerNextUp from "../components/TrackerNextUp";
 import { EducationLevel, LanguageCode, TrackerGoal } from "../types";
 
 export function DashboardView({
@@ -108,6 +109,15 @@ export function DashboardView({
           </button>
         </section>
       )}
+
+      <TrackerNextUp
+        compact
+        language={currentLanguage}
+        isDark={isDark}
+        trackers={trackers as TrackerGoal[]}
+        onTrackersChange={onTrackersChange}
+        onOpenTracker={() => handleTabTransition("tracker")}
+      />
 
       <section>
         <MyPathLadder

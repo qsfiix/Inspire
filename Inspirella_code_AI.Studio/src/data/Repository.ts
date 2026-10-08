@@ -273,9 +273,44 @@ const fromDbTrackerCategory = (value: unknown): TrackerGoal["category"] => {
 const fromDbTrackerFrequency = (value: unknown): TrackerChecklistItem["frequency"] =>
   value === "weekly" ? "weekly" : "daily";
 
-const calculateTrackerProgress = (items: { completed: boolean }[]): number => {
-  if (items.length === 0) return 0;
-  return Math.round((items.filter(i => i.completed).length / items.length) * 100);
+const ITEM_KINDS = ["task", "schnupper", "interview", "deadline", "document", "application"];
+const APP_STATUSES = ["planned", "sent", "interview", "offer", "rejected", "declined"];
+
+/** Date, note and the tracker-v2 fields of an item. due_at/description are real columns, the rest lives in metadata. */
+const itemExtrasToDb = (item: TrackerChecklistItem) => ({
+  due_at: item.dueAt ? `${item.dueAt}T12:00:00Z` : null,
+  description: item.note || null,
+  metadata: {
+    ...(item.stepId ? { step_id: item.stepId } : {}),
+    ...(item.kind ? { kind: item.kind } : {}),
+    ...(item.parentId ? { parent_id: item.parentId } : {}),
+    ...(item.firm ? { firm: item.firm } : {}),
+    ...(item.appStatus ? { app_status: item.appStatus } : {}),
+    ...(item.rating ? { rating: item.rating } : {}),
+    ...(item.wouldApply !== undefined ? { would_apply: item.wouldApply } : {})
+  }
+});
+
+const itemExtrasFromDb = (row: any): Partial<TrackerChecklistItem> => {
+  const m = row.metadata ?? {};
+  const firm = m.firm && typeof m.firm.name === "string" ? { id: m.firm.id ?? undefined, name: m.firm.name, url: m.firm.url ?? undefined } : undefined;
+  return {
+    dueAt: typeof row.due_at === "string" ? row.due_at.slice(0, 10) : undefined,
+    note: normalizeText(row.description) ?? undefined,
+    kind: ITEM_KINDS.includes(m.kind) ? m.kind : undefined,
+    parentId: normalizeId(m.parent_id) ?? undefined,
+    firm,
+    appStatus: APP_STATUSES.includes(m.app_status) ? m.app_status : undefined,
+    rating: typeof m.rating === "number" ? m.rating : undefined,
+    wouldApply: typeof m.would_apply === "boolean" ? m.would_apply : undefined
+  };
+};
+
+/** Same rule as goalProgress() in lib/trackerOps: sub-tasks and board entries do not count on their own. */
+const calculateTrackerProgress = (items: Pick<TrackerChecklistItem, "completed" | "parentId" | "kind">[]): number => {
+  const top = items.filter(i => !i.parentId && i.kind !== "application");
+  if (top.length === 0) return 0;
+  return Math.round((top.filter(i => i.completed).length / top.length) * 100);
 };
 
 // ---------------------------------------------------------------------------
@@ -998,7 +1033,8 @@ export const DataRepository = {
                 text: normalizeText(row.title) ?? "",
                 completed: Boolean(row.is_completed),
                 frequency: fromDbTrackerFrequency(row.frequency),
-                stepId: normalizeId(row.metadata?.step_id) ?? undefined
+                stepId: normalizeId(row.metadata?.step_id) ?? undefined,
+                ...itemExtrasFromDb(row)
               });
               itemsByGoal.set(row.tracker_goal_id, list);
             }
@@ -1015,7 +1051,8 @@ export const DataRepository = {
                 items,
                 createdAt: normalizeText(row.created_at) ?? new Date().toISOString(),
                 updatedAt: normalizeText(row.updated_at),
-                dueDate: normalizeText(row.due_on)
+                dueDate: normalizeText(row.due_on),
+                kind: row.metadata?.kind === "applications" || row.metadata?.kind === "path" ? row.metadata.kind : undefined
               };
               return tracker;
             });
@@ -1065,7 +1102,8 @@ export const DataRepository = {
           status: "active",
           streak_count: goal.streak,
           sort_order: index,
-          due_on: goal.dueDate || null
+          due_on: goal.dueDate || null,
+          metadata: goal.kind ? { kind: goal.kind } : {}
         }));
         const { error: goalsError } = await supabase.from("tracker_goals").insert(goalRows);
         if (goalsError) throw goalsError;
@@ -1079,7 +1117,7 @@ export const DataRepository = {
             frequency: item.frequency,
             is_completed: item.completed,
             sort_order: index,
-            metadata: item.stepId ? { step_id: item.stepId } : {}
+            ...itemExtrasToDb(item)
           }))
         );
         if (itemRows.length > 0) {

@@ -30,6 +30,15 @@ Related Files:
 
 ---
 
+## 2026-10-08 — Трекер v2: даты и напоминания, доска заявок, дневник Schnupperlehre, подзадачи лестницы
+- Аудит базы по схеме berufsberatung.ch (только чтение): `03_Data/audit_gaps_2026-10-08.md` — нет Brückenangebote/Passerelle/HMS/школ BM, FMS в 12 кантонах из 26, условий приёма почти нигде, 825 профессий типа other без школ, зарплат нет.
+- Модель трекера: у пункта есть `dueAt`, `kind` (task/schnupper/interview/deadline/document/application), `note`, `parentId`, `firm`, `appStatus`, `rating`, `wouldApply`; у цели `kind` (path/applications). В Supabase миграции не нужны: `tracker_items.due_at`, `description`, `metadata` уже были.
+- `src/lib/trackerOps.ts`: чистые операции (отметка с синхронизацией родителя, прогресс без подзадач, ближайшее, .ics с напоминанием за день, сигналы по фирмам), тесты `trackerOps.test.ts`.
+- «Das steht als Nächstes an» в трекере (дата на пункте, .ics) и короткая версия на главной; «Termine ohne Datum» для Schnupperlehre/Gespräch/Frist.
+- Доска «Meine Bewerbungen» (Geplant → Abgeschickt → Gespräch → Zusage → Absage) и «Schnupper-Tagebuch» (оценка 1–5, «подала бы заявку?», заметка). Кнопки «в мои заявки» / «Schnuppertermin eintragen» на карточках фирм в лестнице; оценка и отказ меняют порядок фирм (`rankFirms.adjust`).
+- Кнопка «Aufgaben in den Tracker übernehmen» теперь создаёт 149 подзадач (31 микрошаг × 4–5) на 4 языках (`engine/subtaskTemplates.ts`, писал агент) с датами по окну фазы; окно уже прошло — догоняющие 2 недели на фазу подряд; встречи и сроки без даты. Для старых целей кнопка «Teilaufgaben mit Terminen ergänzen».
+- Проверено в браузере (гостевой профиль): 31 + 149 пунктов, 129 с датами, доска и дневник работают. Оценка → порядок фирм покрыт только тестами. Не сделано: письма/push, ИИ-тренажёр интервью (флаг выключен).
+
 ## 2026-10-08 — Фидбэк Софии: выпадающие списки, цель «Gymnasium», смена цели в My Path, трекер, ИИ выключен
 
 - **Выпадающие списки в тёмной теме:** у закрытого `select` белый текст, а открытый список оставался светлым, поэтому опции были «белым по белому». Глобально в `index.css`: `color-scheme: dark` и тёмный фон/светлый текст опций в тёмной теме, светлые в светлой. Все списки опроса (язык, год старта, формат учёбы, страна, признание диплома, родной язык) проверены: опции есть, переводы всех подписей есть во всех 4 языках (`scripts/check_onboarding_copy.ts`).
