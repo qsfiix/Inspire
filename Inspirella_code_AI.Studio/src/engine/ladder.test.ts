@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { factLines, instantiateLadder, ladderApplies, lehrbeginnYear, phaseWindow, planBSeason, rankFirms, windowLabel } from "./ladder";
+import { factLines, instantiateLadder, ladderApplies, lehrbeginnYear, phaseWindow, planBSeason, rankFirms, routeToLadderPath, windowLabel } from "./ladder";
+import { buildPersonalRoute } from "./pathPlanner";
+import { levelOfProfessionType, levelOfSubgroup } from "../components/GoalPicker";
 import type { LearningPath, Profession, ProfessionFacts, TrainingCompany, UserProfile } from "../types";
 
 const prof = { id: "p1", title: { de: "Informatikerin / Informatiker EFZ", en: "IT specialist EFZ" }, professionType: "apprenticeship_efz", category: "industry_technology_it" } as unknown as Profession;
@@ -88,5 +90,36 @@ describe("time windows", () => {
     expect(planBSeason(2027, new Date(2027, 1, 15))).toBe(false);
     expect(planBSeason(2027, new Date(2027, 3, 15))).toBe(true);
     expect(planBSeason(2027, new Date(2027, 7, 15))).toBe(false);
+  });
+});
+
+describe("goals that are not a profession", () => {
+  const mk = (code: string, n: number): LearningPath =>
+    ({ id: code, code, title: { de: code }, steps: Array.from({ length: n }, (_, i) => ({ id: `${code}-${i + 1}`, title: { de: `${code} ${i + 1}` }, order: i + 1 })) }) as unknown as LearningPath;
+
+  it("plans a Gymnasium goal for a school leaver and shows each step as a tread", () => {
+    const templates = [mk("gymnasium_quarta_bis_prima", 8)];
+    const planned = buildPersonalRoute({ languageLevels: [], highestEducation: "compulsory_school", birthYear: 2011, targetLevel: "gymnasium" } as any, profile(), templates);
+    expect(planned.segments.map(s => s.code)).toEqual(["gymnasium_quarta_bis_prima"]);
+    const path = routeToLadderPath(planned, "Gymnasium (Matura)", "de")!;
+    expect(path.code).toBe("route");
+    expect(path.steps).toHaveLength(8);
+  });
+
+  it("groups a long route by segment", () => {
+    const templates = [mk("gymnasium_quarta_bis_prima", 8), mk("academic_matura_to_university", 10)];
+    const planned = buildPersonalRoute({ languageLevels: [], highestEducation: "compulsory_school", birthYear: 2011, targetLevel: "university" } as any, profile(), templates);
+    const path = routeToLadderPath(planned, "Universität", "de")!;
+    expect(path.steps).toHaveLength(2);
+    expect(path.steps[0].substeps).toHaveLength(8);
+  });
+
+  it("maps professions and schools to the level they lead to", () => {
+    expect(levelOfProfessionType("apprenticeship_efz")).toBe("apprenticeship");
+    expect(levelOfProfessionType("fachausweis")).toBe("higher_vocational");
+    expect(levelOfProfessionType("other")).toBeUndefined();
+    expect(levelOfSubgroup("gymnasium")).toBe("gymnasium");
+    expect(levelOfSubgroup("federal_institute_of_technology")).toBe("university");
+    expect(levelOfSubgroup("fachmittelschule")).toBe("university_of_applied_sciences");
   });
 });

@@ -1,10 +1,13 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { ArrowRight, CheckCircle2, ListPlus, Plus, Sparkles, Trophy, GitBranch } from "lucide-react";
+import { ArrowRight, CheckCircle2, ListPlus, Plus, Repeat, Sparkles, Trophy, GitBranch } from "lucide-react";
 import { LanguageCode, LearningPath, RouteBackground, TrackerChecklistItem, TrackerGoal, UserProfile } from "../types";
 import { useEducationEngine, ROUTE_CHANGED_EVENT } from "../engine/useEducationEngine";
-import { LADDER_CODE, PHASE_BY_ORDER, PLAN_B_TEXT, instantiateLadder, ladderApplies, lehrbeginnYear, phaseWindow, planBSeason, windowLabel } from "../engine/ladder";
+import { LADDER_CODE, PHASE_BY_ORDER, PLAN_B_TEXT, instantiateLadder, ladderApplies, lehrbeginnYear, phaseWindow, planBSeason, routeToLadderPath, windowLabel } from "../engine/ladder";
+import { buildPersonalRoute } from "../engine/pathPlanner";
+import { getOnboardingCopy } from "../features/onboardingCopy";
 import LadderSubsteps from "./LadderSubsteps";
+import GoalPicker from "./GoalPicker";
 import { DataRepository } from "../data/Repository";
 import { TRANSLATIONS } from "../data";
 import { localizedText } from "../lib/localized";
@@ -37,6 +40,8 @@ interface MyPathLadderProps {
   trackers?: TrackerGoal[];
   onTrackersChange?: (updated: TrackerGoal[]) => void;
   onExploreAlternatives?: () => void;
+  /** Opens the life tracker, where the tasks of this path live. */
+  onOpenTracker?: () => void;
 }
 
 /** Layout space; the SVG scene and the HTML overlays share these coordinates. */
@@ -63,6 +68,16 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 const fill = (template: string, vars: Record<string, string | number>) =>
   String(template).replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ""));
 const pct = (v: number, of: number) => `${(v / of) * 100}%`;
+
+const GOAL_BUTTON: Record<LanguageCode, string> = { de: "Ziel ändern", en: "Change goal", fr: "Changer d'objectif", it: "Cambia obiettivo" };
+const TRACK_BUTTON: Record<LanguageCode, string> = { de: "Aufgaben in den Tracker übernehmen", en: "Add the tasks to my tracker", fr: "Ajouter les tâches à mon suivi", it: "Aggiungi i compiti al tracker" };
+const GOAL_NAMES: Record<LanguageCode, Record<string, string>> = {
+  de: { gymnasium: "Gymnasium (Matura)", apprenticeship: "Berufslehre (EFZ)", berufsmatura: "Berufsmaturität", university_of_applied_sciences: "Fachhochschule", university: "Universität oder ETH", higher_vocational: "Höhere Berufsbildung", language_course: "Sprachkurs" },
+  en: { gymnasium: "Gymnasium (Matura)", apprenticeship: "Apprenticeship (EFZ)", berufsmatura: "Vocational baccalaureate", university_of_applied_sciences: "University of applied sciences", university: "University or ETH", higher_vocational: "Higher vocational education", language_course: "Language course" },
+  fr: { gymnasium: "Gymnase (maturité)", apprenticeship: "Apprentissage (CFC)", berufsmatura: "Maturité professionnelle", university_of_applied_sciences: "Haute école spécialisée", university: "Université ou EPF", higher_vocational: "Formation professionnelle supérieure", language_course: "Cours de langue" },
+  it: { gymnasium: "Liceo (maturità)", apprenticeship: "Apprendistato (AFC)", berufsmatura: "Maturità professionale", university_of_applied_sciences: "Scuola universitaria professionale", university: "Università o PF", higher_vocational: "Formazione professionale superiore", language_course: "Corso di lingua" }
+};
+const OPEN_TRACKER: Record<LanguageCode, string> = { de: "Im Tracker öffnen", en: "Open in tracker", fr: "Ouvrir dans le suivi", it: "Apri nel tracker" };
 
 type StepState = "done" | "current" | "upcoming";
 type Selection = { type: "step"; index: number } | { type: "goal" } | { type: "alt"; index: number } | null;
@@ -106,7 +121,8 @@ export default function MyPathLadder({
   isDark,
   trackers,
   onTrackersChange,
-  onExploreAlternatives
+  onExploreAlternatives,
+  onOpenTracker
 }: MyPathLadderProps) {
   const t = TRANSLATIONS[language];
   const { recommendation, loading } = useEducationEngine(userProfile || null);
@@ -140,6 +156,13 @@ export default function MyPathLadder({
     };
   }, []);
 
+  const [showPicker, setShowPicker] = useState(false);
+  const changeGoal = (patch: Partial<RouteBackground>) => {
+    const next: RouteBackground = { ...(route ?? { languageLevels: [] }), ...patch };
+    setRoute(next);
+    DataRepository.saveRouteBackground(next).catch(() => undefined);
+  };
+
   const [selected, setSelected] = useState<Selection>(null);
   // The step that was just completed (index, or -1 for the goal itself) -
   // drives a short celebration: the glass fills with light, feather-dust
@@ -167,16 +190,33 @@ export default function MyPathLadder({
   }, [rankedProfessions, learningPaths]);
 
   const mainProfession = mainIndex >= 0 ? rankedProfessions[mainIndex]?.profession : undefined;
+  /** A profession the micro steps can lean on when the goal itself is a school or a level. */
+  const anyProfession = mainProfession ?? rankedProfessions[0]?.profession;
   // Apprenticeship professions get the detailed ladder (small steps with firms,
   // links and schools for this user); every other profession keeps its own path.
+  // The route planner's view of the same goal: used when the goal is a level or a
+  // school (or the user comes from another starting point), not just a profession.
+  const planned = useMemo(
+    () => (route && learningPaths.length > 0 ? buildPersonalRoute(route, userProfile ?? null, learningPaths, new Date(), mainProfession?.professionType) : undefined),
+    [route, learningPaths, userProfile, mainProfession]
+  );
   const mainPath = useMemo(() => {
-    if (!mainProfession) return undefined;
     const template = learningPaths.find(p => p.code === LADDER_CODE);
-    if (template && ladderApplies(mainProfession, route, userProfile ?? null)) return instantiateLadder(template, mainProfession, language);
-    return learningPaths.find(p => p.targetProfessionId === mainProfession.id);
-  }, [mainProfession, learningPaths, route, userProfile, language]);
+    if (mainProfession && template && ladderApplies(mainProfession, route, userProfile ?? null) && !route?.targetInstitutionId && route?.targetLevel !== "gymnasium") {
+      return instantiateLadder(template, mainProfession, language);
+    }
+    if (planned && route?.targetLevel && route.targetLevel !== "undecided") {
+      const copy = getOnboardingCopy(language);
+      const label = (mainProfession && route.targetProfessionId ? mainProfession.title[language] ?? mainProfession.title.de : undefined) ?? (GOAL_NAMES[language] ?? GOAL_NAMES.de)[route.targetLevel] ?? copy[`tgt_${route.targetLevel}`] ?? route.targetLevel;
+      const ladder = routeToLadderPath(planned, label, language, route.targetInstitutionId ?? "");
+      if (ladder) return ladder;
+    }
+    return mainProfession ? learningPaths.find(p => p.targetProfessionId === mainProfession.id) : undefined;
+  }, [mainProfession, learningPaths, route, userProfile, language, planned]);
 
   const altCandidates = useMemo(() => {
+    // Random other professions would be noise next to a goal that is a school or a level.
+    if (mainPath?.code === "route") return [];
     return rankedProfessions
       .filter((_, i) => i !== mainIndex)
       .slice(0, 2)
@@ -185,7 +225,7 @@ export default function MyPathLadder({
         matchReason: rp.matchReasons[0],
         path: learningPaths.find(p => p.targetProfessionId === rp.profession.id)
       }));
-  }, [rankedProfessions, mainIndex, learningPaths]);
+  }, [rankedProfessions, mainIndex, learningPaths, mainPath]);
 
   // Cursor -> 3D tilt + parallax, written straight to CSS variables (no re-render).
   const onStagePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -422,13 +462,46 @@ export default function MyPathLadder({
             </p>
           </div>
         </div>
-        {!goal && onTrackersChange && (
-          <button onClick={addToTracker} className="btn-primary btn-shine gap-1.5 text-[11px] px-3.5 py-2">
-            <ListPlus className="h-3.5 w-3.5" />
-            {t.mpStart}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setShowPicker(v => !v)}
+            className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-2 rounded-lg transition cursor-pointer ${
+              isDark ? "text-violet-200 bg-white/5 hover:bg-white/10" : "text-violet-800 bg-violet-50 hover:bg-violet-100"
+            }`}
+          >
+            <Repeat className="h-3.5 w-3.5" />
+            {GOAL_BUTTON[language] ?? GOAL_BUTTON.de}
           </button>
-        )}
+          {!goal && onTrackersChange && (
+            <button onClick={addToTracker} className="btn-primary btn-shine gap-1.5 text-[11px] px-3.5 py-2">
+              <ListPlus className="h-3.5 w-3.5" />
+              {TRACK_BUTTON[language] ?? TRACK_BUTTON.de}
+            </button>
+          )}
+          {goal && onOpenTracker && (
+            <button
+              onClick={onOpenTracker}
+              className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-2 rounded-lg transition cursor-pointer ${
+                isDark ? "text-violet-200 bg-white/5 hover:bg-white/10" : "text-violet-800 bg-violet-50 hover:bg-violet-100"
+              }`}
+            >
+              <ArrowRight className="h-3.5 w-3.5" />
+              {OPEN_TRACKER[language] ?? OPEN_TRACKER.de}
+            </button>
+          )}
+        </div>
       </div>
+
+      {showPicker && (
+        <GoalPicker
+          language={language}
+          isDark={isDark}
+          route={route}
+          onChange={changeGoal}
+          onClose={() => setShowPicker(false)}
+          onBrowse={onExploreAlternatives}
+        />
+      )}
 
       {/* Text equivalent of the staircase for screen readers */}
       <p className="sr-only">
@@ -1036,13 +1109,13 @@ export default function MyPathLadder({
                     );
                   })()}
 
-                  {hasSub && mainProfession && (
+                  {hasSub && anyProfession && (
                     <LadderSubsteps
                       step={step}
                       items={items}
                       canTick={!!goal}
                       onToggle={toggleItem}
-                      profession={mainProfession}
+                      profession={anyProfession}
                       profile={userProfile ?? null}
                       route={route}
                       language={language}

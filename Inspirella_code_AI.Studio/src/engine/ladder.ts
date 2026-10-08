@@ -1,5 +1,5 @@
 import type { LanguageCode, LearningPath, LearningPathStep, Profession, ProfessionFacts, RouteBackground, TrainingCompany, UserProfile } from "../types";
-import { deriveEntry, languageOfCanton } from "./pathPlanner";
+import { deriveEntry, languageOfCanton, type PersonalRoute } from "./pathPlanner";
 import { INTEREST_CATEGORIES } from "./routeSignals";
 
 /** Code of the detailed Lehre-to-Fachhochschule ladder template (learning_paths.code). */
@@ -220,3 +220,32 @@ export const PLAN_B_TEXT: Record<LanguageCode, string> = {
   fr: "Si tu n'as pas encore de place d'apprentissage : ce n'est pas rare. Regarde le plan B (offres transitoires, 10e année, année intermédiaire) et continue ta recherche.",
   it: "Se non hai ancora un posto di tirocinio: non è raro. Guarda il piano B (offerte transitorie, 10° anno, anno intermedio) e continua a cercare."
 };
+
+/**
+ * Any planned route as a staircase: each segment of the route (language,
+ * recognition, Gymnasium, Matura to university, ...) is one tread, and its own
+ * steps are the small steps inside it. This lets My Path show goals that are not
+ * a single profession: a school, a level, a way in from another entry point.
+ */
+export function routeToLadderPath(route: PersonalRoute, title: string, language: LanguageCode, idSuffix = ""): LearningPath | undefined {
+  const segments = route.segments.filter(s => s.kind !== "alternative" && s.steps.length > 0);
+  if (segments.length === 0) return undefined;
+  // A short route reads best as one tread per step; a long one as one tread per segment.
+  const total = segments.reduce((n, s) => n + s.steps.length, 0);
+  const flat = total <= 10;
+  return {
+    id: `route:${route.target}:${route.entry}${idSuffix}`,
+    code: "route",
+    title: { de: title, en: title, fr: title, it: title, [language]: title },
+    steps: flat
+      ? segments.flatMap(seg => seg.steps.map(ps => ps.step))
+      : segments.map((seg, i) => ({
+      id: `${seg.path.id}#seg`,
+      title: seg.path.title,
+      description: seg.path.description,
+      order: (i + 1) * 100,
+      stepType: i === segments.length - 1 ? "milestone" : "action",
+      substeps: seg.steps.map(ps => ps.step)
+    }))
+  };
+}

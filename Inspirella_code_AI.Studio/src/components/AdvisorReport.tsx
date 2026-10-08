@@ -25,6 +25,7 @@ const GOAL_LABEL_KEY: Record<string, string> = {
   parent_routing: "goals_child",
 };
 import { localizedText } from "../lib/localized";
+import { FEATURES } from "../featureFlags";
 
 /** Engine reasons that are trust labels, not reasons for a match (all 4 languages). */
 const PROVISIONAL_REASON = /provisional|vorläufig|provisoire|provvisori/i;
@@ -268,6 +269,7 @@ export default function AdvisorReport({
             </div>
 
             {/* AI explanation layer: optional, on-demand narrative over the result above */}
+            {FEATURES.aiExplanation && (
             <div className={`rounded-xl border p-4 ${isDark ? "bg-white/[0.02] border-white/10" : "bg-white border-purple-200"}`}>
               {aiState === "idle" && (
                 <button
@@ -357,6 +359,7 @@ export default function AdvisorReport({
                 </div>
               )}
             </div>
+            )}
 
             <div className="grid gap-6 md:grid-cols-2">
               {/* Shortlist: Professions */}

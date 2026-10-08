@@ -772,6 +772,8 @@ export const DataRepository = {
                   : local.livesInSwitzerland,
               targetProfessionId:
                 typeof r?.notes?.target_profession_id === "string" ? r.notes.target_profession_id : local.targetProfessionId,
+              targetInstitutionId:
+                typeof r?.notes?.target_institution_id === "string" ? r.notes.target_institution_id : local.targetInstitutionId,
               languageLevels: (langRes.data ?? []).map((l: any): LanguageLevel => ({
                 languageCode: l.language_code,
                 level: l.cefr_level as CefrLevel,
@@ -822,7 +824,11 @@ export const DataRepository = {
         study_mode_preference: bg.studyModePreference ?? null,
         financing_plan: bg.financingPlan ?? null,
         sensitive_data_consent_at: bg.sensitiveDataConsentAt ?? null,
-        notes: { lives_in_switzerland: bg.livesInSwitzerland ?? null, target_profession_id: bg.targetProfessionId ?? null }
+        notes: {
+          lives_in_switzerland: bg.livesInSwitzerland ?? null,
+          target_profession_id: bg.targetProfessionId ?? null,
+          target_institution_id: bg.targetInstitutionId ?? null
+        }
       });
       if (error) {
         console.warn("Failed saving route background", error.message);

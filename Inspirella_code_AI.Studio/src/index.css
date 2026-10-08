@@ -490,3 +490,23 @@ body:not(.dark-mode) .inst-panel .card-premium-accent {
 }
 
 
+
+/* Native dropdown lists follow the theme. Without this the popup of a select keeps
+   the light browser default while the closed control has white text, so in dark
+   mode the options were white on white. */
+select {
+  color-scheme: light;
+}
+body.dark-mode select {
+  color-scheme: dark;
+}
+body.dark-mode select option,
+body.dark-mode select optgroup {
+  background-color: #1a1033;
+  color: #f3f0ff;
+}
+body:not(.dark-mode) select option,
+body:not(.dark-mode) select optgroup {
+  background-color: #ffffff;
+  color: #1e1b4b;
+}

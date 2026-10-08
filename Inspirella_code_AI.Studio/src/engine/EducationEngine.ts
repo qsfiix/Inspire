@@ -117,7 +117,7 @@ export class EducationEngine {
       const { entry } = deriveEntry(this.route, this.profile);
       const toFh = target === "university_of_applied_sciences" || target === "berufsmatura";
       if (entry === "sek1") {
-        if (target === "university") return t("Prepare the Gymnasium admission in your canton and check its exam dates.", "Bereite die Aufnahme ins Gymnasium in deinem Kanton vor und prüfe die Prüfungstermine.", "Prépare l'admission au gymnase de ton canton et vérifie les dates d'examen.", "Prepara l'ammissione al liceo nel tuo cantone e controlla le date degli esami.");
+        if (target === "university" || target === "gymnasium") return t("Prepare the Gymnasium admission in your canton and check its exam dates.", "Bereite die Aufnahme ins Gymnasium in deinem Kanton vor und prüfe die Prüfungstermine.", "Prépare l'admission au gymnase de ton canton et vérifie les dates d'examen.", "Prepara l'ammissione al liceo nel tuo cantone e controlla le date degli esami.");
         if (toFh) return t("Look for an apprenticeship that allows the Berufsmatura and try a Schnupperlehre.", "Suche eine Lehrstelle, die die Berufsmaturität erlaubt, und schnuppere in Berufen.", "Cherche une place d'apprentissage compatible avec la maturité professionnelle et fais un stage découverte.", "Cerca un posto di apprendistato compatibile con la maturità professionale e prova uno stage di orientamento.");
         return t("Try a Schnupperlehre in a few professions and start your apprenticeship search.", "Schnuppere in einigen Berufen und starte die Lehrstellensuche.", "Fais des stages découverte dans quelques professions et commence la recherche d'une place d'apprentissage.", "Prova qualche stage di orientamento e inizia la ricerca di un posto di apprendistato.");
       }
@@ -347,6 +347,11 @@ export class EducationEngine {
 
         matchReasons.push(this.translate("Offers the level you are aiming for.", "Bietet die Stufe, die du anstrebst.", "Propose le niveau que tu vises.", "Offre il livello a cui punti."));
 
+      }
+
+      if (this.route?.targetInstitutionId && inst.id === this.route.targetInstitutionId) {
+        score += EngineConfig.weights.route.chosenInstitution;
+        matchReasons.unshift(this.translate("Your target school.", "Deine Wunschschule.", "L'école que tu vises.", "La scuola che vuoi."));
       }
 
       const fit = languageFit(this.route, inst.cantonalLanguage);

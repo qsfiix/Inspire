@@ -110,6 +110,7 @@ export function interestMatchesCategory(interests: string[], category: string | 
 /** Which institution subgroups realistically deliver a stated target level. */
 export const TARGET_INSTITUTION_SUBGROUPS: Record<string, string[]> = {
   apprenticeship: ["vocational_school"],
+  gymnasium: ["gymnasium"],
   berufsmatura: ["vocational_school"],
   higher_vocational: ["vocational_school", "continuing_education_center"],
   university_of_applied_sciences: ["university_of_applied_sciences"],

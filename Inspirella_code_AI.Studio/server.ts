@@ -119,7 +119,12 @@ function getGeminiClient(): GoogleGenAI {
 }
 
 // API Route: AI-powered Educational Advisor
+// Switched off with the client feature (src/featureFlags.ts): set AI_ADVISOR_ENABLED=true to restore it.
 app.post("/api/gemini/advisor", async (req, res) => {
+  if (process.env.AI_ADVISOR_ENABLED !== "true") {
+    res.status(503).json({ message: "The AI explanation is switched off at the moment." });
+    return;
+  }
   if (isRateLimited(req.ip || "unknown")) {
     res.status(429).json({
       error: "rate_limited",

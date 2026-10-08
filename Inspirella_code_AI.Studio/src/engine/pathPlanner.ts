@@ -75,6 +75,7 @@ const FMS = "specialized_baccalaureate_to_uas";
 const RULES: Record<string, RouteRule> = {
   "sek1|apprenticeship": { main: [LEHRE] },
   "sek1|berufsmatura": { main: [BM_TO_FH] },
+  "sek1|gymnasium": { main: [GYM], alternatives: [[BM_TO_FH], [FMS]] },
   "sek1|university_of_applied_sciences": { main: [BM_TO_FH], alternatives: [[GYM, MATURA_FH], [FMS]] },
   "sek1|university": { main: [GYM, MATURA_UNI], alternatives: [[BM_TO_FH, PASSERELLE]] },
   "sek1|higher_vocational": { main: [LEHRE, HIGHER_VOC] },

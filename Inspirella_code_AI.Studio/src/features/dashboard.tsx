@@ -117,6 +117,7 @@ export function DashboardView({
           trackers={trackers}
           onTrackersChange={onTrackersChange}
           onExploreAlternatives={() => handleTabTransition("resources")}
+          onOpenTracker={() => handleTabTransition("tracker")}
         />
       </section>
 

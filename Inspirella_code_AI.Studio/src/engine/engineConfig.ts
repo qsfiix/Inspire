@@ -58,6 +58,7 @@ export interface EngineConfigType {
       languageFit: number;
       languageGap: number;
       chosenProfession: number;
+      chosenInstitution: number;
       institutionTargetMatch: number;
       dataRichness: number;
     };
@@ -120,6 +121,7 @@ export const EngineConfig: EngineConfigType = {
       languageGap: -25,
       // The profession the user picked themselves always ranks first.
       chosenProfession: 1000,
+      chosenInstitution: 1000,
       institutionTargetMatch: 60,
       dataRichness: 1,
     },

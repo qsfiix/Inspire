@@ -406,6 +406,7 @@ const ONBOARDING_STEPS: { id: OnboardingStepId; required: boolean }[] = [
 
 const TARGET_LEVELS: NonNullable<RouteBackground["targetLevel"]>[] = [
   "apprenticeship",
+  "gymnasium",
   "berufsmatura",
   "higher_vocational",
   "university_of_applied_sciences",
