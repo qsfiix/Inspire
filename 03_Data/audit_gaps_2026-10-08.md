@@ -29,3 +29,14 @@
 3. Brückenangebote + Passerelle + HMS + BMS в базу (источник: кантональные порталы, bildungssystem).
 4. FMS и малые кантоны.
 5. Классификация 825 other, зарплаты (Salarium BFS), facts шире 30 профессий.
+
+## Итог раунда (тот же день, после аудита)
+Поправки к аудиту: FMS у нас на деле флажком `fachmittelschule` в `institution_focus_areas` (было 38 школ, а не 18), BM по школам тоже в `institution_focus_areas` (105 строк `berufsmaturitaet`). 825 «other» — в основном профессии без единой регулируемой квалификации (так их тоже называет berufsberatung.ch), не ошибка типа.
+- Новые таблицы (RLS public read): `education_programs`, `admission_conditions`, `education_transitions`.
+- `education_transitions` 49 (46 проверено, 3 «unverified»: FMS→EFZ сокращённая, Uni-Bachelor→Master, Work→HF sur dossier).
+- `education_programs` 98: Brückenangebote, Vorlehre, INVOL, SeMo, Passerelle для 25 кантонов (UR: на странице кантона своих Brückenangebote нет; AI/AR: признанные внекантональные предложения, это реальность).
+- `admission_conditions` 115: Gymnasium kurz/lang, FMS, BM1, BM2, HMS по кантонам (формулировки сроков «je nach Jahr, siehe Seite»).
+- FMS: +17 школ (bld_0585–0601), +13 существующих школ получили флажок FMS; всего 68.
+- `profession_facts` 30 → 222 (EFZ и EBA, из страниц berufsberatung.ch: срок, BM, Weiterbildung, FH-направления). 26 EFZ/EBA без фактов: slug в базе не совпадает со страницей сайта.
+- Классификация: исправлены 4 строки (Lokführer EFZ, Bäuerlicher Haushaltleiter BP/HFP, Diplomatin).
+- Не сделано: зарплаты (на страницах berufsberatung.ch их нет, нужен Salarium/BFS), условия приёма по отдельным школам (HF, FH, PH), малые кантоны (UR/OW/NW/AR/AI/GL/SH остались с 1–4 школами, часть реальна), приложение пока не читает новые таблицы.

@@ -30,6 +30,14 @@ Related Files:
 
 ---
 
+## 2026-10-08 — Раунд базы по аудиту: переходы, условия приёма, Brückenangebote, Passerelle, FMS, факты профессий
+- Три новые таблицы (миграция `education_programs_admissions_transitions`, RLS public read): `education_transitions` (49 переходов между ступенями: двойной EFZ, Gymnasium позже, Way-up, Passerelle, FMS→HF и т. д., по 46 проверено, 3 «unverified»), `education_programs` (98: Brückenangebote, Vorlehre, INVOL, SeMo, Passerelle, 25 кантонов), `admission_conditions` (115: Gymnasium kurz/lang, FMS, BM1, BM2, HMS по кантонам). Все строки с `evidence_url`, сроки только «как напечатано на странице».
+- Источники искали агенты B1–B3, F, T (по спецификациям `scratchpad/work11`), я проверил URL (144+8, битых нет) и грузил SQL сам.
+- FMS: +17 школ (bld_0585–0601; без геокода-ошибок, Nominatim), +13 существующих школ получили флажок `fachmittelschule` в `institution_focus_areas` (теперь 68). Поправка к аудиту: FMS и BM у нас хранятся флажками в `institution_focus_areas`, а не только по типу школы.
+- `profession_facts` 30 → 222 (EFZ/EBA: срок, BM, Weiterbildung, FH-направления; парсер страниц berufsberatung.ch, 102 профессии с устаревшим slug сопоставлены по названию). 26 EFZ/EBA без фактов (slug не найден на сайте).
+- Классификация 825 «other»: страницы показали, что это в основном профессии без регулируемой квалификации, поэтому типы не менял; исправлены только 4 (Lokführer EFZ, Bäuerlicher Haushaltleiter BP/HFP, Diplomatin).
+- Не сделано: зарплаты (на berufsberatung.ch их нет), условия приёма по отдельным HF/FH/PH, малые кантоны (UR/OW/NW/AR/AI/GL/SH), приложение ещё не читает новые таблицы.
+
 ## 2026-10-08 — Трекер v2: даты и напоминания, доска заявок, дневник Schnupperlehre, подзадачи лестницы
 - Аудит базы по схеме berufsberatung.ch (только чтение): `03_Data/audit_gaps_2026-10-08.md` — нет Brückenangebote/Passerelle/HMS/школ BM, FMS в 12 кантонах из 26, условий приёма почти нигде, 825 профессий типа other без школ, зарплат нет.
 - Модель трекера: у пункта есть `dueAt`, `kind` (task/schnupper/interview/deadline/document/application), `note`, `parentId`, `firm`, `appStatus`, `rating`, `wouldApply`; у цели `kind` (path/applications). В Supabase миграции не нужны: `tracker_items.due_at`, `description`, `metadata` уже были.
