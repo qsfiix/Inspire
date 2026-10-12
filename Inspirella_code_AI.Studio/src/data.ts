@@ -17,7 +17,8 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     logout: "Log Out",
 
     // Public Home / Landing
-    heroTitle: "Nothing is impossible,|and you'll see it.",
+    heroTitle: "No dead ends.|Only next steps.",
+    closingSlogan: "Nothing is impossible, and you'll see it.",
     heroSubtitle: "Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take.",
     heroCTA: "Find your path",
     exploreCTA: "Try it without an account",
@@ -156,6 +157,8 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     aboutStageBody: "Inspirella launches with Switzerland as its first country - a deliberate starting point, given its uniquely dual-track academic and vocational system. Our dataset is real and growing: some entries are fully verified, others are still under review, and we label that difference honestly rather than presenting everything as equally certain.",
     aboutVisionEyebrow: "Where We're Headed",
     aboutVisionBody: "Switzerland is the beginning, not the limit. Over time, Inspirella aims to bring the same clarity and personalization to education systems beyond Switzerland - helping more people, in more places, find a path that genuinely fits them.",
+    aboutWhoEyebrow: "Who is behind Inspirella",
+    aboutWhoBody: "Inspirella is an independent private project from Switzerland. We build on public sources, say openly what is checked and what is not, and want to hear from you: what helped, what was unclear, what is missing.",
 
     // Contact Page
     contactTitle: "Contact Us",
@@ -358,7 +361,8 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     logout: "Abmelden",
 
     // Public Home / Landing
-    heroTitle: "Nichts ist unmöglich –|und du wirst es sehen.",
+    heroTitle: "Keine Sackgassen.|Nur nächste Schritte.",
+    closingSlogan: "Nichts ist unmöglich – und du wirst es sehen.",
     heroSubtitle: "Inspirella macht das Schweizer Bildungssystem zu einem klaren, persönlichen Weg: Berufe, die zu dir passen, wo du sie lernen kannst, und der nächste kleine Schritt.",
     heroCTA: "Deinen Weg finden",
     exploreCTA: "Ohne Konto ausprobieren",
@@ -497,6 +501,8 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     aboutStageBody: "Inspirella startet mit der Schweiz als erstem Land - eine bewusste Wahl angesichts ihres einzigartigen dualen Systems aus Berufsbildung und Gymnasium. Unser Datenbestand ist real und wächst: Manche Einträge sind vollständig geprüft, andere noch in Prüfung - und wir kennzeichnen diesen Unterschied ehrlich, statt alles als gleich gesichert darzustellen.",
     aboutVisionEyebrow: "Wohin wir wollen",
     aboutVisionBody: "Die Schweiz ist der Anfang, nicht die Grenze. Mit der Zeit möchte Inspirella dieselbe Klarheit und Personalisierung auch auf Bildungssysteme ausserhalb der Schweiz übertragen - und mehr Menschen an mehr Orten helfen, einen Weg zu finden, der wirklich zu ihnen passt.",
+    aboutWhoEyebrow: "Wer hinter Inspirella steht",
+    aboutWhoBody: "Inspirella ist ein unabhängiges Privatprojekt aus der Schweiz. Wir stützen uns auf öffentliche Quellen, sagen offen, was geprüft ist und was nicht, und freuen uns über deine Rückmeldung: was geholfen hat, was unklar war, was fehlt.",
 
     // Contact Page
     contactTitle: "Dialog aufnehmen",
@@ -699,7 +705,8 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     logout: "Se déconnecter",
 
     // Public Home / Landing
-    heroTitle: "Rien n'est impossible,|et tu vas le voir.",
+    heroTitle: "Pas d'impasse.|Que des prochaines étapes.",
+    closingSlogan: "Rien n'est impossible, et tu vas le voir.",
     heroSubtitle: "Inspirella transforme le système éducatif suisse en un parcours clair et personnel : les métiers qui te correspondent, où les apprendre et la prochaine petite étape.",
     heroCTA: "Trouver ta voie",
     exploreCTA: "Essayer sans compte",
@@ -838,6 +845,8 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     aboutStageBody: "Inspirella se lance avec la Suisse comme premier pays - un choix délibéré, vu son système dual unique combinant filières académiques et professionnelles. Nos données sont réelles et en pleine croissance : certaines entrées sont pleinement vérifiées, d'autres encore en cours de révision, et nous indiquons cette différence honnêtement plutôt que de tout présenter comme également certain.",
     aboutVisionEyebrow: "Vers où nous allons",
     aboutVisionBody: "La Suisse est un point de départ, pas une limite. Avec le temps, Inspirella veut apporter la même clarté et la même personnalisation à des systèmes éducatifs au-delà de la Suisse - pour aider davantage de personnes, dans davantage de lieux, à trouver un parcours qui leur correspond vraiment.",
+    aboutWhoEyebrow: "Qui est derrière Inspirella",
+    aboutWhoBody: "Inspirella est un projet privé indépendant, né en Suisse. Nous nous appuyons sur des sources publiques, disons ouvertement ce qui est vérifié ou non, et attendons ton retour : ce qui a aidé, ce qui était flou, ce qui manque.",
 
     // Contact Page
     contactTitle: "Nous Contacter",
@@ -1040,7 +1049,8 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     logout: "Disconnetti",
 
     // Public Home / Landing
-    heroTitle: "Niente è impossibile,|e lo vedrai.",
+    heroTitle: "Nessun vicolo cieco.|Solo prossimi passi.",
+    closingSlogan: "Niente è impossibile, e lo vedrai.",
     heroSubtitle: "Inspirella trasforma il sistema formativo svizzero in un percorso chiaro e personale: le professioni adatte a te, dove impararle e il prossimo piccolo passo.",
     heroCTA: "Trova il tuo percorso",
     exploreCTA: "Prova senza account",
@@ -1179,6 +1189,8 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     aboutStageBody: "Inspirella parte dalla Svizzera come primo paese - una scelta deliberata, dato il suo sistema duale unico che unisce percorsi accademici e professionali. I nostri dati sono reali e in crescita: alcune voci sono pienamente verificate, altre ancora in revisione, e indichiamo questa differenza onestamente invece di presentare tutto come ugualmente certo.",
     aboutVisionEyebrow: "Dove stiamo andando",
     aboutVisionBody: "La Svizzera è un inizio, non un limite. Nel tempo, Inspirella vuole portare la stessa chiarezza e personalizzazione anche a sistemi educativi oltre la Svizzera - aiutando più persone, in più luoghi, a trovare un percorso davvero adatto a loro.",
+    aboutWhoEyebrow: "Chi c'è dietro Inspirella",
+    aboutWhoBody: "Inspirella è un progetto privato indipendente nato in Svizzera. Ci basiamo su fonti pubbliche, diciamo apertamente cosa è verificato e cosa no, e aspettiamo il tuo parere: cosa è stato utile, cosa non era chiaro, cosa manca.",
 
     // Contact Page
     contactTitle: "Inizia il Dialogo",

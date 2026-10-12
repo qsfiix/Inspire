@@ -7,6 +7,7 @@ import { DataRepository } from "../data/Repository";
 import { hasCoordinates, isWithinSwitzerland, SWISS_BOUNDS } from "../lib/validation";
 import InstitutionCompareModal from "./InstitutionCompareModal";
 import InstitutionDetailCard from "./InstitutionDetailCard";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 const MAX_COMPARE = 3;
 

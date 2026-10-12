@@ -32,7 +32,8 @@ import { DataRepository } from "./data/Repository";
 import { EXAMPLE_TRACKERS } from "./data/seedData";
 import { localizedMatches } from "./lib/localized";
 
-import { HomeView, AboutView, ContactView, PrivacyView } from "./features/marketing";
+import { LEGAL_LINKS } from "./features/legalText";
+import { HomeView, AboutView, ContactView, PrivacyView, ImpressumView } from "./features/marketing";
 import { LoginView, OnboardingView } from "./features/auth";
 import { DashboardView, ProfileView } from "./features/dashboard";
 import { ResourcesCareersView } from "./features/resourcesCareers";
@@ -407,7 +408,7 @@ export default function App() {
 
           {/* VIEW: About */}
           {activeTab === "about" && (
-            <AboutView t={t} isDark={isDark} tTextTitle={tTextTitle} tTextBody={tTextBody} tCard={tCard} />
+            <AboutView t={t} isDark={isDark} tTextTitle={tTextTitle} tTextBody={tTextBody} tCard={tCard} handleTabTransition={handleTabTransition} language={currentLanguage} />
           )}
 
           {/* VIEW: Contact Form */}
@@ -417,7 +418,12 @@ export default function App() {
 
           {/* VIEW: Privacy Notice */}
           {activeTab === "privacy" && (
-            <PrivacyView isDark={isDark} tTextTitle={tTextTitle} handleTabTransition={handleTabTransition} />
+            <PrivacyView language={currentLanguage} isDark={isDark} tTextTitle={tTextTitle} handleTabTransition={handleTabTransition} />
+          )}
+
+          {/* VIEW: Impressum */}
+          {activeTab === "impressum" && (
+            <ImpressumView language={currentLanguage} isDark={isDark} tTextTitle={tTextTitle} handleTabTransition={handleTabTransition} />
           )}
 
           {/* VIEW: Login Sign Up Frame */}
@@ -567,10 +573,16 @@ export default function App() {
               Switzerland Education Explorer
             </span>
             <button
+              onClick={() => handleTabTransition("impressum")}
+              className={`underline-offset-2 hover:underline cursor-pointer ${isDark ? "text-zinc-400 hover:text-zinc-300" : "text-black font-extrabold"}`}
+            >
+              {LEGAL_LINKS.impressum[currentLanguage]}
+            </button>
+            <button
               onClick={() => handleTabTransition("privacy")}
               className={`underline-offset-2 hover:underline cursor-pointer ${isDark ? "text-zinc-400 hover:text-zinc-300" : "text-black font-extrabold"}`}
             >
-              Privacy
+              {LEGAL_LINKS.privacy[currentLanguage]}
             </button>
           </div>
         </div>

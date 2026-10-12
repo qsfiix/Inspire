@@ -23,6 +23,8 @@ import HeroBackground from "../components/HeroBackground";
 import PlatformStats from "../components/PlatformStats";
 import SectionGlow from "../components/SectionGlow";
 import Reveal from "../components/Reveal";
+import type { LanguageCode } from "../types";
+import { IMPRESSUM, LEGAL_LINKS, PRIVACY, type LegalDoc } from "./legalText";
 
 export function HomeView({ 
   t, 
@@ -413,6 +415,8 @@ export function HomeView({
           sees is the brand rising and the first step to take). */}
       <section className="relative grid gap-8 lg:grid-cols-2 items-center pb-10">
         <Reveal className="space-y-6 text-center lg:text-left order-2">
+          {/* The original slogan lives on here as the emotional last word of the page. */}
+          <p className="text-shimmer text-lg md:text-xl font-bold tracking-tight text-balance">{t.closingSlogan}</p>
           <h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight text-balance ${tTextTitle}`}>
             {t.finalCtaTitle}
           </h2>
@@ -438,7 +442,7 @@ export function HomeView({
   );
 }
 
-export function AboutView({ t, isDark, tTextTitle, tTextBody, tCard }: any) {
+export function AboutView({ t, isDark, tTextTitle, tTextBody, tCard, handleTabTransition, language }: any) {
   return (
     <motion.div
       key="view-about"
@@ -540,117 +544,120 @@ export function AboutView({ t, isDark, tTextTitle, tTextBody, tCard }: any) {
         <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block">{t.aboutVisionEyebrow}</span>
         <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-semibold"}`}>{t.aboutVisionBody}</p>
       </section>
+
+      {/* Who is behind it: a plain statement, with the Impressum one click away. */}
+      <section className="max-w-3xl mx-auto text-center space-y-2 pb-2">
+        <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block">{t.aboutWhoEyebrow}</span>
+        <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950/80 font-semibold"}`}>{t.aboutWhoBody}</p>
+        <button
+          onClick={() => handleTabTransition("impressum")}
+          className={`text-xs font-bold underline underline-offset-2 cursor-pointer ${isDark ? "text-violet-300" : "text-violet-800"}`}
+        >
+          {LEGAL_LINKS.impressum[language as LanguageCode]}
+        </button>
+      </section>
     </motion.div>
   );
 }
 
-export function PrivacyView({ isDark, tTextTitle, handleTabTransition }: any) {
+/** **bold** and e-mail addresses (as mailto links) inside legal text. */
+function renderLegalInline(text: string): React.ReactNode[] {
+  return text.split(/(\*\*[^*]+\*\*|[\w.+-]+@[\w-]+\.[\w.]+)/g).map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (/^[\w.+-]+@[\w-]+\.[\w.]+$/.test(part)) {
+      return (
+        <a key={i} href={`mailto:${part}`} className="text-violet-400 underline">
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+}
+
+function LegalView({ doc, language, isDark, tTextTitle, handleTabTransition, other }: {
+  doc: LegalDoc;
+  language: LanguageCode;
+  isDark: boolean;
+  tTextTitle: string;
+  handleTabTransition: (tab: string) => void;
+  other: { tab: string; label: string };
+}) {
   const tBody = isDark ? "text-zinc-300" : "text-violet-950/90 font-semibold";
   const tHeading = isDark ? "text-violet-200" : "text-violet-950";
-
   return (
     <motion.div
-      key="view-privacy"
+      key={`view-legal-${doc.title}`}
       initial={{ opacity: 0, x: 15 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -15 }}
       className="max-w-3xl mx-auto py-6 space-y-8 text-left"
+      lang={language}
     >
       <div className="space-y-2">
         <div className="inline-flex items-center gap-1 text-xs font-mono font-bold uppercase tracking-widest text-violet-500">
           <ShieldCheck className="h-4 w-4" />
-          <span>Privacy</span>
+          <span>{doc.eyebrow}</span>
         </div>
-        <h1 className={`text-3xl font-extrabold tracking-tight ${tTextTitle}`}>Privacy Notice</h1>
-        <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/70 font-medium"}`}>
-          Last updated: 12 September 2026 · Plain-language summary, not a substitute for legal advice.
-        </p>
+        <h1 className={`text-3xl font-extrabold tracking-tight ${tTextTitle}`}>{doc.title}</h1>
+        <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/70 font-medium"}`}>{doc.updated}</p>
       </div>
 
-      <div className="card-premium p-6 space-y-3">
-        <h2 className={`text-sm font-extrabold uppercase tracking-wide ${tHeading}`}>Who is responsible</h2>
-        <p className={`text-sm leading-relaxed ${tBody}`}>
-          Inspirella is currently an individual project, not yet a registered legal entity. For any privacy
-          question, correction, or deletion request, contact{" "}
-          <a href="mailto:iinspirella@gmail.com" className="text-violet-400 underline">
-            iinspirella@gmail.com
-          </a>
-          .
-        </p>
+      {doc.sections.map(section => (
+        <div key={section.heading} className="card-premium p-6 space-y-3">
+          <h2 className={`text-sm font-extrabold uppercase tracking-wide ${tHeading}`}>{section.heading}</h2>
+          {section.paragraphs?.map((p, i) => (
+            <p key={i} className={`text-sm leading-relaxed ${tBody}`}>{renderLegalInline(p)}</p>
+          ))}
+          {section.bullets && (
+            <ul className={`text-sm leading-relaxed space-y-2 list-disc pl-5 ${tBody}`}>
+              {section.bullets.map((b, i) => (
+                <li key={i}>{renderLegalInline(b)}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
+
+      {doc.closing && (
+        <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/70 font-medium"}`}>{doc.closing}</p>
+      )}
+
+      <div className="flex flex-wrap gap-3">
+        <button onClick={() => handleTabTransition("home")} className="btn-secondary px-5 py-2.5 text-xs font-bold">
+          {doc.back}
+        </button>
+        <button onClick={() => handleTabTransition(other.tab)} className="btn-secondary px-5 py-2.5 text-xs font-bold">
+          {other.label}
+        </button>
       </div>
-
-      <div className="card-premium p-6 space-y-3">
-        <h2 className={`text-sm font-extrabold uppercase tracking-wide ${tHeading}`}>Guest mode: nothing leaves your browser</h2>
-        <p className={`text-sm leading-relaxed ${tBody}`}>
-          If you use "Explore as Guest," your profile and trackers are stored only in your browser's local
-          storage. Nothing is sent to our servers, and clearing your browser data removes it completely.
-        </p>
-      </div>
-
-      <div className="card-premium p-6 space-y-3">
-        <h2 className={`text-sm font-extrabold uppercase tracking-wide ${tHeading}`}>What we collect with an account</h2>
-        <ul className={`text-sm leading-relaxed space-y-2 list-disc pl-5 ${tBody}`}>
-          <li><strong>Account data:</strong> your email address and a securely hashed password (handled by our authentication provider, Supabase - we never see your plain-text password).</li>
-          <li><strong>Profile data you provide:</strong> name, interface language, current education/career stage, and optional canton/city if you enter one.</li>
-          <li><strong>Personalization signals:</strong> the interests, goals, and target canton/language you select during onboarding, used to compute your recommendations.</li>
-          <li><strong>Trackers:</strong> the habit/goal trackers you create, so they follow you across devices.</li>
-          <li><strong>Basic technical data:</strong> standard server access logs (e.g. IP address, timestamp) generated automatically by our hosting infrastructure.</li>
-        </ul>
-      </div>
-
-      <div className="card-premium p-6 space-y-3">
-        <h2 className={`text-sm font-extrabold uppercase tracking-wide ${tHeading}`}>Why we collect it</h2>
-        <p className={`text-sm leading-relaxed ${tBody}`}>
-          Solely to run the product: signing you in, remembering your profile and progress across devices,
-          and computing the institution/profession/resource recommendations you see on your dashboard. We do
-          not sell your data, and we do not use it for advertising.
-        </p>
-      </div>
-
-      <div className="card-premium p-6 space-y-3">
-        <h2 className={`text-sm font-extrabold uppercase tracking-wide ${tHeading}`}>Where it's stored</h2>
-        <p className={`text-sm leading-relaxed ${tBody}`}>
-          Account and profile data is stored with <strong>Supabase</strong>, our database and authentication
-          provider. The interactive map loads <strong>Mapbox</strong>, which may process standard technical
-          request data (like your IP address) when map tiles load, under Mapbox's own privacy terms. We do
-          not run advertising trackers or sell data to third parties.
-        </p>
-      </div>
-
-      <div className="card-premium p-6 space-y-3">
-        <h2 className={`text-sm font-extrabold uppercase tracking-wide ${tHeading}`}>Your rights</h2>
-        <p className={`text-sm leading-relaxed ${tBody}`}>
-          You can ask us to show you what we have, correct it, or delete your account and all associated
-          data, by writing to{" "}
-          <a href="mailto:iinspirella@gmail.com" className="text-violet-400 underline">
-            iinspirella@gmail.com
-          </a>
-          . You can also delete individual trackers or edit your profile directly from within the app at any
-          time.
-        </p>
-      </div>
-
-      <div className="card-premium p-6 space-y-3">
-        <h2 className={`text-sm font-extrabold uppercase tracking-wide ${tHeading}`}>Cookies &amp; local storage</h2>
-        <p className={`text-sm leading-relaxed ${tBody}`}>
-          We use your browser's local storage to remember your theme (dark/light) and, in guest mode, your
-          profile and trackers. We do not use third-party advertising or tracking cookies.
-        </p>
-      </div>
-
-      <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/70 font-medium"}`}>
-        This is an honest first version of our privacy notice, written in plain language rather than formal
-        legal text. As Inspirella grows we intend to have it reviewed by a lawyer familiar with Swiss (nLPD/
-        FADP) and EU (GDPR) data protection law.
-      </p>
-
-      <button
-        onClick={() => handleTabTransition("home")}
-        className="btn-secondary px-5 py-2.5 text-xs font-bold"
-      >
-        Back to Home
-      </button>
     </motion.div>
+  );
+}
+
+export function PrivacyView({ language, isDark, tTextTitle, handleTabTransition }: any) {
+  return (
+    <LegalView
+      doc={PRIVACY[language as LanguageCode] ?? PRIVACY.en}
+      language={language}
+      isDark={isDark}
+      tTextTitle={tTextTitle}
+      handleTabTransition={handleTabTransition}
+      other={{ tab: "impressum", label: LEGAL_LINKS.impressum[language as LanguageCode] ?? LEGAL_LINKS.impressum.en }}
+    />
+  );
+}
+
+export function ImpressumView({ language, isDark, tTextTitle, handleTabTransition }: any) {
+  return (
+    <LegalView
+      doc={IMPRESSUM[language as LanguageCode] ?? IMPRESSUM.en}
+      language={language}
+      isDark={isDark}
+      tTextTitle={tTextTitle}
+      handleTabTransition={handleTabTransition}
+      other={{ tab: "privacy", label: LEGAL_LINKS.privacy[language as LanguageCode] ?? LEGAL_LINKS.privacy.en }}
+    />
   );
 }
 

@@ -244,10 +244,13 @@ async function startServer() {
           // Pre-rendered pages only change on deploy: let browsers and a CDN
           // (Cloudflare) keep them, so bot traffic rarely reaches this server.
           const p = filePath.replace(/\\/g, "/");
+          if (p.includes("/dist/fonts/")) res.setHeader("Cache-Control", "public, max-age=2592000");
           if (
             p.includes("/dist/beruf/") ||
             p.includes("/dist/institution/") ||
             p.includes("/dist/ueber-inspirella/") ||
+            p.includes("/dist/impressum/") ||
+            p.includes("/dist/datenschutz/") ||
             p.endsWith("/dist/sitemap.xml")
           ) {
             res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=86400");

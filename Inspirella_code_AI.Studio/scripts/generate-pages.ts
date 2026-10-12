@@ -6,6 +6,7 @@
  *   /ueber-inspirella/    what Inspirella is (the German "About" copy + live counts)
  *   /                     the app shell, with a plain-text home written into #root
  *                         (React replaces it on load) so crawlers see more than an empty page
+ *   /impressum/, /datenschutz/   the legal pages (German), real addresses for the same text the app shows
  *   /404.html             served with status 404 for any unknown address (see server.ts)
  *
  * Why static files: Inspirella is a single-page app whose content lives in
@@ -23,6 +24,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { TRANSLATIONS } from "../src/data";
+import { IMPRESSUM, PRIVACY, type LegalDoc } from "../src/features/legalText";
 
 const SITE = (process.env.SITE_URL || "https://www.inspirella.ch").replace(/\/+$/, "");
 const DIST = path.join(process.cwd(), "dist");
@@ -120,6 +122,8 @@ async function fetchAll(build: (from: number, to: number) => PromiseLike<{ data:
 }
 
 const CSS = `
+@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url(/fonts/inter-latin.woff2) format("woff2")}
+@font-face{font-family:"Space Grotesk";font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/space-grotesk-latin.woff2) format("woff2")}
 :root{--bg:#030008;--fg:#e8e4f5;--muted:#a39bc2;--card:rgba(255,255,255,.05);--card-b:rgba(255,255,255,.10);--accent:#a78bfa;--grain:196,181,253}
 body.light{--bg:#f5f3ff;--fg:#1e1b4b;--muted:#5b5280;--card:#fff;--card-b:#e9d5ff;--accent:#6d28d9;--grain:109,40,217}
 *{box-sizing:border-box}
@@ -189,7 +193,7 @@ a.school:hover{border-color:rgba(192,132,252,.55);transform:translateX(3px)}
 .school span{font-size:13px;color:var(--muted)}
 .cant{font:600 12px "Space Grotesk",sans-serif;font-style:normal;padding:3px 9px;border-radius:99px;border:1px solid rgba(167,139,250,.4);color:var(--accent)}
 .more{margin:12px 0 0;color:var(--muted);font-size:14px}
-.prose p{margin:0 0 14px}.prose p:last-child{margin:0}
+.prose p{margin:0 0 14px}.prose p:last-child{margin:0}.prose ul{margin:0;padding-left:20px}.prose li{margin-bottom:6px}.prose a{color:var(--accent)}
 .eyebrow{font:600 12px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
 .source{margin-top:30px;padding:16px 20px;font-size:14px;color:var(--muted);border-radius:14px;border:1px dashed var(--card-b)}
 .source a{color:var(--accent)}
@@ -262,8 +266,7 @@ ${o.indexable ? "" : '<meta name="robots" content="noindex, follow">\n'}<meta na
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="${SITE}/og-image.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script type="application/ld+json">${JSON.stringify(o.ld).replace(/</g, "\\u003c")}</script>
 <style>${CSS}</style>
 </head>
@@ -276,7 +279,7 @@ ${o.indexable ? "" : '<meta name="robots" content="noindex, follow">\n'}<meta na
 <main>
 ${o.main}
 </main>
-<div class="foot">© Inspirella · <a href="/">inspirella.ch</a> · <a href="/ueber-inspirella/">Über Inspirella</a></div>
+<div class="foot">© Inspirella · <a href="/">inspirella.ch</a> · <a href="/ueber-inspirella/">Über Inspirella</a> · <a href="/impressum/">Impressum</a> · <a href="/datenschutz/">Datenschutz</a></div>
 <script>${SCRIPT}</script>
 </body>
 </html>
@@ -540,6 +543,7 @@ function renderAbout(counts: Counts): string {
   <section class="card"><h2>Was Inspirella bietet</h2><dl class="dl">${features.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></section>
   <section class="card"><h2>${esc(t.aboutValuesTitle)}</h2><dl class="dl">${values.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></section>
   <div class="note"><span class="eyebrow">${esc(t.aboutStageEyebrow)}</span>${esc(t.aboutStageBody)}</div>
+  <section class="card prose" style="margin-top:22px"><span class="eyebrow">${esc(t.aboutWhoEyebrow)}</span><p>${esc(t.aboutWhoBody)}</p></section>
   <section class="card prose" style="margin-top:22px"><span class="eyebrow">${esc(t.aboutVisionEyebrow)}</span><p>${esc(t.aboutVisionBody)}</p></section>
   <div class="source">Inspirella ist ein Orientierungswerkzeug und keine offizielle Stelle. Verbindliche Informationen findest du bei <a href="https://www.berufsberatung.ch/" rel="noopener">berufsberatung.ch</a> und beim kantonalen Berufsinformationszentrum (BIZ).</div>`;
 
@@ -589,13 +593,44 @@ function renderHomeBlock(counts: Counts, featured: HomeFeatured): string {
 <p style="font-size:19px;margin:0 0 12px">Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take.</p>
 <p lang="de" style="color:#b7aed6;margin:0 0 24px">Inspirella hilft dir, dich im Schweizer Bildungssystem zurechtzufinden: Berufe, die zu dir passen, Schulen, wo du sie lernst, und der nächste kleine Schritt. Kostenlos, auf Deutsch, Französisch, Italienisch und Englisch.</p>
 <p style="margin:0 0 24px">${counts.professions} professions and programmes, ${counts.institutions} schools and institutions, ${counts.resources} official resources. Data as of ${esc(dataDate())}. Inspirella is an orientation tool, not an official authority: for binding information see <a href="https://www.berufsberatung.ch/" style="color:#c4b5fd">berufsberatung.ch</a> and your cantonal careers office (BIZ).</p>
-<p style="margin:0 0 28px"><a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a></p>
+<p style="margin:0 0 28px"><a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Professions</h2>
 <ul style="margin:0 0 24px;padding-left:20px">${list(featured.professions)}</ul>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Schools and institutions</h2>
 <ul style="margin:0;padding-left:20px">${list(featured.institutions)}</ul>
 <noscript><p style="margin-top:28px;color:#fdba74">The interactive app (map, personal path, tracker) needs JavaScript.</p></noscript>
 </div>`;
+}
+
+/** **bold** and e-mail addresses inside legal text, escaped. */
+function legalInline(text: string): string {
+  return esc(text)
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/([\w.+-]+@[\w-]+\.[\w.]+)/g, '<a href="mailto:$1">$1</a>');
+}
+
+function renderLegal(doc: LegalDoc, slug: string): string {
+  const url = `${SITE}/${slug}/`;
+  const sections = doc.sections
+    .map(
+      sec =>
+        `<section class="card prose"><h2>${esc(sec.heading)}</h2>${(sec.paragraphs ?? []).map(p => `<p>${legalInline(p)}</p>`).join("")}${
+          sec.bullets ? `<ul>${sec.bullets.map(b => `<li>${legalInline(b)}</li>`).join("")}</ul>` : ""
+        }</section>`
+    )
+    .join("\n  ");
+  return layout({
+    docTitle: `${doc.title} | Inspirella`,
+    ogTitle: `${doc.title} | Inspirella`,
+    description: truncate(doc.updated, 155),
+    url,
+    indexable: true,
+    ld: { "@context": "https://schema.org", "@type": "WebPage", name: doc.title, url },
+    main: `  <div class="crumbs"><a href="/">Inspirella</a> › ${esc(doc.title)}</div>
+  <header class="hero"><h1>${esc(doc.title)}</h1><p class="lead">${esc(doc.updated)}</p></header>
+  ${sections}
+  ${doc.closing ? `<div class="source">${esc(doc.closing)}</div>` : ""}`
+  });
 }
 
 function render404(): string {
@@ -694,7 +729,7 @@ async function main() {
   }
   const byTitle = (a: Link, b: Link) => a.title.localeCompare(b.title, "de");
 
-  const urls: { loc: string; lastmod?: string }[] = [{ loc: `${SITE}/` }, { loc: `${SITE}/ueber-inspirella/` }];
+  const urls: { loc: string; lastmod?: string }[] = [{ loc: `${SITE}/` }, { loc: `${SITE}/ueber-inspirella/` }, { loc: `${SITE}/impressum/` }, { loc: `${SITE}/datenschutz/` }];
   const stats = { professions: 0, professionsNoindex: 0, institutions: 0, institutionsNoindex: 0, skipped: 0 };
   const lastmodOf = (row: Row) => (typeof row.updated_at === "string" ? row.updated_at.slice(0, 10) : undefined);
 
@@ -736,6 +771,8 @@ async function main() {
   const counts: Counts = { professions: professions.length, institutions: institutions.length, resources: resourceCount ?? 0 };
   await writePage(["ueber-inspirella"], renderAbout(counts));
   await fs.writeFile(path.join(DIST, "404.html"), render404(), "utf8");
+  await writePage(["impressum"], renderLegal(IMPRESSUM.de, "impressum"));
+  await writePage(["datenschutz"], renderLegal(PRIVACY.de, "datenschutz"));
 
   // Home: write plain content into the app shell. Featured links = the best-connected records.
   const popular = (m: Map<string, Link[]>, pick: Map<string, { slug: string; title: string }>, base: string, n: number): Link[] =>

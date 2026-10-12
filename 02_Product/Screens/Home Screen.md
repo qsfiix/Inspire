@@ -26,7 +26,7 @@ Related Files:
 
 ## Tone
 
-Ambitious but concrete. Slogan candidate «Нет ничего невозможного, и ты это увидишь» may support the brand, but page copy must still explain the actual product outcome.
+Ambitious but concrete. Hero slogan (since 2026-10-12): «Keine Sackgassen. Nur nächste Schritte.» / “No dead ends. Only next steps.” (based on the system's permeability, Durchlässigkeit). The earlier «Нет ничего невозможного, и ты это увидишь» (“Nothing is impossible, and you'll see it”) is kept as the emotional closing line above the final CTA. Page copy must still explain the actual product outcome.
 
 ## States
 
