@@ -163,7 +163,7 @@ export function HomeView({
 
             {/* Hero Description Subtitle */}
             <p className={`text-base md:text-xl font-sans max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal ${
-              isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"
+              isDark ? "text-zinc-300 [text-shadow:0_0_14px_rgba(3,0,8,0.95)]" : "text-violet-950/80 font-medium"
             }`}>
               {t.heroSubtitle}
             </p>
@@ -562,7 +562,7 @@ export function PrivacyView({ isDark, tTextTitle, handleTabTransition }: any) {
           <span>Privacy</span>
         </div>
         <h1 className={`text-3xl font-extrabold tracking-tight ${tTextTitle}`}>Privacy Notice</h1>
-        <p className={`text-xs ${isDark ? "text-zinc-500" : "text-violet-950/60 font-medium"}`}>
+        <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/70 font-medium"}`}>
           Last updated: 12 September 2026 · Plain-language summary, not a substitute for legal advice.
         </p>
       </div>
@@ -638,7 +638,7 @@ export function PrivacyView({ isDark, tTextTitle, handleTabTransition }: any) {
         </p>
       </div>
 
-      <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-500" : "text-violet-950/60 font-medium"}`}>
+      <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/70 font-medium"}`}>
         This is an honest first version of our privacy notice, written in plain language rather than formal
         legal text. As Inspirella grows we intend to have it reviewed by a lawyer familiar with Swiss (nLPD/
         FADP) and EU (GDPR) data protection law.
@@ -715,7 +715,7 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
                 <Mail className="h-4 w-4" />
               </div>
               <div>
-                <span className={`block font-mono text-[11px] uppercase ${isDark ? "text-zinc-500" : "text-violet-950/70"}`}>Email</span>
+                <span className={`block font-mono text-[11px] uppercase ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>Email</span>
                 <a
                   href="mailto:iinspirella@gmail.com"
                   className={`font-bold underline underline-offset-2 ${isDark ? "text-zinc-200 hover:text-violet-300" : "text-violet-950"}`}

@@ -31,10 +31,10 @@ export default function PlatformStats({ isDark, labels, align = "center" }: Plat
   if (!stats) return null;
 
   const items = [
-    { value: stats.institutions, label: labels.institutions },
-    { value: stats.professions, label: labels.professions },
-    { value: stats.learningPaths, label: labels.learningPaths },
-    { value: 4, label: labels.languages }
+    { value: stats.institutions, label: labels.institutions, plus: true },
+    { value: stats.professions, label: labels.professions, plus: true },
+    { value: stats.learningPaths, label: labels.learningPaths, plus: true },
+    { value: 4, label: labels.languages, plus: false } // exactly four: no "+"
   ];
 
   return (
@@ -43,7 +43,7 @@ export default function PlatformStats({ isDark, labels, align = "center" }: Plat
     }`}>
       {items.map((item, idx) => (
         <div key={item.label} className="flex items-center gap-x-8">
-          <StatCount value={item.value} label={item.label} isDark={isDark} delay={idx * 120} />
+          <StatCount value={item.value} label={item.label} plus={item.plus} isDark={isDark} delay={idx * 120} />
           {idx < items.length - 1 && (
             <span className={`hidden sm:block h-8 w-px ${isDark ? "bg-white/10" : "bg-violet-950/10"}`} />
           )}
@@ -53,7 +53,7 @@ export default function PlatformStats({ isDark, labels, align = "center" }: Plat
   );
 }
 
-function StatCount({ value, label, isDark, delay }: { value: number; label: string; isDark: boolean; delay: number }) {
+function StatCount({ value, label, plus, isDark, delay }: { value: number; label: string; plus: boolean; isDark: boolean; delay: number }) {
   const [display, setDisplay] = useState(0);
 
   useEffect(() => {
@@ -86,9 +86,9 @@ function StatCount({ value, label, isDark, delay }: { value: number; label: stri
     <div className="text-center">
       <span className={`block font-mono text-2xl md:text-3xl font-black tabular-nums ${isDark ? "text-white" : "text-violet-950"}`}>
         {display}
-        <span className={isDark ? "text-violet-400" : "text-violet-600"}>+</span>
+        {plus && <span className={isDark ? "text-violet-400" : "text-violet-600"}>+</span>}
       </span>
-      <span className={`block text-[11px] font-mono uppercase tracking-widest mt-0.5 ${isDark ? "text-zinc-500" : "text-violet-950/50 font-bold"}`}>
+      <span className={`block text-[11px] font-mono uppercase tracking-widest mt-0.5 ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>
         {label}
       </span>
     </div>

@@ -273,7 +273,7 @@ export function DashboardView({
                     <span className={`p-2 rounded-lg ${portal.tint}`}>
                       <PortalIcon className="h-4 w-4" />
                     </span>
-                    <ArrowUpRight className={`h-4 w-4 transition duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${isDark ? "text-zinc-500 group-hover:text-violet-300" : "text-violet-950/30 group-hover:text-violet-700"}`} />
+                    <ArrowUpRight className={`h-4 w-4 transition duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${isDark ? "text-zinc-400 group-hover:text-violet-300" : "text-violet-950/70 group-hover:text-violet-700"}`} />
                   </div>
                   <span className={`block font-bold text-xs mt-3 ${isDark ? "text-white" : "text-indigo-950 font-black"}`}>{portal.label}</span>
                   <span className={`block text-xs mt-1 leading-normal ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>{portal.desc}</span>
@@ -370,7 +370,7 @@ export function ProfileView({
                 }`}
               />
               <div className="flex items-center justify-between">
-                <span className={`text-[11px] font-mono ${isDark ? "text-zinc-500" : "text-violet-950/50 font-semibold"}`}>
+                <span className={`text-[11px] font-mono ${isDark ? "text-zinc-400" : "text-violet-950/70 font-semibold"}`}>
                   {draftBio.length}/{BIO_MAX_LENGTH}
                 </span>
                 <div className="flex items-center gap-2">
@@ -390,7 +390,7 @@ export function ProfileView({
               </div>
             </div>
           ) : (
-            <p className={`text-xs leading-relaxed ${userProfile?.bio ? (isDark ? "text-zinc-200" : "text-black font-semibold") : (isDark ? "text-zinc-500 italic" : "text-violet-950/50 italic")}`}>
+            <p className={`text-xs leading-relaxed ${userProfile?.bio ? (isDark ? "text-zinc-200" : "text-black font-semibold") : (isDark ? "text-zinc-400 italic" : "text-violet-950/70 italic")}`}>
               {userProfile?.bio || t.profileBioEmpty}
             </p>
           )}

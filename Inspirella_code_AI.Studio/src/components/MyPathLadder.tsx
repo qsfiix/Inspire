@@ -475,7 +475,7 @@ export default function MyPathLadder({
             </div>
             <p className={`text-xs mt-0.5 truncate ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
               {t.mpRoute} <span className="text-shimmer font-semibold">{goalTitle}</span>
-              <span className={isDark ? "text-zinc-500" : "text-zinc-500"}> · {fill(t.mpStepsDone, { done: doneCount, total: steps.length })}</span>
+              <span className={isDark ? "text-zinc-400" : "text-zinc-500"}> · {fill(t.mpStepsDone, { done: doneCount, total: steps.length })}</span>
             </p>
           </div>
         </div>
@@ -1122,7 +1122,7 @@ export default function MyPathLadder({
                         <div className={`text-[11px] ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
                           {label.text} · <span className={win.state === "now" ? (isDark ? "text-amber-300" : "text-amber-700") : ""}>{label.status}</span>
                         </div>
-                        {label.note && <div className={`text-[10px] ${isDark ? "text-zinc-500" : "text-zinc-500"}`}>{label.note}</div>}
+                        {label.note && <div className={`text-[10px] ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>{label.note}</div>}
                         {planB && (
                           <div className={`rounded-lg border px-2.5 py-1.5 text-[11px] ${isDark ? "border-amber-300/30 bg-amber-400/10 text-amber-100" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
                             {PLAN_B_TEXT[language] ?? PLAN_B_TEXT.de}

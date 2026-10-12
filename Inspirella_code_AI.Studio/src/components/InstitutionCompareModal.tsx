@@ -128,7 +128,7 @@ export default function InstitutionCompareModal({
               <tbody>
                 {rows.map(row => (
                   <tr key={row.label} className={`border-b ${isDark ? "border-white/5" : "border-purple-100"}`}>
-                    <td className={`p-2 font-mono uppercase text-[11px] tracking-wider align-top ${isDark ? "text-zinc-400" : "text-violet-950/60 font-bold"}`}>
+                    <td className={`p-2 font-mono uppercase text-[11px] tracking-wider align-top ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>
                       {row.label}
                     </td>
                     {institutions.map(inst => (
@@ -140,7 +140,7 @@ export default function InstitutionCompareModal({
                 ))}
                 {institutions.some(inst => localizedText(inst.description, currentLanguage)) && (
                   <tr>
-                    <td className={`p-2 font-mono uppercase text-[11px] tracking-wider align-top ${isDark ? "text-zinc-400" : "text-violet-950/60 font-bold"}`}>
+                    <td className={`p-2 font-mono uppercase text-[11px] tracking-wider align-top ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>
                       {t.admissionInfo}
                     </td>
                     {institutions.map(inst => (

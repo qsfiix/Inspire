@@ -471,7 +471,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
               <p className="text-xs">{t.professionsLoadError}</p>
             </div>
           ) : filtered.length === 0 ? (
-            <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-white/10 text-zinc-500" : "border-purple-200 text-violet-950/50"}`}>
+            <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-white/10 text-zinc-400" : "border-purple-200 text-violet-950/70"}`}>
               {/* Distinguish "search/filter narrowed to zero" from "catalog has
                   nothing yet" - conflating the two would either hide a real
                   empty-catalog state or wrongly blame the user's search. */}
@@ -735,7 +735,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
             </AnimatePresence>
           ) : (
             <div className={`p-10 text-center rounded-2xl border border-dashed flex flex-col items-center justify-center h-full min-h-[280px] ${
-              isDark ? "border-white/10 text-zinc-500 bg-white/[0.005]" : "border-purple-200 text-violet-950/50 bg-purple-50/10"
+              isDark ? "border-white/10 text-zinc-400 bg-white/[0.005]" : "border-purple-200 text-violet-950/70 bg-purple-50/10"
             }`}>
               <Briefcase className="h-6 w-6 text-violet-500 mb-2.5" />
               <p className="text-xs font-semibold">{t.professionSelectHint}</p>
@@ -876,7 +876,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
               <p className="text-xs">{t.institutionsLoadError}</p>
             </div>
           ) : filtered.length === 0 ? (
-            <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-white/10 text-zinc-500" : "border-purple-200 text-violet-950/50"}`}>
+            <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-white/10 text-zinc-400" : "border-purple-200 text-violet-950/70"}`}>
               <p className="text-xs">{institutionsList.length === 0 ? t.institutionsCatalogGrowing : t.institutionsEmpty}</p>
             </div>
           ) : (
@@ -939,7 +939,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
             </AnimatePresence>
           ) : (
             <div className={`p-10 text-center rounded-2xl border border-dashed flex flex-col items-center justify-center h-full min-h-[280px] ${
-              isDark ? "border-white/10 text-zinc-500 bg-white/[0.005]" : "border-purple-200 text-violet-950/50 bg-purple-50/10"
+              isDark ? "border-white/10 text-zinc-400 bg-white/[0.005]" : "border-purple-200 text-violet-950/70 bg-purple-50/10"
             }`}>
               <Landmark className="h-6 w-6 text-violet-500 mb-2.5" />
               <p className="text-xs font-semibold">{t.institutionSelectHint}</p>
@@ -955,7 +955,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
         }`}>
           <div className="flex items-center gap-1.5">
             <Scale className="h-3.5 w-3.5 text-violet-500 shrink-0" />
-            <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>
+            <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/70 font-black"}`}>
               {t.compareBarLabel} ({compareList.length}/{MAX_COMPARE})
             </span>
           </div>
@@ -969,7 +969,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
           ))}
           <button
             onClick={() => setCompareList([])}
-            className={`text-xs font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/60 hover:text-violet-950"}`}
+            className={`text-xs font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/70 hover:text-violet-950"}`}
           >
             {t.compareClear}
           </button>

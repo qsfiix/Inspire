@@ -535,7 +535,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
         }`}>
           <div className="flex items-center gap-1.5">
             <Scale className="h-3.5 w-3.5 text-violet-500 shrink-0" />
-            <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/60 font-black"}`}>
+            <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/70 font-black"}`}>
               {t.compareBarLabel} ({compareList.length}/{MAX_COMPARE})
             </span>
           </div>
@@ -554,7 +554,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
           ))}
           <button
             onClick={() => setCompareList([])}
-            className={`text-xs font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/60 hover:text-violet-950"}`}
+            className={`text-xs font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/70 hover:text-violet-950"}`}
           >
             {t.compareClear}
           </button>

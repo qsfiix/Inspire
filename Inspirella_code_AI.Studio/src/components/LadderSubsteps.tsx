@@ -62,7 +62,7 @@ export default function LadderSubsteps({ step, items, canTick, onToggle, profess
               </button>
               <button type="button" onClick={() => setOpenId(open ? null : sub.id)} className="flex flex-1 items-center gap-2 text-left" aria-expanded={open}>
                 <span className={`flex-1 text-[12px] font-semibold ${done ? "line-through opacity-70" : ""} ${isDark ? "text-zinc-100" : "text-zinc-900"}`}>
-                  <span className={`mr-1.5 font-mono text-[10px] ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>{i + 1}.</span>
+                  <span className={`mr-1.5 font-mono text-[10px] ${isDark ? "text-zinc-400" : "text-zinc-400"}`}>{i + 1}.</span>
                   {localizedText(sub.title, language)}
                 </span>
                 <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition ${open ? "rotate-180" : ""} ${isDark ? "text-zinc-400" : "text-zinc-500"}`} />

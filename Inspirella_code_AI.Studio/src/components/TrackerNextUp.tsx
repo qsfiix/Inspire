@@ -77,7 +77,7 @@ export default function TrackerNextUp({ language, isDark, trackers, onTrackersCh
           return (
             <li key={item.id} className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 ${card}`}>
               <button type="button" onClick={() => tick(item.id)} disabled={!onTrackersChange} aria-label={item.text} className="shrink-0 cursor-pointer disabled:cursor-default">
-                {item.completed ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <Circle className={`h-4 w-4 ${isDark ? "text-zinc-500" : "text-violet-950/50"}`} />}
+                {item.completed ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <Circle className={`h-4 w-4 ${isDark ? "text-zinc-400" : "text-violet-950/70"}`} />}
               </button>
               <div className="min-w-0 flex-1">
                 <div className={`truncate text-[12px] font-semibold ${isDark ? "text-zinc-100" : "text-zinc-900"}`}>

@@ -86,7 +86,7 @@ export default function InstitutionDetailCard({
               />
             </div>
             {institution.imageAttribution && (
-              <p className={`mt-1 text-[11px] leading-snug ${isDark ? "text-zinc-500" : "text-violet-950/50"}`}>
+              <p className={`mt-1 text-[11px] leading-snug ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>
                 {institution.imageAttribution}
               </p>
             )}
@@ -134,7 +134,7 @@ export default function InstitutionDetailCard({
         {/* Rich German texts reach other languages via the nightly DeepL run
             (Supabase function translate-missing) - say so, honestly. */}
         {currentLanguage !== "de" && institution.profile?.[currentLanguage] && (
-          <p className={`text-[11px] italic ${isDark ? "text-zinc-400" : "text-violet-950/60"}`}>{t.autoTranslatedNote}</p>
+          <p className={`text-[11px] italic ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{t.autoTranslatedNote}</p>
         )}
         {localizedText(institution.profile, currentLanguage) && (
           <div className="card-premium p-3.5">
@@ -206,7 +206,7 @@ export default function InstitutionDetailCard({
             <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
               {localizedText(institution.admissionRequirements, currentLanguage)}
             </p>
-            <p className={`mt-2 text-[11px] leading-relaxed ${isDark ? "text-zinc-500" : "text-violet-950/60 font-semibold"}`}>
+            <p className={`mt-2 text-[11px] leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/70 font-semibold"}`}>
               {t.verifyWithInstitution}
             </p>
           </div>

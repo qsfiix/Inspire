@@ -563,12 +563,12 @@ export default function App() {
             © 2026 Inspirella
           </span>
           <div className="flex items-center gap-4">
-            <span className={isDark ? "text-zinc-500" : "text-black font-extrabold"}>
+            <span className={isDark ? "text-zinc-400" : "text-black font-extrabold"}>
               Switzerland Education Explorer
             </span>
             <button
               onClick={() => handleTabTransition("privacy")}
-              className={`underline-offset-2 hover:underline cursor-pointer ${isDark ? "text-zinc-500 hover:text-zinc-300" : "text-black font-extrabold"}`}
+              className={`underline-offset-2 hover:underline cursor-pointer ${isDark ? "text-zinc-400 hover:text-zinc-300" : "text-black font-extrabold"}`}
             >
               Privacy
             </button>

@@ -198,7 +198,7 @@ export function AdmissionBox({ canton, routes, language, isDark }: BoxProps & { 
           )}
         </div>
       ))}
-      <p className={`text-[11px] ${isDark ? "text-zinc-500" : "text-violet-950/60"}`}>{ui.germanNote}</p>
+      <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{ui.germanNote}</p>
     </div>
   );
 }
@@ -239,7 +239,7 @@ export function BridgeBox({ canton, language, isDark, max = 4 }: BoxProps & { ca
           {all ? "−" : ui.more(list.length - max)}
         </button>
       )}
-      <p className={`text-[11px] ${isDark ? "text-zinc-500" : "text-violet-950/60"}`}>{ui.germanNote}</p>
+      <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{ui.germanNote}</p>
     </div>
   );
 }
@@ -275,7 +275,7 @@ export function NextWaysBox({ nodes, language, isDark }: BoxProps & { nodes: str
           </li>
         ))}
       </ul>
-      <p className={`text-[11px] ${isDark ? "text-zinc-500" : "text-violet-950/60"}`}>{ui.germanNote}</p>
+      <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{ui.germanNote}</p>
     </div>
   );
 }

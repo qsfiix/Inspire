@@ -298,7 +298,7 @@ export default function AdvisorReport({
                   </div>
                   <button
                     onClick={requestAiExplanation}
-                    className={`text-[11px] font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/60 hover:text-violet-950"}`}
+                    className={`text-[11px] font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/70 hover:text-violet-950"}`}
                   >
                     {t.arTryAgain}
                   </button>

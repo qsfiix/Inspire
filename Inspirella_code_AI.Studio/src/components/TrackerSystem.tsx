@@ -150,7 +150,7 @@ export default function TrackerSystem({
             {item.completed ? (
               <CheckCircle className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
             ) : (
-              <Circle className={`h-4.5 w-4.5 shrink-0 ${isDark ? "text-zinc-500" : "text-violet-950/60"}`} />
+              <Circle className={`h-4.5 w-4.5 shrink-0 ${isDark ? "text-zinc-400" : "text-violet-950/70"}`} />
             )}
             <span>{item.text}</span>
           </button>
@@ -344,7 +344,7 @@ export default function TrackerSystem({
 
                     <button
                       onClick={() => handleDeleteGoal(goal.id)}
-                      className={`p-1.5 rounded-lg transition-colors cursor-pointer ${isDark ? "text-zinc-400 hover:text-red-400 hover:bg-white/5" : "text-violet-950/60 hover:text-red-600 hover:bg-violet-50"}`}
+                      className={`p-1.5 rounded-lg transition-colors cursor-pointer ${isDark ? "text-zinc-400 hover:text-red-400 hover:bg-white/5" : "text-violet-950/70 hover:text-red-600 hover:bg-violet-50"}`}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>

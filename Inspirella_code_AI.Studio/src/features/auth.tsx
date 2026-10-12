@@ -262,7 +262,7 @@ export function LoginView({
                   ? "bg-violet-600 text-white shadow"
                   : isDark
                     ? "text-zinc-400 hover:text-white"
-                    : "text-violet-950/60 hover:text-violet-950"
+                    : "text-violet-950/70 hover:text-violet-950"
               }`}
             >
               {m === "signUp" ? activeLang.signUpTabLabel : activeLang.signInTabLabel}
@@ -278,7 +278,7 @@ export function LoginView({
                 {activeLang.nameLabel}
               </label>
               <div className="relative">
-                <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-500" : "text-violet-950/40"}`}>
+                <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>
                   <User className="h-4 w-4" />
                 </span>
                 <input
@@ -298,7 +298,7 @@ export function LoginView({
               {activeLang.emailLabel}
             </label>
             <div className="relative">
-              <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-500" : "text-violet-950/40"}`}>
+              <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>
                 <Mail className="h-4 w-4" />
               </span>
               <input
@@ -318,7 +318,7 @@ export function LoginView({
               {activeLang.passwordLabel}
             </label>
             <div className="relative">
-              <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-500" : "text-violet-950/40"}`}>
+              <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>
                 <Lock className="h-4 w-4" />
               </span>
               <input
@@ -364,12 +364,12 @@ export function LoginView({
           </button>
 
           {/* Info Disclaimer */}
-          <p className={`text-xs text-center leading-relaxed font-sans px-2 ${isDark ? "text-zinc-500" : "text-violet-950/50 font-medium"}`}>
+          <p className={`text-xs text-center leading-relaxed font-sans px-2 ${isDark ? "text-zinc-400" : "text-violet-950/70 font-medium"}`}>
             {activeLang.disclaimer}
           </p>
 
           {/* Beautiful Custom Bypass option */}
-          <div className={`relative flex py-3 items-center text-[11px] font-mono tracking-widest ${isDark ? "text-zinc-500" : "text-violet-900/40 font-bold"}`}>
+          <div className={`relative flex py-3 items-center text-[11px] font-mono tracking-widest ${isDark ? "text-zinc-400" : "text-violet-900/70 font-bold"}`}>
             <div className={`flex-grow border-t ${isDark ? "border-white/5" : "border-violet-950/10"}`}></div>
             <span className="mx-3 uppercase">{activeLang.instantOverride}</span>
             <div className={`flex-grow border-t ${isDark ? "border-white/5" : "border-violet-950/10"}`}></div>
@@ -680,7 +680,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
                         ? "bg-emerald-500 text-white border-emerald-500 shadow-sm"
                         : isDark
                           ? "bg-zinc-950 border-white/10 text-zinc-500 hover:border-violet-500 hover:text-white"
-                          : "bg-white border-purple-250 text-violet-950/40 hover:border-violet-950 hover:text-violet-950"
+                          : "bg-white border-purple-250 text-violet-950/70 hover:border-violet-950 hover:text-violet-950"
                   }`}
                 >
                   {isCompleted ? <Check className="h-3.5 w-3.5 stroke-[3]" /> : idx + 1}
@@ -688,7 +688,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
               );
             })}
           </div>
-          <p className={`text-[11px] ${isDark ? "text-zinc-500" : "text-violet-950/60"}`}>{c.progressHint}</p>
+          <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{c.progressHint}</p>
         </div>
 
         <div className="space-y-1 pt-2 border-t border-violet-500/10">

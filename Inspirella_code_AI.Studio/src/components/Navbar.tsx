@@ -68,10 +68,10 @@ export default function Navbar({
             />
           </div>
           <div>
-            <span className={`text-xl font-bold tracking-wider transition-colors ${isDark ? "text-white" : "text-indigo-950"}`}>
+            <span className={`text-lg sm:text-xl font-bold tracking-wider transition-colors ${isDark ? "text-white" : "text-indigo-950"}`}>
               INSPIRELLA
             </span>
-            <span className={`${isLoggedIn ? "hidden xl:block" : "block"} whitespace-nowrap text-[9px] font-mono tracking-widest uppercase transition-colors ${isDark ? "text-violet-400" : "text-violet-600 font-semibold"}`}>
+            <span className={`${isLoggedIn ? "hidden xl:block" : "hidden sm:block"} whitespace-nowrap text-[9px] font-mono tracking-widest uppercase transition-colors ${isDark ? "text-violet-400" : "text-violet-600 font-semibold"}`}>
               Swiss Education Explorer
             </span>
           </div>
