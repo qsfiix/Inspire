@@ -7,6 +7,7 @@ import { localizedText } from "../lib/localized";
 import { categoryLabel } from "../lib/categoryLabels";
 import { isTrusted, isProvisional } from "../lib/quality";
 import { AdmissionBox } from "./PathwayInfo";
+import GoalButton from "./GoalButton";
 import { admissionRoutesForInstitution } from "../lib/pathwayInfo";
 
 // Focus flags (BM directions, FMS) for every institution: one fetch, shared by all cards.
@@ -20,6 +21,8 @@ interface InstitutionDetailCardProps {
   isInCompare: boolean;
   compareDisabled: boolean;
   onToggleCompare: () => void;
+  /** Called after the school was made the goal (e.g. to open My Path). */
+  onGoalSet?: () => void;
 }
 
 /**
@@ -42,7 +45,8 @@ export default function InstitutionDetailCard({
   theme = "dark",
   isInCompare,
   compareDisabled,
-  onToggleCompare
+  onToggleCompare,
+  onGoalSet
 }: InstitutionDetailCardProps) {
   const t = TRANSLATIONS[currentLanguage];
   const isDark = theme !== "light";
@@ -265,6 +269,7 @@ export default function InstitutionDetailCard({
       </div>
 
       <div className="space-y-2.5">
+        <GoalButton item={{ kind: "institution", institution }} language={currentLanguage} isDark={isDark} onDone={onGoalSet} className="w-full justify-center" />
         <button
           onClick={onToggleCompare}
           disabled={!isInCompare && compareDisabled}

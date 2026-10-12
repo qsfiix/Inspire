@@ -3,8 +3,8 @@ import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ArrowRight, CheckCircle2, ListPlus, Plus, Repeat, Sparkles, Trophy, GitBranch } from "lucide-react";
 import { LanguageCode, LearningPath, RouteBackground, TrackerChecklistItem, TrackerGoal, UserProfile } from "../types";
 import { useEducationEngine, ROUTE_CHANGED_EVENT } from "../engine/useEducationEngine";
-import { BridgeBox, NextWaysBox } from "./PathwayInfo";
-import { nodesForGoal } from "../lib/pathwayInfo";
+import { AdmissionBox, BridgeBox, NextWaysBox } from "./PathwayInfo";
+import { nodesForGoal, routesForTopic } from "../lib/pathwayInfo";
 import { LADDER_CODE, PHASE_BY_ORDER, PLAN_B_TEXT, instantiateLadder, ladderApplies, lehrbeginnYear, phaseWindow, planBSeason, routeToLadderPath, windowLabel } from "../engine/ladder";
 import { buildPersonalRoute } from "../engine/pathPlanner";
 import { getOnboardingCopy } from "../features/onboardingCopy";
@@ -1110,6 +1110,9 @@ export default function MyPathLadder({
                   {localizedText(step.timeframe, language) && (
                     <div className="text-[11px] font-mono text-emerald-500">{localizedText(step.timeframe, language)}</div>
                   )}
+                  {step.hook === "admission" && (
+                    <AdmissionBox canton={userProfile?.preferredCanton} routes={routesForTopic(step.hookTopic)} language={language} isDark={isDark} hintWithoutCanton />
+                  )}
                   {mainPath.code === LADDER_CODE && (() => {
                     const start = lehrbeginnYear(route);
                     const key = PHASE_BY_ORDER[step.order ?? 0];
@@ -1227,6 +1230,7 @@ export default function MyPathLadder({
                     {localizedText(mainPath.description, language)}
                   </p>
                 )}
+                <AdmissionBox canton={userProfile?.preferredCanton} routes={route?.targetLevel === "gymnasium" ? ["gymnasium_kurz", "gymnasium_lang"] : route?.targetLevel === "berufsmatura" ? ["bms_bm1", "bms_bm2"] : []} language={language} isDark={isDark} />
                 <NextWaysBox nodes={nodesForGoal(mainProfession?.professionType, route?.targetLevel)} language={language} isDark={isDark} />
               </div>
             )}

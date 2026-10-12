@@ -501,6 +501,7 @@ export default function App() {
                 theme={theme}
                 accessToken={mapboxConfig.accessToken}
                 styleUrl={mapboxConfig.styleUrl}
+                onGoalSet={() => handleTabTransition("dashboard")}
               />
             </motion.div>
           )}
@@ -519,6 +520,7 @@ export default function App() {
               filteredResources={filteredResources}
               resourcesList={resourcesList}
               userProfile={userProfile}
+              onGoalSet={() => handleTabTransition("dashboard")}
             />
           )}
 

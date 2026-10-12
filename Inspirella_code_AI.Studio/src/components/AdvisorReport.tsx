@@ -26,6 +26,10 @@ const GOAL_LABEL_KEY: Record<string, string> = {
 };
 import { localizedText } from "../lib/localized";
 import { FEATURES } from "../featureFlags";
+import GoalButton from "./GoalButton";
+
+/** Bring My Path into view after a goal was set from a recommendation. */
+const scrollToMyPath = () => document.getElementById("my-path")?.scrollIntoView({ behavior: "smooth", block: "start" });
 
 /** Engine reasons that are trust labels, not reasons for a match (all 4 languages). */
 const PROVISIONAL_REASON = /provisional|vorläufig|provisoire|provvisori/i;
@@ -399,6 +403,9 @@ export default function AdvisorReport({
                         )}
                       </div>
                     </div>
+                    <div className="pt-1">
+                      <GoalButton item={{ kind: "profession", profession: rp.profession }} language={language} isDark={isDark} onDone={scrollToMyPath} />
+                    </div>
                   </div>
                 )) : <p className="text-[11px] opacity-60">{t.arNoCareers}</p>}
               </div>
@@ -437,6 +444,9 @@ export default function AdvisorReport({
                           </span>
                         )}
                       </div>
+                    </div>
+                    <div className="pt-1">
+                      <GoalButton item={{ kind: "institution", institution: inst.institution }} language={language} isDark={isDark} onDone={scrollToMyPath} />
                     </div>
                   </div>
                 )) : <p className="text-[11px] opacity-60">{t.arNoInstitutions}</p>}

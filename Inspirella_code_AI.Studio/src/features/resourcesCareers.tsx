@@ -22,6 +22,7 @@ import InstitutionCompareModal from "../components/InstitutionCompareModal";
 import InstitutionDetailCard from "../components/InstitutionDetailCard";
 import SectionGlow from "../components/SectionGlow";
 import { categoryLabel } from "../lib/categoryLabels";
+import GoalButton from "../components/GoalButton";
 
 const MAX_COMPARE = 3;
 
@@ -44,7 +45,8 @@ export function ResourcesCareersView({
   setResourceCategoryFilter,
   filteredResources,
   resourcesList,
-  userProfile
+  userProfile,
+  onGoalSet
 }: any) {
   const [activeSection, setActiveSection] = useState<"web" | "professions" | "institutions">("web");
 
@@ -106,12 +108,12 @@ export function ResourcesCareersView({
         )}
         {activeSection === "professions" && (
           <motion.div key="panel-professions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <ProfessionsExplorer isDark={isDark} currentLanguage={currentLanguage} t={t} />
+            <ProfessionsExplorer isDark={isDark} currentLanguage={currentLanguage} t={t} onGoalSet={onGoalSet} />
           </motion.div>
         )}
         {activeSection === "institutions" && (
           <motion.div key="panel-institutions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <InstitutionsExplorer isDark={isDark} currentLanguage={currentLanguage} theme={theme} t={t} />
+            <InstitutionsExplorer isDark={isDark} currentLanguage={currentLanguage} theme={theme} t={t} onGoalSet={onGoalSet} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -337,7 +339,7 @@ function ListSkeleton({ label, isDark }: { label: string; isDark: boolean }) {
   );
 }
 
-export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
+export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet }: any) {
   const [professionsList, setProfessionsList] = useState<Profession[]>([]);
   const [profLoading, setProfLoading] = useState(true);
   const [profLoadError, setProfLoadError] = useState(false);
@@ -568,6 +570,8 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                     ) : null}
                   </div>
 
+                  <GoalButton item={{ kind: "profession", profession: selectedProf }} language={currentLanguage} isDark={isDark} onDone={onGoalSet} />
+
                   {localizedText(selectedProf.description, currentLanguage) && (
                     <p className={`text-[11.5px] leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
                       {localizedText(selectedProf.description, currentLanguage)}
@@ -754,7 +758,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
  * map. Reuses InstitutionCompareModal (same component the map uses) so
  * comparison works identically from either surface.
  */
-function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
+function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet }: any) {
   const [institutionsList, setInstitutionsList] = useState<Institution[]>([]);
   const [instLoading, setInstLoading] = useState(true);
   const [instLoadError, setInstLoadError] = useState(false);
@@ -934,6 +938,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
                   isInCompare={isInCompare(selectedInst.id)}
                   compareDisabled={compareList.length >= MAX_COMPARE}
                   onToggleCompare={() => toggleCompare(selectedInst)}
+                  onGoalSet={onGoalSet}
                 />
               </motion.div>
             </AnimatePresence>

@@ -65,6 +65,7 @@ type Ui = {
   nextHint: string;
   conditions: string;
   typicalAge: string;
+  pickCanton: string;
 };
 
 const UI: Record<LanguageCode, Ui> = {
@@ -85,7 +86,8 @@ const UI: Record<LanguageCode, Ui> = {
     nextTitle: "Und danach? Wege, wie es weitergeht",
     nextHint: "Die Schweiz ist durchlässig: von fast jedem Abschluss geht es weiter.",
     conditions: "Bedingungen",
-    typicalAge: "Typisches Alter"
+    typicalAge: "Typisches Alter",
+    pickCanton: "Wähle unter «Dein persönlicher Weg» deinen Kanton, dann siehst du hier die Aufnahmeregeln."
   },
   en: {
     admissionTitle: c => `How to get in (canton ${c})`,
@@ -104,7 +106,8 @@ const UI: Record<LanguageCode, Ui> = {
     nextTitle: "And after this? Ways it can continue",
     nextHint: "Switzerland is permeable: almost every qualification leads on.",
     conditions: "Conditions",
-    typicalAge: "Typical age"
+    typicalAge: "Typical age",
+    pickCanton: "Pick your canton under \"Your personal route\" and the admission rules appear here."
   },
   fr: {
     admissionTitle: c => `Comment y entrer (canton ${c})`,
@@ -123,7 +126,8 @@ const UI: Record<LanguageCode, Ui> = {
     nextTitle: "Et après ? Les voies pour continuer",
     nextHint: "La Suisse est perméable : presque chaque diplôme mène plus loin.",
     conditions: "Conditions",
-    typicalAge: "Âge typique"
+    typicalAge: "Âge typique",
+    pickCanton: "Choisis ton canton sous « Ton parcours personnel » : les règles d'admission apparaîtront ici."
   },
   it: {
     admissionTitle: c => `Come entrare (cantone ${c})`,
@@ -142,7 +146,8 @@ const UI: Record<LanguageCode, Ui> = {
     nextTitle: "E dopo? Come si può continuare",
     nextHint: "La Svizzera è permeabile: quasi ogni titolo porta oltre.",
     conditions: "Condizioni",
-    typicalAge: "Età tipica"
+    typicalAge: "Età tipica",
+    pickCanton: "Scegli il tuo cantone sotto «Il tuo percorso personale»: qui compariranno le regole di ammissione."
   }
 };
 
@@ -169,9 +174,12 @@ function Field({ label, value, isDark }: { label: string; value?: string; isDark
 }
 
 /** Admission rules for the school's routes in the school's canton. Renders nothing when there are none. */
-export function AdmissionBox({ canton, routes, language, isDark }: BoxProps & { canton?: string; routes: string[] }) {
+export function AdmissionBox({ canton, routes, language, isDark, hintWithoutCanton = false }: BoxProps & { canton?: string; routes: string[]; hintWithoutCanton?: boolean }) {
   const data = usePathwayData();
-  if (!data || !canton) return null;
+  if (!data || routes.length === 0) return null;
+  if (!canton) {
+    return hintWithoutCanton ? <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{(UI[language] ?? UI.de).pickCanton}</p> : null;
+  }
   const list = admissionsFor(data.admissions, canton, routes);
   if (list.length === 0) return null;
   const ui = UI[language] ?? UI.de;

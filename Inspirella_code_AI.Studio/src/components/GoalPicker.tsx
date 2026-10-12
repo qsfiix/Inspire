@@ -101,12 +101,12 @@ export default function GoalPicker({ language, isDark, route, onChange, onClose,
 
   const pickProfession = (p: Profession) => {
     const level = levelOfProfessionType(p.professionType);
-    onChange({ targetProfessionId: p.id, targetInstitutionId: undefined, ...(level ? { targetLevel: level } : {}) });
+    onChange({ targetProfessionId: p.id, targetInstitutionId: undefined, targetLevel: level });
     onClose();
   };
   const pickSchool = (i: Institution) => {
     const level = levelOfSubgroup(i.subgroup);
-    onChange({ targetInstitutionId: i.id, targetProfessionId: undefined, ...(level ? { targetLevel: level } : {}) });
+    onChange({ targetInstitutionId: i.id, targetProfessionId: undefined, targetLevel: level });
     onClose();
   };
   const pickLevel = (level: Goal) => {

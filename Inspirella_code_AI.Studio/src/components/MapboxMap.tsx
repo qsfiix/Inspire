@@ -28,11 +28,13 @@ interface MapProps {
   accessToken?: string;
   styleUrl?: string;
   theme?: "dark" | "light";
+  /** Called after a school was made the goal (e.g. to open My Path). */
+  onGoalSet?: () => void;
 }
 
 type GeoInstitution = Institution & { coordinates: Coordinates };
 
-export default function MapboxMap({ currentLanguage, accessToken, styleUrl, theme = "dark" }: MapProps) {
+export default function MapboxMap({ currentLanguage, accessToken, styleUrl, theme = "dark", onGoalSet }: MapProps) {
   const [institutions, setInstitutions] = useState<Institution[]>(SWISS_INSTITUTIONS);
   const [selectedInst, setSelectedInst] = useState<Institution | null>(SWISS_INSTITUTIONS[0] ?? null);
   const [is3DMode, setIs3DMode] = useState<boolean>(true);
@@ -518,6 +520,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
                 isInCompare={isInCompare(selectedInst.id)}
                 compareDisabled={compareList.length >= MAX_COMPARE}
                 onToggleCompare={() => toggleCompare(selectedInst)}
+                onGoalSet={onGoalSet}
               />
             </motion.div>
           ) : (

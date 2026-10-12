@@ -119,7 +119,7 @@ export function DashboardView({
         onOpenTracker={() => handleTabTransition("tracker")}
       />
 
-      <section>
+      <section id="my-path">
         <MyPathLadder
           userProfile={userProfile}
           language={currentLanguage}

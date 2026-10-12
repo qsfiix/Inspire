@@ -1,3 +1,4 @@
+import { AdmissionBox } from "./PathwayInfo";
 import React, { useEffect, useMemo, useState } from "react";
 import { ExternalLink, MapPin } from "lucide-react";
 import type { CantonalLink, Institution, LanguageCode, LearningPathStep, Profession, ProfessionFacts, RouteBackground, TopicResource, TrackerGoal, TrainingCompany, UserProfile } from "../types";
@@ -334,6 +335,10 @@ export default function LadderExtras({ step, profession, profile, language, isDa
             </div>
           ))}
         </div>
+      )}
+
+      {hook === "schools" && topic === "bm" && canton && (
+        <AdmissionBox canton={canton} routes={["bms_bm1", "bms_bm2"]} language={language} isDark={isDark} />
       )}
 
       {hook === "schools" && topic === "bm" && shownResources.length > 0 && (

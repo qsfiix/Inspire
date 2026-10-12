@@ -22,6 +22,17 @@ export function admissionRoutesForInstitution(subgroup: string | undefined, focu
   return [...routes];
 }
 
+/** Admission routes a path step is about (learning_path_steps.hook = "admission", hook_topic). */
+export function routesForTopic(topic: string | undefined): string[] {
+  switch (topic) {
+    case "gymnasium": return ["gymnasium_kurz", "gymnasium_lang"];
+    case "fms": return ["fms"];
+    case "bm": return ["bms_bm1", "bms_bm2"];
+    case "hms": return ["hms"];
+    default: return [];
+  }
+}
+
 const ROUTE_ORDER = ["gymnasium_kurz", "gymnasium_lang", "fms", "hms", "bms_bm1", "bms_bm2"];
 
 export function admissionsFor(all: AdmissionCondition[], canton: string | undefined, routes: string[]): AdmissionCondition[] {
