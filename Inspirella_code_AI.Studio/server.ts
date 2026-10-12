@@ -255,14 +255,23 @@ async function startServer() {
         }
       })
     );
-    // An unknown profession/institution address must be a real 404, not the app
-    // shell with status 200 (search engines would index it as a "soft 404").
-    app.get(["/beruf/*", "/institution/*"], (req, res) => {
-      res.status(404).sendFile(path.join(distPath, "index.html"));
+    // A file address with a stray trailing slash (/llms.txt/, /sitemap.xml/) used to
+    // fall through to the app shell. Send it to the real file instead.
+    app.get(/^\/(.+\.[a-z0-9]{2,5})\/+$/i, (req, res) => {
+      res.redirect(301, "/" + req.params[0]);
     });
-    // Serve SPA index.html for all routes in production
+    // The app is a single page at "/": it has no other addresses of its own. Anything
+    // else that is not a file or a pre-rendered page is a real 404 (not the app shell
+    // with status 200, which search engines index as a "soft 404").
     app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      if (req.path === "/" || req.path === "/index.html") {
+        res.sendFile(path.join(distPath, "index.html"));
+        return;
+      }
+      const notFound = path.join(distPath, "404.html");
+      res.status(404).sendFile(notFound, err => {
+        if (err && !res.headersSent) res.status(404).sendFile(path.join(distPath, "index.html"));
+      });
     });
   }
 

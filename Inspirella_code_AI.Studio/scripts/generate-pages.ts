@@ -4,6 +4,9 @@
  *   /beruf/<slug>/        one page per active profession / programme
  *   /institution/<slug>/  one page per active institution
  *   /ueber-inspirella/    what Inspirella is (the German "About" copy + live counts)
+ *   /                     the app shell, with a plain-text home written into #root
+ *                         (React replaces it on load) so crawlers see more than an empty page
+ *   /404.html             served with status 404 for any unknown address (see server.ts)
  *
  * Why static files: Inspirella is a single-page app whose content lives in
  * Supabase, so crawlers (search engines, AI assistants) that do not run
@@ -254,8 +257,11 @@ ${o.indexable ? "" : '<meta name="robots" content="noindex, follow">\n'}<meta na
 <meta property="og:title" content="${esc(o.ogTitle)}">
 <meta property="og:description" content="${esc(o.description)}">
 <meta property="og:url" content="${esc(o.url)}">
-<meta property="og:image" content="${SITE}/logo-mark.png">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="${SITE}/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${SITE}/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script type="application/ld+json">${JSON.stringify(o.ld).replace(/</g, "\\u003c")}</script>
@@ -526,7 +532,8 @@ function renderAbout(counts: Counts): string {
     ["Berufe & Programme", String(counts.professions)],
     ["Schulen & Institutionen", String(counts.institutions)],
     ["Ressourcen", String(counts.resources)],
-    ["Sprachen", "DE · FR · IT · EN"]
+    ["Sprachen", "DE · FR · IT · EN"],
+    ["Stand der Daten", dataDate()]
   ])}
   <section class="card prose"><span class="eyebrow">${esc(t.aboutMissionEyebrow)}</span><p>${esc(t.aboutMissionBody)}</p><p>${esc(t.aboutPara1)}</p></section>
   <section class="card prose"><span class="eyebrow">${esc(t.aboutWhyEyebrow)}</span><p>${esc(t.aboutWhyBody)}</p></section>
@@ -551,6 +558,60 @@ function renderAbout(counts: Counts): string {
       description
     },
     main
+  });
+}
+
+// --------------------------------------------------------------------------
+// Home (written into the SPA shell) and 404
+// --------------------------------------------------------------------------
+
+const MONTHS_DE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+/** "Oktober 2026": when this build read the database. Shown as the data's "Stand". */
+function dataDate(d = new Date()): string {
+  return `${MONTHS_DE[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+interface HomeFeatured {
+  professions: Link[];
+  institutions: Link[];
+}
+
+/**
+ * Plain, readable home content for crawlers and no-JS visitors. It sits inside
+ * #root, so React discards it the moment the app mounts. Everything is inline:
+ * the app's own stylesheet knows nothing about it.
+ */
+function renderHomeBlock(counts: Counts, featured: HomeFeatured): string {
+  const list = (items: Link[]) =>
+    items.map(i => `<li><a href="${esc(i.href)}" style="color:#c4b5fd">${esc(i.title)}</a></li>`).join("");
+  return `<div style="max-width:760px;margin:0 auto;padding:56px 20px;font-family:Inter,system-ui,sans-serif;color:#e8e4f5;line-height:1.65">
+<h1 style="font:700 38px 'Space Grotesk',system-ui,sans-serif;margin:0 0 14px;line-height:1.15">Inspirella</h1>
+<p style="font-size:19px;margin:0 0 12px">Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take.</p>
+<p lang="de" style="color:#b7aed6;margin:0 0 24px">Inspirella hilft dir, dich im Schweizer Bildungssystem zurechtzufinden: Berufe, die zu dir passen, Schulen, wo du sie lernst, und der nächste kleine Schritt. Kostenlos, auf Deutsch, Französisch, Italienisch und Englisch.</p>
+<p style="margin:0 0 24px">${counts.professions} professions and programmes, ${counts.institutions} schools and institutions, ${counts.resources} official resources. Data as of ${esc(dataDate())}. Inspirella is an orientation tool, not an official authority: for binding information see <a href="https://www.berufsberatung.ch/" style="color:#c4b5fd">berufsberatung.ch</a> and your cantonal careers office (BIZ).</p>
+<p style="margin:0 0 28px"><a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a></p>
+<h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Professions</h2>
+<ul style="margin:0 0 24px;padding-left:20px">${list(featured.professions)}</ul>
+<h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Schools and institutions</h2>
+<ul style="margin:0;padding-left:20px">${list(featured.institutions)}</ul>
+<noscript><p style="margin-top:28px;color:#fdba74">The interactive app (map, personal path, tracker) needs JavaScript.</p></noscript>
+</div>`;
+}
+
+function render404(): string {
+  return layout({
+    docTitle: "Seite nicht gefunden | Inspirella",
+    ogTitle: "Seite nicht gefunden | Inspirella",
+    description: "Diese Adresse gibt es bei Inspirella nicht.",
+    url: SITE + "/",
+    indexable: false,
+    ld: { "@context": "https://schema.org", "@type": "WebPage", name: "Seite nicht gefunden" },
+    main: `  <header class="hero">
+    <div class="badges"><span class="badge warm">404</span></div>
+    <h1>Diese Seite gibt es nicht</h1>
+    <p class="lead">Der Link ist vielleicht veraltet oder falsch geschrieben. Von der Startseite aus findest du Berufe, Schulen und deinen persönlichen Weg.</p>
+    <div class="cta-row"><a class="btn btn-primary" href="/">Zur Startseite →</a><a class="btn btn-sec" href="/ueber-inspirella/">Über Inspirella</a></div>
+  </header>`
   });
 }
 
@@ -672,7 +733,31 @@ async function main() {
     urls.push({ loc: `${SITE}/institution/${slug}/`, lastmod: lastmodOf(i) });
   }
 
-  await writePage(["ueber-inspirella"], renderAbout({ professions: professions.length, institutions: institutions.length, resources: resourceCount ?? 0 }));
+  const counts: Counts = { professions: professions.length, institutions: institutions.length, resources: resourceCount ?? 0 };
+  await writePage(["ueber-inspirella"], renderAbout(counts));
+  await fs.writeFile(path.join(DIST, "404.html"), render404(), "utf8");
+
+  // Home: write plain content into the app shell. Featured links = the best-connected records.
+  const popular = (m: Map<string, Link[]>, pick: Map<string, { slug: string; title: string }>, base: string, n: number): Link[] =>
+    [...m.entries()]
+      .sort((a, b) => b[1].length - a[1].length)
+      .slice(0, n)
+      .map(([id]) => ({ title: pick.get(id)!.title, href: `/${base}/${pick.get(id)!.slug}/` }));
+  const featured: HomeFeatured = {
+    professions: popular(schoolsByProfession, profInfo, "beruf", 12),
+    institutions: popular(professionsByInstitution, instInfo, "institution", 12)
+  };
+  try {
+    const shellPath = path.join(DIST, "index.html");
+    const shell = await fs.readFile(shellPath, "utf8");
+    if (shell.includes("<!--prerender-home-->")) {
+      await fs.writeFile(shellPath, shell.replace("<!--prerender-home-->", renderHomeBlock(counts, featured)), "utf8");
+    } else {
+      console.warn("[pages] Home marker not found in dist/index.html - home left as is.");
+    }
+  } catch (err: any) {
+    console.warn("[pages] Could not write the home content:", err?.message || err);
+  }
 
   const sitemap =
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +

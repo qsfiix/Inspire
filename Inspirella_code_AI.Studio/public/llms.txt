@@ -9,7 +9,14 @@
 - **Map**: an interactive map of Swiss schools and institutions.
 - **Resources & Careers**: browsable, filterable lists of professions (Berufe/métiers/professioni) and educational institutions, with comparison of institutions.
 - **Tracker**: personal saved items and progress (requires an account).
-- **AI advisor**: a rate-limited assistant that suggests a Swiss education path.
+- **AI explanation**: an optional, rate-limited assistant that explains a suggested path (currently switched off; the recommendations themselves are rule-based).
+
+## Facts (state: October 2026)
+
+- About 1,650 professions and education programmes (Lehre EFZ/EBA, Fachausweis, Diplom, HF, FH, university), about 530 schools, universities and training centres, and about 500 curated official resources.
+- Pathway data beyond single records: transitions between education levels (e.g. second EFZ, Gymnasium later, Passerelle, FMS to HF), bridge-year and pre-apprenticeship programmes across the cantons, and admission rules for Gymnasium, FMS and Berufsmaturität per canton, each with a source link.
+- Everything is paraphrased from official public sources (mainly berufsberatung.ch, cantonal offices and the schools themselves). Records are marked "Verified" or "Provisional" in the app. Salary data is not yet included.
+- The service is free. The recommendations are rule-based (no generative AI decides the path); the optional AI explanation is switched off at the moment.
 
 ## Languages
 

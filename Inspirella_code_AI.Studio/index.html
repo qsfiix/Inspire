@@ -6,17 +6,26 @@
     <title>Inspirella | Swiss Educational Discovery & Life Tracker</title>
     <meta name="description" content="Inspirella helps students and families explore Switzerland's dual-track education system - schools, vocational paths, and careers - with personalized, trustworthy guidance." />
     <meta name="theme-color" content="#0d0618" />
+    <link rel="canonical" href="https://www.inspirella.ch/" />
 
     <link rel="icon" type="image/png" href="/logo-mark.png" />
 
     <!-- Open Graph / social preview -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Inspirella" />
+    <meta property="og:url" content="https://www.inspirella.ch/" />
+    <meta property="og:image" content="https://www.inspirella.ch/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Inspirella - Switzerland's education system as one clear, personal path" />
     <meta property="og:title" content="Inspirella | Swiss Educational Discovery & Life Tracker" />
     <meta property="og:description" content="Personalized guidance through Switzerland's dual-track education system - schools, vocational paths, and careers." />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.inspirella.ch/og-image.png" />
     <meta name="twitter:title" content="Inspirella | Swiss Educational Discovery & Life Tracker" />
     <meta name="twitter:description" content="Personalized guidance through Switzerland's dual-track education system - schools, vocational paths, and careers." />
+
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.inspirella.ch/#org","name":"Inspirella","url":"https://www.inspirella.ch/","logo":"https://www.inspirella.ch/logo-mark.png","description":"Free guidance platform for Switzerland's education system: careers, schools and a personal path."},{"@type":"WebSite","@id":"https://www.inspirella.ch/#site","url":"https://www.inspirella.ch/","name":"Inspirella","inLanguage":["de","fr","it","en"],"publisher":{"@id":"https://www.inspirella.ch/#org"}}]}</script>
 
     <!-- Mapbox GL CSS CDN -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet" />
@@ -24,7 +33,7 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
   </head>
   <body class="bg-[#030008] text-slate-100">
-    <div id="root"></div>
+    <div id="root"><!--prerender-home--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
