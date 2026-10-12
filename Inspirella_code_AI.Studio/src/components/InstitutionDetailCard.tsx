@@ -4,6 +4,7 @@ import { Institution, LanguageCode, ProfessionInstitutionLink } from "../types";
 import { TRANSLATIONS } from "../data";
 import { DataRepository } from "../data/Repository";
 import { localizedText } from "../lib/localized";
+import { categoryLabel } from "../lib/categoryLabels";
 import { isTrusted, isProvisional } from "../lib/quality";
 
 interface InstitutionDetailCardProps {
@@ -92,7 +93,7 @@ export default function InstitutionDetailCard({
                 <span className={`inline-block text-[11px] font-mono px-1.5 py-0.5 rounded ${
                   isDark ? "bg-violet-950/40 text-violet-300" : "bg-purple-100 text-violet-950 font-bold"
                 }`}>
-                  {institution.category.replace(/_/g, " ").toUpperCase()}
+                  {categoryLabel(institution.category, currentLanguage)}
                 </span>
               )}
               <span className={`text-[11px] font-mono ${isDark ? "text-zinc-400" : "text-violet-950/70 font-semibold"}`}>

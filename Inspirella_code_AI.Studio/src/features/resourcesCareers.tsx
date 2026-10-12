@@ -21,6 +21,7 @@ import { isProvisional, isTrusted } from "../lib/quality";
 import InstitutionCompareModal from "../components/InstitutionCompareModal";
 import InstitutionDetailCard from "../components/InstitutionDetailCard";
 import SectionGlow from "../components/SectionGlow";
+import { categoryLabel } from "../lib/categoryLabels";
 
 const MAX_COMPARE = 3;
 
@@ -183,7 +184,7 @@ function ResourcesPanel({
                     : isDark ? "text-zinc-300 hover:text-white" : "text-black hover:text-violet-950 font-bold"
                 }`}
               >
-                {cat === "all" ? t.filterAll : cat.replace(/_/g, " ")}
+                {cat === "all" ? t.filterAll : categoryLabel(cat, currentLanguage)}
               </button>
             ))}
           </div>
@@ -215,10 +216,10 @@ function ResourcesPanel({
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-1.5">
                 {res.category && (
-                  <span className={`inline-block text-[11px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
+                  <span className={`inline-block text-[11px] font-mono font-bold tracking-wide px-2 py-0.5 rounded border ${
                     isDark ? "text-violet-400 bg-violet-950/30 border-violet-800/20" : "text-violet-950 bg-violet-100 border-violet-950/20 font-black shadow-sm"
                   }`}>
-                    {res.category.replace(/_/g, " ")}
+                    {categoryLabel(res.category, currentLanguage)}
                   </span>
                 )}
 
@@ -320,6 +321,22 @@ function ResourcesPanel({
 }
 
 /** Professions sub-panel - unchanged content/logic, moved here from dashboard.tsx. */
+/** Placeholder rows while a catalog loads; the text stays available to screen readers. */
+function ListSkeleton({ label, isDark }: { label: string; isDark: boolean }) {
+  const bar = isDark ? "bg-white/[0.06]" : "bg-violet-200/60";
+  return (
+    <div role="status" aria-live="polite" className="space-y-2">
+      <span className="sr-only">{label}</span>
+      {[0, 1, 2, 3, 4].map(i => (
+        <div key={i} aria-hidden="true" className={`w-full p-3.5 rounded-xl border animate-pulse ${isDark ? "border-white/5" : "border-purple-200"}`}>
+          <div className={`h-3 rounded ${bar}`} style={{ width: `${70 - i * 7}%` }} />
+          <div className={`h-2.5 rounded mt-2 ${bar}`} style={{ width: "35%" }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
   const [professionsList, setProfessionsList] = useState<Profession[]>([]);
   const [profLoading, setProfLoading] = useState(true);
@@ -431,13 +448,13 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
               <button
                 key={cat}
                 onClick={() => setCatFilter(cat)}
-                className={`px-2.5 py-1 rounded-lg text-[11px] uppercase font-mono tracking-wider transition cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${
                   catFilter === cat
                     ? isDark ? "bg-violet-900/40 text-violet-300 border border-violet-800 font-extrabold" : "bg-violet-600 text-white font-black"
                     : isDark ? "text-zinc-400 hover:text-white border border-transparent" : "text-violet-950 hover:text-violet-600 font-extrabold"
                 }`}
               >
-                {cat === "all" ? t.filterAll : cat.replace(/_/g, " ")}
+                {cat === "all" ? t.filterAll : categoryLabel(cat, currentLanguage)}
               </button>
             ))}
           </div>
@@ -448,9 +465,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
         {/* Professions list selection column */}
         <div className="md:col-span-5 space-y-2 max-h-[380px] overflow-y-auto pr-1">
           {profLoading ? (
-            <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-white/10 text-zinc-500" : "border-purple-200 text-violet-950/50"}`}>
-              <p className="text-xs">{t.professionsLoading}</p>
-            </div>
+            <ListSkeleton label={t.professionsLoading} isDark={isDark} />
           ) : profLoadError ? (
             <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-amber-500/20 text-amber-500" : "border-amber-300 text-amber-700"}`}>
               <p className="text-xs">{t.professionsLoadError}</p>
@@ -481,7 +496,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                     </span>
                     <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
                       {p.category && (
-                        <span className={`px-1.5 py-0.5 rounded border ${isDark ? "border-white/10 bg-black" : "border-purple-200 bg-white"}`}>{p.category.toUpperCase()}</span>
+                        <span className={`px-1.5 py-0.5 rounded border ${isDark ? "border-white/10 bg-black" : "border-purple-200 bg-white"}`}>{categoryLabel(p.category, currentLanguage)}</span>
                       )}
 
                       {isProvisional(p.status) && (
@@ -537,7 +552,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                         <span className={`inline-block text-[11px] font-mono px-1.5 py-0.5 mt-1 rounded ${
                           isDark ? "bg-violet-950/40 text-violet-300" : "bg-purple-100 text-violet-950 font-bold"
                         }`}>
-                          {selectedProf.category.replace(/_/g, " ").toUpperCase()}
+                          {categoryLabel(selectedProf.category, currentLanguage)}
                         </span>
                       )}
                     </div>
@@ -550,11 +565,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                         </div>
                         <span className="text-[11px] uppercase tracking-wider font-mono text-zinc-400">{t.professionSalaryLabel}</span>
                       </div>
-                    ) : (
-                      <div className="text-right">
-                        <span className="text-[11px] uppercase tracking-wider font-mono text-zinc-400">{t.professionSalaryUnknown}</span>
-                      </div>
-                    )}
+                    ) : null}
                   </div>
 
                   {localizedText(selectedProf.description, currentLanguage) && (
@@ -575,22 +586,24 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                    <div className="card-premium p-3">
-                      <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">
-                        {t.professionEducationRequired}
-                      </span>
-                      <p className={`text-xs leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
-                        {localizedText(selectedProf.educationRequired, currentLanguage) || t.dataNotAvailable}
-                      </p>
-                    </div>
+                  {(localizedText(selectedProf.educationRequired, currentLanguage) || typeof selectedProf.isApprenticeshipPath === "boolean") && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                      {localizedText(selectedProf.educationRequired, currentLanguage) && (
+                        <div className="card-premium p-3">
+                          <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">
+                            {t.professionEducationRequired}
+                          </span>
+                          <p className={`text-xs leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
+                            {localizedText(selectedProf.educationRequired, currentLanguage)}
+                          </p>
+                        </div>
+                      )}
 
-                    <div className="card-premium p-3 flex flex-col justify-between text-left">
-                      <div>
-                        <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">
-                          {t.professionVetLabel}
-                        </span>
-                        {typeof selectedProf.isApprenticeshipPath === "boolean" ? (
+                      {typeof selectedProf.isApprenticeshipPath === "boolean" && (
+                        <div className="card-premium p-3 text-left">
+                          <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">
+                            {t.professionVetLabel}
+                          </span>
                           <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-bold font-mono ${
                             selectedProf.isApprenticeshipPath
                               ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
@@ -598,19 +611,16 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t }: any) {
                           }`}>
                             {selectedProf.isApprenticeshipPath ? t.professionVetCompatible : t.professionVetTertiary}
                           </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-bold font-mono bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">
-                            {t.dataNotAvailable}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="pt-2 border-t border-white/5 mt-2 flex items-center justify-between text-[11px] font-mono text-zinc-400">
-                        <span>{t.professionDemand}: {selectedProf.demandLevel || t.dataNotAvailable}</span>
-                        <span>{t.professionOutlook}: {(selectedProf.outlook || t.dataNotAvailable).toUpperCase()}</span>
-                      </div>
+                          {(selectedProf.demandLevel || selectedProf.outlook) && (
+                            <div className="pt-2 border-t border-white/5 mt-2 flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                              {selectedProf.demandLevel && <span>{t.professionDemand}: {selectedProf.demandLevel}</span>}
+                              {selectedProf.outlook && <span>{t.professionOutlook}: {selectedProf.outlook}</span>}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  )}
 
                   {(localizedText(selectedProf.dailyWorkContext, currentLanguage) || localizedText(selectedProf.typicalWorkplace, currentLanguage)) && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -843,13 +853,13 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
               <button
                 key={cat}
                 onClick={() => setCatFilter(cat)}
-                className={`px-2.5 py-1 rounded-lg text-[11px] uppercase font-mono tracking-wider transition cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${
                   catFilter === cat
                     ? isDark ? "bg-violet-900/40 text-violet-300 border border-violet-800 font-extrabold" : "bg-violet-600 text-white font-black"
                     : isDark ? "text-zinc-400 hover:text-white border border-transparent" : "text-violet-950 hover:text-violet-600 font-extrabold"
                 }`}
               >
-                {cat === "all" ? t.filterAll : cat.replace(/_/g, " ")}
+                {cat === "all" ? t.filterAll : categoryLabel(cat, currentLanguage)}
               </button>
             ))}
           </div>
@@ -860,9 +870,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
         {/* Institutions list selection column */}
         <div className="md:col-span-5 space-y-2 max-h-[420px] overflow-y-auto pr-1">
           {instLoading ? (
-            <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-white/10 text-zinc-500" : "border-purple-200 text-violet-950/50"}`}>
-              <p className="text-xs">{t.institutionsLoading}</p>
-            </div>
+            <ListSkeleton label={t.institutionsLoading} isDark={isDark} />
           ) : instLoadError ? (
             <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-amber-500/20 text-amber-500" : "border-amber-300 text-amber-700"}`}>
               <p className="text-xs">{t.institutionsLoadError}</p>
@@ -888,7 +896,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t }: any) {
                     <span className="block font-bold text-xs truncate">{inst.title}</span>
                     <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
                       {inst.category && (
-                        <span className={`px-1.5 py-0.5 rounded border ${isDark ? "border-white/10 bg-black" : "border-purple-200 bg-white"}`}>{inst.category.replace(/_/g, " ").toUpperCase()}</span>
+                        <span className={`px-1.5 py-0.5 rounded border ${isDark ? "border-white/10 bg-black" : "border-purple-200 bg-white"}`}>{categoryLabel(inst.category, currentLanguage)}</span>
                       )}
                       {inst.canton && <span>{inst.canton}</span>}
                       {isProvisional(inst.status) && (

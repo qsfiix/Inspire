@@ -4,7 +4,7 @@ import { EducationLevel, Institution, ResourceItem, LanguageCode } from "./types
 export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   en: {
     // Navigation
-    navHome: "Public Home",
+    navHome: "Home",
     navAbout: "About Us",
     navContact: "Contact",
     navDashboard: "My Dashboard",
