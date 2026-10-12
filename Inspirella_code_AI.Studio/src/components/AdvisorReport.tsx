@@ -66,13 +66,15 @@ const LANGUAGE_NAMES: Record<LanguageCode, string> = {
  * top result in the same list (not an absolute scale - the engine has
  * none). Raw score stays available in the tooltip for transparency.
  */
-function MatchBadge({ score, topScore, isDark, reasons, t }: { score: number; topScore: number; isDark: boolean; reasons: string[]; t: Record<string, string> }) {
+function MatchBadge({ score, topScore, isDark, reasons, t, fit }: { score: number; topScore: number; isDark: boolean; reasons: string[]; t: Record<string, string>; fit?: "specific" | "field" | "weak" }) {
   const ratio = topScore > 0 ? score / topScore : 0;
   // Relative rank alone can't make something a "Strong match": it also needs
   // at least one real reason (trust labels like "Provisional data" don't count).
   const realReasons = reasons.filter(r => !PROVISIONAL_REASON.test(r)).length;
   const ranked = ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : 1;
-  const level = realReasons === 0 ? 1 : realReasons === 1 ? Math.min(ranked, 2) : ranked;
+  const byReasons = realReasons === 0 ? 1 : realReasons === 1 ? Math.min(ranked, 2) : ranked;
+  // A match that only shares the broad sector never reads as a strong one.
+  const level = fit === "field" || fit === "weak" ? 1 : byReasons;
   const label = level === 3 ? t.arStrong : level === 2 ? t.arGood : t.arWorth;
   const tone =
     level === 3
@@ -375,7 +377,7 @@ export default function AdvisorReport({
                         <span className={`font-bold text-sm ${isDark ? "text-violet-100" : "text-violet-950"}`}>
                           {localizedText(rp.profession.title, language)}
                         </span>
-                        <MatchBadge score={rp.score} topScore={topProfessionScore} isDark={isDark} reasons={rp.matchReasons} t={t} />
+                        <MatchBadge score={rp.score} topScore={topProfessionScore} isDark={isDark} reasons={rp.matchReasons} t={t} fit={rp.fit} />
                       </div>
                       <div className={`text-xs mt-2 space-y-1 ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
                         {rp.matchReasons.filter(r => !PROVISIONAL_REASON.test(r)).map((reason, i) => (

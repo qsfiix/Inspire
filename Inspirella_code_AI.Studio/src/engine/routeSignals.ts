@@ -107,6 +107,80 @@ export function interestMatchesCategory(interests: string[], category: string | 
   return interests.some(i => INTEREST_CATEGORIES[i]?.includes(category));
 }
 
+/**
+ * "tech" names a whole sector (industry_technology_it holds hundreds of trades),
+ * so the category alone says little. These word stems tell whether a profession
+ * is really about the field: matched at the start of a word, in any language,
+ * so "Operationstechnik" or "Weber" never fire on "tech" or "web".
+ */
+const TOPIC_STEMS: Record<string, { starts: string[]; words: string[] }> = {
+  tech: {
+    starts: ["informatik", "software", "entwickl", "programmier", "cyber", "netzwerk", "cloud", "digital", "mediamati", "applikation", "systemadmin", "datenbank", "daten", "data", "robot", "mechatronik", "elektronik", "elektrotech", "automatik", "ingenieur", "engineer", "informatique", "développeur", "developer", "programmer", "informatica", "sviluppator", "ingegner", "ingénieur", "algorith", "machine learning", "künstliche intelligenz"],
+    words: ["ux", "ui", "it", "ict", "ki", "ai", "devops", "scrum"]
+  },
+  business: {
+    starts: ["kauf", "betriebswirt", "betriebsökonom", "wirtschaft", "treuhand", "finanz", "bank", "versicherung", "marketing", "verkauf", "handel", "buchhalt", "revis", "steuer", "management", "unternehm", "commerc", "gestion", "économi", "economi", "finance", "banc", "assicur", "personalfach", "human resources"],
+    words: ["hr", "manager", "managerin", "cfo", "controlling"]
+  },
+  arts: {
+    starts: ["design", "gestalt", "grafik", "kunst", "künstler", "musik", "schauspiel", "tänzer", "tanz", "theater", "film", "foto", "medien", "kommunikation", "journalis", "redakt", "architekt", "mode", "artiste", "musique", "musica", "arte", "photograph", "illustr"],
+    words: []
+  }
+};
+
+const topicRegexCache = new Map<string, RegExp>();
+function topicRegex(interest: string): RegExp | null {
+  const t = TOPIC_STEMS[interest];
+  if (!t) return null;
+  let re = topicRegexCache.get(interest);
+  if (!re) {
+    const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const parts = [...t.starts.map(s => `(^|[^\\p{L}])${esc(s)}`), ...t.words.map(w => `(^|[^\\p{L}])${esc(w)}($|[^\\p{L}])`)];
+    re = new RegExp(parts.join("|"), "iu");
+    topicRegexCache.set(interest, re);
+  }
+  return re;
+}
+
+/** True when the profession title is really about one of the user's field interests. */
+export function titleMatchesInterestTopic(interests: string[], titles: string): boolean {
+  if (!titles) return false;
+  return interests.some(i => topicRegex(i)?.test(titles) ?? false);
+}
+
+/** True when an interest names a field with a topic vocabulary (tech, business, arts). */
+export function interestHasTopic(interests: string[]): boolean {
+  return interests.some(i => i in TOPIC_STEMS);
+}
+
+/**
+ * Score change for a profession's qualification level against where the user
+ * already stands. Someone at university, or with a Matura, an HF or an EFZ,
+ * is rarely served by a two-year Berufsattest: it ranks down unless they say
+ * they want a vocational path. Higher education levels get a small lift.
+ * Only the entry state is needed, so a profile without route answers works too.
+ */
+export function levelFitAdjustment(entry: string, professionType: string | undefined, interests: string[], targetLevel?: string): number {
+  if (!professionType) return 0;
+  if (targetLevel && targetLevel !== "undecided") return 0; // the stated target decides, see professionRouteSignal
+  const vocational = interests.includes("vocational");
+  const above = ["matura", "hf", "bachelor", "master"].includes(entry);
+  if (above) {
+    const heavy = entry === "bachelor" || entry === "master" || entry === "hf";
+    if (professionType === "apprenticeship_eba") return vocational ? -20 : heavy ? -60 : -45;
+    if (professionType === "apprenticeship_efz") return vocational ? -10 : heavy ? -45 : -30;
+    if (professionType === "fh_bachelor" || professionType === "university") return entry === "bachelor" || entry === "master" ? 12 : 15;
+    // Further-education qualifications for people with work experience: not a first pick for a student.
+    if ((professionType === "fachausweis" || professionType === "diplom") && entry !== "hf") return -8;
+    return 0;
+  }
+  if (entry === "efz") {
+    if (professionType === "apprenticeship_eba") return -50;
+    if (professionType === "apprenticeship_efz") return -10;
+  }
+  return 0;
+}
+
 /** Which institution subgroups realistically deliver a stated target level. */
 export const TARGET_INSTITUTION_SUBGROUPS: Record<string, string[]> = {
   apprenticeship: ["vocational_school"],

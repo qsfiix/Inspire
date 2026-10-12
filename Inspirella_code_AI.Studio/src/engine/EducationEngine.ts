@@ -1,5 +1,5 @@
 import { UserProfile, Profession, Institution, ResourceItem, LanguageCode, RouteBackground } from "../types";
-import { institutionFitsTarget, interestMatchesCategory, languageFit, professionRouteSignal } from "./routeSignals";
+import { institutionFitsTarget, interestHasTopic, interestMatchesCategory, languageFit, levelFitAdjustment, professionRouteSignal, titleMatchesInterestTopic } from "./routeSignals";
 import { deriveEntry, languageGapInfo, TargetState } from "./pathPlanner";
 import { EngineConfig, hasSemanticMatch, isHighDemand, getTranslatedString, resolveApprenticeship } from "./engineConfig";
 
@@ -7,6 +7,11 @@ export interface ScoredProfession {
   profession: Profession;
   score: number;
   matchReasons: string[];
+  /**
+   * How well the match is founded. "specific": the title is about the user's field or the profession
+   * is the stated target; "field": only the broad category fits; "weak": nothing but trust and richness.
+   */
+  fit: "specific" | "field" | "weak";
 }
 
 export interface ScoredInstitution {
@@ -61,7 +66,9 @@ export class EducationEngine {
 
     // 3. Score & filter professions
     const professions = this.scoreProfessions();
-    const topProfessions = professions.slice(0, 3); // Top 3
+    // Better two precise matches than three where one only shares the sector.
+    const specific = professions.filter(p => p.fit === "specific");
+    const topProfessions = (specific.length >= 2 ? specific : professions).slice(0, 3); // Top 3
 
     // 4. Score & filter institutions
     const institutions = this.scoreInstitutions(topProfessions);
@@ -162,17 +169,33 @@ export class EducationEngine {
         matchReasons.push(this.translate("High industry demand.", "Hohe Nachfrage in der Industrie.", "Forte demande dans l'industrie.", "Alta domanda nel settore."));
       }
 
-      // Category matching. prof.category comes from professions.sector, a free-text
-      // column (real values seen in production: technology, engineering, healthcare,
-      // business, science, design, hospitality, skilled_trades, education, law,
-      // social_care - not the fixed "engineering"/"IT" labels this used to check for),
-      // so the "tech" interest is matched against every sector that is actually tech-adjacent.
-      if (this.profile.interests.includes(prof.category) ||
-          interestMatchesCategory(this.profile.interests, prof.category) ||
-          (this.profile.interests.includes("tech") &&
-            (prof.category === "technology" || prof.category === "engineering" || prof.category === "IT" || prof.category === "science"))) {
-        score += EngineConfig.weights.alignment.primaryInterest;
-        matchReasons.push(this.translate("Aligns with your primary interests.", "Stimmt mit deinen Hauptinteressen überein.", "Correspond à tes intérêts principaux.", "In linea con i tuoi interessi principali."));
+      // Field matching. prof.category is a coarse sector: "tech" alone matches hundreds
+      // of trades, so a category hit is only a weak signal. The strong one is the title
+      // actually being about the user's field (software, finance, design, ...).
+      const allTitles = typeof prof.title === "string" ? prof.title : Object.values(prof.title ?? {}).filter(Boolean).join(" ");
+      const interests = this.profile.interests ?? [];
+      const categoryHit =
+        interests.includes(prof.category) ||
+        interestMatchesCategory(interests, prof.category) ||
+        (interests.includes("tech") && (prof.category === "technology" || prof.category === "engineering" || prof.category === "IT" || prof.category === "science"));
+      const topicHit = titleMatchesInterestTopic(interests, allTitles);
+      let fit: ScoredProfession["fit"] = "weak";
+      if (topicHit) {
+        score += EngineConfig.weights.alignment.primaryInterest + EngineConfig.weights.alignment.semanticMatch;
+        matchReasons.push(this.translate("The profession is about your field of interest.", "Der Beruf gehört zu deinem Interessengebiet.", "Ce métier relève de ton domaine d'intérêt.", "Questa professione rientra nel tuo ambito di interesse."));
+        fit = "specific";
+      } else if (categoryHit) {
+        // Same sector, nothing in the title that ties it to the interest: a small push only,
+        // and none at all when the interest has a topic vocabulary and the title lacks it.
+        if (!interestHasTopic(interests)) {
+          score += EngineConfig.weights.alignment.primaryInterest;
+          matchReasons.push(this.translate("Aligns with your primary interests.", "Stimmt mit deinen Hauptinteressen überein.", "Correspond à tes intérêts principaux.", "In linea con i tuoi interessi principali."));
+          fit = "field";
+        } else {
+          score += 8;
+          matchReasons.push(this.translate("Same broad sector, but not specific to your interest.", "Gleiche Branche, aber nicht gezielt auf dein Interesse.", "Même secteur, mais pas ciblé sur ton intérêt.", "Stesso settore, ma non mirato al tuo interesse."));
+          fit = "field";
+        }
       }
 
       // Semantic matching in description or title. The keywords are English
@@ -218,10 +241,24 @@ export class EducationEngine {
         matchReasons.push(this.translate("Needs an earlier qualification first.", "Setzt zuerst einen früheren Abschluss voraus.", "Nécessite d'abord un diplôme préalable.", "Richiede prima un titolo precedente."));
       }
 
-      return { profession: prof, score, matchReasons };
+      // Where the user already stands (derived from the route answers or the current stage).
+      const { entry } = deriveEntry(this.route, this.profile);
+      const levelAdj = levelFitAdjustment(entry, prof.professionType, interests, this.route?.targetLevel);
+      if (levelAdj !== 0) {
+        score += levelAdj;
+        if (levelAdj < 0) matchReasons.push(this.translate("Below the level you already have.", "Unterhalb deines bisherigen Niveaus.", "En dessous du niveau que tu as déjà.", "Sotto il livello che hai già."));
+        else matchReasons.push(this.translate("Fits your current level.", "Passt zu deinem jetzigen Niveau.", "Correspond à ton niveau actuel.", "Adatto al tuo livello attuale."));
+      }
+
+      if (this.route?.targetProfessionId && prof.id === this.route.targetProfessionId) fit = "specific";
+      else if (routeSignal === "target-match" && fit === "weak") fit = "field";
+
+      return { profession: prof, score, matchReasons, fit };
     });
 
-    return scored.sort((a, b) => b.score - a.score);
+    // Equal scores must not come out in database order: specific matches first, then richer records.
+    const fitRank = { specific: 0, field: 1, weak: 2 } as const;
+    return scored.sort((a, b) => b.score - a.score || fitRank[a.fit] - fitRank[b.fit] || a.profession.id.localeCompare(b.profession.id));
   }
 
   private scoreInstitutions(topProfessions: ScoredProfession[]): ScoredInstitution[] {
