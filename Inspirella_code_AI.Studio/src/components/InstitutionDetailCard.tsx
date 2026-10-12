@@ -6,6 +6,12 @@ import { DataRepository } from "../data/Repository";
 import { localizedText } from "../lib/localized";
 import { categoryLabel } from "../lib/categoryLabels";
 import { isTrusted, isProvisional } from "../lib/quality";
+import { AdmissionBox } from "./PathwayInfo";
+import { admissionRoutesForInstitution } from "../lib/pathwayInfo";
+
+// Focus flags (BM directions, FMS) for every institution: one fetch, shared by all cards.
+let focusAreasCache: Promise<Map<string, { code: string; note?: string }[]>> | null = null;
+const loadFocusAreas = () => (focusAreasCache ??= DataRepository.getInstitutionFocusAreas());
 
 interface InstitutionDetailCardProps {
   institution: Institution;
@@ -54,6 +60,16 @@ export default function InstitutionDetailCard({
     return () => { active = false; };
   }, []);
   const institutionProfessions = professionLinks.filter(link => link.institutionId === institution.id);
+
+  const [focusCodes, setFocusCodes] = useState<string[]>([]);
+  useEffect(() => {
+    let active = true;
+    loadFocusAreas().then(map => {
+      if (active) setFocusCodes((map.get(institution.id) ?? []).map(f => f.code));
+    });
+    return () => { active = false; };
+  }, [institution.id]);
+  const admissionRoutes = admissionRoutesForInstitution(institution.subgroup, focusCodes);
 
   return (
     <div className="flex flex-col justify-between h-full space-y-4">
@@ -204,6 +220,9 @@ export default function InstitutionDetailCard({
             </p>
           </div>
         )}
+
+        {/* How to get in: the canton's rules for the routes this school offers (Gymnasium, FMS, BM). */}
+        <AdmissionBox canton={institution.canton} routes={admissionRoutes} language={currentLanguage} isDark={isDark} />
 
         {/* Institution -> profession pathways, reverse of "Where to study
             this" on the profession card. Honest empty: most institutions

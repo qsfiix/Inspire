@@ -364,6 +364,56 @@ export interface ProfessionFacts {
   sourceUrl?: string;
 }
 
+/** How to get in, per canton and route (admission_conditions). German source text; dates are "as printed on the page". */
+export interface AdmissionCondition {
+  id: string;
+  /** Two-letter canton code, e.g. ZH. */
+  canton: string;
+  /** gymnasium_kurz | gymnasium_lang | fms | hms | bms_bm1 | bms_bm2 */
+  route: string;
+  headline?: string;
+  requirements?: string;
+  examInfo?: string;
+  deadline?: string;
+  timing?: string;
+  costNote?: string;
+  url?: string;
+  verified: boolean;
+}
+
+/** A bridge or preparation offer (education_programs): Brückenangebot, Vorlehre, Motivationssemester, Passerelle... */
+export interface EducationProgram {
+  id: string;
+  /** bridge_year | vorlehre | integration_vorlehre | motivation_semester | passerelle | matura_prep | fms_profile | other */
+  kind: string;
+  canton: string;
+  title: string;
+  description?: string;
+  provider?: string;
+  targetGroup?: string;
+  duration?: string;
+  admission?: string;
+  url?: string;
+  verified: boolean;
+}
+
+/** A way from one stage of the Swiss system to another (education_transitions). */
+export interface EducationTransition {
+  id: string;
+  /** Node vocabulary: sek1, efz, eba, bm1, bm2, berufsmatura, gymnasium, gym_matura, fms, fachmatura, passerelle, hf, fa, diplom_hfp, fh, ph, uni, master, work, adult, bridge. */
+  from: string;
+  to: string;
+  /** direct | with_exam | shortened | second_chance | with_bridge | after_work */
+  kind: string;
+  label: string;
+  conditions?: string;
+  duration?: string;
+  typicalAge?: string;
+  notes?: string;
+  url?: string;
+  verified: boolean;
+}
+
 /** A national or cantonal how-to resource by topic (resources.topic_code). */
 export interface TopicResource {
   topic: string;

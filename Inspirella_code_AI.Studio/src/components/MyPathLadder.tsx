@@ -3,6 +3,8 @@ import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ArrowRight, CheckCircle2, ListPlus, Plus, Repeat, Sparkles, Trophy, GitBranch } from "lucide-react";
 import { LanguageCode, LearningPath, RouteBackground, TrackerChecklistItem, TrackerGoal, UserProfile } from "../types";
 import { useEducationEngine, ROUTE_CHANGED_EVENT } from "../engine/useEducationEngine";
+import { BridgeBox, NextWaysBox } from "./PathwayInfo";
+import { nodesForGoal } from "../lib/pathwayInfo";
 import { LADDER_CODE, PHASE_BY_ORDER, PLAN_B_TEXT, instantiateLadder, ladderApplies, lehrbeginnYear, phaseWindow, planBSeason, routeToLadderPath, windowLabel } from "../engine/ladder";
 import { buildPersonalRoute } from "../engine/pathPlanner";
 import { getOnboardingCopy } from "../features/onboardingCopy";
@@ -1126,6 +1128,7 @@ export default function MyPathLadder({
                             {PLAN_B_TEXT[language] ?? PLAN_B_TEXT.de}
                           </div>
                         )}
+                        {planB && <BridgeBox canton={userProfile?.preferredCanton} language={language} isDark={isDark} />}
                       </div>
                     );
                   })()}
@@ -1224,6 +1227,7 @@ export default function MyPathLadder({
                     {localizedText(mainPath.description, language)}
                   </p>
                 )}
+                <NextWaysBox nodes={nodesForGoal(mainProfession?.professionType, route?.targetLevel)} language={language} isDark={isDark} />
               </div>
             )}
 

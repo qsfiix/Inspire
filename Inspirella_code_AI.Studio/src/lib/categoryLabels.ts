@@ -28,7 +28,11 @@ const LABELS: Record<string, Labels> = {
   apprenticeship: { de: "Lehre", en: "Apprenticeship", fr: "Apprentissage", it: "Apprendistato" },
   scholarship: { de: "Stipendien", en: "Scholarships", fr: "Bourses", it: "Borse di studio" },
   visa_guide: { de: "Visum & Einreise", en: "Visa & entry", fr: "Visa et entrée", it: "Visto e ingresso" },
-  // institutions
+  // institutions (groups, then types)
+  secondary_education: { de: "Sekundarstufe II", en: "Secondary education", fr: "Degré secondaire II", it: "Secondario II" },
+  higher_education: { de: "Hochschulen", en: "Higher education", fr: "Hautes écoles", it: "Alta formazione" },
+  vocational_and_professional_education: { de: "Berufliche Bildung", en: "Vocational and professional education", fr: "Formation professionnelle", it: "Formazione professionale" },
+  specialized_and_continuing_education: { de: "Spezial- & Weiterbildung", en: "Specialised and continuing education", fr: "Formation spécialisée et continue", it: "Formazione specializzata e continua" },
   applied_science: { de: "Fachhochschule", en: "University of applied sciences", fr: "Haute école spécialisée", it: "Scuola universitaria professionale" },
   research: { de: "Forschung", en: "Research", fr: "Recherche", it: "Ricerca" },
   vocational: { de: "Berufsbildung", en: "Vocational", fr: "Formation professionnelle", it: "Formazione professionale" },

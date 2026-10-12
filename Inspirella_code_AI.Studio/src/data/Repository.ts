@@ -12,6 +12,9 @@ import {
   LearningPath,
   LearningPathStep,
   ProfessionFacts,
+  AdmissionCondition,
+  EducationProgram,
+  EducationTransition,
   TopicResource,
   TrainingCompany,
   ProfessionInstitutionLink,
@@ -564,6 +567,19 @@ export const withLookupCategory = (
     const code = row && typeof row === "object" ? codesById.get(row[fkColumn]) : undefined;
     return code ? { ...row, category: code } : row;
   });
+
+/** Active rows of a small reference table, or [] when Supabase is off or the read fails. */
+const loadActiveRows = async (table: string): Promise<any[]> => {
+  await fetchSupabaseConfig();
+  if (!isSupabaseActive()) return [];
+  try {
+    const { data, error } = await fetchAllRows(() => getSupabase().from(table).select("*").eq("is_active", true).order("code", { ascending: true }));
+    return !error && Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.warn(`Failed to load ${table}`, err);
+    return [];
+  }
+};
 
 const fetchCodeLookup = async (table: string): Promise<Map<string, string>> => {
   const codes = new Map<string, string>();
@@ -1489,6 +1505,76 @@ export const DataRepository = {
       console.warn("Failed to load profession facts", err);
       return [];
     }
+  },
+
+  /** Admission rules per canton and route (Gymnasium, FMS, BM, HMS). Empty list when the table is unreachable. */
+  getAdmissionConditions: async (): Promise<AdmissionCondition[]> => {
+    const rows = await loadActiveRows("admission_conditions");
+    return rows.flatMap((r): AdmissionCondition[] => {
+      const canton = normalizeText(r.canton_code);
+      const route = normalizeText(r.route);
+      if (!canton || !route) return [];
+      return [{
+        id: String(r.id),
+        canton: canton.toUpperCase(),
+        route,
+        headline: normalizeText(r.headline_de),
+        requirements: normalizeText(r.requirements_de),
+        examInfo: normalizeText(r.exam_info_de),
+        deadline: normalizeText(r.deadline_text_de),
+        timing: normalizeText(r.typical_timing_de),
+        costNote: normalizeText(r.cost_note_de),
+        url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
+        verified: r.verification_status === "verified"
+      }];
+    });
+  },
+
+  /** Bridge and preparation programmes per canton. */
+  getEducationPrograms: async (): Promise<EducationProgram[]> => {
+    const rows = await loadActiveRows("education_programs");
+    return rows.flatMap((r): EducationProgram[] => {
+      const canton = normalizeText(r.canton_code);
+      const title = normalizeText(r.title_de);
+      if (!canton || !title) return [];
+      return [{
+        id: String(r.id),
+        kind: normalizeText(r.kind) ?? "other",
+        canton: canton.toUpperCase(),
+        title,
+        description: normalizeText(r.description_de),
+        provider: normalizeText(r.provider_name),
+        targetGroup: normalizeText(r.target_group_de),
+        duration: normalizeText(r.duration_text_de),
+        admission: normalizeText(r.admission_de),
+        url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
+        verified: r.verification_status === "verified"
+      }];
+    });
+  },
+
+  /** Ways between stages of the system (e.g. EFZ to Fachhochschule via Berufsmatura). */
+  getEducationTransitions: async (): Promise<EducationTransition[]> => {
+    const rows = await loadActiveRows("education_transitions");
+    return rows.flatMap((r): EducationTransition[] => {
+      const from = normalizeText(r.from_node);
+      const to = normalizeText(r.to_node);
+      const label = normalizeText(r.label_de);
+      if (!from || !to || !label) return [];
+      return [{
+        id: String(r.id),
+        from,
+        to,
+        kind: normalizeText(r.kind) ?? "direct",
+        label,
+        conditions: normalizeText(r.conditions_de),
+        duration: normalizeText(r.duration_text_de),
+        typicalAge: normalizeText(r.typical_age_text_de),
+        notes: normalizeText(r.notes_de),
+        url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
+        verified: r.verification_status === "verified"
+      }];
+    });
   },
 
   /** How-to resources for the given topic codes (national ones plus the canton's own). */
