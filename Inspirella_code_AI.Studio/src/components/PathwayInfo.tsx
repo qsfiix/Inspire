@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { DataRepository } from "../data/Repository";
 import type { AdmissionCondition, EducationProgram, EducationTransition, LanguageCode } from "../types";
-import { admissionsFor, kindLabel, nodeLabel, programsFor, routeLabel, transitionsFrom } from "../lib/pathwayInfo";
+import { admissionsFor, hfFieldLabel, hfFieldOf, kindLabel, NATIONAL_ROUTES, nodeLabel, programsFor, routeLabel, transitionsFrom } from "../lib/pathwayInfo";
 
 /**
  * Admission rules, bridge offers and ways onward, read from the pathway tables
@@ -66,6 +66,10 @@ type Ui = {
   conditions: string;
   typicalAge: string;
   pickCanton: string;
+  nationwide: string;
+  admissionTitleNational: string;
+  byField: (n: number) => string;
+  timing: string;
 };
 
 const UI: Record<LanguageCode, Ui> = {
@@ -87,6 +91,10 @@ const UI: Record<LanguageCode, Ui> = {
     nextHint: "Die Schweiz ist durchlässig: von fast jedem Abschluss geht es weiter.",
     conditions: "Bedingungen",
     typicalAge: "Typisches Alter",
+    byField: n => `Nach Fachbereich (${n})`,
+    timing: "Beginn / Dauer",
+    nationwide: "Schweizweit",
+    admissionTitleNational: "So kommst du rein",
     pickCanton: "Wähle unter «Dein persönlicher Weg» deinen Kanton, dann siehst du hier die Aufnahmeregeln."
   },
   en: {
@@ -107,6 +115,10 @@ const UI: Record<LanguageCode, Ui> = {
     nextHint: "Switzerland is permeable: almost every qualification leads on.",
     conditions: "Conditions",
     typicalAge: "Typical age",
+    byField: n => `By field of study (${n})`,
+    timing: "Start / duration",
+    nationwide: "Nationwide",
+    admissionTitleNational: "How to get in",
     pickCanton: "Pick your canton under \"Your personal route\" and the admission rules appear here."
   },
   fr: {
@@ -127,6 +139,10 @@ const UI: Record<LanguageCode, Ui> = {
     nextHint: "La Suisse est perméable : presque chaque diplôme mène plus loin.",
     conditions: "Conditions",
     typicalAge: "Âge typique",
+    byField: n => `Par domaine (${n})`,
+    timing: "Début / durée",
+    nationwide: "Dans toute la Suisse",
+    admissionTitleNational: "Comment y entrer",
     pickCanton: "Choisis ton canton sous « Ton parcours personnel » : les règles d'admission apparaîtront ici."
   },
   it: {
@@ -147,6 +163,10 @@ const UI: Record<LanguageCode, Ui> = {
     nextHint: "La Svizzera è permeabile: quasi ogni titolo porta oltre.",
     conditions: "Condizioni",
     typicalAge: "Età tipica",
+    byField: n => `Per ambito (${n})`,
+    timing: "Inizio / durata",
+    nationwide: "In tutta la Svizzera",
+    admissionTitleNational: "Come entrare",
     pickCanton: "Scegli il tuo cantone sotto «Il tuo percorso personale»: qui compariranno le regole di ammissione."
   }
 };
@@ -174,38 +194,58 @@ function Field({ label, value, isDark }: { label: string; value?: string; isDark
 }
 
 /** Admission rules for the school's routes in the school's canton. Renders nothing when there are none. */
-export function AdmissionBox({ canton, routes, language, isDark, hintWithoutCanton = false }: BoxProps & { canton?: string; routes: string[]; hintWithoutCanton?: boolean }) {
+export function AdmissionBox({ canton, routes, language, isDark, hintWithoutCanton = false, institutionId }: BoxProps & { canton?: string; routes: string[]; hintWithoutCanton?: boolean; institutionId?: string }) {
   const data = usePathwayData();
-  if (!data || routes.length === 0) return null;
-  if (!canton) {
+  if (!data || (routes.length === 0 && !institutionId)) return null;
+  const national = routes.every(r => NATIONAL_ROUTES.has(r));
+  if (!canton && !national) {
     return hintWithoutCanton ? <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{(UI[language] ?? UI.de).pickCanton}</p> : null;
   }
-  const list = admissionsFor(data.admissions, canton, routes);
+  const list = admissionsFor(data.admissions, canton, routes, institutionId);
   if (list.length === 0) return null;
   const ui = UI[language] ?? UI.de;
-  return (
-    <div className="space-y-2 text-left">
-      <span className={labelClass}>{ui.admissionTitle(canton.toUpperCase())}</span>
-      {list.map(a => (
-        <div key={a.id} className={boxClass(isDark)}>
-          <div className="flex items-start justify-between gap-2">
-            <b className={`text-xs ${isDark ? "text-white" : "text-violet-950"}`}>{routeLabel(a.route, language)}</b>
-            {a.verified && (
-              <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{ui.verified}</span>
-            )}
-          </div>
-          {a.headline && <p className={textClass(isDark)}>{a.headline}</p>}
-          <Field label={ui.requirements} value={a.requirements} isDark={isDark} />
-          <Field label={ui.exam} value={a.examInfo} isDark={isDark} />
-          <Field label={ui.deadline} value={a.deadline} isDark={isDark} />
-          <Field label={ui.cost} value={a.costNote} isDark={isDark} />
-          {a.url && (
-            <a href={a.url} target="_blank" rel="noopener noreferrer" className={linkClass(isDark)}>
-              {ui.source} <ExternalLink className="h-3 w-3" />
-            </a>
+  // Field-specific HF rules go into a disclosure; the general rule stays in view.
+  const byField = list.filter(a => hfFieldOf(a));
+  const general = list.filter(a => !hfFieldOf(a));
+
+  const renderRow = (a: AdmissionCondition) => {
+    const field = hfFieldOf(a);
+    return (
+      <div key={a.id} className={boxClass(isDark)}>
+        <div className="flex items-start justify-between gap-2">
+          <b className={`text-xs ${isDark ? "text-white" : "text-violet-950"}`}>
+            {field ? hfFieldLabel(field, language) : routeLabel(a.route, language)}
+            {a.canton === "CH" && !a.institutionId ? <span className="ml-1.5 text-[10px] font-mono font-normal text-violet-400">{ui.nationwide}</span> : null}
+          </b>
+          {a.verified && (
+            <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{ui.verified}</span>
           )}
         </div>
-      ))}
+        {a.headline && <p className={textClass(isDark)}>{a.headline}</p>}
+        <Field label={ui.requirements} value={a.requirements} isDark={isDark} />
+        <Field label={ui.exam} value={a.examInfo} isDark={isDark} />
+        <Field label={ui.deadline} value={a.deadline} isDark={isDark} />
+        <Field label={ui.timing} value={a.timing} isDark={isDark} />
+        <Field label={ui.cost} value={a.costNote} isDark={isDark} />
+        {a.url && (
+          <a href={a.url} target="_blank" rel="noopener noreferrer" className={linkClass(isDark)}>
+            {ui.source} <ExternalLink className="h-3 w-3" />
+          </a>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-2 text-left">
+      <span className={labelClass}>{national || !canton ? ui.admissionTitleNational : ui.admissionTitle(canton.toUpperCase())}</span>
+      {general.map(renderRow)}
+      {byField.length > 0 && (
+        <details className={`rounded-xl border ${isDark ? "border-violet-400/20" : "border-violet-200"}`}>
+          <summary className={`cursor-pointer px-3 py-2 text-[11px] font-bold ${isDark ? "text-violet-200" : "text-violet-900"}`}>{ui.byField(byField.length)}</summary>
+          <div className="space-y-2 p-2">{byField.map(renderRow)}</div>
+        </details>
+      )}
       <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{ui.germanNote}</p>
     </div>
   );

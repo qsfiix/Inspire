@@ -10,6 +10,8 @@ const BM_FOCUS = (code: string) => code === "berufsmaturitaet" || code.startsWit
 /** Which admission routes a school's own type makes relevant. */
 export function admissionRoutesForInstitution(subgroup: string | undefined, focusCodes: string[] = []): string[] {
   const routes = new Set<string>();
+  if (subgroup === "university_of_applied_sciences") routes.add("fh");
+  if (subgroup === "teacher_education" || subgroup === "university_of_teacher_education") routes.add("ph");
   if (subgroup === "gymnasium") {
     routes.add("gymnasium_kurz");
     routes.add("gymnasium_lang");
@@ -29,18 +31,35 @@ export function routesForTopic(topic: string | undefined): string[] {
     case "fms": return ["fms"];
     case "bm": return ["bms_bm1", "bms_bm2"];
     case "hms": return ["hms"];
+    case "fh": return ["fh"];
+    case "ph": return ["ph"];
+    case "hf": return ["hf"];
     default: return [];
   }
 }
 
-const ROUTE_ORDER = ["gymnasium_kurz", "gymnasium_lang", "fms", "hms", "bms_bm1", "bms_bm2"];
+const ROUTE_ORDER = ["gymnasium_kurz", "gymnasium_lang", "fms", "hms", "bms_bm1", "bms_bm2", "hf", "fh", "ph"];
 
-export function admissionsFor(all: AdmissionCondition[], canton: string | undefined, routes: string[]): AdmissionCondition[] {
-  if (!canton || routes.length === 0) return [];
-  const c = canton.toUpperCase();
+/** Routes whose rules are national or belong to one school, not to a canton. */
+export const NATIONAL_ROUTES = new Set(["hf", "fh", "ph"]);
+
+/**
+ * Admission rules that apply here. A school's own rule (institutionId) counts only for
+ * that school; a nationwide rule (canton "CH") counts for everyone; the rest are matched
+ * by canton. School-specific rows come before the general ones of the same route.
+ */
+export function admissionsFor(all: AdmissionCondition[], canton: string | undefined, routes: string[], institutionId?: string): AdmissionCondition[] {
+  if (routes.length === 0 && !institutionId) return [];
+  const c = canton?.toUpperCase();
+  const applies = (a: AdmissionCondition) => {
+    // A school's own rule belongs to that school whatever its route (FHNW has FH and PH rules).
+    if (a.institutionId) return a.institutionId === institutionId;
+    if (!routes.includes(a.route)) return false;
+    return a.canton === "CH" || (!!c && a.canton === c);
+  };
   return all
-    .filter(a => a.canton === c && routes.includes(a.route))
-    .sort((a, b) => ROUTE_ORDER.indexOf(a.route) - ROUTE_ORDER.indexOf(b.route));
+    .filter(applies)
+    .sort((a, b) => ROUTE_ORDER.indexOf(a.route) - ROUTE_ORDER.indexOf(b.route) || Number(!!b.institutionId) - Number(!!a.institutionId));
 }
 
 const KIND_ORDER = ["bridge_year", "vorlehre", "integration_vorlehre", "motivation_semester", "passerelle", "matura_prep", "fms_profile", "other"];
@@ -128,6 +147,9 @@ const ROUTE_LABELS: Record<string, Labels> = {
   gymnasium_kurz: { de: "Kurzgymnasium", en: "Short Gymnasium", fr: "Gymnase (voie courte)", it: "Liceo (percorso breve)" },
   gymnasium_lang: { de: "Langgymnasium", en: "Long Gymnasium", fr: "Gymnase (voie longue)", it: "Liceo (percorso lungo)" },
   fms: { de: "Fachmittelschule", en: "Specialised middle school (FMS)", fr: "École de culture générale", it: "Scuola specializzata" },
+  hf: { de: "Höhere Fachschule (HF)", en: "Professional college (HF)", fr: "École supérieure (ES)", it: "Scuola specializzata superiore (SSS)" },
+  fh: { de: "Fachhochschule (Bachelor)", en: "University of applied sciences (Bachelor)", fr: "Haute école spécialisée (Bachelor)", it: "Scuola universitaria professionale (Bachelor)" },
+  ph: { de: "Pädagogische Hochschule", en: "University of teacher education", fr: "Haute école pédagogique", it: "Alta scuola pedagogica" },
   hms: { de: "Handelsmittelschule", en: "Commercial middle school", fr: "École de commerce", it: "Scuola di commercio" },
   bms_bm1: { de: "Berufsmaturität während der Lehre (BM 1)", en: "Vocational baccalaureate during the apprenticeship (BM 1)", fr: "Maturité professionnelle pendant l'apprentissage (MP 1)", it: "Maturità professionale durante il tirocinio (MP 1)" },
   bms_bm2: { de: "Berufsmaturität nach der Lehre (BM 2)", en: "Vocational baccalaureate after the apprenticeship (BM 2)", fr: "Maturité professionnelle après l'apprentissage (MP 2)", it: "Maturità professionale dopo il tirocinio (MP 2)" }
@@ -136,6 +158,30 @@ const ROUTE_LABELS: Record<string, Labels> = {
 export function routeLabel(route: string, language: LanguageCode): string {
   const entry = ROUTE_LABELS[route];
   return entry ? entry[language] ?? entry.de : route;
+}
+
+const HF_FIELD_LABELS: Record<string, Labels> = {
+  pflege: { de: "Pflege", en: "Nursing", fr: "Soins infirmiers", it: "Cure infermieristiche" },
+  medtech: { de: "Medizinisch-technische Berufe", en: "Medical-technical professions", fr: "Professions médico-techniques", it: "Professioni medico-tecniche" },
+  soziales: { de: "Soziales und Pädagogik", en: "Social work and education", fr: "Travail social et pédagogie", it: "Lavoro sociale e pedagogia" },
+  wirtschaft: { de: "Wirtschaft", en: "Business", fr: "Économie", it: "Economia" },
+  informatik: { de: "Informatik", en: "IT", fr: "Informatique", it: "Informatica" },
+  technik: { de: "Technik", en: "Engineering and technology", fr: "Technique", it: "Tecnica" },
+  gestaltung: { de: "Gestaltung", en: "Design", fr: "Design", it: "Design" },
+  tourismus: { de: "Tourismus und Hotellerie", en: "Tourism and hospitality", fr: "Tourisme et hôtellerie", it: "Turismo e ristorazione" },
+  natur: { de: "Landwirtschaft, Forst, Lebensmittel", en: "Agriculture, forestry, food", fr: "Agriculture, forêt, alimentation", it: "Agricoltura, foresta, alimentazione" },
+  medien: { de: "Medien und Marketing", en: "Media and marketing", fr: "Médias et marketing", it: "Media e marketing" }
+};
+
+/** The HF field a field-specific national rule is about (code adm_ch_hf_<field>), or undefined for the general rule. */
+export function hfFieldOf(a: AdmissionCondition): string | undefined {
+  const m = /^adm_ch_hf_(.+)$/.exec(a.code);
+  return a.route === "hf" && m ? m[1] : undefined;
+}
+
+export function hfFieldLabel(field: string, language: LanguageCode): string {
+  const entry = HF_FIELD_LABELS[field];
+  return entry ? entry[language] ?? entry.de : field;
 }
 
 const KIND_LABELS: Record<string, Labels> = {

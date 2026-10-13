@@ -226,7 +226,7 @@ export default function InstitutionDetailCard({
         )}
 
         {/* How to get in: the canton's rules for the routes this school offers (Gymnasium, FMS, BM). */}
-        <AdmissionBox canton={institution.canton} routes={admissionRoutes} language={currentLanguage} isDark={isDark} />
+        <AdmissionBox canton={institution.canton} routes={admissionRoutes} institutionId={institution.id} language={currentLanguage} isDark={isDark} />
 
         {/* Institution -> profession pathways, reverse of "Where to study
             this" on the profession card. Honest empty: most institutions

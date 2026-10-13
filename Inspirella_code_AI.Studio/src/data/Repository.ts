@@ -1516,8 +1516,10 @@ export const DataRepository = {
       if (!canton || !route) return [];
       return [{
         id: String(r.id),
+        code: String(r.code ?? r.id),
         canton: canton.toUpperCase(),
         route,
+        institutionId: normalizeId(r.institution_id) ?? undefined,
         headline: normalizeText(r.headline_de),
         requirements: normalizeText(r.requirements_de),
         examInfo: normalizeText(r.exam_info_de),

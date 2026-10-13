@@ -367,10 +367,14 @@ export interface ProfessionFacts {
 /** How to get in, per canton and route (admission_conditions). German source text; dates are "as printed on the page". */
 export interface AdmissionCondition {
   id: string;
-  /** Two-letter canton code, e.g. ZH. */
+  /** Stable code, e.g. adm_zh_fms or adm_ch_hf_pflege. */
+  code: string;
+  /** Two-letter canton code, e.g. ZH, or CH for a rule that applies nationwide (HF, FH, PH). */
   canton: string;
-  /** gymnasium_kurz | gymnasium_lang | fms | hms | bms_bm1 | bms_bm2 */
+  /** gymnasium_kurz | gymnasium_lang | fms | hms | bms_bm1 | bms_bm2 | hf | fh | ph */
   route: string;
+  /** Set when the rule is one school's own (FH, PH). */
+  institutionId?: string;
   headline?: string;
   requirements?: string;
   examInfo?: string;

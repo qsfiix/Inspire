@@ -1,18 +1,26 @@
 import { describe, it, expect } from "vitest";
-import { admissionRoutesForInstitution, admissionsFor, nodesForGoal, programsFor, transitionsFrom, nodeLabel } from "./pathwayInfo";
+import { admissionRoutesForInstitution, admissionsFor, hfFieldLabel, hfFieldOf, nodesForGoal, programsFor, transitionsFrom, nodeLabel } from "./pathwayInfo";
 import type { AdmissionCondition, EducationProgram, EducationTransition } from "../types";
 
-const adm = (canton: string, route: string): AdmissionCondition => ({ id: canton + route, canton, route, verified: true });
+const adm = (canton: string, route: string, institutionId?: string): AdmissionCondition => ({ id: canton + route + (institutionId ?? ""), code: "adm_" + canton + route, canton, route, institutionId, verified: true });
 const prog = (canton: string, kind: string, title: string): EducationProgram => ({ id: canton + title, canton, kind, title, verified: true });
 const tr = (from: string, to: string, kind: string, label: string): EducationTransition => ({ id: from + to + kind, from, to, kind, label, verified: true });
 
 describe("pathway lookups", () => {
+  it("tells a HF field rule from the general HF rule by its code", () => {
+    expect(hfFieldOf({ ...adm("CH", "hf"), code: "adm_ch_hf_pflege" })).toBe("pflege");
+    expect(hfFieldOf({ ...adm("CH", "hf"), code: "adm_ch_hf" })).toBeUndefined();
+    expect(hfFieldLabel("pflege", "en")).toBe("Nursing");
+  });
+
   it("picks admission routes from the school type and its focus flags", () => {
     expect(admissionRoutesForInstitution("gymnasium")).toEqual(["gymnasium_kurz", "gymnasium_lang"]);
     expect(admissionRoutesForInstitution("fachmittelschule")).toEqual(["fms"]);
     expect(admissionRoutesForInstitution("vocational_school", ["bm_wd"])).toEqual(["bms_bm1", "bms_bm2"]);
     expect(admissionRoutesForInstitution("vocational_school", [])).toEqual([]);
     expect(admissionRoutesForInstitution("university")).toEqual([]);
+    expect(admissionRoutesForInstitution("university_of_applied_sciences")).toEqual(["fh"]);
+    expect(admissionRoutesForInstitution("teacher_education")).toEqual(["ph"]);
   });
 
   it("filters admissions by canton and keeps the route order", () => {
@@ -20,6 +28,13 @@ describe("pathway lookups", () => {
     expect(admissionsFor(all, "zh", ["fms", "bms_bm2", "gymnasium_kurz"]).map(a => a.route)).toEqual(["gymnasium_kurz", "fms", "bms_bm2"]);
     expect(admissionsFor(all, undefined, ["fms"])).toEqual([]);
     expect(admissionsFor(all, "ZH", [])).toEqual([]);
+  });
+
+  it("matches national and school-specific rules for FH, PH and HF", () => {
+    const all = [adm("CH", "fh"), adm("BE", "fh", "bfh"), adm("ZH", "fh", "zhaw"), adm("CH", "hf")];
+    expect(admissionsFor(all, "BE", ["fh"], "bfh").map(a => a.institutionId ?? "national")).toEqual(["bfh", "national"]);
+    expect(admissionsFor(all, undefined, ["fh"]).map(a => a.canton)).toEqual(["CH"]);
+    expect(admissionsFor(all, "ZH", ["hf"]).length).toBe(1);
   });
 
   it("lists bridge offers of one canton, bridge year first", () => {
