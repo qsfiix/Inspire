@@ -145,13 +145,14 @@ export function DashboardView({
       <Reveal as="section">
         <AdvisorReport
           userProfile={userProfile}
-          interests={userProfile?.interests || ["academic"]}
-          goals={userProfile?.goals || ["study_active"]}
-          currentStage={userProfile?.currentStage || "stage_university"}
+          interests={userProfile?.interests ?? []}
+          goals={userProfile?.goals ?? []}
+          currentStage={userProfile?.currentStage ?? ""}
           language={currentLanguage}
           theme={theme}
           trackers={trackers}
           onTrackersChange={onTrackersChange}
+          onAnswer={() => handleTabTransition("onboarding")}
         />
       </Reveal>
 

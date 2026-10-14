@@ -45,7 +45,16 @@ interface AdvisorReportProps {
   /** Optional: when provided, the matched learning path gets an "add to my tracker" button. */
   trackers?: TrackerGoal[];
   onTrackersChange?: (updated: TrackerGoal[]) => void;
+  /** Opens the questions, from the empty state shown when nothing was answered. */
+  onAnswer?: () => void;
 }
+
+const NO_ANSWERS: Record<LanguageCode, { title: string; body: string; button: string }> = {
+  de: { title: "Erzähl uns kurz von dir", body: "Du hast die Fragen übersprungen, deshalb raten wir nicht für dich. Beantworte ein paar (alle freiwillig), und hier erscheinen Berufe, Schulen und nächste Schritte.", button: "Fragen beantworten" },
+  en: { title: "Tell us a little about you", body: "You skipped the questions, so we do not guess for you. Answer a few (all optional) and your careers, schools and next steps appear here.", button: "Answer questions" },
+  fr: { title: "Dis-nous quelques mots sur toi", body: "Tu as passé les questions, donc nous ne devinons pas à ta place. Réponds à quelques-unes (toutes facultatives) et tes métiers, écoles et prochaines étapes apparaîtront ici.", button: "Répondre aux questions" },
+  it: { title: "Raccontaci qualcosa di te", body: "Hai saltato le domande, quindi non tiriamo a indovinare. Rispondi ad alcune (tutte facoltative) e qui compariranno professioni, scuole e prossimi passi.", button: "Rispondi alle domande" }
+};
 
 /** Shape of a successful /api/gemini/advisor response (see server.ts). */
 interface AiAdvisorResponse {
@@ -111,7 +120,8 @@ export default function AdvisorReport({
   language,
   theme,
   trackers,
-  onTrackersChange
+  onTrackersChange,
+  onAnswer
 }: AdvisorReportProps) {
   const { recommendation, loading, error } = useEducationEngine(userProfile || null);
   const t = TRANSLATIONS[language];
@@ -201,16 +211,19 @@ export default function AdvisorReport({
         </div>
       </div>
 
-      {/* Consultation Input Scope Tags Box */}
+      {/* Consultation Input Scope Tags Box: only what the person actually answered */}
+      {(!!currentStage || interests.length > 0 || goals.length > 0) && (
       <div className={`rounded-xl p-3 border mb-5 flex flex-wrap items-center gap-2 text-xs ${
         isDark ? "bg-white/[0.01] border-white/5" : "bg-violet-50/50 border-purple-200"
       }`}>
         <span className={`font-medium mr-1 shrink-0 ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>
           {t.arBasedOn}
         </span>
+        {currentStage && (
         <div className={`px-2 py-0.5 rounded border ${isDark ? "bg-white/5 border-white/5 text-zinc-300" : "bg-white border-purple-200 text-violet-950 font-extrabold"}`}>
           {t.arStage}: {t[stageLabelKey(currentStage)] || currentStage.replace("stage_", "")}
         </div>
+        )}
         {interests.length > 0 && (
           <div className={`px-2 py-0.5 rounded border max-w-xs truncate ${isDark ? "bg-white/5 border-white/5 text-zinc-300" : "bg-white border-purple-200 text-violet-950 font-extrabold"}`}>
             {t.arInterests}: {interests.map(i => t["interests_" + i] || i).join(", ")}
@@ -222,6 +235,7 @@ export default function AdvisorReport({
           </div>
         )}
       </div>
+      )}
 
       <AnimatePresence mode="wait">
         {loading ? (
@@ -247,6 +261,16 @@ export default function AdvisorReport({
             className="text-center py-6"
           >
             <p className="text-sm text-red-400">{t.arError}</p>
+          </motion.div>
+        ) : recommendation && !recommendation.hasAnswers ? (
+          <motion.div key="no-answers" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-6 text-center space-y-3">
+            <h3 className={`text-base font-bold ${isDark ? "text-white" : "text-violet-950"}`}>{(NO_ANSWERS[language] ?? NO_ANSWERS.en).title}</h3>
+            <p className={`mx-auto max-w-md text-xs leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{(NO_ANSWERS[language] ?? NO_ANSWERS.en).body}</p>
+            {onAnswer && (
+              <button type="button" onClick={onAnswer} className="btn-primary btn-shine px-5 py-2.5 text-xs font-bold">
+                {(NO_ANSWERS[language] ?? NO_ANSWERS.en).button}
+              </button>
+            )}
           </motion.div>
         ) : recommendation ? (
           <motion.div

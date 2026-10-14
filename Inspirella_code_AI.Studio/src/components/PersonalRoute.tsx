@@ -274,7 +274,7 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
   const [profQuery, setProfQuery] = useState("");
   const [profInstitutionIds, setProfInstitutionIds] = useState<string[]>([]);
   const { recommendation } = useEducationEngine(userProfile);
-  const suggested = (recommendation?.professions ?? []).filter(rp => rp.profession.id !== route?.targetProfessionId).slice(0, 3);
+  const suggested = (recommendation?.hasAnswers ? recommendation.professions : []).filter(rp => rp.profession.id !== route?.targetProfessionId).slice(0, 3);
 
   useEffect(() => {
     let active = true;

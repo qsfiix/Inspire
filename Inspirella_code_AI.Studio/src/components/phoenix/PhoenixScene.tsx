@@ -445,9 +445,11 @@ export default function PhoenixScene({ isDark, enabled = true, onStatus }: Phoen
           y: small ? halfH * 0.2 : -halfH * 0.05,
           scale: Math.min(halfH * 0.95, (halfW * 0.95) / AMBIENT_HALF_WIDTH)
         };
-        targetOpacity = AMBIENT_OPACITY;
+        // The old shape must not linger over the new page: stay invisible until the particles
+        // have turned into the galaxy, then fade it in (the galaxy keeps its usual brightness).
+        targetOpacity = reduceMotion ? AMBIENT_OPACITY : AMBIENT_OPACITY * smooth(0.25, 0.9, current.ambient);
       }
-      current.ambient += ((isAmbient && !portalRect && !holding && !reduceMotion ? 1 : 0) - current.ambient) * (1 - Math.exp(-dt * 1.6));
+      current.ambient += ((isAmbient && !portalRect && !holding && !reduceMotion ? 1 : 0) - current.ambient) * (1 - Math.exp(-dt * 3));
       ambientSettled = isAmbient && current.ambient > 0.985 ? ambientSettled + dt : 0;
       quiet = ambientSettled > AMBIENT_QUIET_S;
 

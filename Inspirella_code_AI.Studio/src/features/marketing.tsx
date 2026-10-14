@@ -184,7 +184,7 @@ export function HomeView({
                   }}
                 />
                 <button
-                  onClick={() => handleTabTransition("login")}
+                  onClick={handleBypassAuth}
                   className="btn-primary btn-shine w-full sm:w-auto px-7 py-3.5 text-sm gap-2 whitespace-nowrap"
                 >
                   <span>{t.heroCTA}</span>
@@ -193,10 +193,10 @@ export function HomeView({
               </div>
 
               <button
-                onClick={handleBypassAuth}
+                onClick={() => handleTabTransition("login")}
                 className="btn-secondary w-full sm:w-auto px-7 py-3.5 text-sm whitespace-nowrap"
               >
-                <span>{t.exploreCTA}</span>
+                <span>{t.accountCTA}</span>
               </button>
             </div>
 
@@ -425,14 +425,14 @@ export function HomeView({
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
             <button
-              onClick={() => handleTabTransition("login")}
+              onClick={handleBypassAuth}
               className="btn-primary btn-shine w-full sm:w-auto px-7 py-3.5 text-sm gap-2 whitespace-nowrap"
             >
               <span>{t.heroCTA}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
-            <button onClick={handleBypassAuth} className="btn-secondary w-full sm:w-auto px-7 py-3.5 text-sm whitespace-nowrap">
-              {t.exploreCTA}
+            <button onClick={() => handleTabTransition("login")} className="btn-secondary w-full sm:w-auto px-7 py-3.5 text-sm whitespace-nowrap">
+              {t.accountCTA}
             </button>
           </div>
         </Reveal>

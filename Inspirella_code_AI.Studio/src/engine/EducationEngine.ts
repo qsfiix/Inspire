@@ -27,6 +27,8 @@ export interface ScoredResource {
 }
 
 export interface EngineRecommendation {
+  /** False when the person skipped every question: nothing is recommended then, rather than a guess. */
+  hasAnswers: boolean;
   pathFocus: string;
   nextBestStep: string;
   professions: ScoredProfession[];
@@ -78,12 +80,23 @@ export class EducationEngine {
     const resources = this.scoreResources(topProfessions, topInstitutions);
 
     return {
+      hasAnswers: this.hasAnswers(),
       pathFocus,
       nextBestStep,
       professions: topProfessions,
       institutions: topInstitutions,
       resources: resources.slice(0, 3)
     };
+  }
+
+  private hasAnswers(): boolean {
+    const p = this.profile;
+    const r = this.route;
+    const routeAnswered =
+      !!r &&
+      (r.languageLevels.length > 0 ||
+        [r.targetLevel, r.targetProfessionId, r.targetInstitutionId, r.highestEducation, r.workExperienceYears, r.birthYear].some(v => v !== undefined && v !== "undecided"));
+    return (p.interests?.length ?? 0) > 0 || (p.goals?.length ?? 0) > 0 || !!p.currentStage || routeAnswered;
   }
 
   private determinePathFocus(): string {

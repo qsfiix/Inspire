@@ -5,6 +5,7 @@
 export type OnboardingCopy = Record<string, string>;
 
 const en: OnboardingCopy = {
+  guestOptional: "No account and no personal data needed. Every question is optional, and you can skip them all.",
   needAnswer: "Please answer the questions on this page to continue (scroll down if some are out of view).",
   progressHint: "Each answer makes your route more precise.",
   skipStep: "Skip this step",
@@ -74,6 +75,7 @@ const en: OnboardingCopy = {
 };
 
 const de: OnboardingCopy = {
+  guestOptional: "Kein Konto und keine persönlichen Daten nötig. Alle Fragen sind freiwillig, du kannst sie auch alle überspringen.",
   needAnswer: "Bitte beantworte die Fragen auf dieser Seite, um weiterzugehen (scrolle nach unten, falls welche ausser Sicht sind).",
   progressHint: "Jede Antwort macht deinen Weg genauer.",
   skipStep: "Diesen Schritt überspringen",
@@ -143,6 +145,7 @@ const de: OnboardingCopy = {
 };
 
 const fr: OnboardingCopy = {
+  guestOptional: "Pas de compte ni de données personnelles nécessaires. Toutes les questions sont facultatives, tu peux toutes les passer.",
   needAnswer: "Réponds aux questions de cette page pour continuer (fais défiler vers le bas si certaines sont hors de vue).",
   progressHint: "Chaque réponse rend ton parcours plus précis.",
   skipStep: "Passer cette étape",
@@ -212,6 +215,7 @@ const fr: OnboardingCopy = {
 };
 
 const it: OnboardingCopy = {
+  guestOptional: "Nessun account e nessun dato personale necessari. Tutte le domande sono facoltative, puoi saltarle tutte.",
   needAnswer: "Rispondi alle domande di questa pagina per continuare (scorri in basso se alcune non sono visibili).",
   progressHint: "Ogni risposta rende il tuo percorso più preciso.",
   skipStep: "Salta questo passaggio",

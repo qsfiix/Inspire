@@ -541,7 +541,10 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
   const currentYear = new Date().getFullYear();
   const lastStep = ONBOARDING_STEPS.length - 1;
 
+  // A guest gives no data and no required answer: every question can be skipped, all of them too.
+  const isGuestFlow = !!initialProfile?.isGuest;
   const isStepValid = (id: OnboardingStepId): boolean => {
+    if (isGuestFlow) return true;
     if (id === "goals") return onboardGoals.length > 0;
     if (id === "stage") return !!onboardStage;
     if (id === "interests") return onboardInterests.length > 0;
@@ -935,6 +938,9 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
           </AnimatePresence>
         </div>
 
+        {isGuestFlow && step === 0 && (
+          <p className={`pt-3 text-[11px] leading-snug ${isDark ? "text-emerald-300" : "text-emerald-800 font-semibold"}`}>{c.guestOptional}</p>
+        )}
         {!currentValid && (
           <p role="status" className={`pt-3 text-[11px] leading-snug ${isDark ? "text-amber-300" : "text-amber-800 font-semibold"}`}>
             {c.needAnswer}
@@ -956,7 +962,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
           )}
 
           <div className="flex items-center gap-4">
-            {!currentMeta.required && step < lastStep && (
+            {(!currentMeta.required || isGuestFlow) && step < lastStep && (
               <button
                 type="button"
                 onClick={() => setStep(step + 1)}
@@ -965,7 +971,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
                 {c.skipStep}
               </button>
             )}
-            {step > 0 && step < lastStep && isStepValid("goals") && isStepValid("target") && (
+            {(isGuestFlow ? step < lastStep : step > 0 && step < lastStep && isStepValid("goals") && isStepValid("target")) && (
               <button
                 type="button"
                 onClick={finish}

@@ -182,7 +182,8 @@ export default function MyPathLadder({
     setNewTaskText("");
   }, [selected]);
 
-  const rankedProfessions = recommendation?.professions || [];
+  // Nothing answered: no path is invented, the empty invitation shows instead.
+  const rankedProfessions = recommendation?.hasAnswers ? recommendation.professions : [];
 
   // Not every profession has a concrete learning_path yet. Rather than only
   // ever looking at the #1 match - which would leave most real profiles with
