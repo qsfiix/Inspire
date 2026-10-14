@@ -25,9 +25,7 @@ const GOAL_LABEL_KEY: Record<string, string> = {
   parent_routing: "goals_child",
 };
 import { localizedText } from "../lib/localized";
-
-// The onboarding stores "stage_secondary"; its label lives under "stage_schoolType".
-const STAGE_LABEL_KEY: Record<string, string> = { stage_secondary: "stage_schoolType" };
+import { stageLabelKey } from "../lib/stageLabel";
 import { FEATURES } from "../featureFlags";
 import GoalButton from "./GoalButton";
 
@@ -211,7 +209,7 @@ export default function AdvisorReport({
           {t.arBasedOn}
         </span>
         <div className={`px-2 py-0.5 rounded border ${isDark ? "bg-white/5 border-white/5 text-zinc-300" : "bg-white border-purple-200 text-violet-950 font-extrabold"}`}>
-          {t.arStage}: {t[STAGE_LABEL_KEY[currentStage] ?? currentStage] || currentStage.replace("stage_", "")}
+          {t.arStage}: {t[stageLabelKey(currentStage)] || currentStage.replace("stage_", "")}
         </div>
         {interests.length > 0 && (
           <div className={`px-2 py-0.5 rounded border max-w-xs truncate ${isDark ? "bg-white/5 border-white/5 text-zinc-300" : "bg-white border-purple-200 text-violet-950 font-extrabold"}`}>

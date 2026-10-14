@@ -1,3 +1,4 @@
+import { stageLabelKey } from "../lib/stageLabel";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { BookOpen, Milestone, Sparkles, User, Pencil, Check, X, CalendarClock, AlertTriangle, Globe, Cloud, HardDrive, MapPin, Map as MapIcon, FileText, CheckSquare, ArrowUpRight } from "lucide-react";
@@ -409,7 +410,7 @@ export function ProfileView({
           <div className={`p-3 rounded-xl border ${isDark ? "bg-zinc-900/30 border-violet-950" : "bg-purple-100 border-2 border-purple-300 shadow-sm"}`}>
             <span className={`block text-[11px] font-medium mb-1 ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>{t.pfStage}</span>
             <span className={`block font-semibold ${isDark ? "text-zinc-200" : "text-black"}`}>
-              {userProfile?.currentStage ? t[userProfile.currentStage as keyof typeof t] || userProfile.currentStage : t.pfStageUnset}
+              {userProfile?.currentStage ? t[stageLabelKey(userProfile.currentStage) as keyof typeof t] || userProfile.currentStage : t.pfStageUnset}
             </span>
           </div>
         </div>
