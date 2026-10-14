@@ -1230,7 +1230,7 @@ export default function MyPathLadder({
                     {localizedText(mainPath.description, language)}
                   </p>
                 )}
-                <AdmissionBox canton={userProfile?.preferredCanton} routes={route?.targetLevel === "gymnasium" ? ["gymnasium_kurz", "gymnasium_lang"] : route?.targetLevel === "berufsmatura" ? ["bms_bm1", "bms_bm2"] : route?.targetLevel === "university_of_applied_sciences" ? ["fh"] : route?.targetLevel === "higher_vocational" ? ["hf"] : []} language={language} isDark={isDark} />
+                <AdmissionBox canton={userProfile?.preferredCanton} routes={route?.targetLevel === "gymnasium" ? ["gymnasium_kurz", "gymnasium_lang"] : route?.targetLevel === "berufsmatura" ? ["bms_bm1", "bms_bm2"] : route?.targetLevel === "university_of_applied_sciences" ? ["fh"] : route?.targetLevel === "higher_vocational" ? ["hf"] : route?.targetLevel === "university" ? ["uni"] : []} language={language} isDark={isDark} />
                 <NextWaysBox nodes={nodesForGoal(mainProfession?.professionType, route?.targetLevel)} language={language} isDark={isDark} />
               </div>
             )}

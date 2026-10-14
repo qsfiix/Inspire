@@ -18,7 +18,8 @@ describe("pathway lookups", () => {
     expect(admissionRoutesForInstitution("fachmittelschule")).toEqual(["fms"]);
     expect(admissionRoutesForInstitution("vocational_school", ["bm_wd"])).toEqual(["bms_bm1", "bms_bm2"]);
     expect(admissionRoutesForInstitution("vocational_school", [])).toEqual([]);
-    expect(admissionRoutesForInstitution("university")).toEqual([]);
+    expect(admissionRoutesForInstitution("university")).toEqual(["uni"]);
+    expect(admissionRoutesForInstitution("federal_institute_of_technology")).toEqual(["uni"]);
     expect(admissionRoutesForInstitution("university_of_applied_sciences")).toEqual(["fh"]);
     expect(admissionRoutesForInstitution("teacher_education")).toEqual(["ph"]);
   });

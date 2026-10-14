@@ -11,6 +11,7 @@ const BM_FOCUS = (code: string) => code === "berufsmaturitaet" || code.startsWit
 export function admissionRoutesForInstitution(subgroup: string | undefined, focusCodes: string[] = []): string[] {
   const routes = new Set<string>();
   if (subgroup === "university_of_applied_sciences") routes.add("fh");
+  if (subgroup === "university" || subgroup === "federal_institute_of_technology") routes.add("uni");
   if (subgroup === "teacher_education" || subgroup === "university_of_teacher_education") routes.add("ph");
   if (subgroup === "gymnasium") {
     routes.add("gymnasium_kurz");
@@ -34,14 +35,15 @@ export function routesForTopic(topic: string | undefined): string[] {
     case "fh": return ["fh"];
     case "ph": return ["ph"];
     case "hf": return ["hf"];
+    case "uni": return ["uni"];
     default: return [];
   }
 }
 
-const ROUTE_ORDER = ["gymnasium_kurz", "gymnasium_lang", "fms", "hms", "bms_bm1", "bms_bm2", "hf", "fh", "ph"];
+const ROUTE_ORDER = ["gymnasium_kurz", "gymnasium_lang", "fms", "hms", "bms_bm1", "bms_bm2", "hf", "fh", "ph", "uni"];
 
 /** Routes whose rules are national or belong to one school, not to a canton. */
-export const NATIONAL_ROUTES = new Set(["hf", "fh", "ph"]);
+export const NATIONAL_ROUTES = new Set(["hf", "fh", "ph", "uni"]);
 
 /**
  * Admission rules that apply here. A school's own rule (institutionId) counts only for
@@ -144,6 +146,7 @@ export function nodeLabel(node: string, language: LanguageCode): string {
 }
 
 const ROUTE_LABELS: Record<string, Labels> = {
+  uni: { de: "Universität / ETH (Bachelor)", en: "University / ETH (Bachelor)", fr: "Université / EPF (Bachelor)", it: "Università / PF (Bachelor)" },
   gymnasium_kurz: { de: "Kurzgymnasium", en: "Short Gymnasium", fr: "Gymnase (voie courte)", it: "Liceo (percorso breve)" },
   gymnasium_lang: { de: "Langgymnasium", en: "Long Gymnasium", fr: "Gymnase (voie longue)", it: "Liceo (percorso lungo)" },
   fms: { de: "Fachmittelschule", en: "Specialised middle school (FMS)", fr: "École de culture générale", it: "Scuola specializzata" },
