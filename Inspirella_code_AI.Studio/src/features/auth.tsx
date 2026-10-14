@@ -593,29 +593,29 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
 
   const titles: Record<OnboardingStepId, { title: string; subtitle: string }> = {
     goals: {
-      title: t.chooseGoals || "Define Desired Outcomes",
+      title: t.chooseGoals || "What do you want from Inspirella?",
       subtitle:
         currentLanguage === "de" ? "Definiere ein oder mehrere gewünschte Ziele."
         : currentLanguage === "fr" ? "Définis un ou plusieurs objectifs d'orientation."
         : currentLanguage === "it" ? "Definisci uno o più obiettivi formativi o professionali."
-        : "Select your primary intentions for utilizing Inspirella guidance."
+        : "Pick everything that fits. You can change it later."
     },
     target: { title: c.targetTitle, subtitle: c.targetSubtitle },
     stage: {
-      title: t.chooseStage || "Declare Your Current Stage",
+      title: t.chooseStage || "Where are you right now?",
       subtitle:
         currentLanguage === "de" ? "Wähle deine aktuelle Ausbildungs- oder Berufsphase (Einzelauswahl)."
         : currentLanguage === "fr" ? "Sélectionne ton profil d'activité (une seule option)."
         : currentLanguage === "it" ? "Seleziona la tua attuale fase accademica o lavorativa."
-        : "Select your current secondary or vocational standing."
+        : "Pick the one that fits you best right now."
     },
     interests: {
-      title: t.chooseInterests || "Select Spheres of Interest",
+      title: t.chooseInterests || "What interests you?",
       subtitle:
         currentLanguage === "de" ? "Wähle ein oder mehrere Interessengebiete aus."
         : currentLanguage === "fr" ? "Sélectionne un ou plusieurs domaines d'intérêt."
         : currentLanguage === "it" ? "Seleziona una o più aree di interesse principale."
-        : "Select one or more spheres you would like to investigate."
+        : "Pick as many as you like."
     },
     education: { title: c.eduTitle, subtitle: c.eduSubtitle },
     languages: { title: c.langTitle, subtitle: c.langSubtitle }
@@ -934,6 +934,12 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
             )}
           </AnimatePresence>
         </div>
+
+        {!currentValid && (
+          <p role="status" className={`pt-3 text-[11px] leading-snug ${isDark ? "text-amber-300" : "text-amber-800 font-semibold"}`}>
+            {c.needAnswer}
+          </p>
+        )}
 
         <div className="flex items-center justify-between gap-3 pt-5 border-t border-violet-500/10">
           {step > 0 ? (

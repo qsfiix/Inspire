@@ -270,23 +270,25 @@ export default function App() {
   };
 
   const handleBypassAuth = async () => {
-    // High premium UX bypass
-    const bypassProfile: UserProfile = {
+    // A guest starts with an empty profile and answers the same short questions as a new
+    // account: recommendations must come from their answers, never from an assumed profile
+    // (a 15-year-old used to land on a "tertiary student" dashboard they had never described).
+    const guestProfile: UserProfile = {
       name: "Guest Explorer",
       email: "explorer@inspirella.ch",
-      interests: ["academic", "tech"],
-      goals: ["study_active"],
-      currentStage: "stage_university",
+      interests: [],
+      goals: [],
+      currentStage: "",
       language: currentLanguage,
-      onboardingComplete: true,
+      onboardingComplete: false,
       createdAt: new Date().toISOString(),
       isGuest: true,
       syncState: "local"
     };
-    setUserProfile(bypassProfile);
-    await DataRepository.saveProfile(bypassProfile);
+    setUserProfile(guestProfile);
+    await DataRepository.saveProfile(guestProfile);
     setIsLoggedIn(true);
-    setActiveTab("dashboard");
+    setActiveTab("onboarding");
   };
 
   const handleLogout = () => {
@@ -307,6 +309,11 @@ export default function App() {
     setUserProfile(next);
     await DataRepository.saveProfile(next);
   };
+
+  // The WebGL backdrop reads the current page from the body (see PhoenixScene).
+  useEffect(() => {
+    document.body.dataset.scenePage = activeTab;
+  }, [activeTab]);
 
   const handleTabTransition = (tabId: string) => {
     if (!isLoggedIn && ["dashboard", "map", "resources", "tracker", "profile"].includes(tabId)) {

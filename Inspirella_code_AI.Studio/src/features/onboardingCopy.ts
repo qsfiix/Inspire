@@ -5,6 +5,7 @@
 export type OnboardingCopy = Record<string, string>;
 
 const en: OnboardingCopy = {
+  needAnswer: "Please answer the questions on this page to continue (scroll down if some are out of view).",
   progressHint: "Each answer makes your route more precise.",
   skipStep: "Skip this step",
   finishNow: "Finish now",
@@ -30,7 +31,7 @@ const en: OnboardingCopy = {
   living: "Do you already live in Switzerland?",
   living_yes: "Yes",
   living_no: "No, I'm moving or planning to",
-  eduTitle: "Where do you stand right now?",
+  eduTitle: "What have you completed so far?",
   eduSubtitle: "All optional. It only shapes your route.",
   highest: "Highest completed education",
   edu_none: "None yet",
@@ -73,6 +74,7 @@ const en: OnboardingCopy = {
 };
 
 const de: OnboardingCopy = {
+  needAnswer: "Bitte beantworte die Fragen auf dieser Seite, um weiterzugehen (scrolle nach unten, falls welche ausser Sicht sind).",
   progressHint: "Jede Antwort macht deinen Weg genauer.",
   skipStep: "Diesen Schritt überspringen",
   finishNow: "Jetzt abschliessen",
@@ -98,7 +100,7 @@ const de: OnboardingCopy = {
   living: "Lebst du schon in der Schweiz?",
   living_yes: "Ja",
   living_no: "Nein, ich ziehe um oder plane es",
-  eduTitle: "Wo stehst du gerade?",
+  eduTitle: "Was hast du schon abgeschlossen?",
   eduSubtitle: "Alles freiwillig. Es dient nur deinem Weg.",
   highest: "Höchster Abschluss",
   edu_none: "Noch keiner",
@@ -141,6 +143,7 @@ const de: OnboardingCopy = {
 };
 
 const fr: OnboardingCopy = {
+  needAnswer: "Réponds aux questions de cette page pour continuer (fais défiler vers le bas si certaines sont hors de vue).",
   progressHint: "Chaque réponse rend ton parcours plus précis.",
   skipStep: "Passer cette étape",
   finishNow: "Terminer maintenant",
@@ -166,7 +169,7 @@ const fr: OnboardingCopy = {
   living: "Vis-tu déjà en Suisse ?",
   living_yes: "Oui",
   living_no: "Non, je déménage ou je prévois de le faire",
-  eduTitle: "Où en es-tu aujourd'hui ?",
+  eduTitle: "Qu'as-tu déjà terminé ?",
   eduSubtitle: "Tout est facultatif. Cela sert uniquement à ton parcours.",
   highest: "Plus haut diplôme obtenu",
   edu_none: "Aucun pour l'instant",
@@ -209,6 +212,7 @@ const fr: OnboardingCopy = {
 };
 
 const it: OnboardingCopy = {
+  needAnswer: "Rispondi alle domande di questa pagina per continuare (scorri in basso se alcune non sono visibili).",
   progressHint: "Ogni risposta rende il tuo percorso più preciso.",
   skipStep: "Salta questo passaggio",
   finishNow: "Termina ora",
@@ -234,7 +238,7 @@ const it: OnboardingCopy = {
   living: "Vivi già in Svizzera?",
   living_yes: "Sì",
   living_no: "No, mi trasferisco o ho intenzione di farlo",
-  eduTitle: "A che punto sei adesso?",
+  eduTitle: "Che cosa hai già completato?",
   eduSubtitle: "Tutto facoltativo. Serve solo al tuo percorso.",
   highest: "Titolo di studio più alto",
   edu_none: "Nessuno per ora",

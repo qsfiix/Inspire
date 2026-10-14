@@ -280,7 +280,7 @@ export default function TrackerSystem({
             >
               <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="education">{t.habitCat_education}</option>
               <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="habit">{t.habitCat_habit}</option>
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="sport">{t.habitCat_habit}</option>
+              <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="sport">{t.habitCat_sport}</option>
               <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="health">{t.habitCat_health}</option>
               <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="productivity">{t.habitCat_productivity}</option>
               <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="other">{t.habitCat_other}</option>

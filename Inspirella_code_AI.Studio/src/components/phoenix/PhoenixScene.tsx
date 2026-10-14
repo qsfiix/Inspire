@@ -341,7 +341,7 @@ export default function PhoenixScene({ isDark, enabled = true, onStatus }: Phoen
     const current = { x: 0, y: 0, scale: 1, stage: 0, opacity: 1, rotX: 0, rotY: 0, ambient: 0, velocity: 0 };
     let lastScrollY = window.scrollY;
     let ambientSettled = 0;
-    let wasAmbient = false;
+    let prevPage = "";
     let portalUntil = 0;
     let quiet = false;
     let frameCount = 0;
@@ -412,8 +412,12 @@ export default function PhoenixScene({ isDark, enabled = true, onStatus }: Phoen
       // Portal: right after leaving a story page (e.g. login -> dashboard) the
       // phoenix first flies into the element marked data-scene-portal (the My
       // Path staircase) and only then dissolves into the ambient galaxy.
-      if (isAmbient && !wasAmbient && !first) portalUntil = now + 2600;
-      wasAmbient = isAmbient;
+      // The flight only makes sense when the dashboard (which has the staircase) is the next
+      // page; on onboarding, login and the like the phoenix used to hang in front of the form
+      // for 2.6 s waiting for a staircase that never comes.
+      const page = document.body.dataset.scenePage ?? "";
+      if (isAmbient && page === "dashboard" && prevPage !== "dashboard" && ["home", "login", "onboarding", ""].includes(prevPage) && !first) portalUntil = now + 2600;
+      prevPage = page;
       const inPortalWindow = isAmbient && now < portalUntil && !reduceMotion;
       const portalEl = inPortalWindow ? document.querySelector<HTMLElement>("[data-scene-portal]") : null;
       let portalRect = portalEl?.getBoundingClientRect();

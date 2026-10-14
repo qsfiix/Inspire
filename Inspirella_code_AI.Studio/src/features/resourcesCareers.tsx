@@ -26,6 +26,14 @@ import GoalButton from "../components/GoalButton";
 
 const MAX_COMPARE = 3;
 
+/** First option of the canton filter in the institutions list. */
+const CANTON_FILTER_LABEL: Record<LanguageCode, string> = {
+  de: "Alle Kantone",
+  en: "All cantons",
+  fr: "Tous les cantons",
+  it: "Tutti i cantoni"
+};
+
 /**
  * Unified hub for the three ways a user discovers opportunities in
  * Switzerland: curated web resources, professions, and institutions.
@@ -398,7 +406,9 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet }: a
 
   const needle = searchText.trim().toLowerCase();
   const filtered = professionsList.filter(p => {
-    const titleText = localizedText(p.title, currentLanguage).toLowerCase();
+    // Search every language of the title: the German name still works in an English interface
+    // (professions are known by their German names, translations are machine-made).
+    const titleText = [...Object.values(p.title ?? {}), localizedText(p.title, currentLanguage)].filter((x): x is string => typeof x === "string").join(" ").toLowerCase();
     const descText = localizedText(p.description, currentLanguage).toLowerCase();
     const skills = localizedList(p.skillsRequired, currentLanguage).join(" ").toLowerCase();
 
@@ -764,6 +774,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet }: 
   const [instLoadError, setInstLoadError] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [catFilter, setCatFilter] = useState("all");
+  const [cantonFilter, setCantonFilter] = useState("all");
   const [selectedInst, setSelectedInst] = useState<Institution | null>(null);
   const [compareList, setCompareList] = useState<Institution[]>([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
@@ -807,8 +818,10 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet }: 
     const descText = localizedText(inst.description, currentLanguage).toLowerCase();
     const matchesSearch = !needle || titleText.includes(needle) || descText.includes(needle) || (inst.canton || "").toLowerCase().includes(needle);
     const matchesCat = catFilter === "all" || inst.category === catFilter;
-    return matchesSearch && matchesCat;
+    const matchesCanton = cantonFilter === "all" || inst.canton === cantonFilter;
+    return matchesSearch && matchesCat && matchesCanton;
   });
+  const cantonsPresent = [...new Set(institutionsList.map(i => i.canton).filter((c): c is string => !!c))].sort();
 
   const isInCompare = (id: string) => compareList.some(i => i.id === id);
   const toggleCompare = (inst: Institution) => {
@@ -851,6 +864,22 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet }: 
               className={`w-full bg-transparent text-[11px] focus:outline-none ${isDark ? "text-white placeholder-zinc-500" : "text-black placeholder-violet-950/40 font-bold"}`}
             />
           </div>
+
+          {cantonsPresent.length > 1 && (
+            <select
+              value={cantonFilter}
+              onChange={(e) => setCantonFilter(e.target.value)}
+              aria-label={CANTON_FILTER_LABEL[currentLanguage as LanguageCode] ?? CANTON_FILTER_LABEL.en}
+              className={`rounded-xl border px-2.5 py-2 text-[11px] font-semibold cursor-pointer focus:outline-none ${
+                isDark ? "bg-zinc-900/60 border-violet-950 text-white" : "bg-purple-50/50 border-purple-200 text-black"
+              }`}
+            >
+              <option value="all">{CANTON_FILTER_LABEL[currentLanguage as LanguageCode] ?? CANTON_FILTER_LABEL.en}</option>
+              {cantonsPresent.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          )}
 
           <div className="flex flex-wrap gap-1">
             {uniqueCategories.map(cat => (
