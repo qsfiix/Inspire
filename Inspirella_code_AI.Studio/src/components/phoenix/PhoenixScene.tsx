@@ -338,7 +338,7 @@ export default function PhoenixScene({ isDark, enabled = true, onStatus }: Phoen
     };
 
     // Smoothed scene state (eased towards per-frame targets for a floaty feel)
-    const current = { x: 0, y: 0, scale: 1, stage: 0, opacity: 1, rotX: 0, rotY: 0, ambient: 0, velocity: 0 };
+    const current = { x: 0, y: 0, scale: 1, stage: 0, opacity: 0, rotX: 0, rotY: 0, ambient: 0, velocity: 0 };
     let lastScrollY = window.scrollY;
     let ambientSettled = 0;
     let prevPage = "";
