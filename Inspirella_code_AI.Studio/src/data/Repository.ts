@@ -1642,3 +1642,43 @@ export const DataRepository = {
     LocalMockDB.clearAll();
   }
 };
+
+/**
+ * Short-lived in-memory cache for the two heaviest reads. Every school card used to
+ * re-download the whole institutions table plus ~2700 profession links and 1700 profession
+ * titles each time a pin was clicked; the map and the school lists fetched the institutions
+ * again on every mount. Same call, same answer for a minute or two. An empty or failed
+ * result is never kept, and a realtime change to the institutions table clears the cache.
+ */
+const cacheClearers: Array<() => void> = [];
+function cacheMethod(name: "getInstitutions" | "getProfessionInstitutionLinks", ttlMs: number): void {
+  const original = (DataRepository[name] as () => Promise<unknown[]>).bind(DataRepository);
+  let entry: { promise: Promise<unknown[]>; at: number } | undefined;
+  cacheClearers.push(() => {
+    entry = undefined;
+  });
+  (DataRepository as Record<string, unknown>)[name] = () => {
+    const now = Date.now();
+    if (entry && now - entry.at < ttlMs) return entry.promise;
+    const promise = original()
+      .then(result => {
+        if (!Array.isArray(result) || result.length === 0) entry = undefined;
+        return result;
+      })
+      .catch(err => {
+        entry = undefined;
+        throw err;
+      });
+    entry = { promise, at: now };
+    return promise;
+  };
+}
+cacheMethod("getInstitutions", 60_000);
+cacheMethod("getProfessionInstitutionLinks", 300_000);
+
+const originalSubscribeToInstitutions = DataRepository.subscribeToInstitutions.bind(DataRepository);
+DataRepository.subscribeToInstitutions = (callback: () => void) =>
+  originalSubscribeToInstitutions(() => {
+    cacheClearers.forEach(clear => clear());
+    callback();
+  });

@@ -122,114 +122,164 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
     };
   }, []);
 
-  // Step 2: Initialize / Reinitialize Mapbox with retrieved institutions
+  // Step 2: Create the map ONCE. It used to be torn down and rebuilt whenever the institutions list
+  // changed (first static list, then the database, then every realtime event) or the theme flipped:
+  // each rebuild is a new WebGL context, a new billed Mapbox map load and a leak of GPU memory, which
+  // is what froze the page and eventually the browser. Data and theme now update the existing map.
+  const geoRef = useRef<GeoInstitution[]>([]);
+  geoRef.current = geoInstitutions;
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
+  const selectedMarkerRef = useRef<any>(null);
+  const mapboxglRef = useRef<any>(null);
+
+  const toFeatureCollection = (list: GeoInstitution[]) => ({
+    type: "FeatureCollection" as const,
+    features: list.map(inst => ({
+      type: "Feature" as const,
+      properties: { id: inst.id },
+      geometry: { type: "Point" as const, coordinates: inst.coordinates }
+    }))
+  });
+
   useEffect(() => {
-    let token = accessToken;
-    if (!token) {
-      token = "";
-    }
+    let cancelled = false;
+
+    const installLayers = (map: any) => {
+      // Real volumetric 3D buildings (see Decisions.md): a normal fill-extrusion layer on the
+      // style's own `composite` building data. Only when that source has the data; a custom Studio
+      // style may not, and this stays a no-op then. Only visible once zoomed in to city-block level.
+      try {
+        const source = map.getSource("composite") as { vectorLayerIds?: string[] } | undefined;
+        const hasBuildingData = !!source?.vectorLayerIds?.includes("building");
+        if (hasBuildingData && !map.getLayer("inspirella-3d-buildings")) {
+          const firstSymbolLayerId = (map.getStyle()?.layers || []).find((layer: any) => layer.type === "symbol")?.id;
+          map.addLayer(
+            {
+              id: "inspirella-3d-buildings",
+              source: "composite",
+              "source-layer": "building",
+              filter: ["==", "extrude", "true"],
+              type: "fill-extrusion",
+              minzoom: 15,
+              paint: {
+                "fill-extrusion-color": isDarkRef.current ? "#7c3aed" : "#a78bfa",
+                "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.5, ["get", "height"]],
+                "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.5, ["get", "min_height"]],
+                "fill-extrusion-opacity": 0.75
+              }
+            },
+            firstSymbolLayerId
+          );
+        }
+      } catch (buildingLayerErr) {
+        console.warn("Inspirella: skipped 3D building extrusion.", buildingLayerErr);
+      }
+
+      // The institutions are ONE GeoJSON source drawn by the GPU (clusters when zoomed out, glowing
+      // dots when close). They used to be ~530 DOM elements, each moved on every frame of every pan.
+      if (!map.getSource("inspirella-institutions")) {
+        map.addSource("inspirella-institutions", {
+          type: "geojson",
+          data: toFeatureCollection(geoRef.current),
+          cluster: true,
+          clusterRadius: 42,
+          clusterMaxZoom: 11
+        });
+      }
+      if (map.getLayer("inspirella-clusters")) return;
+      map.addLayer({
+        id: "inspirella-clusters",
+        type: "circle",
+        source: "inspirella-institutions",
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": ["step", ["get", "point_count"], "#8b5cf6", 15, "#7c3aed", 60, "#6d28d9"],
+          "circle-radius": ["step", ["get", "point_count"], 15, 15, 19, 60, 24],
+          "circle-opacity": 0.9,
+          "circle-stroke-width": 3,
+          "circle-stroke-color": "rgba(196, 181, 253, 0.45)"
+        }
+      });
+      // The number on a cluster uses a font the active style already ships glyphs for.
+      const styleInfo = map.getStyle();
+      if (styleInfo?.glyphs) {
+        const font = (styleInfo.layers || []).find((l: any) => l.type === "symbol" && l.layout?.["text-font"])?.layout["text-font"] ?? ["DIN Pro Medium", "Arial Unicode MS Bold"];
+        map.addLayer({
+          id: "inspirella-cluster-count",
+          type: "symbol",
+          source: "inspirella-institutions",
+          filter: ["has", "point_count"],
+          layout: { "text-field": ["get", "point_count_abbreviated"], "text-font": font, "text-size": 12, "text-allow-overlap": true, "text-ignore-placement": true },
+          paint: { "text-color": "#ffffff" }
+        });
+      }
+      map.addLayer({
+        id: "inspirella-glow",
+        type: "circle",
+        source: "inspirella-institutions",
+        filter: ["!", ["has", "point_count"]],
+        paint: { "circle-radius": 13, "circle-color": "#8b5cf6", "circle-opacity": 0.32, "circle-blur": 0.9 }
+      });
+      map.addLayer({
+        id: "inspirella-core",
+        type: "circle",
+        source: "inspirella-institutions",
+        filter: ["!", ["has", "point_count"]],
+        paint: { "circle-radius": 5, "circle-color": "#ede9fe", "circle-stroke-width": 2, "circle-stroke-color": "#8b5cf6" }
+      });
+    };
 
     const loadMapbox = async () => {
       try {
-        const mapboxgl = (window as any).mapboxgl || await import("mapbox-gl").then(m => m.default || m);
-        if (!mapboxgl) throw new Error("Mapbox GL not loaded yet");
+        const mapboxgl: any = await import("mapbox-gl").then(m => m.default || m);
+        if (cancelled || !mapContainerRef.current) return;
+        mapboxglRef.current = mapboxgl;
+        mapboxgl.accessToken = accessToken || "";
 
-        mapboxgl.accessToken = token;
+        const map = new mapboxgl.Map({
+          container: mapContainerRef.current,
+          style: styleUrl || (isDarkRef.current ? "mapbox://styles/mapbox/dark-v11" : "mapbox://styles/mapbox/light-v11"),
+          center: [8.2275, 46.8182],
+          zoom: 7.2,
+          minZoom: 6,
+          maxBounds: SWITZERLAND_MAX_BOUNDS,
+          pitch: 45,
+          bearing: -5,
+          interactive: true,
+          attributionControl: false,
+          fadeDuration: 0,
+          renderWorldCopies: false
+        });
+        mapInstance.current = map;
+        if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__inspirellaMap = map; // dev-only: lets the browser check drive the map
 
-        if (mapContainerRef.current) {
-          // Initialize map centered in Switzerland
-          mapInstance.current = new mapboxgl.Map({
-            container: mapContainerRef.current,
-            style: styleUrl || (isDark ? "mapbox://styles/mapbox/dark-v11" : "mapbox://styles/mapbox/light-v11"),
-            center: [8.2275, 46.8182],
-            zoom: 7.2,
-            minZoom: 6,
-            maxBounds: SWITZERLAND_MAX_BOUNDS,
-            pitch: is3DMode ? 45 : 0,
-            bearing: -5,
-            interactive: true,
-            attributionControl: false
+        // "style.load" fires for the first style and again after a theme switch (setStyle drops
+        // custom layers), so the layers are installed from here, once per style.
+        map.on("style.load", () => installLayers(map));
+        map.once("load", () => setMapEngineLoaded(true));
+
+        // Pins and clusters: handlers registered once, they follow the layers across style changes.
+        map.on("click", "inspirella-clusters", (e: any) => {
+          const feature = e.features?.[0];
+          const source: any = map.getSource("inspirella-institutions");
+          if (!feature || !source) return;
+          source.getClusterExpansionZoom(feature.properties.cluster_id, (err: unknown, zoom: number) => {
+            if (!err) map.easeTo({ center: feature.geometry.coordinates, zoom: Math.min(zoom + 0.5, 15) });
           });
-
-          mapInstance.current.on("load", () => {
-            setMapEngineLoaded(true);
-
-            // Real volumetric 3D buildings (not just a tilted camera on a flat map):
-            // the standard Mapbox styles (dark-v11/light-v11) ship building height data
-            // in their `composite` source's "building" source-layer, so this is a normal
-            // fill-extrusion layer, not a different tool. A custom Studio style's
-            // `composite` source may or may not have been composed from a tileset that
-            // includes "building" data (Mapbox errors loudly if a style layer references
-            // a source-layer the source doesn't actually have), so this only runs once
-            // that's confirmed - safe no-op otherwise. Only visible once zoomed in close
-            // (city-block level); that's how building extrusion works, not a bug.
-            // Wrapped defensively: a style/source surprise here must never stop the
-            // marker-adding code right below it from running.
-            try {
-              const source = mapInstance.current.getSource("composite") as { vectorLayerIds?: string[] } | undefined;
-              const hasBuildingData = !!source?.vectorLayerIds?.includes("building");
-              if (hasBuildingData && !mapInstance.current.getLayer("inspirella-3d-buildings")) {
-                const layers = mapInstance.current.getStyle()?.layers || [];
-                const firstSymbolLayerId = layers.find((layer: any) => layer.type === "symbol")?.id;
-                mapInstance.current.addLayer(
-                  {
-                    id: "inspirella-3d-buildings",
-                    source: "composite",
-                    "source-layer": "building",
-                    filter: ["==", "extrude", "true"],
-                    type: "fill-extrusion",
-                    minzoom: 14,
-                    paint: {
-                      "fill-extrusion-color": isDark ? "#7c3aed" : "#a78bfa",
-                      "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 14, 0, 14.5, ["get", "height"]],
-                      "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 14, 0, 14.5, ["get", "min_height"]],
-                      "fill-extrusion-opacity": 0.75
-                    }
-                  },
-                  firstSymbolLayerId
-                );
-              } else if (!hasBuildingData) {
-                console.info(
-                  "Inspirella: the active Mapbox style has no building height data (composite source lacks a 'building' layer), so 3D building extrusion is skipped. This is a style configuration matter, not a code error - see Mapbox Studio's style sources."
-                );
-              }
-            } catch (buildingLayerErr) {
-              console.warn("Inspirella: skipped 3D building extrusion.", buildingLayerErr);
-            }
-
-            // Only records with validated coordinates are placed on the map.
-            geoInstitutions.forEach((inst) => {
-              // No per-marker animate-ping: with the real dataset (91+ institutions and
-              // growing) a permanent pulse on every pin at once reads as visual noise
-              // rather than a signal. Hover/selection feedback (scale, ring) is enough.
-              // "Pillar of light" marker (index.css .inspirella-pin): a glowing
-              // core on the exact location with a beam rising from it - reads
-              // as 3D over the tilted map and matches the site's glow language.
-              const el = document.createElement("button");
-              el.type = "button";
-              el.className = "inspirella-pin";
-              el.setAttribute("aria-label", inst.title);
-              el.innerHTML = `<span class="pin-beam"></span><span class="pin-core"></span>`;
-
-              el.addEventListener("click", () => {
-                setSelectedInst(inst);
-                // Zoom in close to the building (not just "somewhere in the
-                // canton") - 9.5 used to be LOWER than whatever zoom the user
-                // was already at, so clicking a pin could visibly zoom out.
-                // 16 is well past the 14.5 threshold where 3D buildings kick
-                // in, so clicking a pin reliably zooms in to street level.
-                mapInstance.current?.flyTo({
-                  center: inst.coordinates,
-                  zoom: 16,
-                  essential: true
-                });
-              });
-
-              new mapboxgl.Marker({ element: el, anchor: "bottom" })
-                .setLngLat(inst.coordinates)
-                .addTo(mapInstance.current);
-            });
-          });
+        });
+        map.on("click", "inspirella-core", (e: any) => {
+          const id = e.features?.[0]?.properties?.id;
+          const inst = geoRef.current.find(i => i.id === id);
+          if (!inst) return;
+          setSelectedInst(inst);
+          // Zoom in close to the building (not just "somewhere in the canton"). 16 is past the
+          // 15.5 threshold where 3D buildings rise, so a pin click reliably lands at street level.
+          map.flyTo({ center: inst.coordinates, zoom: 16, essential: true });
+        });
+        for (const layer of ["inspirella-clusters", "inspirella-core"]) {
+          map.on("mouseenter", layer, () => (map.getCanvas().style.cursor = "pointer"));
+          map.on("mouseleave", layer, () => (map.getCanvas().style.cursor = ""));
         }
       } catch (err) {
         console.warn("Mapbox setup failed (Sandbox/Iframe WebGL constraints block standard rendering). Using direct Dynamic Vector Switzerland projection map instead.");
@@ -237,22 +287,50 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
       }
     };
 
-    const timer = setTimeout(() => {
-      loadMapbox();
-    }, 700);
+    const timer = setTimeout(loadMapbox, 700);
 
     return () => {
+      cancelled = true;
       clearTimeout(timer);
+      selectedMarkerRef.current?.remove();
+      selectedMarkerRef.current = null;
       if (mapInstance.current) {
         mapInstance.current.remove();
         mapInstance.current = null;
       }
     };
-    // isFullscreen is deliberately NOT a dependency: toggling it used to destroy and
-    // recreate the entire map (losing `mapEngineLoaded` sync along the way, which
-    // showed as a blank grey screen in fullscreen). The ResizeObserver below handles
-    // the actual container-size change instead - cheaper and doesn't reset anything.
-  }, [accessToken, styleUrl, geoInstitutions, isDark]);
+    // Only the credentials and a custom style recreate the map. isFullscreen is deliberately NOT a
+    // dependency either: the ResizeObserver below handles the container-size change.
+  }, [accessToken, styleUrl]);
+
+  // New data (database load, realtime change): update the source, never the map.
+  useEffect(() => {
+    const source = mapInstance.current?.getSource?.("inspirella-institutions");
+    if (source && mapEngineLoaded) source.setData(toFeatureCollection(geoInstitutions));
+  }, [geoInstitutions, mapEngineLoaded]);
+
+  // Theme switch: change the base style in place (a custom Studio style is left as it is).
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map || !mapEngineLoaded || styleUrl) return;
+    map.setStyle(isDark ? "mapbox://styles/mapbox/dark-v11" : "mapbox://styles/mapbox/light-v11");
+  }, [isDark, mapEngineLoaded, styleUrl]);
+
+  // The selected school keeps its "pillar of light" (one DOM marker instead of ~530).
+  useEffect(() => {
+    const map = mapInstance.current;
+    const mapboxgl = mapboxglRef.current;
+    selectedMarkerRef.current?.remove();
+    selectedMarkerRef.current = null;
+    if (!map || !mapboxgl || !mapEngineLoaded || !selectedInst || !hasCoordinates(selectedInst)) return;
+    const el = document.createElement("div");
+    el.className = "inspirella-pin inspirella-pin-selected";
+    el.setAttribute("aria-hidden", "true");
+    el.innerHTML = `<span class="pin-beam"></span><span class="pin-core"></span>`;
+    selectedMarkerRef.current = new mapboxgl.Marker({ element: el, anchor: "bottom" })
+      .setLngLat(selectedInst.coordinates)
+      .addTo(map);
+  }, [selectedInst, mapEngineLoaded]);
 
   // Keep the Mapbox canvas in sync with its container's real size. Mapbox GL only
   // measures the container once at creation - it does not notice later size changes

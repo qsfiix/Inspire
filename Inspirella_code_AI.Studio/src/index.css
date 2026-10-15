@@ -456,6 +456,9 @@ body:not(.dark-mode) .inst-panel .card-premium-accent {
   transform: scale(1.25);
 }
 
+.inspirella-pin-selected { pointer-events: none; }
+.inspirella-pin-selected .pin-beam { transform: translateX(-50%) scaleY(1); }
+
 /* My Path: sparks rising off the steps already climbed */
 .path-spark {
   opacity: 0;

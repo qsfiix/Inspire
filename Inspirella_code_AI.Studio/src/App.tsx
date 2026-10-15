@@ -60,7 +60,10 @@ export default function App() {
   // Also on the map page (Sofiia 2026-09-28: the black page there broke the
   // style) - the ambient galaxy freezes after a few seconds, so running
   // alongside Mapbox's own WebGL costs next to nothing.
-  const sceneVisible = sceneStatus !== "error";
+  // The map page has its own WebGL context: two at once made it lag and, on phones, killed the tab.
+  // The backdrop stops rendering there (the canvas is hidden) and the page gets a plain background.
+  const sceneActive = activeTab !== "map";
+  const sceneVisible = sceneStatus !== "error" && sceneActive;
 
   const handleThemeToggle = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
@@ -376,7 +379,7 @@ export default function App() {
     } ${sceneVisible ? "bg-transparent" : isDark ? "bg-[#06040a]" : "bg-[#f5f3ff]"}`}>
       {sceneStatus !== "error" && (
         <Suspense fallback={null}>
-          <PhoenixScene isDark={isDark} onStatus={setSceneStatus} />
+          <PhoenixScene isDark={isDark} enabled={sceneActive} onStatus={setSceneStatus} />
         </Suspense>
       )}
       
