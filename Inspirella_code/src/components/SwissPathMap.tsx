@@ -542,7 +542,8 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   const pathEdgeKeys = useMemo(() => new Set((path ?? []).map(s => edgeKey(s.edge))), [path]);
   const pathNodes = useMemo(() => new Set((path ?? []).flatMap(s => [s.from, s.to])), [path]);
   const factFor = (code: string): CantonStageFact | undefined => (canton ? cantonFacts.find(f => f.canton === canton && f.node === code) : undefined);
-  const notOfferedHere = (code: string) => factFor(code)?.available === "no";
+  // "no" on the Gymnasium row only means "no Langzeitgymnasium", so it never greys out the whole stage.
+  const notOfferedHere = (code: string) => code !== "gymnasium" && factFor(code)?.available === "no";
   const ordered = useMemo(() => orderedNodes(nodes), [nodes]);
 
   const labelOf = (code: string) => nodes.get(code)?.label[currentLanguage] ?? nodeLabel(code, currentLanguage);
@@ -743,7 +744,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
         )}
         {canton && factFor(code) && (() => {
           const fact = factFor(code)!;
-          const offer = fact.available === "yes" ? ui.offerYes : fact.available === "no" ? ui.offerNo : fact.available === "partial" ? ui.offerPartial : "";
+          const offer = code === "gymnasium" ? "" : fact.available === "yes" ? ui.offerYes : fact.available === "no" ? ui.offerNo : fact.available === "partial" ? ui.offerPartial : "";
           return (
             <div className={`space-y-1.5 rounded-xl border p-3 ${isDark ? "border-emerald-300/25 bg-emerald-400/[0.06]" : "border-emerald-500/40 bg-emerald-50"}`}>
               <div className="flex items-start justify-between gap-2">
