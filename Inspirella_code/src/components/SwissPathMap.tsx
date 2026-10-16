@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Briefcase, ExternalLink, Flag, MapPin, School, Sparkles, X } from "lucide-react";
 import { DataRepository } from "../data/Repository";
-import type { EducationNode, EducationTransition, LanguageCode, RouteBackground } from "../types";
-import { AdmissionBox } from "./PathwayInfo";
+import type { CantonStageFact, EducationNode, EducationTransition, LanguageCode, RouteBackground } from "../types";
+import { AdmissionBox, BridgeBox } from "./PathwayInfo";
 import { kindLabel, nodeLabel } from "../lib/pathwayInfo";
 import {
   admissionRoutesForNode,
@@ -11,6 +11,8 @@ import {
   MAP_GEOMETRY,
   nodeBox,
   NODE_LAYOUT,
+  alternativePaths,
+  estimateYears,
   nodeForTargetLevel,
   nodeForProfessionType,
   nodeForSubgroup,
@@ -18,7 +20,6 @@ import {
   institutionSubgroupsForNode,
   BAND_AGES,
   MAIN_KINDS,
-  shortestPath,
   targetLevelForNode,
   type MapEdge
 } from "../lib/pathMap";
@@ -97,6 +98,16 @@ type Ui = {
   professionsOnStage: (n: number) => string;
   schoolsOnStage: (n: number) => string;
   stageTies: string;
+  myCanton: string;
+  cantonHint: string;
+  inCanton: (c: string) => string;
+  offerYes: string;
+  offerNo: string;
+  offerPartial: string;
+  option: (n: number) => string;
+  yearsAbout: (a: number, b: number) => string;
+  yearsNote: string;
+  notHere: string;
 };
 
 const UI: Record<LanguageCode, Ui> = {
@@ -148,10 +159,20 @@ const UI: Record<LanguageCode, Ui> = {
     mainWays: "Hauptwege",
     allWays: n => `Alle Wege zeigen (+${n})`,
     ageNote: "Alter: Richtwerte. Wer später einsteigt oder wechselt, ist nicht zu spät: viele Wege stehen auch Erwachsenen offen.",
-    ageRange: (a, b) => `ca. ${a}–${b} Jahre`,
+    ageRange: (a, b) => `ca. ${a === b ? a : a + "–" + b} Jahre`,
     professionsOnStage: n => `${n} Berufe auf diesem Weg`,
     schoolsOnStage: n => `${n} Schulen dazu`,
-    stageTies: "Weiter erkunden"
+    stageTies: "Weiter erkunden",
+    myCanton: "Mein Kanton",
+    cantonHint: "Wähle deinen Kanton, um zu sehen, wie es dort läuft (Schulmodell, Gymnasium, Ankommen, Ämter).",
+    inCanton: c => `In ${c}`,
+    offerYes: "Angebot vorhanden",
+    offerNo: "Kein solches Angebot",
+    offerPartial: "Nur teilweise",
+    option: n => `Variante ${n}`,
+    yearsAbout: (a, b) => `ca. ${a === b ? a : a + "–" + b} Jahre`,
+    yearsNote: "Die Dauer ist eine grobe Schätzung aus den Angaben der Stufen; sie hängt von Kanton, Schule und Person ab.",
+    notHere: "In diesem Kanton nicht angeboten"
   },
   en: {
     title: "Swiss Path Map",
@@ -201,10 +222,20 @@ const UI: Record<LanguageCode, Ui> = {
     mainWays: "Main ways",
     allWays: n => `Show all ways (+${n})`,
     ageNote: "Ages are a rough guide. Starting later or switching is not too late: many ways are open to adults too.",
-    ageRange: (a, b) => `about age ${a}–${b}`,
+    ageRange: (a, b) => `about age ${a === b ? a : a + "–" + b}`,
     professionsOnStage: n => `${n} professions on this path`,
     schoolsOnStage: n => `${n} schools for it`,
-    stageTies: "Keep exploring"
+    stageTies: "Keep exploring",
+    myCanton: "My canton",
+    cantonHint: "Choose your canton to see how it works there (school model, Gymnasium, arriving, offices).",
+    inCanton: c => `In ${c}`,
+    offerYes: "Offered",
+    offerNo: "Not offered",
+    offerPartial: "Only in part",
+    option: n => `Option ${n}`,
+    yearsAbout: (a, b) => `about ${a === b ? a : a + "–" + b} years`,
+    yearsNote: "The length is a rough estimate from the stage details; it depends on canton, school and person.",
+    notHere: "Not offered in this canton"
   },
   fr: {
     title: "Swiss Path Map",
@@ -254,10 +285,20 @@ const UI: Record<LanguageCode, Ui> = {
     mainWays: "Voies principales",
     allWays: n => `Afficher toutes les voies (+${n})`,
     ageNote: "Les âges sont indicatifs. Commencer plus tard ou changer de voie n'est pas trop tard : beaucoup de voies sont ouvertes aux adultes.",
-    ageRange: (a, b) => `env. ${a}–${b} ans`,
+    ageRange: (a, b) => `env. ${a === b ? a : a + "–" + b} ans`,
     professionsOnStage: n => `${n} métiers sur ce parcours`,
     schoolsOnStage: n => `${n} écoles`,
-    stageTies: "Continuer à explorer"
+    stageTies: "Continuer à explorer",
+    myCanton: "Mon canton",
+    cantonHint: "Choisis ton canton pour voir comment cela se passe chez lui (modèle scolaire, gymnase, arrivée, offices).",
+    inCanton: c => `Dans le canton ${c}`,
+    offerYes: "Offre existante",
+    offerNo: "Pas d'offre de ce type",
+    offerPartial: "Seulement en partie",
+    option: n => `Variante ${n}`,
+    yearsAbout: (a, b) => `env. ${a === b ? a : a + "–" + b} ans`,
+    yearsNote: "La durée est une estimation approximative d'après les étapes; elle dépend du canton, de l'école et de la personne.",
+    notHere: "Non proposé dans ce canton"
   },
   it: {
     title: "Swiss Path Map",
@@ -307,10 +348,20 @@ const UI: Record<LanguageCode, Ui> = {
     mainWays: "Vie principali",
     allWays: n => `Mostra tutte le vie (+${n})`,
     ageNote: "Le età sono indicative. Iniziare più tardi o cambiare strada non è troppo tardi: molte vie sono aperte anche agli adulti.",
-    ageRange: (a, b) => `circa ${a}–${b} anni`,
+    ageRange: (a, b) => `circa ${a === b ? a : a + "–" + b} anni`,
     professionsOnStage: n => `${n} professioni su questo percorso`,
     schoolsOnStage: n => `${n} scuole`,
-    stageTies: "Continua a esplorare"
+    stageTies: "Continua a esplorare",
+    myCanton: "Il mio cantone",
+    cantonHint: "Scegli il tuo cantone per vedere come funziona lì (modello scolastico, liceo, arrivo, uffici).",
+    inCanton: c => `Nel cantone ${c}`,
+    offerYes: "Offerta presente",
+    offerNo: "Nessuna offerta di questo tipo",
+    offerPartial: "Solo in parte",
+    option: n => `Variante ${n}`,
+    yearsAbout: (a, b) => `circa ${a === b ? a : a + "–" + b} anni`,
+    yearsNote: "La durata è una stima approssimativa dalle tappe; dipende da cantone, scuola e persona.",
+    notHere: "Non offerto in questo cantone"
   }
 };
 
@@ -400,7 +451,15 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   const [to, setTo] = useState("");
   const [fromProfile, setFromProfile] = useState(false);
   const [view, setView] = useState<"map" | "list">(() => (typeof window !== "undefined" && window.innerWidth < 768 ? "list" : "map"));
-  const [canton, setCanton] = useState("");
+  const [canton, setCanton] = useState(() => {
+    try {
+      return localStorage.getItem("inspirella_pathmap_canton") ?? "";
+    } catch {
+      return "";
+    }
+  });
+  const [cantonFacts, setCantonFacts] = useState<CantonStageFact[]>([]);
+  const [routeIndex, setRouteIndex] = useState(0);
   const [showAllWays, setShowAllWays] = useState(false);
   const [professionCounts, setProfessionCounts] = useState<Record<string, number>>({});
   const [schoolCounts, setSchoolCounts] = useState<Record<string, number>>({});
@@ -432,6 +491,22 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
 
   const edges = useMemo(() => buildEdges(transitions), [transitions]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem("inspirella_pathmap_canton", canton);
+    } catch {
+      // private mode: the choice just is not remembered
+    }
+  }, [canton]);
+
+  useEffect(() => {
+    let active = true;
+    DataRepository.getCantonStageFacts().then(rows => active && setCantonFacts(rows)).catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // How many professions and schools hang on each stage (for the "explore further" buttons).
   useEffect(() => {
     let active = true;
@@ -461,9 +536,13 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   useEffect(() => {
     if (focusNode && NODE_LAYOUT[focusNode]) setSelection({ type: "node", code: focusNode });
   }, [focusNode]);
-  const path = useMemo(() => (from && to && from !== to ? shortestPath(edges, from, to) : undefined), [edges, from, to]);
+  const routeOptions = useMemo(() => (from && to && from !== to ? alternativePaths(edges, from, to, 3) : []), [edges, from, to]);
+  useEffect(() => setRouteIndex(0), [from, to]);
+  const path = routeOptions[Math.min(routeIndex, Math.max(0, routeOptions.length - 1))];
   const pathEdgeKeys = useMemo(() => new Set((path ?? []).map(s => edgeKey(s.edge))), [path]);
   const pathNodes = useMemo(() => new Set((path ?? []).flatMap(s => [s.from, s.to])), [path]);
+  const factFor = (code: string): CantonStageFact | undefined => (canton ? cantonFacts.find(f => f.canton === canton && f.node === code) : undefined);
+  const notOfferedHere = (code: string) => factFor(code)?.available === "no";
   const ordered = useMemo(() => orderedNodes(nodes), [nodes]);
 
   const labelOf = (code: string) => nodes.get(code)?.label[currentLanguage] ?? nodeLabel(code, currentLanguage);
@@ -571,7 +650,8 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
     const selected = selectedNodeCode === code || selectedEdge?.from === code || selectedEdge?.to === code;
     const onPath = pathNodes.has(code);
     const ring = selected ? "ring-2 ring-violet-400 shadow-[0_0_18px_rgba(167,139,250,0.55)]" : onPath ? "ring-2 ring-violet-400/80" : "";
-    return `${base} ${shape} border ${dashed} ${tone} ${ring} ${nodeDimmed(code) ? "opacity-30" : "opacity-100"} hover:opacity-100`;
+    const unavailable = notOfferedHere(code) ? "opacity-40 border-dotted" : "";
+    return `${base} ${shape} border ${dashed} ${tone} ${ring} ${nodeDimmed(code) ? "opacity-30" : "opacity-100"} ${unavailable} hover:opacity-100`;
   };
 
   const openNode = (code: string) => {
@@ -658,20 +738,30 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
           </div>
         )}
 
-        {routes.length > 0 && (
-          <div className="space-y-2">
-            {routes.some(r => !["hf", "fh", "ph", "uni"].includes(r)) && (
-              <label className="block">
-                <span className={label}>{ui.pickCanton}</span>
-                <select value={canton} onChange={ev => setCanton(ev.target.value)} className={`mt-1 w-full rounded-lg border px-2.5 py-1.5 text-[12px] ${isDark ? "border-white/15 bg-zinc-900 text-white" : "border-violet-300 bg-white text-violet-950"}`}>
-                  <option value="">{ui.anyCanton}</option>
-                  {CANTONS.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </label>
-            )}
-            <AdmissionBox canton={canton || undefined} routes={routes} language={currentLanguage} isDark={isDark} />
-          </div>
+        {!canton && cantonFacts.length > 0 && (
+          <p className={`text-[11.5px] leading-relaxed ${muted}`}>{ui.cantonHint}</p>
         )}
+        {canton && factFor(code) && (() => {
+          const fact = factFor(code)!;
+          const offer = fact.available === "yes" ? ui.offerYes : fact.available === "no" ? ui.offerNo : fact.available === "partial" ? ui.offerPartial : "";
+          return (
+            <div className={`space-y-1.5 rounded-xl border p-3 ${isDark ? "border-emerald-300/25 bg-emerald-400/[0.06]" : "border-emerald-500/40 bg-emerald-50"}`}>
+              <div className="flex items-start justify-between gap-2">
+                <span className={label}>{ui.inCanton(canton)}</span>
+                {offer && <span className={chip}>{offer}</span>}
+              </div>
+              <p className={`text-[12.5px] font-semibold leading-snug ${isDark ? "text-white" : "text-emerald-950"}`}>{fact.headline}</p>
+              {fact.text && <p className={`text-[12px] leading-relaxed ${cardText}`}>{fact.text}</p>}
+              {fact.url && (
+                <a href={fact.url} target="_blank" rel="noopener noreferrer" className={link}>
+                  {ui.official} <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+            </div>
+          );
+        })()}
+        {(code === "bridge" || code === "integration") && canton && <BridgeBox canton={canton} language={currentLanguage} isDark={isDark} />}
+        {routes.length > 0 && <AdmissionBox canton={canton || undefined} routes={routes} language={currentLanguage} isDark={isDark} />}
 
         {(ways.in.length > 0 || ways.out.length > 0) && (
           <div className="grid gap-3 sm:grid-cols-1">
@@ -826,12 +916,43 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                 <Sparkles className="h-3.5 w-3.5" /> {ui.newcomer}
               </button>
             </div>
+            <label className="flex max-w-xs flex-col">
+              <span className={label}>{ui.myCanton}</span>
+              <select className={`${select} mt-1`} value={canton} onChange={ev => setCanton(ev.target.value)}>
+                <option value="">{ui.anyCanton}</option>
+                {CANTONS.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </label>
 
             {from && to && from !== to && (
               <div role="status" aria-live="polite">
                 {path && path.length > 0 ? (
                   <div className="space-y-2">
-                    <span className={label}>{ui.yourWay} · {ui.stepsCount(path.length)}</span>
+                    {routeOptions.length > 1 && (
+                      <div role="tablist" aria-label={ui.yourWay} className="flex flex-wrap gap-1.5">
+                        {routeOptions.map((option, i) => {
+                          const y = estimateYears(option);
+                          const active = i === routeIndex;
+                          return (
+                            <button
+                              key={i}
+                              type="button"
+                              role="tab"
+                              aria-selected={active}
+                              onClick={() => setRouteIndex(i)}
+                              className={`cursor-pointer rounded-lg border px-2.5 py-1 text-left text-[11px] font-bold transition-colors ${active ? (isDark ? "border-violet-300 bg-violet-500/30 text-white" : "border-violet-700 bg-violet-700 text-white") : isDark ? "border-white/15 text-zinc-300 hover:bg-white/[0.06]" : "border-violet-300 text-violet-900 hover:bg-violet-50"}`}
+                            >
+                              {ui.option(i + 1)}
+                              <span className="ml-1.5 font-mono font-normal opacity-80">{ui.yearsAbout(Math.round(y.min), Math.round(y.max))}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                    <span className={label}>
+                      {ui.yourWay} · {ui.stepsCount(path.length)}
+                      {routeOptions.length === 1 ? " · " + ui.yearsAbout(Math.round(estimateYears(path).min), Math.round(estimateYears(path).max)) : ""}
+                    </span>
                     <ol className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-stretch">
                       <li className={`rounded-lg border px-2.5 py-1.5 text-[12px] font-bold ${isDark ? "border-violet-300/40 bg-violet-400/10 text-white" : "border-violet-400 bg-violet-50 text-violet-950"}`}>{labelOf(from)}</li>
                       {path.map(step => (
@@ -848,6 +969,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                 ) : (
                   <p className={`text-[12.5px] ${cardText}`}>{ui.noRoute}</p>
                 )}
+                {path && path.length > 0 && <p className={`mt-1.5 text-[10.5px] ${muted}`}>{ui.yearsNote}</p>}
               </div>
             )}
           </section>
@@ -942,7 +1064,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                         key={code}
                         type="button"
                         aria-pressed={selectedNodeCode === code}
-                        title={labelOf(code)}
+                        title={labelOf(code) + (notOfferedHere(code) ? " (" + ui.notHere + ")" : "")}
                         onClick={() => openNode(code)}
                         className={nodeClasses(code, n?.kind ?? "school")}
                         style={{ left: box.x, top: box.y, width: box.w, height: box.h }}

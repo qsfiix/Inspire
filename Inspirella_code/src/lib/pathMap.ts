@@ -280,3 +280,97 @@ export const BAND_AGES: Record<string, [number, number] | undefined> = {
   "3": [19, 23],
   "4": [22, 26]
 };
+
+/**
+ * Years a stage takes once entered (min, max), from the durations printed on the stage cards.
+ * Only used for the rough "about N years" of a route; real lengths depend on canton, school and person.
+ */
+export const NODE_YEARS: Record<string, [number, number]> = {
+  arrival: [0, 0],
+  recognition: [0.3, 0.8],
+  primar: [6, 8],
+  sek1: [3, 3],
+  gymnasium: [3, 6],
+  fms: [3, 3],
+  wms: [4, 4],
+  efz: [3, 4],
+  eba: [2, 2],
+  bridge: [0.5, 1],
+  integration: [1, 1],
+  adult: [1, 3],
+  gym_matura: [0, 0],
+  fachmatura: [1, 1],
+  passerelle: [1, 1],
+  berufsmatura: [0, 2],
+  work: [1, 3],
+  uni: [3, 3],
+  ph: [3, 3],
+  fh: [3, 3],
+  hf: [2, 4],
+  fa: [1, 3],
+  diplom_hfp: [1, 3],
+  master: [1.5, 2],
+  doctorate: [3, 5],
+  weiterbildung: [0.5, 2]
+};
+
+/** Rough duration of a route: the stages entered along the way, summed (the start stage is not counted). */
+export function estimateYears(steps: PathStep[]): { min: number; max: number } {
+  let min = 0;
+  let max = 0;
+  for (const s of steps) {
+    // The Berufsmaturität straight after Sek I means BM1: it runs alongside a whole apprenticeship.
+    const years = s.to === "berufsmatura" && !["efz", "eba", "work", "adult"].includes(s.from) ? ([3, 4] as [number, number]) : NODE_YEARS[s.to];
+    if (!years) continue;
+    min += years[0];
+    max += years[1];
+  }
+  return { min, max };
+}
+
+/**
+ * Up to `limit` genuinely different routes between two stages, best first. Routes that only
+ * differ in a stage that sits in a loop are not offered; the first one is always the cheapest.
+ */
+export function alternativePaths(edges: MapEdge[], start: string, goal: string, limit = 3): PathStep[][] {
+  if (start === goal) return [];
+  const forward = edges.filter(e => !e.loops);
+  const byFrom = new Map<string, MapEdge[]>();
+  for (const e of forward) byFrom.set(e.from, [...(byFrom.get(e.from) ?? []), e]);
+  const found: { steps: PathStep[]; cost: number }[] = [];
+  const maxSteps = 6;
+  const visit = (at: string, steps: PathStep[], seen: Set<string>, cost: number) => {
+    if (found.length > 400) return;
+    if (at === goal) {
+      found.push({ steps: [...steps], cost });
+      return;
+    }
+    if (steps.length >= maxSteps) return;
+    for (const e of byFrom.get(at) ?? []) {
+      if (seen.has(e.to)) continue;
+      seen.add(e.to);
+      steps.push({ from: e.from, to: e.to, edge: e });
+      visit(e.to, steps, seen, cost + e.weight);
+      steps.pop();
+      seen.delete(e.to);
+    }
+  };
+  visit(start, [], new Set([start]), 0);
+  found.sort((a, b) => a.cost - b.cost || a.steps.length - b.steps.length);
+  const picked: PathStep[][] = [];
+  const used: Set<string>[] = [];
+  for (const f of found) {
+    const mids = new Set(f.steps.slice(0, -1).map(s => s.to));
+    // A route is "different" when it passes a stage that no earlier pick passes.
+    const isNew = picked.length === 0 || used.every(u => [...mids].some(m => !u.has(m)) || mids.size !== u.size);
+    if (!isNew) continue;
+    picked.push(f.steps);
+    used.push(mids);
+    if (picked.length >= limit) break;
+  }
+  if (picked.length === 0) {
+    const fallback = shortestPath(edges, start, goal);
+    return fallback && fallback.length > 0 ? [fallback] : [];
+  }
+  return picked;
+}

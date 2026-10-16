@@ -68,3 +68,22 @@ describe("links to professions and schools", () => {
     expect(nodeForSubgroup("nonsense")).toBeUndefined();
   });
 });
+
+describe("alternatives and duration", () => {
+  it("offers different routes, cheapest first, and sums the years of the stages entered", async () => {
+    const { alternativePaths, estimateYears } = await import("./pathMap");
+    const edges = buildEdges([
+      tr("sek1", "gymnasium", "direct"), tr("gymnasium", "gym_matura", "direct"), tr("gym_matura", "uni", "direct"),
+      tr("sek1", "efz", "direct"), tr("efz", "berufsmatura", "direct"), tr("berufsmatura", "fh", "direct"), tr("fh", "master", "direct"), tr("uni", "master", "direct")
+    ]);
+    const routes = alternativePaths(edges, "sek1", "master");
+    expect(routes.length).toBe(2);
+    expect(routes[0].at(-1)?.to).toBe("master");
+    const via = routes.map(r => r.map(s => s.to).join(">"));
+    expect(via).toContain("gymnasium>gym_matura>uni>master");
+    expect(via).toContain("efz>berufsmatura>fh>master");
+    const years = estimateYears(routes[0]);
+    expect(years.max).toBeGreaterThanOrEqual(years.min);
+    expect(years.min).toBeGreaterThan(3);
+  });
+});

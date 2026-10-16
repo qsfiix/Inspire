@@ -439,6 +439,18 @@ export interface EducationNode {
   verified: boolean;
 }
 
+/** What a canton does at one stage of the system (canton_stage_facts): school model, Langgymnasium or not, newcomer schooling, offices. */
+export interface CantonStageFact {
+  canton: string;
+  node: string;
+  /** yes | no | partial | unknown: is the offer there in this canton */
+  available: string;
+  headline: string;
+  text?: string;
+  url?: string;
+  verified: boolean;
+}
+
 /** A national or cantonal how-to resource by topic (resources.topic_code). */
 export interface TopicResource {
   topic: string;

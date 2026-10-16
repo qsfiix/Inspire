@@ -14,6 +14,7 @@ import {
   ProfessionFacts,
   AdmissionCondition,
   EducationProgram,
+  CantonStageFact,
   EducationNode,
   EducationTransition,
   TopicResource,
@@ -1607,6 +1608,26 @@ export const DataRepository = {
         requirements: normalizeText(r.requirements_de),
         cantonalNote: normalizeText(r.cantonal_note_de),
         goodToKnow: facts,
+        url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
+        verified: r.verification_status === "verified"
+      }];
+    });
+  },
+
+  /** What each canton does at each stage of the system (Swiss Path Map, canton view). */
+  getCantonStageFacts: async (): Promise<CantonStageFact[]> => {
+    const rows = await loadActiveRows("canton_stage_facts");
+    return rows.flatMap((r): CantonStageFact[] => {
+      const canton = normalizeText(r.canton_code);
+      const node = normalizeText(r.node_code);
+      const headline = normalizeText(r.headline_de);
+      if (!canton || !node || !headline) return [];
+      return [{
+        canton: canton.toUpperCase(),
+        node,
+        available: normalizeText(r.available) ?? "unknown",
+        headline,
+        text: normalizeText(r.text_de),
         url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
         verified: r.verification_status === "verified"
       }];
