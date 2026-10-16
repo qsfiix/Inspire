@@ -10,6 +10,7 @@ import SectionGlow from "../components/SectionGlow";
 import Reveal from "../components/Reveal";
 import { daysUntilDue } from "../components/TrackerSystem";
 import TrackerNextUp from "../components/TrackerNextUp";
+import PathMapLink from "../components/PathMapLink";
 import { EducationLevel, LanguageCode, TrackerGoal } from "../types";
 
 export function DashboardView({
@@ -21,7 +22,8 @@ export function DashboardView({
   handleTabTransition,
   trackers = [],
   onTrackersChange,
-  onProfileUpdate
+  onProfileUpdate,
+  onOpenPathMap
 }: any) {
   const [selectedSystemLevel, setSelectedSystemLevel] = useState<EducationLevel | null>(SWISS_EDUCATION_LEVELS[2]);
 
@@ -130,6 +132,9 @@ export function DashboardView({
           onExploreAlternatives={() => handleTabTransition("resources")}
           onOpenTracker={() => handleTabTransition("tracker")}
         />
+        <div className="mt-3">
+          <PathMapLink language={currentLanguage} isDark={isDark} onOpen={onOpenPathMap} />
+        </div>
       </section>
 
       <Reveal as="section">

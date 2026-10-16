@@ -222,3 +222,61 @@ export function institutionSubgroupsForNode(code: string): string[] {
     default: return [];
   }
 }
+
+/** Profession types (professions.profession_type) that end at a stage; the other way round of pathwayInfo.nodesForGoal. */
+export function professionTypesForNode(code: string): string[] {
+  switch (code) {
+    case "efz": return ["apprenticeship_efz"];
+    case "eba": return ["apprenticeship_eba"];
+    case "fa": return ["fachausweis"];
+    case "diplom_hfp": return ["diplom"];
+    case "hf": return ["hf_diploma"];
+    case "fh": return ["fh_bachelor"];
+    case "uni": return ["university"];
+    default: return [];
+  }
+}
+
+/** The stage a school type belongs to (institutions.institution_subgroup). */
+export function nodeForSubgroup(subgroup: string | undefined): string | undefined {
+  switch (subgroup) {
+    case "gymnasium": return "gymnasium";
+    case "fachmittelschule": return "fms";
+    case "vocational_school": return "efz";
+    case "university_of_applied_sciences": return "fh";
+    case "teacher_education": return "ph";
+    case "university":
+    case "federal_institute_of_technology": return "uni";
+    case "continuing_education_center": return "hf";
+    default: return undefined;
+  }
+}
+
+/** The stage a profession leads to (its profession_type), if the type has one. */
+export function nodeForProfessionType(type: string | undefined): string | undefined {
+  switch (type) {
+    case "apprenticeship_efz": return "efz";
+    case "apprenticeship_eba": return "eba";
+    case "fachausweis": return "fa";
+    case "diplom": return "diplom_hfp";
+    case "hf_diploma": return "hf";
+    case "fh_bachelor": return "fh";
+    case "university": return "uni";
+    default: return undefined;
+  }
+}
+
+/** Kinds drawn by default: the main ways. The rest (exams, bridges, second chances, after work) appear on demand. */
+export const MAIN_KINDS = new Set(["direct", "shortened"]);
+
+/**
+ * Typical ages per band, as a rough guide: Primarstufe (incl. two years of Kindergarten) starts at about 4
+ * and lasts eight years, Sekundarstufe I three more; everything after that depends on the way taken.
+ */
+export const BAND_AGES: Record<string, [number, number] | undefined> = {
+  "0": [4, 12],
+  "1": [12, 15],
+  "2": [15, 19],
+  "3": [19, 23],
+  "4": [22, 26]
+};

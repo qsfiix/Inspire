@@ -8,6 +8,8 @@ import { categoryLabel } from "../lib/categoryLabels";
 import { isTrusted, isProvisional } from "../lib/quality";
 import { AdmissionBox } from "./PathwayInfo";
 import GoalButton from "./GoalButton";
+import PathMapLink from "./PathMapLink";
+import { nodeForSubgroup } from "../lib/pathMap";
 import { admissionRoutesForInstitution } from "../lib/pathwayInfo";
 
 // Focus flags (BM directions, FMS) for every institution: one fetch, shared by all cards.
@@ -23,6 +25,8 @@ interface InstitutionDetailCardProps {
   onToggleCompare: () => void;
   /** Called after the school was made the goal (e.g. to open My Path). */
   onGoalSet?: () => void;
+  /** Opens the Swiss Path Map at the stage this kind of school belongs to. */
+  onShowOnPathMap?: (node?: string) => void;
 }
 
 /**
@@ -46,7 +50,8 @@ export default function InstitutionDetailCard({
   isInCompare,
   compareDisabled,
   onToggleCompare,
-  onGoalSet
+  onGoalSet,
+  onShowOnPathMap
 }: InstitutionDetailCardProps) {
   const t = TRANSLATIONS[currentLanguage];
   const isDark = theme !== "light";
@@ -270,6 +275,7 @@ export default function InstitutionDetailCard({
 
       <div className="space-y-2.5">
         <GoalButton item={{ kind: "institution", institution }} language={currentLanguage} isDark={isDark} onDone={onGoalSet} className="w-full justify-center" />
+        <PathMapLink node={nodeForSubgroup(institution.subgroup)} language={currentLanguage} isDark={isDark} onOpen={onShowOnPathMap} className="w-full justify-center" />
         <button
           onClick={onToggleCompare}
           disabled={!isInCompare && compareDisabled}

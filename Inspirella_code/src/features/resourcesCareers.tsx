@@ -23,6 +23,9 @@ import InstitutionDetailCard from "../components/InstitutionDetailCard";
 import SectionGlow from "../components/SectionGlow";
 import { categoryLabel } from "../lib/categoryLabels";
 import GoalButton from "../components/GoalButton";
+import PathMapLink from "../components/PathMapLink";
+import { institutionSubgroupsForNode, nodeForProfessionType, professionTypesForNode } from "../lib/pathMap";
+import { nodeLabel } from "../lib/pathwayInfo";
 
 const MAX_COMPARE = 3;
 
@@ -54,9 +57,12 @@ export function ResourcesCareersView({
   filteredResources,
   resourcesList,
   userProfile,
-  onGoalSet
+  onGoalSet,
+  focus,
+  onShowOnPathMap
 }: any) {
-  const [activeSection, setActiveSection] = useState<"web" | "professions" | "institutions">("web");
+  // Coming from a stage of the Swiss Path Map: open its section, filtered to that stage.
+  const [activeSection, setActiveSection] = useState<"web" | "professions" | "institutions">(focus?.section ?? "web");
 
   const sections = [
     { id: "web", label: t.resourcesTabWeb },
@@ -116,12 +122,12 @@ export function ResourcesCareersView({
         )}
         {activeSection === "professions" && (
           <motion.div key="panel-professions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <ProfessionsExplorer isDark={isDark} currentLanguage={currentLanguage} t={t} onGoalSet={onGoalSet} />
+            <ProfessionsExplorer isDark={isDark} currentLanguage={currentLanguage} t={t} onGoalSet={onGoalSet} initialStage={focus?.section === "professions" ? focus.node : undefined} onShowOnPathMap={onShowOnPathMap} />
           </motion.div>
         )}
         {activeSection === "institutions" && (
           <motion.div key="panel-institutions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <InstitutionsExplorer isDark={isDark} currentLanguage={currentLanguage} theme={theme} t={t} onGoalSet={onGoalSet} />
+            <InstitutionsExplorer isDark={isDark} currentLanguage={currentLanguage} theme={theme} t={t} onGoalSet={onGoalSet} initialStage={focus?.section === "institutions" ? focus.node : undefined} onShowOnPathMap={onShowOnPathMap} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -347,7 +353,26 @@ function ListSkeleton({ label, isDark }: { label: string; isDark: boolean }) {
   );
 }
 
-export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet }: any) {
+const STAGE_FILTER_UI: Record<string, string> = { de: "Stufe", en: "Stage", fr: "Étape", it: "Tappa" };
+
+/** "Showing only what belongs to this stage of the Swiss Path Map" with a way out. */
+function StageFilterChip({ stage, language, isDark, onClear }: { stage?: string; language: string; isDark: boolean; onClear: () => void }) {
+  if (!stage) return null;
+  return (
+    <div className="mb-4 flex">
+      <button
+        type="button"
+        onClick={onClear}
+        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold cursor-pointer ${isDark ? "border-violet-300/40 bg-violet-400/10 text-violet-100" : "border-violet-400 bg-violet-50 text-violet-900"}`}
+      >
+        {STAGE_FILTER_UI[language] ?? STAGE_FILTER_UI.de}: {nodeLabel(stage, language as any)} <X className="h-3 w-3" />
+      </button>
+    </div>
+  );
+}
+
+export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, initialStage, onShowOnPathMap }: any) {
+  const [stage, setStage] = useState<string | undefined>(initialStage);
   const [professionsList, setProfessionsList] = useState<Profession[]>([]);
   const [profLoading, setProfLoading] = useState(true);
   const [profLoadError, setProfLoadError] = useState(false);
@@ -419,7 +444,8 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet }: a
       skills.includes(needle);
 
     const matchesCat = catFilter === "all" || p.category === catFilter;
-    return matchesSearch && matchesCat;
+    const matchesStage = !stage || professionTypesForNode(stage).includes(p.professionType ?? "");
+    return matchesSearch && matchesCat && matchesStage;
   });
 
   return (
@@ -472,6 +498,8 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet }: a
           </div>
         </div>
       </div>
+
+      <StageFilterChip stage={stage} language={currentLanguage} isDark={isDark} onClear={() => setStage(undefined)} />
 
       <div className="grid gap-6 md:grid-cols-12 items-start">
         {/* Professions list selection column */}
@@ -580,7 +608,10 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet }: a
                     ) : null}
                   </div>
 
-                  <GoalButton item={{ kind: "profession", profession: selectedProf }} language={currentLanguage} isDark={isDark} onDone={onGoalSet} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <GoalButton item={{ kind: "profession", profession: selectedProf }} language={currentLanguage} isDark={isDark} onDone={onGoalSet} />
+                    <PathMapLink node={nodeForProfessionType(selectedProf.professionType)} language={currentLanguage} isDark={isDark} onOpen={onShowOnPathMap} />
+                  </div>
 
                   {localizedText(selectedProf.description, currentLanguage) && (
                     <p className={`text-[11.5px] leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
@@ -768,7 +799,8 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet }: a
  * map. Reuses InstitutionCompareModal (same component the map uses) so
  * comparison works identically from either surface.
  */
-function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet }: any) {
+function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet , initialStage, onShowOnPathMap }: any) {
+  const [stage, setStage] = useState<string | undefined>(initialStage);
   const [institutionsList, setInstitutionsList] = useState<Institution[]>([]);
   const [instLoading, setInstLoading] = useState(true);
   const [instLoadError, setInstLoadError] = useState(false);
@@ -819,7 +851,8 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet }: 
     const matchesSearch = !needle || titleText.includes(needle) || descText.includes(needle) || (inst.canton || "").toLowerCase().includes(needle);
     const matchesCat = catFilter === "all" || inst.category === catFilter;
     const matchesCanton = cantonFilter === "all" || inst.canton === cantonFilter;
-    return matchesSearch && matchesCat && matchesCanton;
+    const matchesStage = !stage || institutionSubgroupsForNode(stage).includes(inst.subgroup ?? "");
+    return matchesSearch && matchesCat && matchesCanton && matchesStage;
   });
   const cantonsPresent = [...new Set(institutionsList.map(i => i.canton).filter((c): c is string => !!c))].sort();
 
@@ -899,6 +932,8 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet }: 
         </div>
       </div>
 
+      <StageFilterChip stage={stage} language={currentLanguage} isDark={isDark} onClear={() => setStage(undefined)} />
+
       <div className="grid gap-6 md:grid-cols-12 items-start">
         {/* Institutions list selection column */}
         <div className="md:col-span-5 space-y-2 max-h-[420px] overflow-y-auto pr-1">
@@ -968,6 +1003,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet }: 
                   compareDisabled={compareList.length >= MAX_COMPARE}
                   onToggleCompare={() => toggleCompare(selectedInst)}
                   onGoalSet={onGoalSet}
+                  onShowOnPathMap={onShowOnPathMap}
                 />
               </motion.div>
             </AnimatePresence>

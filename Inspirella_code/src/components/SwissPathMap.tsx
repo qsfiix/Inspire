@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, ExternalLink, Flag, MapPin, Sparkles, X } from "lucide-react";
+import { ArrowRight, Briefcase, ExternalLink, Flag, MapPin, School, Sparkles, X } from "lucide-react";
 import { DataRepository } from "../data/Repository";
 import type { EducationNode, EducationTransition, LanguageCode, RouteBackground } from "../types";
 import { AdmissionBox } from "./PathwayInfo";
@@ -12,6 +12,12 @@ import {
   nodeBox,
   NODE_LAYOUT,
   nodeForTargetLevel,
+  nodeForProfessionType,
+  nodeForSubgroup,
+  professionTypesForNode,
+  institutionSubgroupsForNode,
+  BAND_AGES,
+  MAIN_KINDS,
   shortestPath,
   targetLevelForNode,
   type MapEdge
@@ -31,6 +37,12 @@ interface Props {
   onGoalSet: () => void;
   /** A visitor without a profile wants to plan: start the short guest survey. */
   onStartPlanning: () => void;
+  /** Opened from a profession or a school: select this stage right away. */
+  focusNode?: string | null;
+  /** "Professions on this stage": opens Resources & Careers filtered to the stage. */
+  onOpenProfessions: (node: string) => void;
+  /** "Schools of this stage": opens Resources & Careers filtered to the stage. */
+  onOpenSchools: (node: string) => void;
 }
 
 type Ui = {
@@ -78,6 +90,13 @@ type Ui = {
   kinds: Record<string, string>;
   edgeTitle: string;
   scrollHint: string;
+  mainWays: string;
+  allWays: (n: number) => string;
+  ageNote: string;
+  ageRange: (a: number, b: number) => string;
+  professionsOnStage: (n: number) => string;
+  schoolsOnStage: (n: number) => string;
+  stageTies: string;
 };
 
 const UI: Record<LanguageCode, Ui> = {
@@ -125,7 +144,14 @@ const UI: Record<LanguageCode, Ui> = {
     bands: { "-1": "Ankommen", "0": "Primarstufe", "1": "Sekundarstufe I", "2": "Sekundarstufe II", "3": "Tertiärstufe", "4": "Master, Doktorat, Weiterbildung" },
     kinds: { school: "Schule / Ausbildung", qualification: "Abschluss", bridge: "Brückenangebot", entry: "Ankommen", work: "Arbeit" },
     edgeTitle: "Weg",
-    scrollHint: "Seitlich scrollen, um die ganze Karte zu sehen"
+    scrollHint: "Seitlich scrollen, um die ganze Karte zu sehen",
+    mainWays: "Hauptwege",
+    allWays: n => `Alle Wege zeigen (+${n})`,
+    ageNote: "Alter: Richtwerte. Wer später einsteigt oder wechselt, ist nicht zu spät: viele Wege stehen auch Erwachsenen offen.",
+    ageRange: (a, b) => `ca. ${a}–${b} Jahre`,
+    professionsOnStage: n => `${n} Berufe auf diesem Weg`,
+    schoolsOnStage: n => `${n} Schulen dazu`,
+    stageTies: "Weiter erkunden"
   },
   en: {
     title: "Swiss Path Map",
@@ -171,7 +197,14 @@ const UI: Record<LanguageCode, Ui> = {
     bands: { "-1": "Arriving", "0": "Primary", "1": "Lower secondary", "2": "Upper secondary", "3": "Tertiary", "4": "Master, doctorate, continuing education" },
     kinds: { school: "School / training", qualification: "Qualification", bridge: "Bridge offer", entry: "Arriving", work: "Work" },
     edgeTitle: "Way",
-    scrollHint: "Scroll sideways to see the whole map"
+    scrollHint: "Scroll sideways to see the whole map",
+    mainWays: "Main ways",
+    allWays: n => `Show all ways (+${n})`,
+    ageNote: "Ages are a rough guide. Starting later or switching is not too late: many ways are open to adults too.",
+    ageRange: (a, b) => `about age ${a}–${b}`,
+    professionsOnStage: n => `${n} professions on this path`,
+    schoolsOnStage: n => `${n} schools for it`,
+    stageTies: "Keep exploring"
   },
   fr: {
     title: "Swiss Path Map",
@@ -217,7 +250,14 @@ const UI: Record<LanguageCode, Ui> = {
     bands: { "-1": "Arriver", "0": "Primaire", "1": "Secondaire I", "2": "Secondaire II", "3": "Tertiaire", "4": "Master, doctorat, formation continue" },
     kinds: { school: "École / formation", qualification: "Diplôme", bridge: "Offre transitoire", entry: "Arriver", work: "Travail" },
     edgeTitle: "Voie",
-    scrollHint: "Fais défiler latéralement pour voir toute la carte"
+    scrollHint: "Fais défiler latéralement pour voir toute la carte",
+    mainWays: "Voies principales",
+    allWays: n => `Afficher toutes les voies (+${n})`,
+    ageNote: "Les âges sont indicatifs. Commencer plus tard ou changer de voie n'est pas trop tard : beaucoup de voies sont ouvertes aux adultes.",
+    ageRange: (a, b) => `env. ${a}–${b} ans`,
+    professionsOnStage: n => `${n} métiers sur ce parcours`,
+    schoolsOnStage: n => `${n} écoles`,
+    stageTies: "Continuer à explorer"
   },
   it: {
     title: "Swiss Path Map",
@@ -263,7 +303,14 @@ const UI: Record<LanguageCode, Ui> = {
     bands: { "-1": "Arrivare", "0": "Primario", "1": "Secondario I", "2": "Secondario II", "3": "Terziario", "4": "Master, dottorato, formazione continua" },
     kinds: { school: "Scuola / formazione", qualification: "Titolo", bridge: "Offerta transitoria", entry: "Arrivare", work: "Lavoro" },
     edgeTitle: "Via",
-    scrollHint: "Scorri di lato per vedere tutta la mappa"
+    scrollHint: "Scorri di lato per vedere tutta la mappa",
+    mainWays: "Vie principali",
+    allWays: n => `Mostra tutte le vie (+${n})`,
+    ageNote: "Le età sono indicative. Iniziare più tardi o cambiare strada non è troppo tardi: molte vie sono aperte anche agli adulti.",
+    ageRange: (a, b) => `circa ${a}–${b} anni`,
+    professionsOnStage: n => `${n} professioni su questo percorso`,
+    schoolsOnStage: n => `${n} scuole`,
+    stageTies: "Continua a esplorare"
   }
 };
 
@@ -342,7 +389,7 @@ function nodeFromProfile(route: RouteBackground | undefined): { from?: string; t
 
 type Selection = { type: "node"; code: string } | { type: "edge"; key: string } | null;
 
-export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoalSet, onStartPlanning }: Props) {
+export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoalSet, onStartPlanning, focusNode, onOpenProfessions, onOpenSchools }: Props) {
   const ui = UI[currentLanguage] ?? UI.de;
   const isDark = theme === "dark";
   const [nodes, setNodes] = useState<Map<string, EducationNode>>(new Map());
@@ -354,6 +401,9 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   const [fromProfile, setFromProfile] = useState(false);
   const [view, setView] = useState<"map" | "list">(() => (typeof window !== "undefined" && window.innerWidth < 768 ? "list" : "map"));
   const [canton, setCanton] = useState("");
+  const [showAllWays, setShowAllWays] = useState(false);
+  const [professionCounts, setProfessionCounts] = useState<Record<string, number>>({});
+  const [schoolCounts, setSchoolCounts] = useState<Record<string, number>>({});
   const [route, setRoute] = useState<RouteBackground | undefined>();
   const [goalNote, setGoalNote] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -381,6 +431,36 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   }, []);
 
   const edges = useMemo(() => buildEdges(transitions), [transitions]);
+
+  // How many professions and schools hang on each stage (for the "explore further" buttons).
+  useEffect(() => {
+    let active = true;
+    Promise.all([DataRepository.getProfessions(), DataRepository.getInstitutions()])
+      .then(([professions, institutions]) => {
+        if (!active) return;
+        const byProfession: Record<string, number> = {};
+        for (const p of professions) {
+          const node = nodeForProfessionType(p.professionType);
+          if (node) byProfession[node] = (byProfession[node] ?? 0) + 1;
+        }
+        const bySchool: Record<string, number> = {};
+        for (const i of institutions) {
+          const node = nodeForSubgroup(i.subgroup);
+          if (node) bySchool[node] = (bySchool[node] ?? 0) + 1;
+        }
+        setProfessionCounts(byProfession);
+        setSchoolCounts(bySchool);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Coming from a profession or a school: open that stage.
+  useEffect(() => {
+    if (focusNode && NODE_LAYOUT[focusNode]) setSelection({ type: "node", code: focusNode });
+  }, [focusNode]);
   const path = useMemo(() => (from && to && from !== to ? shortestPath(edges, from, to) : undefined), [edges, from, to]);
   const pathEdgeKeys = useMemo(() => new Set((path ?? []).map(s => edgeKey(s.edge))), [path]);
   const pathNodes = useMemo(() => new Set((path ?? []).flatMap(s => [s.from, s.to])), [path]);
@@ -416,6 +496,14 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   }, [selectedNodeCode, selectedEdge, edges]);
 
   const focusActive = !!selection || pathNodes.size > 0;
+  const hiddenWays = edges.filter(e => !MAIN_KINDS.has(e.kind)).length;
+  /** The main ways always; the others when asked for, and whenever a stage, a way or a route points at them. */
+  const edgeVisible = (e: MapEdge): boolean =>
+    showAllWays ||
+    MAIN_KINDS.has(e.kind) ||
+    pathEdgeKeys.has(edgeKey(e)) ||
+    (!!selectedNodeCode && (e.from === selectedNodeCode || e.to === selectedNodeCode)) ||
+    (!!selectedEdge && edgeKey(selectedEdge) === edgeKey(e));
   const edgeEmphasis = (e: MapEdge): "strong" | "normal" | "dim" => {
     if (pathEdgeKeys.size > 0) return pathEdgeKeys.has(edgeKey(e)) ? "strong" : "dim";
     if (selectedEdge) return edgeKey(selectedEdge) === edgeKey(e) ? "strong" : "dim";
@@ -602,6 +690,24 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
           </div>
         )}
 
+        {(professionTypesForNode(code).length > 0 || institutionSubgroupsForNode(code).length > 0) && (
+          <div>
+            <span className={label}>{ui.stageTies}</span>
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              {professionTypesForNode(code).length > 0 && (professionCounts[code] ?? 0) > 0 && (
+                <button type="button" className={btn} onClick={() => onOpenProfessions(code)}>
+                  <Briefcase className="h-3.5 w-3.5" /> {ui.professionsOnStage(professionCounts[code])}
+                </button>
+              )}
+              {institutionSubgroupsForNode(code).length > 0 && (schoolCounts[code] ?? 0) > 0 && (
+                <button type="button" className={btn} onClick={() => onOpenSchools(code)}>
+                  <School className="h-3.5 w-3.5" /> {ui.schoolsOnStage(schoolCounts[code])}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center gap-2 border-t border-violet-400/15 pt-3">
           {level && isLoggedIn && (
             isGoal ? (
@@ -766,6 +872,11 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                   </span>
                 );
               })}
+              {view === "map" && hiddenWays > 0 && (
+                <button type="button" aria-pressed={showAllWays} onClick={() => setShowAllWays(v => !v)} className={btn}>
+                  {showAllWays ? ui.mainWays : ui.allWays(hiddenWays)}
+                </button>
+              )}
             </div>
           </div>
 
@@ -788,13 +899,18 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                         <g key={b.band}>
                           <rect x={x} y={0} width={w} height={size.height} fill={i % 2 === 0 ? palette.bandA : palette.bandB} />
                           <line x1={x} y1={0} x2={x} y2={size.height} stroke={palette.bandLine} />
-                          <text x={x + 10} y={18} fontSize="10.5" fontWeight="700" letterSpacing="0.06em" fill={palette.ink} opacity="0.7" style={{ textTransform: "uppercase" }}>
+                          <text x={x + 10} y={16} fontSize="10.5" fontWeight="700" letterSpacing="0.06em" fill={palette.ink} opacity="0.7" style={{ textTransform: "uppercase" }}>
                             {ui.bands[b.band]}
                           </text>
+                          {BAND_AGES[b.band] && (
+                            <text x={x + 10} y={29} fontSize="10" fill={palette.ink} opacity="0.55">
+                              {ui.ageRange(BAND_AGES[b.band]![0], BAND_AGES[b.band]![1])}
+                            </text>
+                          )}
                         </g>
                       );
                     })}
-                    {edges.map(e => {
+                    {edges.filter(edgeVisible).map(e => {
                       const s = edgeStyle(e.kind);
                       const emphasis = edgeEmphasis(e);
                       const d = edgePath(e);
@@ -846,7 +962,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                 if (items.length === 0) return null;
                 return (
                   <section key={b.band} className="space-y-2">
-                    <h2 className={`text-[11px] font-mono font-bold uppercase tracking-wider ${isDark ? "text-violet-300" : "text-violet-800"}`}>{ui.bands[b.band]}</h2>
+                    <h2 className={`text-[11px] font-mono font-bold uppercase tracking-wider ${isDark ? "text-violet-300" : "text-violet-800"}`}>{ui.bands[b.band]}{BAND_AGES[b.band] ? " · " + ui.ageRange(BAND_AGES[b.band]![0], BAND_AGES[b.band]![1]) : ""}</h2>
                     <ul className="grid gap-2 sm:grid-cols-2">
                       {items.map(n => (
                         <li key={n.code}>
@@ -866,6 +982,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
             </div>
           )}
 
+          <p className={`max-w-3xl text-[11px] leading-relaxed ${muted}`}>{ui.ageNote}</p>
           <p className={`max-w-3xl text-[11px] leading-relaxed ${muted}`}>{ui.disclaimer}</p>
         </>
       )}

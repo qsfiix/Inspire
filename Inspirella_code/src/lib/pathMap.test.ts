@@ -57,3 +57,14 @@ describe("swiss path map", () => {
     expect(nodeForEntry("unknown")).toBeUndefined();
   });
 });
+
+describe("links to professions and schools", () => {
+  it("maps profession types and school types to the same stages", async () => {
+    const { professionTypesForNode, nodeForProfessionType, nodeForSubgroup } = await import("./pathMap");
+    for (const code of ["efz", "eba", "fa", "diplom_hfp", "hf", "fh", "uni"]) {
+      for (const type of professionTypesForNode(code)) expect(nodeForProfessionType(type)).toBe(code);
+    }
+    expect(nodeForSubgroup("fachmittelschule")).toBe("fms");
+    expect(nodeForSubgroup("nonsense")).toBeUndefined();
+  });
+});

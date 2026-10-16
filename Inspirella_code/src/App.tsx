@@ -46,6 +46,9 @@ const SwissPathMap = lazy(() => import("./components/SwissPathMap"));
 export default function App() {
   const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>("en");
   const [activeTab, setActiveTab] = useState<string>("home");
+  // Links between the Swiss Path Map and the rest of the platform (cleared when the target page is left).
+  const [pathMapFocus, setPathMapFocus] = useState<string | null>(null);
+  const [careersFocus, setCareersFocus] = useState<{ section: "professions" | "institutions"; node: string } | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [trackers, setTrackers] = useState<TrackerGoal[]>([]);
@@ -319,6 +322,20 @@ export default function App() {
     document.body.dataset.scenePage = activeTab;
   }, [activeTab]);
 
+  useEffect(() => {
+    if (activeTab !== "pathmap") setPathMapFocus(null);
+    if (activeTab !== "resources") setCareersFocus(null);
+  }, [activeTab]);
+
+  const openPathMapAt = (node?: string) => {
+    setPathMapFocus(node ?? null);
+    handleTabTransition("pathmap");
+  };
+  const openCareersFor = (section: "professions" | "institutions", node: string) => {
+    setCareersFocus({ section, node });
+    handleTabTransition("resources");
+  };
+
   const handleTabTransition = (tabId: string) => {
     if (!isLoggedIn && ["dashboard", "map", "resources", "tracker", "profile"].includes(tabId)) {
       setActiveTab("login");
@@ -488,6 +505,7 @@ export default function App() {
               handleTabTransition={handleTabTransition}
               trackers={trackers}
               onTrackersChange={handleUpdateTrackers}
+              onOpenPathMap={openPathMapAt}
             />
           )}
 
@@ -510,6 +528,9 @@ export default function App() {
                     isLoggedIn={isLoggedIn}
                     onGoalSet={() => handleTabTransition("dashboard")}
                     onStartPlanning={handleBypassAuth}
+                    focusNode={pathMapFocus}
+                    onOpenProfessions={node => openCareersFor("professions", node)}
+                    onOpenSchools={node => openCareersFor("institutions", node)}
                   />
                 </Suspense>
               </div>
@@ -537,6 +558,7 @@ export default function App() {
                 accessToken={mapboxConfig.accessToken}
                 styleUrl={mapboxConfig.styleUrl}
                 onGoalSet={() => handleTabTransition("dashboard")}
+                onShowOnPathMap={openPathMapAt}
               />
             </motion.div>
           )}
@@ -556,6 +578,8 @@ export default function App() {
               resourcesList={resourcesList}
               userProfile={userProfile}
               onGoalSet={() => handleTabTransition("dashboard")}
+              focus={careersFocus}
+              onShowOnPathMap={openPathMapAt}
             />
           )}
 
