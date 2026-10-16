@@ -14,6 +14,7 @@ import {
   ProfessionFacts,
   AdmissionCondition,
   EducationProgram,
+  EducationNode,
   EducationTransition,
   TopicResource,
   TrainingCompany,
@@ -1573,6 +1574,39 @@ export const DataRepository = {
         duration: normalizeText(r.duration_text_de),
         typicalAge: normalizeText(r.typical_age_text_de),
         notes: normalizeText(r.notes_de),
+        url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
+        verified: r.verification_status === "verified"
+      }];
+    });
+  },
+
+  /** The stages of the Swiss education system with their plain-language cards (Swiss Path Map). */
+  getEducationNodes: async (): Promise<EducationNode[]> => {
+    const rows = await loadActiveRows("education_nodes");
+    const pick = (r: Record<string, unknown>, base: string, lang: "de" | "en" | "fr" | "it"): string => {
+      const own = normalizeText(r[`${base}_${lang}`]);
+      return own ?? normalizeText(r[`${base}_de`]) ?? "";
+    };
+    return rows.flatMap((r): EducationNode[] => {
+      const code = normalizeText(r.code);
+      if (!code || !normalizeText(r.label_de)) return [];
+      const langs = ["de", "en", "fr", "it"] as const;
+      const label = Object.fromEntries(langs.map(l => [l, pick(r, "label", l)])) as EducationNode["label"];
+      const summary = Object.fromEntries(langs.map(l => [l, pick(r, "summary", l)])) as EducationNode["summary"];
+      const facts = Array.isArray(r.good_to_know_de) ? (r.good_to_know_de as unknown[]).map(f => normalizeText(f)).filter((f): f is string => !!f) : [];
+      return [{
+        code,
+        band: typeof r.band === "number" ? r.band : Number(r.band ?? 2),
+        kind: normalizeText(r.kind) ?? "school",
+        sortOrder: typeof r.sort_order === "number" ? r.sort_order : 99,
+        label,
+        summary,
+        duration: normalizeText(r.duration_de),
+        typicalAge: normalizeText(r.typical_age_de),
+        diploma: normalizeText(r.diploma_de),
+        requirements: normalizeText(r.requirements_de),
+        cantonalNote: normalizeText(r.cantonal_note_de),
+        goodToKnow: facts,
         url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
         verified: r.verification_status === "verified"
       }];

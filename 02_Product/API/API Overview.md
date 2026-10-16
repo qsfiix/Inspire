@@ -20,7 +20,7 @@ API-слой соединяет продуктовый интерфейс с в�
 
 ## Текущая реализация
 
-В кодовом snapshot `Inspirella_code_AI.Studio/`:
+В кодовом snapshot `Inspirella_code/`:
 
 - `server.ts` поднимает Express-сервер и Vite middleware;
 - `GET /api/config` возвращает клиенту runtime-конфигурацию Supabase и Mapbox;

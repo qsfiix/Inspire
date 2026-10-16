@@ -11,7 +11,7 @@ Purpose: краткий отчёт о первом заполнении 02_Produ
 - `00_Brain/` и `01_Strategy/`;
 - `03_Data/`;
 - `04_Development/`;
-- текущего snapshot `Inspirella_code_AI.Studio/`;
+- текущего snapshot `Inspirella_code/`;
 - задач Inspirella о MVP, path logic, profile flow, dashboard, map и product audit.
 
 Все файлы имеют статус `Working`, потому что это первый согласованный draft, который нужно просмотреть перед переводом в `Canonical`.

@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Globe, LogOut, GraduationCap, Map, CheckSquare, FileText, User, Compass, Sun, Moon } from "lucide-react";
+import { Globe, LogOut, GraduationCap, Map, CheckSquare, FileText, User, Compass, Route, Sun, Moon } from "lucide-react";
 import { LanguageCode } from "../types";
 import { TRANSLATIONS } from "../data";
 
@@ -31,19 +31,21 @@ export default function Navbar({
 
   const publicTabs = [
     { id: "home", label: t.navHome, icon: Compass },
+    { id: "pathmap", label: t.navPathMap, sub: t.navPathMapSub, icon: Route },
     { id: "about", label: t.navAbout, icon: FileText },
     { id: "contact", label: t.navContact, icon: Globe }
   ];
 
   const privateTabs = [
     { id: "dashboard", label: t.navDashboard, icon: GraduationCap },
+    { id: "pathmap", label: t.navPathMap, sub: t.navPathMapSub, icon: Route },
     { id: "map", label: t.navMap, icon: Map },
     { id: "resources", label: t.navResources, icon: FileText },
     { id: "tracker", label: t.navTracker, icon: CheckSquare },
     { id: "profile", label: t.navProfile, icon: User }
   ];
 
-  const tabsToRender = isLoggedIn ? privateTabs : publicTabs;
+  const tabsToRender: { id: string; label: string; sub?: string; icon: typeof Compass }[] = isLoggedIn ? privateTabs : publicTabs;
 
   return (
     <header 
@@ -112,7 +114,12 @@ export default function Navbar({
                   />
                 )}
                 <Icon className={`relative h-4 w-4 ${isActive ? "text-violet-400" : ""}`} />
-                <span className={`relative ${isLoggedIn ? "hidden lg:inline" : "inline"}`}>{tab.label}</span>
+                <span className={`relative ${isLoggedIn ? "hidden lg:flex" : "flex"} flex-col items-start leading-tight`}>
+                  <span>{tab.label}</span>
+                  {tab.sub && (
+                    <span className={`hidden xl:block text-[9px] font-mono font-normal uppercase tracking-wider ${isDark ? "text-violet-300/80" : "text-violet-700/80"}`}>{tab.sub}</span>
+                  )}
+                </span>
               </button>
             );
           })}

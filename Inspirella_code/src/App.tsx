@@ -41,6 +41,7 @@ import type { PhoenixSceneStatus } from "./components/phoenix/PhoenixScene";
 
 // three.js is split into its own chunk and loaded after the first paint.
 const PhoenixScene = lazy(() => import("./components/phoenix/PhoenixScene"));
+const SwissPathMap = lazy(() => import("./components/SwissPathMap"));
 
 export default function App() {
   const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>("en");
@@ -491,6 +492,30 @@ export default function App() {
           )}
 
           {/* VIEW: Interactive Mapbox WebGIS Grid */}
+          {/* VIEW: Swiss Path Map: the whole education system (public, no login needed) */}
+          {activeTab === "pathmap" && (
+            <motion.div
+              key="view-pathmap"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="relative"
+            >
+              <SectionGlow isDark={isDark} corner="top-left" />
+              <div className="relative">
+                <Suspense fallback={null}>
+                  <SwissPathMap
+                    currentLanguage={currentLanguage}
+                    theme={theme}
+                    isLoggedIn={isLoggedIn}
+                    onGoalSet={() => handleTabTransition("dashboard")}
+                    onStartPlanning={handleBypassAuth}
+                  />
+                </Suspense>
+              </div>
+            </motion.div>
+          )}
+
           {activeTab === "map" && (
             <motion.div
               key="view-map"

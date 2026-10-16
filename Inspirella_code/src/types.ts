@@ -418,6 +418,27 @@ export interface EducationTransition {
   verified: boolean;
 }
 
+/** A stage of the Swiss education system as drawn on the Swiss Path Map (education_nodes). */
+export interface EducationNode {
+  code: string;
+  /** -1 arrival, 0 Primarstufe, 1 Sekundarstufe I, 2 Sekundarstufe II, 3 Tertiary, 4 Master, doctorate, continuing education. */
+  band: number;
+  /** school | qualification | bridge | entry | work */
+  kind: string;
+  sortOrder: number;
+  /** German first; the other languages fall back to German when a text is missing. */
+  label: Record<LanguageCode, string>;
+  summary: Record<LanguageCode, string>;
+  duration?: string;
+  typicalAge?: string;
+  diploma?: string;
+  requirements?: string;
+  cantonalNote?: string;
+  goodToKnow: string[];
+  url?: string;
+  verified: boolean;
+}
+
 /** A national or cantonal how-to resource by topic (resources.topic_code). */
 export interface TopicResource {
   topic: string;

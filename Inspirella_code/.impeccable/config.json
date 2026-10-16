@@ -1,0 +1,35 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "src/index.css"
+        ],
+        "createdAt": "2026-09-28T15:51:45.060Z",
+        "reason": "Brand accent .text-shimmer (one word/clause of violet gradient) is part of the approved Inspirella style; Sofiia asked to keep the existing vibe (2026-09-28)"
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "Inspirella_code/src/components/PersonalRoute.tsx"
+        ],
+        "createdAt": "2026-10-06T21:43:28.793Z",
+        "reason": "Assistant decision: violet is the established Inspirella brand palette (phoenix hero, dashboard, onboarding already use violet-950/violet-300 text); this heading is flat text with no gradient and matches the existing screens. Not confirmed by the user."
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "Inspirella_code/src/components/GoalPicker.tsx"
+        ],
+        "createdAt": "2026-10-13T08:15:54.453Z",
+        "reason": "Violet tab/selection styling in the goal picker is the established Inspirella brand palette; Sofiia confirmed on 2026-10-08 that the violet style stays. Flat text and borders, no gradient."
+      }
+    ]
+  }
+}

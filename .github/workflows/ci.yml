@@ -10,14 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Inspirella_code_AI.Studio
+        working-directory: Inspirella_code
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: Inspirella_code_AI.Studio/package-lock.json
+          cache-dependency-path: Inspirella_code/package-lock.json
       - run: npm ci
       - run: npm run lint
       - run: npm test

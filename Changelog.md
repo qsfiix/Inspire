@@ -30,6 +30,13 @@ Related Files:
 
 ---
 
+## 2026-10-16 — Swiss Path Map: данные и интерфейс (проверено в браузере)
+- База: новая таблица `education_nodes` (26 этапов системы образования с карточками на de/en/fr/it, источники официальные), +31 переход в `education_transitions` (структурные, новички: arrival/recognition/integration, WMS, Weiterbildung, Doktorat). Тексты en/fr/it в узлах написаны агентами, ждут ревью.
+- Код: `src/lib/pathMap.ts` (раскладка, рёбра, кратчайший путь, 6 тестов), `src/components/SwissPathMap.tsx` (схема SVG + список для телефона, панель этапа/пути, «Я здесь / Хочу сюда», сценарий «Я новый в Швейцарии», условия приёма, «Сделать целью»), `Repository.getEducationNodes`, вкладка `pathmap` в меню для всех (подпись «Education system»).
+- Файлы: App.tsx, Navbar.tsx, data.ts, types.ts, Repository.ts.
+- Проверено в dev-сервере: схема, карточки, подбор пути, светлая/тёмная тема. launch.json переведён на `Inspirella_code`; `.github/workflows/ci.yml` ещё на старой папке.
+- Не сделано: пререндер /bildungssystem/, зарплаты.
+
 ## 2026-10-12 — После аудита ИИ, шаг A: рекомендации по смыслу и уровню, чистые карточки профессий
 - **Рекомендации (A1).** Баг из аудита: студенту университета с интересами «academic + tech» показывали Apron Controller, Glass-Fachausweis и Berufsattest по вентиляции — тройная ничья. Теперь `routeSignals.ts`/`EducationEngine.ts`: интерес «tech/business/arts» засчитывается как «specific» только если слово поля есть в названии профессии (основы слов, в начале слова, на 4 языках: «Softwareentwickler», но не «Weber»/«Operationstechnik»); совпадение только по сектору получает +8 и метку «field» (в бейдже «Match» не выше слабого уровня). Новый `levelFitAdjustment`: тем, у кого уже Matura/HF/бакалавр/EFZ, EBA и EFZ-ремёсла идут вниз, FH/университет чуть вверх (если не выбрана своя цель или «vocational»). Тай-брейк детерминированный (не зависит от порядка каталога), показываются только «specific», если их ≥2. Тесты: `relevance.test.ts` (6), всего 140, tsc чисто.
 - **Карточки профессий/учреждений/ресурсов (A2).** Новый `src/lib/categoryLabels.ts`: вместо сырых кодов (`INDUSTRY_TECHNOLOGY_IT`, `pathway_guide`) — читаемые названия на DE/EN/FR/IT (профессии, ресурсы, типы школ, плюс статические категории). Пустые поля («Not available», «Pay data not recorded», «Outlook: NOT AVAILABLE», «Demand») больше не печатаются — блок скрывается, пока в базе нет данных (колонок outlook/demand в БД и нет). «Loading professions…» заменён скелетоном (текст остался для скринридера). Пункт меню «Public Home» → «Home».
