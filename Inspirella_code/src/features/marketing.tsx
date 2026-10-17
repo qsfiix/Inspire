@@ -163,6 +163,20 @@ export function HomeView({
               );
             })()}
 
+            {/* Who it is for, right under the headline (a teen choosing an apprenticeship and someone switching careers need different first steps). */}
+            <ul className="flex flex-wrap items-center justify-center lg:justify-start gap-2" aria-label={[t.heroWho1, t.heroWho2, t.heroWho3].join(", ")}>
+              {[t.heroWho1, t.heroWho2, t.heroWho3].map(who => (
+                <li
+                  key={who}
+                  className={`rounded-full border px-3 py-1 text-xs md:text-sm font-semibold ${
+                    isDark ? "border-violet-300/35 bg-violet-400/10 text-violet-100" : "border-violet-400 bg-violet-50 text-violet-900"
+                  }`}
+                >
+                  {who}
+                </li>
+              ))}
+            </ul>
+
             {/* Hero Description Subtitle */}
             <p className={`text-base md:text-xl font-sans max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal ${
               isDark ? "text-zinc-300 [text-shadow:0_0_14px_rgba(3,0,8,0.95)]" : "text-violet-950/80 font-medium"
@@ -207,8 +221,8 @@ export function HomeView({
               labels={{
                 institutions: t.statInstitutions,
                 professions: t.statProfessions,
-                learningPaths: t.statLearningPaths,
-                languages: t.statLanguages
+                languages: t.statLanguages,
+                cantons: t.statCantons
               }}
             />
           </div>

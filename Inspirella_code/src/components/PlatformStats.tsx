@@ -3,7 +3,7 @@ import { DataRepository } from "../data/Repository";
 
 interface PlatformStatsProps {
   isDark: boolean;
-  labels: { institutions: string; professions: string; learningPaths: string; languages: string };
+  labels: { institutions: string; professions: string; languages: string; cantons: string };
   /** "left" centers on mobile and left-aligns from the lg breakpoint up, to match a two-column hero layout. Defaults to always-centered. */
   align?: "center" | "left";
 }
@@ -30,15 +30,16 @@ export default function PlatformStats({ isDark, labels, align = "center" }: Plat
 
   if (!stats) return null;
 
+  // The two numbers that prove substance come first and sit right under the main button.
   const items = [
-    { value: stats.institutions, label: labels.institutions, plus: true },
     { value: stats.professions, label: labels.professions, plus: true },
-    { value: stats.learningPaths, label: labels.learningPaths, plus: true },
+    { value: stats.institutions, label: labels.institutions, plus: true },
+    { value: 26, label: labels.cantons, plus: false }, // all cantons: no "+"
     { value: 4, label: labels.languages, plus: false } // exactly four: no "+"
   ];
 
   return (
-    <div className={`flex flex-wrap items-center gap-x-8 gap-y-4 pt-6 ${
+    <div className={`flex flex-wrap items-center gap-x-8 gap-y-4 pt-3 ${
       align === "left" ? "justify-center lg:justify-start" : "justify-center"
     }`}>
       {items.map((item, idx) => (
