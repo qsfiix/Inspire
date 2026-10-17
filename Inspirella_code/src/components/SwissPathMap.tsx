@@ -4,6 +4,7 @@ import { DataRepository } from "../data/Repository";
 import type { AudienceFact, CantonStageFact, EducationNode, EducationTransition, LanguageCode, RouteBackground } from "../types";
 import { AdmissionBox, BridgeBox } from "./PathwayInfo";
 import { kindLabel, nodeLabel } from "../lib/pathwayInfo";
+import { inLang } from "../lib/localized";
 import {
   admissionRoutesForNode,
   buildEdges,
@@ -413,7 +414,7 @@ const UI: Record<LanguageCode, Ui> = {
     notes: "Примітки",
     pickCanton: "Переглянути умови вступу у твоєму кантоні",
     anyCanton: "Обрати кантон",
-    germanNote: "Дані під коротким описом походять з офіційних джерел і подані німецькою. Терміни й умови змінюються: перевір їх на офіційній сторінці.",
+    germanNote: "Дані під коротким описом взято з офіційних німецькомовних джерел і перекладено за допомогою ШІ. Терміни й умови змінюються: перевір їх на офіційній сторінці.",
     disclaimer: "Орієнтир, а не офіційна довідка. Джерела: berufsberatung.ch, SBFI, EDK, swissuniversities. Правила різняться залежно від кантону та школи.",
     close: "Закрити",
     loading: "Мапа завантажується…",
@@ -804,20 +805,20 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
 
         {n && (
           <div className={`space-y-3 rounded-xl border p-3 ${isDark ? "border-violet-400/20 bg-[#120c24]/90" : "border-violet-200 bg-violet-50/95"}`}>
-            <Fact name={ui.duration} value={n.duration} />
-            <Fact name={ui.age} value={n.typicalAge} />
-            <Fact name={ui.diploma} value={n.diploma} />
-            <Fact name={ui.requirements} value={n.requirements} />
-            <Fact name={ui.cantonal} value={n.cantonalNote} />
+            <Fact name={ui.duration} value={inLang(currentLanguage, n.duration, n.uk?.duration)} />
+            <Fact name={ui.age} value={inLang(currentLanguage, n.typicalAge, n.uk?.typicalAge)} />
+            <Fact name={ui.diploma} value={inLang(currentLanguage, n.diploma, n.uk?.diploma)} />
+            <Fact name={ui.requirements} value={inLang(currentLanguage, n.requirements, n.uk?.requirements)} />
+            <Fact name={ui.cantonal} value={inLang(currentLanguage, n.cantonalNote, n.uk?.cantonalNote)} />
             <p className={`text-[11px] ${muted}`}>{ui.germanNote}</p>
           </div>
         )}
 
-        {n && n.goodToKnow.length > 0 && (
+        {n && inLang(currentLanguage, n.goodToKnow, n.uk?.goodToKnow && n.uk.goodToKnow.length === n.goodToKnow.length ? n.uk.goodToKnow : undefined).length > 0 && (
           <div>
             <span className={label}>{ui.good}</span>
             <ul className={`mt-1 list-disc space-y-1 pl-4 text-[12px] leading-relaxed ${cardText}`}>
-              {n.goodToKnow.map(f => <li key={f}>{f}</li>)}
+              {inLang(currentLanguage, n.goodToKnow, n.uk?.goodToKnow && n.uk.goodToKnow.length === n.goodToKnow.length ? n.uk.goodToKnow : undefined).map(f => <li key={f}>{f}</li>)}
             </ul>
           </div>
         )}
@@ -834,8 +835,8 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                 <span className={label}>{ui.inCanton(canton)}</span>
                 {offer && <span className={chip}>{offer}</span>}
               </div>
-              <p className={`text-[12.5px] font-semibold leading-snug ${isDark ? "text-white" : "text-emerald-950"}`}>{fact.headline}</p>
-              {fact.text && <p className={`text-[12px] leading-relaxed ${cardText}`}>{fact.text}</p>}
+              <p className={`text-[12.5px] font-semibold leading-snug ${isDark ? "text-white" : "text-emerald-950"}`}>{inLang(currentLanguage, fact.headline, fact.uk?.headline)}</p>
+              {fact.text && <p className={`text-[12px] leading-relaxed ${cardText}`}>{inLang(currentLanguage, fact.text, fact.uk?.text)}</p>}
               {fact.url && (
                 <a href={fact.url} target="_blank" rel="noopener noreferrer" className={link}>
                   {ui.official} <ExternalLink className="h-3 w-3" />
@@ -951,13 +952,13 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
         {e.transitions.map(t => (
           <li key={t.id} className={`space-y-2 rounded-xl border p-3 ${isDark ? "border-violet-400/20 bg-[#120c24]/90" : "border-violet-200 bg-violet-50/95"}`}>
             <div className="flex items-start justify-between gap-2">
-              <b className={`text-[13px] leading-snug ${isDark ? "text-white" : "text-violet-950"}`}>{t.label}</b>
+              <b className={`text-[13px] leading-snug ${isDark ? "text-white" : "text-violet-950"}`}>{inLang(currentLanguage, t.label, t.uk?.label)}</b>
               <span className="shrink-0 text-[10px] font-mono text-violet-400">{kindLabel(t.kind, currentLanguage)}</span>
             </div>
-            <Fact name={ui.conditions} value={t.conditions} />
-            <Fact name={ui.duration} value={t.duration} />
-            <Fact name={ui.age} value={t.typicalAge} />
-            <Fact name={ui.notes} value={t.notes} />
+            <Fact name={ui.conditions} value={inLang(currentLanguage, t.conditions, t.uk?.conditions)} />
+            <Fact name={ui.duration} value={inLang(currentLanguage, t.duration, t.uk?.duration)} />
+            <Fact name={ui.age} value={inLang(currentLanguage, t.typicalAge, t.uk?.typicalAge)} />
+            <Fact name={ui.notes} value={inLang(currentLanguage, t.notes, t.uk?.notes)} />
             {t.url && (
               <a href={t.url} target="_blank" rel="noopener noreferrer" className={link}>
                 {ui.official} <ExternalLink className="h-3 w-3" />
@@ -986,7 +987,8 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   const stepSummary = (stepEdge: MapEdge) => {
     const t = stepEdge.transitions[0];
     // "Von X zu Y: what happens" -> "what happens"; the stage names are already shown.
-    return (t?.label ?? "").split(": ").slice(1).join(": ") || t?.duration || t?.label || "";
+    const label = inLang(currentLanguage, t?.label ?? "", t?.uk?.label);
+    return label.split(": ").slice(1).join(": ") || inLang(currentLanguage, t?.duration, t?.uk?.duration) || label;
   };
 
   return (

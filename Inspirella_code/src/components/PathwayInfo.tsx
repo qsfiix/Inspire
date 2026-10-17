@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { DataRepository } from "../data/Repository";
 import type { AdmissionCondition, EducationProgram, EducationTransition, LanguageCode } from "../types";
+import { inLang } from "../lib/localized";
 import { admissionsFor, hfFieldLabel, hfFieldOf, kindLabel, NATIONAL_ROUTES, nodeLabel, programsFor, routeLabel, transitionsFrom } from "../lib/pathwayInfo";
 
 /**
@@ -176,7 +177,7 @@ const UI: Record<LanguageCode, Ui> = {
     deadline: "Реєстрація",
     cost: "Вартість",
     source: "Джерело",
-    germanNote: "Тексти німецькою. Терміни щороку змінюються: перевір їх на сторінці джерела.",
+    germanNote: "Тексти взято з офіційних німецькомовних джерел і перекладено за допомогою ШІ. Терміни щороку змінюються: перевір їх на сторінці джерела.",
     verified: "Перевірено",
     bridgeTitle: c => `План Б: перехідні програми (Brückenangebot) у кантоні ${c}`,
     bridgeHint: "Якщо місце для навчання з практикою чи школа не знаходяться одразу, є програми, які готують тебе і дають змогу з користю провести цей час.",
@@ -245,12 +246,12 @@ export function AdmissionBox({ canton, routes, language, isDark, hintWithoutCant
             <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{ui.verified}</span>
           )}
         </div>
-        {a.headline && <p className={textClass(isDark)}>{a.headline}</p>}
-        <Field label={ui.requirements} value={a.requirements} isDark={isDark} />
-        <Field label={ui.exam} value={a.examInfo} isDark={isDark} />
-        <Field label={ui.deadline} value={a.deadline} isDark={isDark} />
-        <Field label={ui.timing} value={a.timing} isDark={isDark} />
-        <Field label={ui.cost} value={a.costNote} isDark={isDark} />
+        {a.headline && <p className={textClass(isDark)}>{inLang(language, a.headline, a.uk?.headline)}</p>}
+        <Field label={ui.requirements} value={inLang(language, a.requirements, a.uk?.requirements)} isDark={isDark} />
+        <Field label={ui.exam} value={inLang(language, a.examInfo, a.uk?.examInfo)} isDark={isDark} />
+        <Field label={ui.deadline} value={inLang(language, a.deadline, a.uk?.deadline)} isDark={isDark} />
+        <Field label={ui.timing} value={inLang(language, a.timing, a.uk?.timing)} isDark={isDark} />
+        <Field label={ui.cost} value={inLang(language, a.costNote, a.uk?.costNote)} isDark={isDark} />
         {a.url && (
           <a href={a.url} target="_blank" rel="noopener noreferrer" className={linkClass(isDark)}>
             {ui.source} <ExternalLink className="h-3 w-3" />
@@ -292,12 +293,12 @@ export function BridgeBox({ canton, language, isDark, max = 4 }: BoxProps & { ca
         {shown.map(p => (
           <li key={p.id} className={`rounded-lg border px-2.5 py-2 space-y-0.5 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-violet-200 bg-white"}`}>
             <div className="flex items-start justify-between gap-2">
-              <b className={`text-[12px] ${isDark ? "text-white" : "text-violet-950"}`}>{p.title}</b>
+              <b className={`text-[12px] ${isDark ? "text-white" : "text-violet-950"}`}>{inLang(language, p.title, p.uk?.title)}</b>
               <span className="shrink-0 text-[10px] font-mono text-violet-400">{kindLabel(p.kind, language)}</span>
             </div>
             {p.provider && <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{p.provider}</p>}
-            {p.duration && <p className={textClass(isDark)}><span className="text-violet-400">{ui.duration}:</span> {p.duration}</p>}
-            {p.targetGroup && <p className={textClass(isDark)}><span className="text-violet-400">{ui.target}:</span> {p.targetGroup}</p>}
+            {p.duration && <p className={textClass(isDark)}><span className="text-violet-400">{ui.duration}:</span> {inLang(language, p.duration, p.uk?.duration)}</p>}
+            {p.targetGroup && <p className={textClass(isDark)}><span className="text-violet-400">{ui.target}:</span> {inLang(language, p.targetGroup, p.uk?.targetGroup)}</p>}
             {p.url && (
               <a href={p.url} target="_blank" rel="noopener noreferrer" className={linkClass(isDark)}>
                 {ui.source} <ExternalLink className="h-3 w-3" />
@@ -336,9 +337,9 @@ export function NextWaysBox({ nodes, language, isDark }: BoxProps & { nodes: str
               </b>
               <span className="shrink-0 text-[10px] font-mono text-violet-400">{kindLabel(t.kind, language)}</span>
             </div>
-            <p className={textClass(isDark)}>{t.label}</p>
-            <Field label={ui.conditions} value={t.conditions} isDark={isDark} />
-            <Field label={ui.duration} value={t.duration} isDark={isDark} />
+            <p className={textClass(isDark)}>{inLang(language, t.label, t.uk?.label)}</p>
+            <Field label={ui.conditions} value={inLang(language, t.conditions, t.uk?.conditions)} isDark={isDark} />
+            <Field label={ui.duration} value={inLang(language, t.duration, t.uk?.duration)} isDark={isDark} />
             {t.url && (
               <a href={t.url} target="_blank" rel="noopener noreferrer" className={linkClass(isDark)}>
                 {ui.source} <ExternalLink className="h-3 w-3" />

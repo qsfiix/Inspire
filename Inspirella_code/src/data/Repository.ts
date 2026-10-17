@@ -1530,7 +1530,15 @@ export const DataRepository = {
         timing: normalizeText(r.typical_timing_de),
         costNote: normalizeText(r.cost_note_de),
         url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
-        verified: r.verification_status === "verified"
+        verified: r.verification_status === "verified",
+        uk: {
+          headline: normalizeText(r.headline_uk),
+          requirements: normalizeText(r.requirements_uk),
+          examInfo: normalizeText(r.exam_info_uk),
+          deadline: normalizeText(r.deadline_text_uk),
+          timing: normalizeText(r.typical_timing_uk),
+          costNote: normalizeText(r.cost_note_uk)
+        }
       }];
     });
   },
@@ -1553,7 +1561,14 @@ export const DataRepository = {
         duration: normalizeText(r.duration_text_de),
         admission: normalizeText(r.admission_de),
         url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
-        verified: r.verification_status === "verified"
+        verified: r.verification_status === "verified",
+        uk: {
+          title: normalizeText(r.title_uk),
+          description: normalizeText(r.description_uk),
+          targetGroup: normalizeText(r.target_group_uk),
+          duration: normalizeText(r.duration_text_uk),
+          admission: normalizeText(r.admission_uk)
+        }
       }];
     });
   },
@@ -1577,7 +1592,14 @@ export const DataRepository = {
         typicalAge: normalizeText(r.typical_age_text_de),
         notes: normalizeText(r.notes_de),
         url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
-        verified: r.verification_status === "verified"
+        verified: r.verification_status === "verified",
+        uk: {
+          label: normalizeText(r.label_uk),
+          conditions: normalizeText(r.conditions_uk),
+          duration: normalizeText(r.duration_text_uk),
+          typicalAge: normalizeText(r.typical_age_text_uk),
+          notes: normalizeText(r.notes_uk)
+        }
       }];
     });
   },
@@ -1611,7 +1633,15 @@ export const DataRepository = {
         cantonalNote: normalizeText(r.cantonal_note_de),
         goodToKnow: facts,
         url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
-        verified: r.verification_status === "verified"
+        verified: r.verification_status === "verified",
+        uk: {
+          duration: normalizeText(r.duration_uk),
+          typicalAge: normalizeText(r.typical_age_uk),
+          diploma: normalizeText(r.diploma_uk),
+          requirements: normalizeText(r.requirements_uk),
+          cantonalNote: normalizeText(r.cantonal_note_uk),
+          goodToKnow: Array.isArray(r.good_to_know_uk) ? (r.good_to_know_uk as unknown[]).map(f => normalizeText(f)).filter((f): f is string => !!f) : undefined
+        }
       }];
     });
   },
@@ -1653,7 +1683,8 @@ export const DataRepository = {
         headline,
         text: normalizeText(r.text_de),
         url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
-        verified: r.verification_status === "verified"
+        verified: r.verification_status === "verified",
+        uk: { headline: normalizeText(r.headline_uk), text: normalizeText(r.text_uk) }
       }];
     });
   },

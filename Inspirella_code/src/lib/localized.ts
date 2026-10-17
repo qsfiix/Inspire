@@ -49,6 +49,14 @@ export function localizedText(
 }
 
 /**
+ * German-source rows (admissions, transitions, cantonal facts...) carry an optional Ukrainian translation:
+ * Ukrainian users get it when it exists, everyone else (and Ukrainian users without it) the German original.
+ */
+export function inLang<T>(language: LanguageCode, de: T, uk?: T | null): T {
+  return language === "uk" && uk ? uk : de;
+}
+
+/**
  * Same as `localizedText` but for localized string arrays (e.g. skills, key facts).
  */
 export function localizedList(

@@ -383,6 +383,8 @@ export interface AdmissionCondition {
   costNote?: string;
   url?: string;
   verified: boolean;
+  /** Ukrainian translation, when available. */
+  uk?: { headline?: string; requirements?: string; examInfo?: string; deadline?: string; timing?: string; costNote?: string };
 }
 
 /** A bridge or preparation offer (education_programs): Brückenangebot, Vorlehre, Motivationssemester, Passerelle... */
@@ -399,6 +401,7 @@ export interface EducationProgram {
   admission?: string;
   url?: string;
   verified: boolean;
+  uk?: { title?: string; description?: string; targetGroup?: string; duration?: string; admission?: string };
 }
 
 /** A way from one stage of the Swiss system to another (education_transitions). */
@@ -416,6 +419,7 @@ export interface EducationTransition {
   notes?: string;
   url?: string;
   verified: boolean;
+  uk?: { label?: string; conditions?: string; duration?: string; typicalAge?: string; notes?: string };
 }
 
 /** A stage of the Swiss education system as drawn on the Swiss Path Map (education_nodes). */
@@ -437,6 +441,7 @@ export interface EducationNode {
   goodToKnow: string[];
   url?: string;
   verified: boolean;
+  uk?: { duration?: string; typicalAge?: string; diploma?: string; requirements?: string; cantonalNote?: string; goodToKnow?: string[] };
 }
 
 /** What a canton does at one stage of the system (canton_stage_facts): school model, Langgymnasium or not, newcomer schooling, offices. */
@@ -449,6 +454,7 @@ export interface CantonStageFact {
   text?: string;
   url?: string;
   verified: boolean;
+  uk?: { headline?: string; text?: string };
 }
 
 /** An education fact for one audience, e.g. people from Ukraine with protection status S (audience_facts). German and English texts. */
