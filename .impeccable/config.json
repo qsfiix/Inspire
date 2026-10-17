@@ -16,13 +16,22 @@
         "reason": "Matches the live site's display font in src/index.css; user asked the sketch to keep the current site style"
       },
       {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "Inspirella_code/src/index.css"
+        ],
+        "createdAt": "2026-10-17T16:40:00.000Z",
+        "reason": "Confirmed by Sofiia 2026-10-17 (she likes the current look): violet is Inspirella's established brand palette in the live site's global stylesheet, pre-existing and untouched by this session's changes"
+      },
+      {
         "rule": "gradient-text",
         "value": "*",
         "files": [
           "Inspirella_code/src/index.css"
         ],
         "createdAt": "2026-10-17T16:16:00.000Z",
-        "reason": "Claude decision, not user confirmed: pre-existing .text-shimmer, one accent word of the hero headline (documented in the CSS comment), not touched by this change"
+        "reason": "Confirmed by Sofiia 2026-10-17 (she likes the current look): pre-existing .text-shimmer, one accent word of the hero headline (documented in the CSS comment), not touched by this change"
       },
       {
         "rule": "ai-color-palette",
