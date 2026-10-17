@@ -89,6 +89,32 @@ type Selection = { type: "step"; index: number } | { type: "goal" } | { type: "a
 
 /** Faces of one glass stair block, per state and theme. */
 function blockPalette(state: StepState, isDark: boolean) {
+  // On the pale light-theme background the glass faces fade out to nothing, so the steps look empty:
+  // light mode gets denser, deeper colours that stay solid to the base of each block.
+  if (!isDark) {
+    if (state === "done") {
+      return {
+        front: ["rgba(124,58,237,0.85)", "rgba(167,139,250,0.55)"],
+        top: ["rgba(245,243,255,1)", "rgba(196,181,253,0.95)"],
+        side: ["rgba(91,33,182,0.8)", "rgba(124,58,237,0.5)"],
+        edge: "#7c3aed"
+      };
+    }
+    if (state === "current") {
+      return {
+        front: ["rgba(251,191,36,0.9)", "rgba(217,119,6,0.55)"],
+        top: ["rgba(254,243,199,1)", "rgba(252,211,77,0.95)"],
+        side: ["rgba(180,83,9,0.8)", "rgba(146,64,14,0.5)"],
+        edge: "#d97706"
+      };
+    }
+    return {
+      front: ["rgba(167,139,250,0.6)", "rgba(196,181,253,0.35)"],
+      top: ["rgba(237,233,254,1)", "rgba(196,181,253,0.9)"],
+      side: ["rgba(124,58,237,0.5)", "rgba(167,139,250,0.25)"],
+      edge: "rgba(109,40,217,0.75)"
+    };
+  }
   if (state === "done") {
     return {
       front: ["rgba(167,139,250,0.55)", "rgba(76,29,149,0.08)"],

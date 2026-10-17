@@ -1,0 +1,38 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-10-07T20:48:56.019Z",
+        "reason": "Matches the live site's brand fonts in src/index.css; user asked the sketch to keep the current site style"
+      },
+      {
+        "rule": "overused-font",
+        "value": "space grotesk",
+        "createdAt": "2026-10-07T20:48:56.471Z",
+        "reason": "Matches the live site's display font in src/index.css; user asked the sketch to keep the current site style"
+      },
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "Inspirella_code/src/index.css"
+        ],
+        "createdAt": "2026-10-17T16:16:00.000Z",
+        "reason": "Claude decision, not user confirmed: pre-existing .text-shimmer, one accent word of the hero headline (documented in the CSS comment), not touched by this change"
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "Inspirella_code_AI.Studio/src/components/TrackerNextUp.tsx"
+        ],
+        "createdAt": "2026-10-08T14:54:29.174Z",
+        "reason": "Claude decision, not user confirmed: heading uses the app-wide violet theme tokens identical to the existing tracker headings in TrackerSystem.tsx; no gradient"
+      }
+    ]
+  }
+}

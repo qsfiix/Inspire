@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from "react";
+import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import {
   Sparkles,
@@ -43,12 +43,30 @@ import type { PhoenixSceneStatus } from "./components/phoenix/PhoenixScene";
 const PhoenixScene = lazy(() => import("./components/phoenix/PhoenixScene"));
 const SwissPathMap = lazy(() => import("./components/SwissPathMap"));
 
+const PUBLIC_TABS = ["home", "about", "contact", "privacy", "impressum", "pathmap", "login"];
+const PROTECTED_TABS = ["dashboard", "map", "resources", "tracker", "profile"];
+const ALL_TABS = [...PUBLIC_TABS, ...PROTECTED_TABS, "onboarding"];
+
+function tabFromHash(): string | null {
+  if (typeof window === "undefined") return null;
+  const m = window.location.hash.match(/^#\/([a-z]+)/);
+  return m && ALL_TABS.includes(m[1]) ? m[1] : null;
+}
+
 export default function App() {
   // A first-time visitor whose browser is set to Ukrainian gets the Ukrainian interface; everyone else starts in English.
   const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>(() =>
     typeof navigator !== "undefined" && (navigator.languages ?? [navigator.language]).some(l => String(l).toLowerCase().startsWith("uk")) ? "uk" : "en"
   );
-  const [activeTab, setActiveTab] = useState<string>("home");
+  // The page lives in the URL hash (#/pathmap) so the browser's back/forward buttons walk through the pages
+  // instead of leaving the site; a pure-hash URL works on any host without server rewrites.
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    const fromHash = tabFromHash();
+    return fromHash && PUBLIC_TABS.includes(fromHash) ? fromHash : "home";
+  });
+  const isLoggedInRef = useRef(false);
+  const replaceNextHistory = useRef(true);
+  const initialHashTab = useRef(tabFromHash());
   // Links between the Swiss Path Map and the rest of the platform (cleared when the target page is left).
   const [pathMapFocus, setPathMapFocus] = useState<string | null>(null);
   const [careersFocus, setCareersFocus] = useState<{ section: "professions" | "institutions"; node: string } | null>(null);
@@ -181,8 +199,12 @@ export default function App() {
         setUserProfile(cachedProfile);
         setCurrentLanguage(cachedProfile.language);
         setIsLoggedIn(true);
+        isLoggedInRef.current = true;
+        // A refresh on #/tracker stays on the tracker; otherwise land on the dashboard (or onboarding).
+        const wanted = initialHashTab.current;
+        replaceNextHistory.current = true;
         if (cachedProfile.onboardingComplete) {
-          setActiveTab("dashboard");
+          setActiveTab(wanted && wanted !== "home" && wanted !== "login" && wanted !== "onboarding" ? wanted : "dashboard");
         } else {
           setActiveTab("onboarding");
         }
@@ -328,6 +350,40 @@ export default function App() {
   useEffect(() => {
     document.body.dataset.scenePage = activeTab;
   }, [activeTab]);
+
+  useEffect(() => {
+    isLoggedInRef.current = isLoggedIn;
+  }, [isLoggedIn]);
+
+  // Page -> URL: every page change adds a history entry (the first one, and the automatic jump to the
+  // dashboard for a returning user, replace the current entry so back never lands on an empty page).
+  useEffect(() => {
+    if ((tabFromHash() ?? "home") === activeTab) {
+      replaceNextHistory.current = false;
+      return;
+    }
+    const url = activeTab === "home"
+      ? window.location.pathname + window.location.search
+      : `${window.location.pathname}${window.location.search}#/${activeTab}`;
+    if (replaceNextHistory.current) window.history.replaceState({ tab: activeTab }, "", url);
+    else window.history.pushState({ tab: activeTab }, "", url);
+    replaceNextHistory.current = false;
+  }, [activeTab]);
+
+  // URL -> page: the browser's back/forward buttons.
+  useEffect(() => {
+    const onPopState = () => {
+      const tab = tabFromHash() ?? "home";
+      if (!isLoggedInRef.current && PROTECTED_TABS.includes(tab)) {
+        replaceNextHistory.current = true;
+        setActiveTab("login");
+      } else {
+        setActiveTab(tab);
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   useEffect(() => {
     if (activeTab !== "pathmap") setPathMapFocus(null);
