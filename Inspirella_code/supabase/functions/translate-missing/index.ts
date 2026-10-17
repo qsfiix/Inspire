@@ -14,12 +14,14 @@
 //
 // Secrets: DEEPL_API_KEY (keys ending in ":fx" use the DeepL Free endpoint).
 // SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
-// Query params: maxChars=<n>, dryRun=1 (count what's missing, translate nothing),
+// Query params: langs=<en,fr,it,uk>, maxChars=<n>, dryRun=1 (count what's missing, translate nothing),
 // maxTier=<1-4> (stop after this priority tier; default all).
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const LANGS = ["en", "fr", "it"] as const;
+// All languages with a translated column. Which of them one run fills is chosen by ?langs=en,fr,it,uk
+// (default en,fr,it: the nightly cron). Ukrainian is started by hand so it does not eat the nightly quota.
+const LANGS = ["en", "fr", "it", "uk"] as const;
 type Lang = (typeof LANGS)[number];
 
 // What to translate, in priority order. Each chain mirrors a
@@ -77,7 +79,7 @@ const PLAN: Record<string, Chain[]> = {
 };
 const MAX_TIER = 4;
 
-const DEEPL_TARGET: Record<Lang, string> = { en: "EN-GB", fr: "FR", it: "IT" };
+const DEEPL_TARGET: Record<Lang, string> = { en: "EN-GB", fr: "FR", it: "IT", uk: "UK" };
 // Match the site's voice: French formal ("vous"), Italian informal ("tu").
 const FORMALITY: Partial<Record<Lang, string>> = { fr: "prefer_more", it: "prefer_less" };
 const BATCH_TEXTS = 40;
@@ -99,6 +101,9 @@ Deno.serve(async req => {
   const dryRun = url.searchParams.get("dryRun") === "1";
   const budget = Math.max(0, Math.min(Number(url.searchParams.get("maxChars") ?? 15000) || 15000, 450000));
   const maxTier = Math.max(1, Math.min(Number(url.searchParams.get("maxTier") ?? MAX_TIER) || MAX_TIER, MAX_TIER));
+  const wanted = (url.searchParams.get("langs") ?? "en,fr,it").split(",").map(s => s.trim());
+  const targetLangs = LANGS.filter(l => wanted.includes(l));
+  if (targetLangs.length === 0) return json({ ok: false, error: "langs must contain en, fr, it or uk" }, 400);
 
   const deeplKey = Deno.env.get("DEEPL_API_KEY");
   if (!deeplKey && !dryRun) {
@@ -151,7 +156,7 @@ Deno.serve(async req => {
         // page already translated before stopping.
         let stop = false;
         const filled = (v: unknown) => typeof v === "string" && v.trim() !== "";
-        for (const lang of LANGS) {
+        for (const lang of targetLangs) {
           const jobs: Job[] = [];
           for (const row of data as Record<string, any>[]) {
             const meta = row.translation_meta ?? {};
@@ -233,7 +238,7 @@ Deno.serve(async req => {
 
   // Anything left untranslated is simply picked up by the next run.
   return json({
-    ok: errors.length === 0, dryRun, budget, maxTier, charsUsed: used, translated,
+    ok: errors.length === 0, dryRun, langs: targetLangs, budget, maxTier, charsUsed: used, translated,
     pendingSeen: pending, pendingChars, pendingCharsByTier: pendingByTier, errors
   });
 });

@@ -18,7 +18,8 @@ const UI: Record<LanguageCode, { profession: string; institution: string; isProf
   de: { profession: "Zu meinem Ziel machen", institution: "Als Wunschschule wählen", isProfession: "Das ist dein Ziel", isInstitution: "Deine Wunschschule", updated: "Ziel gesetzt: dein Weg ist aktualisiert." },
   en: { profession: "Make this my goal", institution: "Make this my target school", isProfession: "This is your goal", isInstitution: "Your target school", updated: "Goal set: your path is updated." },
   fr: { profession: "En faire mon objectif", institution: "Choisir comme école visée", isProfession: "C'est ton objectif", isInstitution: "Ton école visée", updated: "Objectif défini : ton parcours est mis à jour." },
-  it: { profession: "Rendilo il mio obiettivo", institution: "Scegli come scuola obiettivo", isProfession: "È il tuo obiettivo", isInstitution: "La tua scuola obiettivo", updated: "Obiettivo impostato: il tuo percorso è aggiornato." }
+  it: { profession: "Rendilo il mio obiettivo", institution: "Scegli come scuola obiettivo", isProfession: "È il tuo obiettivo", isInstitution: "La tua scuola obiettivo", updated: "Obiettivo impostato: il tuo percorso è aggiornato." },
+  uk: { profession: "Зробити це моєю ціллю", institution: "Обрати як омріяну школу", isProfession: "Це твоя ціль", isInstitution: "Твоя омріяна школа", updated: "Ціль встановлено: твій шлях оновлено." }
 };
 
 /**

@@ -117,27 +117,27 @@ export function transitionsFrom(all: EducationTransition[], nodes: string[]): Ed
 type Labels = Record<LanguageCode, string>;
 
 const NODE_LABELS: Record<string, Labels> = {
-  sek1: { de: "Sekundarstufe I", en: "Lower secondary", fr: "Secondaire I", it: "Secondario I" },
-  efz: { de: "Berufslehre EFZ", en: "Apprenticeship (EFZ)", fr: "CFC", it: "AFC" },
-  eba: { de: "Berufsattest EBA", en: "Vocational certificate (EBA)", fr: "AFP", it: "CFP" },
-  bm1: { de: "Berufsmaturität (während der Lehre)", en: "Vocational baccalaureate (during apprenticeship)", fr: "Maturité professionnelle (pendant l'apprentissage)", it: "Maturità professionale (durante il tirocinio)" },
-  bm2: { de: "Berufsmaturität (nach der Lehre)", en: "Vocational baccalaureate (after apprenticeship)", fr: "Maturité professionnelle (après l'apprentissage)", it: "Maturità professionale (dopo il tirocinio)" },
-  berufsmatura: { de: "Berufsmaturität", en: "Vocational baccalaureate", fr: "Maturité professionnelle", it: "Maturità professionale" },
-  gymnasium: { de: "Gymnasium", en: "Gymnasium", fr: "Gymnase", it: "Liceo" },
-  gym_matura: { de: "Gymnasiale Matura", en: "Gymnasial Matura", fr: "Maturité gymnasiale", it: "Maturità liceale" },
-  fms: { de: "Fachmittelschule", en: "Specialised middle school (FMS)", fr: "École de culture générale", it: "Scuola specializzata" },
-  fachmatura: { de: "Fachmaturität", en: "Specialised baccalaureate", fr: "Maturité spécialisée", it: "Maturità specializzata" },
-  passerelle: { de: "Passerelle", en: "Passerelle", fr: "Passerelle", it: "Passerella" },
-  hf: { de: "Höhere Fachschule (HF)", en: "Professional college (HF)", fr: "École supérieure (ES)", it: "Scuola specializzata superiore (SSS)" },
-  fa: { de: "Eidg. Fachausweis", en: "Federal professional certificate", fr: "Brevet fédéral", it: "Attestato professionale federale" },
-  diplom_hfp: { de: "Eidg. Diplom (HFP)", en: "Federal diploma (HFP)", fr: "Diplôme fédéral", it: "Diploma federale" },
-  fh: { de: "Fachhochschule", en: "University of applied sciences", fr: "Haute école spécialisée", it: "Scuola universitaria professionale" },
-  ph: { de: "Pädagogische Hochschule", en: "University of teacher education", fr: "Haute école pédagogique", it: "Alta scuola pedagogica" },
-  uni: { de: "Universität / ETH", en: "University / ETH", fr: "Université / EPF", it: "Università / PF" },
-  master: { de: "Master", en: "Master's", fr: "Master", it: "Master" },
-  work: { de: "Berufstätigkeit", en: "Working life", fr: "Vie professionnelle", it: "Vita professionale" },
-  adult: { de: "Erwachsenenbildung", en: "Adult education", fr: "Formation des adultes", it: "Formazione per adulti" },
-  bridge: { de: "Brückenangebot", en: "Bridge programme", fr: "Offre transitoire", it: "Offerta transitoria" }
+  sek1: { de: "Sekundarstufe I", en: "Lower secondary", fr: "Secondaire I", it: "Secondario I", uk: "Нижча середня школа (Sekundarstufe I)" },
+  efz: { de: "Berufslehre EFZ", en: "Apprenticeship (EFZ)", fr: "CFC", it: "AFC", uk: "Професійне навчання з практикою (Lehre) з дипломом EFZ" },
+  eba: { de: "Berufsattest EBA", en: "Vocational certificate (EBA)", fr: "AFP", it: "CFP", uk: "Професійне навчання зі свідоцтвом EBA" },
+  bm1: { de: "Berufsmaturität (während der Lehre)", en: "Vocational baccalaureate (during apprenticeship)", fr: "Maturité professionnelle (pendant l'apprentissage)", it: "Maturità professionale (durante il tirocinio)", uk: "Професійна матура (Berufsmaturität) під час навчання" },
+  bm2: { de: "Berufsmaturität (nach der Lehre)", en: "Vocational baccalaureate (after apprenticeship)", fr: "Maturité professionnelle (après l'apprentissage)", it: "Maturità professionale (dopo il tirocinio)", uk: "Професійна матура (Berufsmaturität) після навчання" },
+  berufsmatura: { de: "Berufsmaturität", en: "Vocational baccalaureate", fr: "Maturité professionnelle", it: "Maturità professionale", uk: "Професійна матура (Berufsmaturität)" },
+  gymnasium: { de: "Gymnasium", en: "Gymnasium", fr: "Gymnase", it: "Liceo", uk: "Гімназія (Gymnasium)" },
+  gym_matura: { de: "Gymnasiale Matura", en: "Gymnasial Matura", fr: "Maturité gymnasiale", it: "Maturità liceale", uk: "Гімназійна матура" },
+  fms: { de: "Fachmittelschule", en: "Specialised middle school (FMS)", fr: "École de culture générale", it: "Scuola specializzata", uk: "Фахова середня школа (FMS)" },
+  fachmatura: { de: "Fachmaturität", en: "Specialised baccalaureate", fr: "Maturité spécialisée", it: "Maturità specializzata", uk: "Фахова матура" },
+  passerelle: { de: "Passerelle", en: "Passerelle", fr: "Passerelle", it: "Passerella", uk: "Пасерель (Passerelle)" },
+  hf: { de: "Höhere Fachschule (HF)", en: "Professional college (HF)", fr: "École supérieure (ES)", it: "Scuola specializzata superiore (SSS)", uk: "Вища професійна школа (HF)" },
+  fa: { de: "Eidg. Fachausweis", en: "Federal professional certificate", fr: "Brevet fédéral", it: "Attestato professionale federale", uk: "Федеральне професійне свідоцтво (Fachausweis)" },
+  diplom_hfp: { de: "Eidg. Diplom (HFP)", en: "Federal diploma (HFP)", fr: "Diplôme fédéral", it: "Diploma federale", uk: "Федеральний диплом (HFP)" },
+  fh: { de: "Fachhochschule", en: "University of applied sciences", fr: "Haute école spécialisée", it: "Scuola universitaria professionale", uk: "Університет прикладних наук (FH)" },
+  ph: { de: "Pädagogische Hochschule", en: "University of teacher education", fr: "Haute école pédagogique", it: "Alta scuola pedagogica", uk: "Педагогічний університет (PH)" },
+  uni: { de: "Universität / ETH", en: "University / ETH", fr: "Université / EPF", it: "Università / PF", uk: "Університет / ETH" },
+  master: { de: "Master", en: "Master's", fr: "Master", it: "Master", uk: "Магістратура (Master)" },
+  work: { de: "Berufstätigkeit", en: "Working life", fr: "Vie professionnelle", it: "Vita professionale", uk: "Робота за фахом" },
+  adult: { de: "Erwachsenenbildung", en: "Adult education", fr: "Formation des adultes", it: "Formazione per adulti", uk: "Освіта для дорослих" },
+  bridge: { de: "Brückenangebot", en: "Bridge programme", fr: "Offre transitoire", it: "Offerta transitoria", uk: "Перехідна програма (Brückenangebot)" }
 };
 
 export function nodeLabel(node: string, language: LanguageCode): string {
@@ -146,16 +146,16 @@ export function nodeLabel(node: string, language: LanguageCode): string {
 }
 
 const ROUTE_LABELS: Record<string, Labels> = {
-  uni: { de: "Universität / ETH (Bachelor)", en: "University / ETH (Bachelor)", fr: "Université / EPF (Bachelor)", it: "Università / PF (Bachelor)" },
-  gymnasium_kurz: { de: "Kurzgymnasium", en: "Short Gymnasium", fr: "Gymnase (voie courte)", it: "Liceo (percorso breve)" },
-  gymnasium_lang: { de: "Langgymnasium", en: "Long Gymnasium", fr: "Gymnase (voie longue)", it: "Liceo (percorso lungo)" },
-  fms: { de: "Fachmittelschule", en: "Specialised middle school (FMS)", fr: "École de culture générale", it: "Scuola specializzata" },
-  hf: { de: "Höhere Fachschule (HF)", en: "Professional college (HF)", fr: "École supérieure (ES)", it: "Scuola specializzata superiore (SSS)" },
-  fh: { de: "Fachhochschule (Bachelor)", en: "University of applied sciences (Bachelor)", fr: "Haute école spécialisée (Bachelor)", it: "Scuola universitaria professionale (Bachelor)" },
-  ph: { de: "Pädagogische Hochschule", en: "University of teacher education", fr: "Haute école pédagogique", it: "Alta scuola pedagogica" },
-  hms: { de: "Handelsmittelschule", en: "Commercial middle school", fr: "École de commerce", it: "Scuola di commercio" },
-  bms_bm1: { de: "Berufsmaturität während der Lehre (BM 1)", en: "Vocational baccalaureate during the apprenticeship (BM 1)", fr: "Maturité professionnelle pendant l'apprentissage (MP 1)", it: "Maturità professionale durante il tirocinio (MP 1)" },
-  bms_bm2: { de: "Berufsmaturität nach der Lehre (BM 2)", en: "Vocational baccalaureate after the apprenticeship (BM 2)", fr: "Maturité professionnelle après l'apprentissage (MP 2)", it: "Maturità professionale dopo il tirocinio (MP 2)" }
+  uni: { de: "Universität / ETH (Bachelor)", en: "University / ETH (Bachelor)", fr: "Université / EPF (Bachelor)", it: "Università / PF (Bachelor)", uk: "Університет / ETH (бакалаврат)" },
+  gymnasium_kurz: { de: "Kurzgymnasium", en: "Short Gymnasium", fr: "Gymnase (voie courte)", it: "Liceo (percorso breve)", uk: "Коротка гімназія (Kurzgymnasium)" },
+  gymnasium_lang: { de: "Langgymnasium", en: "Long Gymnasium", fr: "Gymnase (voie longue)", it: "Liceo (percorso lungo)", uk: "Довга гімназія (Langgymnasium)" },
+  fms: { de: "Fachmittelschule", en: "Specialised middle school (FMS)", fr: "École de culture générale", it: "Scuola specializzata", uk: "Фахова середня школа (FMS)" },
+  hf: { de: "Höhere Fachschule (HF)", en: "Professional college (HF)", fr: "École supérieure (ES)", it: "Scuola specializzata superiore (SSS)", uk: "Вища професійна школа (HF)" },
+  fh: { de: "Fachhochschule (Bachelor)", en: "University of applied sciences (Bachelor)", fr: "Haute école spécialisée (Bachelor)", it: "Scuola universitaria professionale (Bachelor)", uk: "Університет прикладних наук (FH, бакалаврат)" },
+  ph: { de: "Pädagogische Hochschule", en: "University of teacher education", fr: "Haute école pédagogique", it: "Alta scuola pedagogica", uk: "Педагогічний університет (PH)" },
+  hms: { de: "Handelsmittelschule", en: "Commercial middle school", fr: "École de commerce", it: "Scuola di commercio", uk: "Торгова середня школа (Handelsmittelschule)" },
+  bms_bm1: { de: "Berufsmaturität während der Lehre (BM 1)", en: "Vocational baccalaureate during the apprenticeship (BM 1)", fr: "Maturité professionnelle pendant l'apprentissage (MP 1)", it: "Maturità professionale durante il tirocinio (MP 1)", uk: "Професійна матура (BM 1) під час навчання" },
+  bms_bm2: { de: "Berufsmaturität nach der Lehre (BM 2)", en: "Vocational baccalaureate after the apprenticeship (BM 2)", fr: "Maturité professionnelle après l'apprentissage (MP 2)", it: "Maturità professionale dopo il tirocinio (MP 2)", uk: "Професійна матура (BM 2) після навчання" }
 };
 
 export function routeLabel(route: string, language: LanguageCode): string {
@@ -164,16 +164,16 @@ export function routeLabel(route: string, language: LanguageCode): string {
 }
 
 const HF_FIELD_LABELS: Record<string, Labels> = {
-  pflege: { de: "Pflege", en: "Nursing", fr: "Soins infirmiers", it: "Cure infermieristiche" },
-  medtech: { de: "Medizinisch-technische Berufe", en: "Medical-technical professions", fr: "Professions médico-techniques", it: "Professioni medico-tecniche" },
-  soziales: { de: "Soziales und Pädagogik", en: "Social work and education", fr: "Travail social et pédagogie", it: "Lavoro sociale e pedagogia" },
-  wirtschaft: { de: "Wirtschaft", en: "Business", fr: "Économie", it: "Economia" },
-  informatik: { de: "Informatik", en: "IT", fr: "Informatique", it: "Informatica" },
-  technik: { de: "Technik", en: "Engineering and technology", fr: "Technique", it: "Tecnica" },
-  gestaltung: { de: "Gestaltung", en: "Design", fr: "Design", it: "Design" },
-  tourismus: { de: "Tourismus und Hotellerie", en: "Tourism and hospitality", fr: "Tourisme et hôtellerie", it: "Turismo e ristorazione" },
-  natur: { de: "Landwirtschaft, Forst, Lebensmittel", en: "Agriculture, forestry, food", fr: "Agriculture, forêt, alimentation", it: "Agricoltura, foresta, alimentazione" },
-  medien: { de: "Medien und Marketing", en: "Media and marketing", fr: "Médias et marketing", it: "Media e marketing" }
+  pflege: { de: "Pflege", en: "Nursing", fr: "Soins infirmiers", it: "Cure infermieristiche", uk: "Догляд за хворими" },
+  medtech: { de: "Medizinisch-technische Berufe", en: "Medical-technical professions", fr: "Professions médico-techniques", it: "Professioni medico-tecniche", uk: "Медико-технічні професії" },
+  soziales: { de: "Soziales und Pädagogik", en: "Social work and education", fr: "Travail social et pédagogie", it: "Lavoro sociale e pedagogia", uk: "Соціальна робота та педагогіка" },
+  wirtschaft: { de: "Wirtschaft", en: "Business", fr: "Économie", it: "Economia", uk: "Економіка" },
+  informatik: { de: "Informatik", en: "IT", fr: "Informatique", it: "Informatica", uk: "Інформатика" },
+  technik: { de: "Technik", en: "Engineering and technology", fr: "Technique", it: "Tecnica", uk: "Техніка" },
+  gestaltung: { de: "Gestaltung", en: "Design", fr: "Design", it: "Design", uk: "Дизайн" },
+  tourismus: { de: "Tourismus und Hotellerie", en: "Tourism and hospitality", fr: "Tourisme et hôtellerie", it: "Turismo e ristorazione", uk: "Туризм і готельна справа" },
+  natur: { de: "Landwirtschaft, Forst, Lebensmittel", en: "Agriculture, forestry, food", fr: "Agriculture, forêt, alimentation", it: "Agricoltura, foresta, alimentazione", uk: "Сільське господарство, лісівництво, харчова галузь" },
+  medien: { de: "Medien und Marketing", en: "Media and marketing", fr: "Médias et marketing", it: "Media e marketing", uk: "Медіа та маркетинг" }
 };
 
 /** The HF field a field-specific national rule is about (code adm_ch_hf_<field>), or undefined for the general rule. */
@@ -188,20 +188,20 @@ export function hfFieldLabel(field: string, language: LanguageCode): string {
 }
 
 const KIND_LABELS: Record<string, Labels> = {
-  bridge_year: { de: "Brückenangebot", en: "Bridge year", fr: "Année de transition", it: "Anno di transizione" },
-  vorlehre: { de: "Vorlehre", en: "Pre-apprenticeship", fr: "Préapprentissage", it: "Preapprendistato" },
-  integration_vorlehre: { de: "Integrationsvorlehre", en: "Integration pre-apprenticeship", fr: "Préapprentissage d'intégration", it: "Preapprendistato d'integrazione" },
-  motivation_semester: { de: "Motivationssemester", en: "Motivation semester", fr: "Semestre de motivation", it: "Semestre di motivazione" },
-  passerelle: { de: "Passerelle", en: "Passerelle", fr: "Passerelle", it: "Passerella" },
-  matura_prep: { de: "Maturitätsvorbereitung", en: "Matura preparation", fr: "Préparation à la maturité", it: "Preparazione alla maturità" },
-  fms_profile: { de: "FMS-Profil", en: "FMS profile", fr: "Profil ECG", it: "Profilo SS" },
-  other: { de: "Weiteres Angebot", en: "Other offer", fr: "Autre offre", it: "Altra offerta" },
-  direct: { de: "Direkt", en: "Direct", fr: "Direct", it: "Diretto" },
-  shortened: { de: "Verkürzt", en: "Shortened", fr: "Raccourci", it: "Abbreviato" },
-  with_exam: { de: "Mit Prüfung", en: "With an exam", fr: "Avec examen", it: "Con esame" },
-  with_bridge: { de: "Mit Zwischenschritt", en: "With an extra step", fr: "Avec une étape intermédiaire", it: "Con un passaggio intermedio" },
-  second_chance: { de: "Zweite Chance", en: "Second chance", fr: "Deuxième chance", it: "Seconda possibilità" },
-  after_work: { de: "Nach der Berufstätigkeit", en: "After working", fr: "Après la vie active", it: "Dopo il lavoro" }
+  bridge_year: { de: "Brückenangebot", en: "Bridge year", fr: "Année de transition", it: "Anno di transizione", uk: "Перехідна програма (Brückenangebot)" },
+  vorlehre: { de: "Vorlehre", en: "Pre-apprenticeship", fr: "Préapprentissage", it: "Preapprendistato", uk: "Підготовчий рік (Vorlehre)" },
+  integration_vorlehre: { de: "Integrationsvorlehre", en: "Integration pre-apprenticeship", fr: "Préapprentissage d'intégration", it: "Preapprendistato d'integrazione", uk: "Інтеграційний підготовчий рік (INVOL)" },
+  motivation_semester: { de: "Motivationssemester", en: "Motivation semester", fr: "Semestre de motivation", it: "Semestre di motivazione", uk: "Семестр мотивації (Motivationssemester)" },
+  passerelle: { de: "Passerelle", en: "Passerelle", fr: "Passerelle", it: "Passerella", uk: "Пасерель (Passerelle)" },
+  matura_prep: { de: "Maturitätsvorbereitung", en: "Matura preparation", fr: "Préparation à la maturité", it: "Preparazione alla maturità", uk: "Підготовка до матури" },
+  fms_profile: { de: "FMS-Profil", en: "FMS profile", fr: "Profil ECG", it: "Profilo SS", uk: "Профіль FMS" },
+  other: { de: "Weiteres Angebot", en: "Other offer", fr: "Autre offre", it: "Altra offerta", uk: "Інша пропозиція" },
+  direct: { de: "Direkt", en: "Direct", fr: "Direct", it: "Diretto", uk: "Напряму" },
+  shortened: { de: "Verkürzt", en: "Shortened", fr: "Raccourci", it: "Abbreviato", uk: "У скорочений спосіб" },
+  with_exam: { de: "Mit Prüfung", en: "With an exam", fr: "Avec examen", it: "Con esame", uk: "З іспитом" },
+  with_bridge: { de: "Mit Zwischenschritt", en: "With an extra step", fr: "Avec une étape intermédiaire", it: "Con un passaggio intermedio", uk: "З додатковим кроком" },
+  second_chance: { de: "Zweite Chance", en: "Second chance", fr: "Deuxième chance", it: "Seconda possibilità", uk: "Другий шанс" },
+  after_work: { de: "Nach der Berufstätigkeit", en: "After working", fr: "Après la vie active", it: "Dopo il lavoro", uk: "Після роботи" }
 };
 
 export function kindLabel(kind: string, language: LanguageCode): string {

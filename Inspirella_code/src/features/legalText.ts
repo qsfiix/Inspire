@@ -1,7 +1,7 @@
 import type { LanguageCode } from "../types";
 
 /**
- * Impressum and privacy notice in the four site languages.
+ * Impressum and privacy notice in the four site languages (Ukrainian shows the English text).
  * Inline markup: **bold**; e-mail addresses become mailto links. Plain language on
  * purpose (see the closing note of the privacy notice): not a substitute for legal advice.
  */
@@ -22,7 +22,7 @@ export interface LegalDoc {
 
 export const CONTACT_EMAIL = "iinspirella@gmail.com";
 
-export const IMPRESSUM: Record<LanguageCode, LegalDoc> = {
+const IMPRESSUM_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
   de: {
     eyebrow: "Rechtliches",
     title: "Impressum",
@@ -225,7 +225,10 @@ export const IMPRESSUM: Record<LanguageCode, LegalDoc> = {
   }
 };
 
-export const PRIVACY: Record<LanguageCode, LegalDoc> = {
+// Ukrainian: legal text is not machine-translated; the English version applies.
+export const IMPRESSUM: Record<LanguageCode, LegalDoc> = { ...IMPRESSUM_BASE, uk: IMPRESSUM_BASE.en };
+
+const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
   en: {
     eyebrow: "Privacy",
     title: "Privacy notice",
@@ -420,8 +423,11 @@ export const PRIVACY: Record<LanguageCode, LegalDoc> = {
   }
 };
 
+// Ukrainian: legal text is not machine-translated; the English version applies.
+export const PRIVACY: Record<LanguageCode, LegalDoc> = { ...PRIVACY_BASE, uk: PRIVACY_BASE.en };
+
 /** Footer link labels. */
 export const LEGAL_LINKS: Record<"impressum" | "privacy", Record<LanguageCode, string>> = {
-  impressum: { de: "Impressum", en: "Legal notice", fr: "Mentions légales", it: "Note legali" },
-  privacy: { de: "Datenschutz", en: "Privacy", fr: "Confidentialité", it: "Privacy" }
+  impressum: { de: "Impressum", en: "Legal notice", fr: "Mentions légales", it: "Note legali", uk: "Правова інформація" },
+  privacy: { de: "Datenschutz", en: "Privacy", fr: "Confidentialité", it: "Privacy", uk: "Конфіденційність" }
 };

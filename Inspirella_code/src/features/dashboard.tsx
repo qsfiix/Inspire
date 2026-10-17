@@ -428,7 +428,8 @@ export function ProfileView({
               { code: "en", label: "English" },
               { code: "de", label: "Deutsch" },
               { code: "fr", label: "Français" },
-              { code: "it", label: "Italiano" }
+              { code: "it", label: "Italiano" },
+              { code: "uk", label: "Українська" }
             ].map((l) => (
               <button
                 key={l.code}

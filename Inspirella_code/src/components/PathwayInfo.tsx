@@ -168,6 +168,30 @@ const UI: Record<LanguageCode, Ui> = {
     nationwide: "In tutta la Svizzera",
     admissionTitleNational: "Come entrare",
     pickCanton: "Scegli il tuo cantone sotto «Il tuo percorso personale»: qui compariranno le regole di ammissione."
+  },
+  uk: {
+    admissionTitle: c => `Як вступити (кантон ${c})`,
+    requirements: "Вимоги",
+    exam: "Вступний іспит",
+    deadline: "Реєстрація",
+    cost: "Вартість",
+    source: "Джерело",
+    germanNote: "Тексти німецькою. Терміни щороку змінюються: перевір їх на сторінці джерела.",
+    verified: "Перевірено",
+    bridgeTitle: c => `План Б: перехідні програми (Brückenangebot) у кантоні ${c}`,
+    bridgeHint: "Якщо місце для навчання з практикою чи школа не знаходяться одразу, є програми, які готують тебе і дають змогу з користю провести цей час.",
+    duration: "Тривалість",
+    target: "Для кого",
+    more: n => `і ще ${n}`,
+    nextTitle: "А що далі? Як можна продовжити",
+    nextHint: "Швейцарська система гнучка: майже після кожного диплома можна йти далі.",
+    conditions: "Умови",
+    typicalAge: "Типовий вік",
+    byField: n => `За напрямом (${n})`,
+    timing: "Початок / тривалість",
+    nationwide: "По всій Швейцарії",
+    admissionTitleNational: "Як вступити",
+    pickCanton: "Обери свій кантон у розділі «Твій особистий шлях», і тут з'являться правила вступу."
   }
 };
 

@@ -72,16 +72,17 @@ const fill = (template: string, vars: Record<string, string | number>) =>
   String(template).replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ""));
 const pct = (v: number, of: number) => `${(v / of) * 100}%`;
 
-const GOAL_BUTTON: Record<LanguageCode, string> = { de: "Ziel ändern", en: "Change goal", fr: "Changer d'objectif", it: "Cambia obiettivo" };
-const TRACK_BUTTON: Record<LanguageCode, string> = { de: "Aufgaben in den Tracker übernehmen", en: "Add the tasks to my tracker", fr: "Ajouter les tâches à mon suivi", it: "Aggiungi i compiti al tracker" };
+const GOAL_BUTTON: Record<LanguageCode, string> = { de: "Ziel ändern", en: "Change goal", fr: "Changer d'objectif", it: "Cambia obiettivo", uk: "Змінити ціль" };
+const TRACK_BUTTON: Record<LanguageCode, string> = { de: "Aufgaben in den Tracker übernehmen", en: "Add the tasks to my tracker", fr: "Ajouter les tâches à mon suivi", it: "Aggiungi i compiti al tracker", uk: "Додати завдання до трекера" };
 const GOAL_NAMES: Record<LanguageCode, Record<string, string>> = {
   de: { gymnasium: "Gymnasium (Matura)", apprenticeship: "Berufslehre (EFZ)", berufsmatura: "Berufsmaturität", university_of_applied_sciences: "Fachhochschule", university: "Universität oder ETH", higher_vocational: "Höhere Berufsbildung", language_course: "Sprachkurs" },
   en: { gymnasium: "Gymnasium (Matura)", apprenticeship: "Apprenticeship (EFZ)", berufsmatura: "Vocational baccalaureate", university_of_applied_sciences: "University of applied sciences", university: "University or ETH", higher_vocational: "Higher vocational education", language_course: "Language course" },
   fr: { gymnasium: "Gymnase (maturité)", apprenticeship: "Apprentissage (CFC)", berufsmatura: "Maturité professionnelle", university_of_applied_sciences: "Haute école spécialisée", university: "Université ou EPF", higher_vocational: "Formation professionnelle supérieure", language_course: "Cours de langue" },
-  it: { gymnasium: "Liceo (maturità)", apprenticeship: "Apprendistato (AFC)", berufsmatura: "Maturità professionale", university_of_applied_sciences: "Scuola universitaria professionale", university: "Università o PF", higher_vocational: "Formazione professionale superiore", language_course: "Corso di lingua" }
+  it: { gymnasium: "Liceo (maturità)", apprenticeship: "Apprendistato (AFC)", berufsmatura: "Maturità professionale", university_of_applied_sciences: "Scuola universitaria professionale", university: "Università o PF", higher_vocational: "Formazione professionale superiore", language_course: "Corso di lingua" },
+  uk: { gymnasium: "Гімназія (Gymnasium, матура)", apprenticeship: "Професійне навчання з практикою (Lehre, диплом EFZ)", berufsmatura: "Професійна матура (Berufsmaturität)", university_of_applied_sciences: "Університет прикладних наук (FH)", university: "Університет або ETH", higher_vocational: "Вища професійна освіта", language_course: "Мовний курс" }
 };
-const EXPAND_BUTTON: Record<LanguageCode, string> = { de: "Teilaufgaben mit Terminen ergänzen", en: "Add detailed subtasks with dates", fr: "Ajouter des sous-tâches avec dates", it: "Aggiungi sottocompiti con date" };
-const OPEN_TRACKER: Record<LanguageCode, string> = { de: "Im Tracker öffnen", en: "Open in tracker", fr: "Ouvrir dans le suivi", it: "Apri nel tracker" };
+const EXPAND_BUTTON: Record<LanguageCode, string> = { de: "Teilaufgaben mit Terminen ergänzen", en: "Add detailed subtasks with dates", fr: "Ajouter des sous-tâches avec dates", it: "Aggiungi sottocompiti con date", uk: "Додати підзавдання з термінами" };
+const OPEN_TRACKER: Record<LanguageCode, string> = { de: "Im Tracker öffnen", en: "Open in tracker", fr: "Ouvrir dans le suivi", it: "Apri nel tracker", uk: "Відкрити в трекері" };
 
 type StepState = "done" | "current" | "upcoming";
 type Selection = { type: "step"; index: number } | { type: "goal" } | { type: "alt"; index: number } | null;

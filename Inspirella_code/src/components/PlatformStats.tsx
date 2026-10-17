@@ -35,7 +35,7 @@ export default function PlatformStats({ isDark, labels, align = "center" }: Plat
     { value: stats.professions, label: labels.professions, plus: true },
     { value: stats.institutions, label: labels.institutions, plus: true },
     { value: 26, label: labels.cantons, plus: false }, // all cantons: no "+"
-    { value: 4, label: labels.languages, plus: false } // exactly four: no "+"
+    { value: 5, label: labels.languages, plus: false } // exactly five: no "+"
   ];
 
   return (

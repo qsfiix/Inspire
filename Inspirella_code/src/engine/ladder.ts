@@ -8,7 +8,7 @@ export const LADDER_CODE = "lehre_leiter";
 /** Profession types the ladder is written for. */
 const LADDER_PROFESSION_TYPES = new Set(["apprenticeship_efz"]);
 
-const title = (de: string, en: string, fr: string, it: string): Partial<Record<LanguageCode, string>> => ({ de, en, fr, it });
+const title = (de: string, en: string, fr: string, it: string, uk: string = de): Partial<Record<LanguageCode, string>> => ({ de, en, fr, it, uk });
 
 /**
  * The ladder fits someone who still has to find an apprenticeship: school
@@ -50,7 +50,7 @@ export function instantiateLadder(template: LearningPath, profession: Profession
     ...template,
     id: `${template.id}:${profession.id}`,
     // Name only: the card prefixes it with "Dein Weg zu ...".
-    title: title(berufDe, profession.title.en ?? berufDe, profession.title.fr ?? berufDe, profession.title.it ?? berufDe),
+    title: title(berufDe, profession.title.en ?? berufDe, profession.title.fr ?? berufDe, profession.title.it ?? berufDe, profession.title.uk ?? berufDe),
     targetProfessionId: profession.id,
     steps: template.steps.map(s => fillStep(s, beruf))
   };
@@ -197,7 +197,8 @@ const WINDOW_TEXT: Record<LanguageCode, { guide: string; open: string; now: stri
   de: { guide: "Richtwert für einen Lehrbeginn im August {y}: {range}", open: "ab {from}", now: "jetzt aktuell", past: "Zeitfenster vorbei, du kannst trotzdem noch handeln", ahead: "kommt noch", assumed: "Das Jahr haben wir angenommen. Gib in deinen Antworten dein Wunschjahr an." },
   en: { guide: "Rough guide for starting in August {y}: {range}", open: "from {from}", now: "current now", past: "window has passed, you can still act", ahead: "still to come", assumed: "We assumed the year. Enter your preferred year in your answers." },
   fr: { guide: "Repère pour un début en août {y} : {range}", open: "dès {from}", now: "en cours", past: "période passée, tu peux encore agir", ahead: "à venir", assumed: "Nous avons supposé l'année. Indique l'année souhaitée dans tes réponses." },
-  it: { guide: "Indicazione per un inizio ad agosto {y}: {range}", open: "da {from}", now: "attuale", past: "periodo passato, puoi comunque agire", ahead: "in arrivo", assumed: "Abbiamo ipotizzato l'anno. Indica l'anno desiderato nelle tue risposte." }
+  it: { guide: "Indicazione per un inizio ad agosto {y}: {range}", open: "da {from}", now: "attuale", past: "periodo passato, puoi comunque agire", ahead: "in arrivo", assumed: "Abbiamo ipotizzato l'anno. Indica l'anno desiderato nelle tue risposte." },
+  uk: { guide: "Орієнтир для початку навчання в серпні {y}: {range}", open: "від {from}", now: "актуально зараз", past: "цей період минув, але діяти ще можна", ahead: "ще попереду", assumed: "Рік ми припустили самі. Вкажи бажаний рік у своїх відповідях." }
 };
 
 export function windowLabel(win: PhaseWindow, startYear: number, assumed: boolean, language: LanguageCode): { text: string; status: string; note?: string } {
@@ -219,7 +220,8 @@ export const PLAN_B_TEXT: Record<LanguageCode, string> = {
   de: "Falls du jetzt noch keine Lehrstelle hast: Das ist nicht ungewöhnlich. Schau dir Plan B an (Brückenangebote, 10. Schuljahr, Zwischenjahr) und bleib trotzdem in der Suche.",
   en: "If you have no apprenticeship yet: that is not unusual. Look at Plan B (bridge programmes, 10th school year, gap year) and keep searching.",
   fr: "Si tu n'as pas encore de place d'apprentissage : ce n'est pas rare. Regarde le plan B (offres transitoires, 10e année, année intermédiaire) et continue ta recherche.",
-  it: "Se non hai ancora un posto di tirocinio: non è raro. Guarda il piano B (offerte transitorie, 10° anno, anno intermedio) e continua a cercare."
+  it: "Se non hai ancora un posto di tirocinio: non è raro. Guarda il piano B (offerte transitorie, 10° anno, anno intermedio) e continua a cercare.",
+  uk: "Якщо в тебе ще немає місця для навчання з практикою (Lehre): це не рідкість. Зазирни в план Б (перехідні програми, 10-й шкільний рік, проміжний рік) і продовжуй пошуки."
 };
 
 /**
@@ -237,7 +239,7 @@ export function routeToLadderPath(route: PersonalRoute, title: string, language:
   return {
     id: `route:${route.target}:${route.entry}${idSuffix}`,
     code: "route",
-    title: { de: title, en: title, fr: title, it: title, [language]: title },
+    title: { de: title, en: title, fr: title, it: title, uk: title, [language]: title },
     steps: flat
       ? segments.flatMap(seg => seg.steps.map(ps => ps.step))
       : segments.map((seg, i) => ({

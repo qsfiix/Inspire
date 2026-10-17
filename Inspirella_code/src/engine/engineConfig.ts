@@ -5,6 +5,7 @@ export interface LocalizedString {
   de: string;
   fr: string;
   it: string;
+  uk: string;
 }
 
 export interface PathFocusRule {
@@ -143,7 +144,8 @@ export const EngineConfig: EngineConfigType = {
           en: "Vocational & Professional Focus",
           de: "Fokus auf Berufsbildung",
           fr: "Spécialisation Professionnelle",
-          it: "Focus Professionale (AFC)"
+          it: "Focus Professionale (AFC)",
+          uk: "Фокус на професійній освіті"
         }
       },
       {
@@ -153,7 +155,8 @@ export const EngineConfig: EngineConfigType = {
           en: "Academic Excellence Track",
           de: "Akademische Exzellenz",
           fr: "Excellence Académique",
-          it: "Percorso Accademico d'Eccellenza"
+          it: "Percorso Accademico d'Eccellenza",
+          uk: "Академічний шлях високого рівня"
         }
       },
       {
@@ -162,7 +165,8 @@ export const EngineConfig: EngineConfigType = {
           en: "System Orientation for Parents",
           de: "Systemorientierung für Eltern",
           fr: "Orientation système pour parents",
-          it: "Orientamento per i genitori"
+          it: "Orientamento per i genitori",
+          uk: "Орієнтація в системі освіти для батьків"
         }
       },
       {
@@ -171,7 +175,8 @@ export const EngineConfig: EngineConfigType = {
           en: "Global Educational Comparison",
           de: "Globaler Bildungsvergleich",
           fr: "Comparaison Éducative Globale",
-          it: "Confronto Educativo Globale"
+          it: "Confronto Educativo Globale",
+          uk: "Глобальне порівняння освітніх систем"
         }
       }
     ],
@@ -179,7 +184,8 @@ export const EngineConfig: EngineConfigType = {
       en: "General Educational Exploration",
       de: "Allgemeine Bildungserkundung",
       fr: "Exploration éducative générale",
-      it: "Esplorazione formativa generale"
+      it: "Esplorazione formativa generale",
+      uk: "Загальне знайомство з освітою"
     },
     nextSteps: [
       {
@@ -188,7 +194,8 @@ export const EngineConfig: EngineConfigType = {
           en: "Review Gymnasiale Maturität vs. VET Apprenticeship",
           de: "Gymnasiale Maturität mit Berufslehre vergleichen",
           fr: "Comparer Maturité Gymnasiale et Apprentissage CFC",
-          it: "Confronta Maturità Liceale e Apprendistato AFC"
+          it: "Confronta Maturità Liceale e Apprendistato AFC",
+          uk: "Порівняй гімназійну матуру (Gymnasium) і професійне навчання з практикою (Lehre) з дипломом EFZ"
         }
       },
       {
@@ -197,7 +204,8 @@ export const EngineConfig: EngineConfigType = {
           en: "Explore Tertiary B (Higher Professional) or Master programs",
           de: "Masterstudiengänge oder Höhere Fachschulen erkunden",
           fr: "Explorer les Masters ou Hautes Écoles Spécialisées",
-          it: "Esplora Master o Scuole Specializzate Superiori"
+          it: "Esplora Master o Scuole Specializzate Superiori",
+          uk: "Дізнайся про магістерські програми або вищі професійні школи (HF)"
         }
       },
       {
@@ -206,7 +214,8 @@ export const EngineConfig: EngineConfigType = {
           en: "Consider an Executive Master or Specialized Federal Diploma",
           de: "Weiterbildung oder Eidgenössisches Diplom prüfen",
           fr: "Envisager un diplôme fédéral ou une formation continue",
-          it: "Valuta un diploma federale o formazione continua"
+          it: "Valuta un diploma federale o formazione continua",
+          uk: "Розглянь федеральний диплом або підвищення кваліфікації"
         }
       }
     ],
@@ -214,7 +223,8 @@ export const EngineConfig: EngineConfigType = {
         en: "Schedule a consultation or review official admission portals",
         de: "Beratungstermin vereinbaren oder offizielle Portale prüfen",
         fr: "Planifier une consultation ou lire les portails officiels",
-        it: "Fissa una consulenza o controlla i portali ufficiali"
+        it: "Fissa una consulenza o controlla i portali ufficiali",
+        uk: "Домовся про консультацію або перевір офіційні портали"
     }
   }
 };

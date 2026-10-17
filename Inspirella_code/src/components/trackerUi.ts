@@ -254,7 +254,57 @@ const it: TrackerUiText = {
   goalsHead: "I tuoi obiettivi"
 };
 
-const BY_LANG: Record<LanguageCode, TrackerUiText> = { de, en, fr, it };
+const uk: TrackerUiText = {
+  nextTitle: "Найближчим часом",
+  nextEmpty: "Нічого термінового. Постав дату на свої завдання, і ми нагадаємо тут.",
+  overdue: "прострочено",
+  today: "сьогодні",
+  tomorrow: "завтра",
+  inDays: "через {n} дн.",
+  ago: "{n} дн. тому",
+  calendar: "Додати до календаря (.ics)",
+  calendarHint: "Завантажує файл, який відкриє твій телефон або календар, з нагадуванням за день.",
+  noDateHead: "Події без дати",
+  noDateHint: "Впиши дату, щойно її дізнаєшся. Тоді ми тобі нагадаємо.",
+  setDate: "Вказати дату",
+  date: "Дата",
+  note: "Нотатка",
+  notePlaceholder: "Наприклад: контактна особа, телефон, що взяти з собою",
+  subtasks: "{done} із {total} підзавдань",
+  openStep: "Переглянути крок у твоєму шляху",
+  boardTitle: "Мої заявки",
+  boardHint: "Усі компанії, до яких ти подаєшся, зі статусом. Переміщуй їх через поле вибору.",
+  firmPlaceholder: "Назва компанії",
+  addFirm: "Додати",
+  boardEmpty: "Заявок ще немає. Додай компанію зі свого шляху або впиши назву.",
+  remove: "Видалити",
+  statusLabel: { planned: "Заплановано", sent: "Надіслано", interview: "Співбесіда", offer: "Позитивна відповідь", rejected: "Відмова", declined: "Сам(а) відмовився(-лась)" },
+  logTitle: "Щоденник пробних днів",
+  logHint: "Записуй, як минув кожен пробний день (Schnupperlehre). Твої враження змінюють порядок пропозицій компаній.",
+  logFirm: "Компанія",
+  logDate: "Дата",
+  logRating: "Як усе було?",
+  logWould: "Ти подавався б(-лась) туди?",
+  logYes: "Так",
+  logNo: "Ні",
+  logSave: "Зберегти запис",
+  logEmpty: "Пробних днів ще не записано.",
+  logNoteHint: "Що тобі сподобалось, а що ні?",
+  toBoard: "До моїх заявок",
+  toLog: "Записати пробний день",
+  onBoard: "У твоєму списку заявок",
+  inLog: "У твоєму щоденнику пробних днів",
+  signalGood: "Твоє враження: добре",
+  signalBad: "Твоє враження: скоріше ні",
+  signalRejected: "Отримано відмову",
+  kindLabel: { schnupper: "Пробний день", interview: "Співбесіда", deadline: "Термін", document: "Документ" },
+  dossierHead: "Досьє",
+  weekTitle: "Що попереду",
+  weekAll: "Усе в трекері",
+  goalsHead: "Твої цілі"
+};
+
+const BY_LANG: Record<LanguageCode, TrackerUiText> = { de, en, fr, it, uk };
 export const trackerUi = (language: LanguageCode): TrackerUiText => BY_LANG[language] ?? de;
 
 /** "heute", "in 3 Tagen", "überfällig seit 2 Tagen". */

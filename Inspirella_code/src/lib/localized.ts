@@ -4,7 +4,7 @@ import { LanguageCode } from "../types";
  * Canonical helpers for multilingual product text.
  *
  * PRODUCT RULE (02_Product/Requirements/Modules Requirements.md - Language module):
- * - supported languages are en / de / fr / it;
+ * - supported languages are en / de / fr / it / uk (Ukrainian: until a record has its own Ukrainian text it shows the English one);
  * - fallback to English only when a translation is absent;
  * - never display raw translation keys or `undefined` to the user.
  *
@@ -13,7 +13,7 @@ import { LanguageCode } from "../types";
  * translated database record.
  */
 
-export const SUPPORTED_LANGUAGES: LanguageCode[] = ["en", "de", "fr", "it"];
+export const SUPPORTED_LANGUAGES: LanguageCode[] = ["en", "de", "fr", "it", "uk"];
 
 export function isLanguageCode(value: unknown): value is LanguageCode {
   return typeof value === "string" && (SUPPORTED_LANGUAGES as string[]).includes(value);

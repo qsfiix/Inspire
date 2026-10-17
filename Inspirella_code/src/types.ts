@@ -5,7 +5,7 @@
 // Missing data must stay missing and be communicated honestly - it must never be
 // replaced by a plausible-looking default such as a fallback city, salary or website.
 
-export type LanguageCode = "en" | "de" | "fr" | "it";
+export type LanguageCode = "en" | "de" | "fr" | "it" | "uk";
 
 /**
  * Where a product-facing record physically came from.
@@ -457,8 +457,8 @@ export interface AudienceFact {
   topic: string;
   node?: string;
   sortOrder: number;
-  headline: { de: string; en: string };
-  text: { de: string; en: string };
+  headline: { de: string; en: string; uk: string };
+  text: { de: string; en: string; uk: string };
   url?: string;
   verified: boolean;
 }

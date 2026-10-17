@@ -10,7 +10,8 @@ const UI: Record<LanguageCode, { stage: string; route: string }> = {
   de: { stage: "Auf der Swiss Path Map zeigen", route: "Meinen Weg auf der Swiss Path Map ansehen" },
   en: { stage: "Show on the Swiss Path Map", route: "See my path on the Swiss Path Map" },
   fr: { stage: "Voir sur la Swiss Path Map", route: "Voir mon parcours sur la Swiss Path Map" },
-  it: { stage: "Mostra sulla Swiss Path Map", route: "Vedi il mio percorso sulla Swiss Path Map" }
+  it: { stage: "Mostra sulla Swiss Path Map", route: "Vedi il mio percorso sulla Swiss Path Map" },
+  uk: { stage: "Показати на Swiss Path Map", route: "Переглянути мій шлях на Swiss Path Map" }
 };
 
 interface Props {

@@ -377,6 +377,72 @@ const UI: Record<LanguageCode, Ui> = {
     statusSTitle: "Con lo statuto di protezione S (Ucraina)",
     statusSHint: "Breve e con fonti ufficiali: scuola, lingua, apprendistato, diplomi, università.",
     statusSLang: "Testi in inglese"
+  },
+  uk: {
+    title: "Swiss Path Map",
+    sub: "Система освіти Швейцарії з першого погляду",
+    intro: "Усі шляхи від школи до докторантури та способи переходити з одного на інший. Торкнися етапу або лінії, щоб побачити, що за ними стоїть. Або обери, де ти зараз і куди хочеш потрапити.",
+    from: "Я тут",
+    to: "Хочу потрапити сюди",
+    pick: "Обрати етап",
+    newcomer: "Я нещодавно приїхав(-ла) до Швейцарії",
+    yourWay: "Твій шлях",
+    stepsCount: n => (n % 10 === 1 && n % 100 !== 11 ? `${n} крок` : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? `${n} кроки` : `${n} кроків`),
+    noRoute: "У наших даних немає прямого шляху. Часто допомагає перехідна програма (Brückenangebot) або профорієнтація.",
+    viewMap: "Мапа",
+    viewList: "Список",
+    legend: "Умовні позначення",
+    waysIn: "Шляхи сюди",
+    waysOut: "Шляхи далі",
+    startHere: "Почати тут",
+    getHere: "Прийти сюди",
+    official: "Офіційна сторінка",
+    makeGoal: "Зробити це моєю ціллю",
+    isGoal: "Це твоя ціль",
+    goalSet: "Ціль встановлено: твій шлях оновлено.",
+    openMyPath: "Відкрити мій шлях",
+    planRoute: "Спланувати мій шлях",
+    needProfile: "З коротким профілем (можна й гостем) ти зможеш зробити цей етап своєю ціллю та побачити свій особистий шлях.",
+    duration: "Тривалість",
+    age: "Типовий вік",
+    diploma: "Кваліфікація",
+    requirements: "Хто може почати",
+    cantonal: "Відмінності між кантонами",
+    good: "Корисно знати",
+    conditions: "Умови",
+    notes: "Примітки",
+    pickCanton: "Переглянути умови вступу у твоєму кантоні",
+    anyCanton: "Обрати кантон",
+    germanNote: "Дані під коротким описом походять з офіційних джерел і подані німецькою. Терміни й умови змінюються: перевір їх на офіційній сторінці.",
+    disclaimer: "Орієнтир, а не офіційна довідка. Джерела: berufsberatung.ch, SBFI, EDK, swissuniversities. Правила різняться залежно від кантону та школи.",
+    close: "Закрити",
+    loading: "Мапа завантажується…",
+    failed: "Не вдалося завантажити мапу. Спробуй пізніше.",
+    fromProfile: "з твого профілю",
+    bands: { "-1": "Прибуття", "0": "Початкова школа", "1": "Нижча середня школа (Sekundarstufe I)", "2": "Вища середня школа (Sekundarstufe II)", "3": "Вища освіта", "4": "Магістратура, докторантура, підвищення кваліфікації" },
+    kinds: { school: "Школа / навчання", qualification: "Кваліфікація", bridge: "Перехідна програма (Brückenangebot)", entry: "Прибуття", work: "Робота" },
+    edgeTitle: "Шлях",
+    scrollHint: "Прокрути вбік, щоб побачити всю мапу",
+    mainWays: "Головні шляхи",
+    allWays: n => `Показати всі шляхи (+${n})`,
+    ageNote: "Вік вказано приблизно. Почати пізніше або змінити шлях ніколи не пізно: багато шляхів відкриті й для дорослих.",
+    ageRange: (a, b) => `прибл. ${a === b ? a : a + "–" + b} р.`,
+    professionsOnStage: n => `Професій на цьому шляху: ${n}`,
+    schoolsOnStage: n => `Шкіл: ${n}`,
+    stageTies: "Досліджувати далі",
+    myCanton: "Мій кантон",
+    cantonHint: "Обери свій кантон, щоб побачити, як там усе влаштовано (шкільна модель, гімназія, прибуття, установи).",
+    inCanton: c => `У кантоні ${c}`,
+    offerYes: "Пропозиція є",
+    offerNo: "Такої пропозиції немає",
+    offerPartial: "Лише частково",
+    option: n => `Варіант ${n}`,
+    yearsAbout: (a, b) => `прибл. ${a === b ? a : a + "–" + b} р.`,
+    yearsNote: "Тривалість — це приблизна оцінка за даними етапів; вона залежить від кантону, школи та людини.",
+    notHere: "У цьому кантоні не пропонується",
+    statusSTitle: "Зі статусом захисту S (Україна)",
+    statusSHint: "Коротко й з офіційними джерелами: школа, мова, професійне навчання з практикою (Lehre), дипломи, університет.",
+    statusSLang: "Тексти англійською"
   }
 };
 
@@ -782,9 +848,9 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
           <details open className={`rounded-xl border ${isDark ? "border-amber-300/30 bg-[#1a1405]/90" : "border-amber-500/50 bg-amber-50"}`}>
             <summary className={`cursor-pointer px-3 py-2 text-[12.5px] font-bold ${isDark ? "text-amber-100" : "text-amber-950"}`}>{ui.statusSTitle}</summary>
             <div className="space-y-2.5 px-3 pb-3">
-              <p className={`text-[11px] ${muted}`}>{ui.statusSHint}{currentLanguage !== "de" ? " " + ui.statusSLang + "." : ""}</p>
+              <p className={`text-[11px] ${muted}`}>{ui.statusSHint}{currentLanguage !== "de" && currentLanguage !== "uk" ? " " + ui.statusSLang + "." : ""}</p>
               {statusSFacts.map(f => {
-                const lang = currentLanguage === "de" ? "de" : "en";
+                const lang = currentLanguage === "de" ? "de" : currentLanguage === "uk" ? "uk" : "en";
                 return (
                   <div key={f.topic} className="space-y-0.5">
                     <p className={`text-[12.5px] font-semibold leading-snug ${isDark ? "text-white" : "text-amber-950"}`}>{f.headline[lang]}</p>

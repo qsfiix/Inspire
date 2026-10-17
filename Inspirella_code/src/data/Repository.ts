@@ -1585,14 +1585,15 @@ export const DataRepository = {
   /** The stages of the Swiss education system with their plain-language cards (Swiss Path Map). */
   getEducationNodes: async (): Promise<EducationNode[]> => {
     const rows = await loadActiveRows("education_nodes");
-    const pick = (r: Record<string, unknown>, base: string, lang: "de" | "en" | "fr" | "it"): string => {
+    const pick = (r: Record<string, unknown>, base: string, lang: "de" | "en" | "fr" | "it" | "uk"): string => {
       const own = normalizeText(r[`${base}_${lang}`]);
-      return own ?? normalizeText(r[`${base}_de`]) ?? "";
+      // Ukrainian (and any language without its own text) falls back to English first, then German.
+      return own ?? normalizeText(r[`${base}_en`]) ?? normalizeText(r[`${base}_de`]) ?? "";
     };
     return rows.flatMap((r): EducationNode[] => {
       const code = normalizeText(r.code);
       if (!code || !normalizeText(r.label_de)) return [];
-      const langs = ["de", "en", "fr", "it"] as const;
+      const langs = ["de", "en", "fr", "it", "uk"] as const;
       const label = Object.fromEntries(langs.map(l => [l, pick(r, "label", l)])) as EducationNode["label"];
       const summary = Object.fromEntries(langs.map(l => [l, pick(r, "summary", l)])) as EducationNode["summary"];
       const facts = Array.isArray(r.good_to_know_de) ? (r.good_to_know_de as unknown[]).map(f => normalizeText(f)).filter((f): f is string => !!f) : [];
@@ -1628,8 +1629,8 @@ export const DataRepository = {
           topic,
           node: normalizeText(r.node_code),
           sortOrder: typeof r.sort_order === "number" ? r.sort_order : 50,
-          headline: { de: headlineDe, en: normalizeText(r.headline_en) ?? headlineDe },
-          text: { de: normalizeText(r.text_de) ?? "", en: normalizeText(r.text_en) ?? normalizeText(r.text_de) ?? "" },
+          headline: { de: headlineDe, en: normalizeText(r.headline_en) ?? headlineDe, uk: normalizeText(r.headline_uk) ?? normalizeText(r.headline_en) ?? headlineDe },
+          text: { de: normalizeText(r.text_de) ?? "", en: normalizeText(r.text_en) ?? normalizeText(r.text_de) ?? "", uk: normalizeText(r.text_uk) ?? normalizeText(r.text_en) ?? normalizeText(r.text_de) ?? "" },
           url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
           verified: r.verification_status === "verified"
         }];

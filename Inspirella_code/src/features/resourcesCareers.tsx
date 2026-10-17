@@ -34,7 +34,8 @@ const CANTON_FILTER_LABEL: Record<LanguageCode, string> = {
   de: "Alle Kantone",
   en: "All cantons",
   fr: "Tous les cantons",
-  it: "Tutti i cantoni"
+  it: "Tutti i cantoni",
+  uk: "Усі кантони"
 };
 
 /**
@@ -353,7 +354,7 @@ function ListSkeleton({ label, isDark }: { label: string; isDark: boolean }) {
   );
 }
 
-const STAGE_FILTER_UI: Record<string, string> = { de: "Stufe", en: "Stage", fr: "Étape", it: "Tappa" };
+const STAGE_FILTER_UI: Record<string, string> = { de: "Stufe", en: "Stage", fr: "Étape", it: "Tappa", uk: "Етап" };
 
 /** "Showing only what belongs to this stage of the Swiss Path Map" with a way out. */
 function StageFilterChip({ stage, language, isDark, onClear }: { stage?: string; language: string; isDark: boolean; onClear: () => void }) {

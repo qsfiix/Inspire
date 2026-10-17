@@ -157,6 +157,7 @@ export default function Navbar({
               <option className={isDark ? "bg-zinc-950 text-white" : "bg-white text-indigo-950"} value="de">DE</option>
               <option className={isDark ? "bg-zinc-950 text-white" : "bg-white text-indigo-950"} value="fr">FR</option>
               <option className={isDark ? "bg-zinc-950 text-white" : "bg-white text-indigo-950"} value="it">IT</option>
+              <option className={isDark ? "bg-zinc-950 text-white" : "bg-white text-indigo-950"} value="uk">UA</option>
             </select>
           </div>
 

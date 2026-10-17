@@ -29,6 +29,24 @@
         ],
         "createdAt": "2026-10-13T08:15:54.453Z",
         "reason": "Violet tab/selection styling in the goal picker is the established Inspirella brand palette; Sofiia confirmed on 2026-10-08 that the violet style stays. Flat text and borders, no gradient."
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "Inspirella_code/src/components/SwissPathMap.tsx"
+        ],
+        "createdAt": "2026-10-17T13:21:47.532Z",
+        "reason": "Violet is the established Inspirella brand palette (Sofiia confirmed 2026-10-08 that the violet style stays); the Swiss Path Map uses flat violet borders and text like the other screens, no gradient. Assistant decision, confirmed in spirit by her approval of the look on 2026-10-17."
+      },
+      {
+        "rule": "overused-font",
+        "value": "*",
+        "files": [
+          "src/index.css"
+        ],
+        "createdAt": "2026-10-17T13:21:47.532Z",
+        "reason": "Inter and Space Grotesk are the self-hosted brand fonts (public/fonts) chosen earlier for Inspirella; Sofiia has approved the current look. Assistant decision, not re-confirmed today."
       }
     ]
   }

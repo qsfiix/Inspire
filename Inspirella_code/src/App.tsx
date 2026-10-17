@@ -44,7 +44,10 @@ const PhoenixScene = lazy(() => import("./components/phoenix/PhoenixScene"));
 const SwissPathMap = lazy(() => import("./components/SwissPathMap"));
 
 export default function App() {
-  const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>("en");
+  // A first-time visitor whose browser is set to Ukrainian gets the Ukrainian interface; everyone else starts in English.
+  const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>(() =>
+    typeof navigator !== "undefined" && (navigator.languages ?? [navigator.language]).some(l => String(l).toLowerCase().startsWith("uk")) ? "uk" : "en"
+  );
   const [activeTab, setActiveTab] = useState<string>("home");
   // Links between the Swiss Path Map and the rest of the platform (cleared when the target page is left).
   const [pathMapFocus, setPathMapFocus] = useState<string | null>(null);
@@ -209,6 +212,10 @@ export default function App() {
     setTrackers(updated);
     DataRepository.saveTrackers(updated);
   };
+
+  useEffect(() => {
+    document.documentElement.lang = currentLanguage;
+  }, [currentLanguage]);
 
   const handleLanguageChange = async (lang: LanguageCode) => {
     setCurrentLanguage(lang);

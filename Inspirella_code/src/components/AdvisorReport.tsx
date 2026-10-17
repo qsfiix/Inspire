@@ -53,7 +53,8 @@ const NO_ANSWERS: Record<LanguageCode, { title: string; body: string; button: st
   de: { title: "Erzähl uns kurz von dir", body: "Du hast die Fragen übersprungen, deshalb raten wir nicht für dich. Beantworte ein paar (alle freiwillig), und hier erscheinen Berufe, Schulen und nächste Schritte.", button: "Fragen beantworten" },
   en: { title: "Tell us a little about you", body: "You skipped the questions, so we do not guess for you. Answer a few (all optional) and your careers, schools and next steps appear here.", button: "Answer questions" },
   fr: { title: "Dis-nous quelques mots sur toi", body: "Tu as passé les questions, donc nous ne devinons pas à ta place. Réponds à quelques-unes (toutes facultatives) et tes métiers, écoles et prochaines étapes apparaîtront ici.", button: "Répondre aux questions" },
-  it: { title: "Raccontaci qualcosa di te", body: "Hai saltato le domande, quindi non tiriamo a indovinare. Rispondi ad alcune (tutte facoltative) e qui compariranno professioni, scuole e prossimi passi.", button: "Rispondi alle domande" }
+  it: { title: "Raccontaci qualcosa di te", body: "Hai saltato le domande, quindi non tiriamo a indovinare. Rispondi ad alcune (tutte facoltative) e qui compariranno professioni, scuole e prossimi passi.", button: "Rispondi alle domande" },
+  uk: { title: "Розкажи нам трохи про себе", body: "Ти пропустив(-ла) запитання, тому ми не вгадуємо за тебе. Дай відповідь на кілька (усі необов'язкові), і тут з'являться професії, школи та наступні кроки.", button: "Відповісти на запитання" }
 };
 
 /** Shape of a successful /api/gemini/advisor response (see server.ts). */
@@ -72,7 +73,8 @@ const LANGUAGE_NAMES: Record<LanguageCode, string> = {
   en: "English",
   de: "German",
   fr: "French",
-  it: "Italian"
+  it: "Italian",
+  uk: "Ukrainian"
 };
 
 /**

@@ -1401,6 +1401,356 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     institutionsCatalogGrowing: "Il nostro catalogo di istituti è ancora in crescita - torna presto a controllare.",
     institutionsLoadError: "Impossibile caricare gli istituti al momento. Riprova tra poco.",
     institutionSelectHint: "Scegli un istituto dall'elenco per vedere dettagli, contatti e informazioni sulle ammissioni."
+  },
+  uk: {
+    // Navigation
+    navHome: "Головна",
+    navAbout: "Про нас",
+    navContact: "Контакти",
+    navDashboard: "Моя панель",
+    navMap: "3D-карта Швейцарії",
+    navPathMap: "Swiss Path Map",
+    navPathMapSub: "Система освіти",
+    navResources: "Ресурси та професії",
+    navTracker: "Трекер життя",
+    navProfile: "Профіль",
+    navLogin: "Почати",
+    navSwitchLang: "Мова",
+    logout: "Вийти",
+
+    // Public Home / Landing
+    heroTitle: "Жодних глухих кутів.|Лише наступні кроки.",
+    closingSlogan: "Немає нічого неможливого, і ти це побачиш.",
+    heroSubtitle: "Inspirella перетворює систему освіти Швейцарії на один зрозумілий особистий шлях: професії, які тобі підходять, де їх опанувати і який маленький крок зробити далі.",
+    heroCTA: "Знайти свій шлях",
+    heroWho1: "Підлітки, які обирають шлях",
+    heroWho2: "Батьки",
+    heroWho3: "Ті, хто змінює професію, і новоприбулі",
+    statCantons: "Кантони",
+    accountCTA: "Увійти або створити акаунт",
+    statInstitutions: "Заклади",
+    statProfessions: "Професії",
+    statLearningPaths: "Шляхи навчання",
+    statLanguages: "Мови",
+    whyTitle: "Чому Inspirella?",
+    whyText: "У Швейцарії багато добрих шляхів – професійне навчання з практикою, гімназія (Gymnasium), університети прикладних наук, університети – але вони розкидані по 26 кантонах і кількох мовах. Inspirella збирає їх в одну зрозумілу картину.",
+    swissSpecialGroup: "Створено для Швейцарії",
+    swissSpecialDesc: "Ми починаємо зі Швейцарії. Два її головні напрямки – це не вибір раз і назавжди: вони перетинаються, тож перший крок ніколи не зачиняє двері до наступного.",
+    howItWorks: "Від твоїх запитань до твого наступного кроку",
+    howStepOnboarding: "1. Розкажи про себе",
+    howStepOnboardingDesc: "Твій етап, інтереси та цілі визначають усе, що ти побачиш далі.",
+    howStepMap: "2. Досліджуй карту",
+    howStepMapDesc: "Подивись, де по всій Швейцарії розташовані університети та професійні школи, і порівняй їх.",
+    howStepTracker: "3. Відстежуй свої кроки",
+    howStepTrackerDesc: "Перетвори свій шлях на цілі й маленькі завдання і дивись, який шлях уже пройдено.",
+    howStepResources: "4. Звертайся до офіційних джерел",
+    howStepResourcesDesc: "Прямі посилання на сторінки подання заявок і кантональні відомства, щоб завжди можна було перевірити справжні вимоги.",
+    futureVisionTitle: "Створено, щоб вирости за межі Швейцарії",
+    futureVisionDesc: "Модель даних Inspirella не прив'язана до однієї країни, тож пізніше можна додати інші системи освіти з тим самим рівнем деталізації. Поки що вся увага на тому, щоб зробити Швейцарію правильно.",
+    futureVisionLive: "Швейцарія",
+    futureVisionNext: "Наступні країни: ще не вирішено",
+    sceneChapters: "Inspirella|Швейцарія|Твій шлях|Далі|Перший крок",
+    mpTitle: "Мій шлях",
+    mpEmpty: "Постав свої цілі, і тут з'явиться твій шлях.",
+    mpExplore: "Дослідити шляхи",
+    mpStart: "Почати відстежувати цей шлях",
+    mpRoute: "Твій маршрут до",
+    mpStepsDone: "{done} з {total} кроків",
+    mpSwipe: "← проведи пальцем, щоб побачити весь шлях →",
+    mpOtherPaths: "Інші шляхи",
+    mpNextStep: "Твій наступний крок",
+    mpReached: "Мету досягнуто: {goal}.",
+    mpStepOf: "Крок {n} з {total}",
+    mpStateDone: "виконано",
+    mpStateHere: "ти тут",
+    mpStateAhead: "попереду",
+    mpAddTask: "Додай маленьке завдання…",
+    mpAddTaskLabel: "Додати завдання",
+    mpTasksTitle: "Маленькі завдання для цього кроку",
+    mpTrackHint: "Почни відстежувати цей шлях, щоб відмічати кроки й додавати маленькі завдання.",
+    mpExplorePath: "Дослідити цей шлях",
+    mpSrSummary: "Твій шлях до {goal}: виконано {done} з {total} кроків.",
+    mpSrGoal: "Мету досягнуто.",
+    mpSrCurrent: "Поточний крок {n}: {title}.",
+    autoTranslatedNote: "Автоматично перекладено з німецької",
+    arTitle: "Чому саме ці рекомендації",
+    arRuleBased: "Добір за правилами · без здогадок ШІ",
+    arBasedOn: "На основі твоїх відповідей:",
+    arStage: "Етап",
+    arInterests: "Інтереси",
+    arFocus: "Напрям",
+    arLoading: "Шукаємо шляхи, які найкраще тобі підходять…",
+    arError: "Зараз не вдалося завантажити рекомендації. Перезавантаж сторінку й спробуй ще раз.",
+    arFocusLabel: "Рекомендований напрям",
+    arNextStep: "Наступний крок",
+    arExplainAi: "Пояснити мою рекомендацію за допомогою ШІ",
+    arAiLoading: "Просимо ШІ-радника пояснити простими словами…",
+    arTryAgain: "Спробувати ще раз",
+    arAiPerspective: "Погляд ШІ",
+    arAiGeneric: " — загальний огляд",
+    arAiFallback: "Зараз не вдалося зв'язатися з ШІ-радником, тому це загальний огляд, а не відповідь, підібрана під твій профіль. Підібрані результати вище це не змінює.",
+    arAiBusy: "Зараз забагато запитів. Спробуй ще раз за кілька хвилин.",
+    arAiUnreachable: "Не вдалося зв'язатися з ШІ-радником. Спробуй ще раз трохи пізніше.",
+    arCareers: "Професії, які тобі підходять",
+    arStudy: "Де вчитися",
+    arResources: "Корисні офіційні ресурси",
+    arStrong: "Дуже добрий збіг",
+    arGood: "Добрий збіг",
+    arWorth: "Варто глянути",
+    arMatchHint: "Порівняно з найкращим результатом у цьому списку",
+    arProvisional: "Попередні дані",
+    arProvisionalHint: "Цей запис ще не звірено з офіційним джерелом. Перевір деталі на офіційному сайті.",
+    arNoCareers: "Підхожих професій поки немає.",
+    arNoInstitutions: "Підхожих закладів поки немає.",
+    arGeneral: "Загальна рекомендація",
+    dbGuestMode: "Режим гостя",
+    dbSwitzerland: "Швейцарія",
+    dbSavedDevice: "Збережено на цьому пристрої",
+    dbSavedAccount: "Збережено в твоєму акаунті",
+    dbPickStage: "Обери етап, щоб дослідити",
+    dbKeyFact: "Головний факт",
+    dbProgression: "Швейцарська послідовність навчання",
+    dbPermeability: "Durchlässigkeit (прохідність): можна змінити шлях",
+    dbQaMap: "Дослідити розташування університетів і шкіл.",
+    dbQaResources: "Шукати ресурси, професії та заклади.",
+    dbQaTracker: "Ставити цілі й маленькі щоденні кроки.",
+    dbQaProfile: "Мова, етап і твої власні слова.",
+    pfGuestSub: "Профіль гостя · зберігається лише в цьому браузері",
+    pfCloudSub: "Твій акаунт · синхронізується між пристроями",
+    pfAccount: "Акаунт",
+    pfNoAccount: "Акаунта ще немає",
+    pfNoEmail: "Електронної пошти немає",
+    pfStage: "Поточний етап",
+    pfStageUnset: "Ще не вказано",
+    pfLanguage: "Мова",
+    pfGuestTitle: "Ти досліджуєш як гість",
+    pfGuestText: "Твій шлях, збережене та цілі живуть лише в цьому браузері. Створи акаунт, щоб зберегти їх і користуватися ними на інших пристроях.",
+    pfCloudText: "Твій шлях, збережене та цілі зберігаються в твоєму акаунті й доступні на будь-якому пристрої.",
+    pfLocalText: "Твій шлях і цілі поки зберігаються в цьому браузері.",
+    pfFeedback: "Є помилка чи відгук? Напиши нам",
+    pfEndGuest: "Завершити сеанс гостя й видалити його дані",
+    pfLogout: "Вийти",
+    hmVetTitle: "Професійний (навчання з практикою, VET)",
+    hmVetText: "3–4 дні оплачуваної роботи в компанії, 1–2 дні в професійній школі.",
+    hmAcadTitle: "Академічний (гімназія (Gymnasium) → університет)",
+    hmAcadText: "3–4 роки гімназії (Gymnasium) ведуть до матури (Matura) і далі до університетів, як-от ETH або EPFL.",
+    hmLive: "Наживо",
+    streamVet: "Професійний (VET) · близько 70%",
+    streamAcademic: "Академічний (гімназія) · близько 30%",
+    streamBridge: "Де вони перетинаються: Durchlässigkeit (прохідність) – пізніше можна змінити напрям",
+    howItWorksIntro: "Чотири кроки, одні сходи. Кожен трохи наближає тебе до шляху, який тобі підходить.",
+    finalCtaTitle: "Твій шлях починається з одного маленького кроку.",
+    finalCtaText: "Дай відповідь на кілька запитань і побач професії, школи та наступні кроки, які тобі підходять. Це безкоштовно, і почати можна без акаунта.",
+
+    // About Page
+    aboutTitle: "Освіта стає доступнішою",
+    aboutPara1: "В Inspirella ми віримо, що освіта – найкращий шлях до розкриття людського потенціалу. Але щоб зрозуміти, як працюють системи різних країн – від швейцарських гімназій і професійного навчання з практикою до університетів прикладних наук – не повинно бути потрібно нескінченно гортати застарілі документи.",
+    aboutPara2: "Inspirella пропонує інтерактивні дані на карті та переклади на місцеві мови, щоб кожен, хто вчиться, міг спланувати свій освітній шлях у Швейцарії.",
+    aboutMissionEyebrow: "Наша місія",
+    aboutMissionBody: "Вибір школи, програми чи освітнього шляху – одне з найважливіших рішень у житті людини, але потрібна для нього інформація часто розрізнена, суперечлива або написана для закладів, а не для людини, яка вирішує. Inspirella існує, щоб закрити цю прогалину: перетворити заплутаний вибір із високою ціною на щось зрозуміле, особисте й таке, що можна втілити.",
+    aboutWhyEyebrow: "Чому це важливо",
+    aboutWhyBody: "Більше інформації не завжди означає більше ясності. Inspirella виходить із переконання, що якість, структура й чесність щодо того, що перевірено, а що ні, важать більше, ніж сам обсяг, бо рекомендація заслуговує на довіру настільки, наскільки надійні дані за нею.",
+    aboutValuesTitle: "На чому ми стоїмо",
+    aboutValue1Title: "Довіра та перевірені дані",
+    aboutValue1Desc: "Кожен заклад, програму й ресурс ми звіряємо з першоджерелом. Якщо щось ще не підтверджено, ми так і кажемо, а не вгадуємо.",
+    aboutValue2Title: "Глибока персоналізація",
+    aboutValue2Desc: "Шлях, який підходить саме тобі, а не загальний список. Inspirella враховує твої інтереси, цілі й етап, щоб показати справді важливе.",
+    aboutValue3Title: "Ясність замість хаосу",
+    aboutValue3Desc: "Складні національні системи – зокрема швейцарські професійний і академічний напрямки – упорядковані так, що в них справді можна зорієнтуватися.",
+    aboutValue4Title: "Підтримка, а не лише інформація",
+    aboutValue4Desc: "Трекер, карта й покроковий шлях працюють разом, тож ти не залишаєшся сам на сам зі стіною варіантів.",
+    aboutStageEyebrow: "Де ми сьогодні",
+    aboutStageBody: "Inspirella стартує зі Швейцарії як першої країни – це свідомий вибір, адже її система унікальна своїми двома напрямками: академічним і професійним. Наші дані справжні й постійно зростають: деякі записи повністю перевірені, інші ще на перевірці, і цю різницю ми позначаємо чесно, а не видаємо все за однаково певне.",
+    aboutVisionEyebrow: "Куди ми рухаємося",
+    aboutVisionBody: "Швейцарія – це початок, а не межа. З часом Inspirella прагне принести таку саму ясність і персоналізацію в системи освіти за межами Швейцарії – щоб більше людей у більшій кількості місць знаходили шлях, який їм справді підходить.",
+    aboutWhoEyebrow: "Хто стоїть за Inspirella",
+    aboutWhoBody: "Inspirella – незалежний приватний проєкт зі Швейцарії. Ми спираємося на публічні джерела, відкрито кажемо, що перевірено, а що ні, і хочемо почути тебе: що допомогло, що було незрозуміло, чого бракує.",
+
+    // Contact Page
+    contactTitle: "Напиши нам",
+    contactSubtitle: "Наша команда готова допомогти закладам, майбутнім студентам і розробникам.",
+    contactName: "Твоє ім'я",
+    contactEmail: "Електронна адреса",
+    contactMsg: "Твоє повідомлення",
+    contactSend: "Надіслати повідомлення",
+    contactSuccess: "Твоя поштова програма має відкритися з готовим до надсилання повідомленням.",
+
+    // Onboarding
+    onboardTitle: "Знайдімо твій шлях",
+    onboardSubtitle: "Кілька швидких запитань. Чим більше ти розкажеш, тим кращі будуть підказки.",
+    chooseInterests: "Що тебе цікавить?",
+    chooseGoals: "Чого ти хочеш від Inspirella?",
+    chooseStage: "Де ти зараз?",
+    interests_academic: "Академічні науки",
+    interests_vocational: "Ремесла та практична робота",
+    interests_arts: "Творче мистецтво та дизайн",
+    interests_tech: "Програмування та технології",
+    interests_business: "Бізнес і гроші",
+    goals_study: "Вчитися або проходити навчання в Швейцарії",
+    goals_career: "Змінити професію",
+    goals_explore: "Порівняти системи освіти",
+    goals_child: "Допомогти своїй дитині (для батьків)",
+    stage_schoolType: "У школі (Sek, гімназія)",
+    stage_university: "Студент університету чи коледжу",
+    stage_professional: "Працюю або навчаюся з практикою (Lehre)",
+    stage_other: "Просто оглядаюся",
+    completeOnboard: "Завершити налаштування",
+
+    // Dashboard & Personalized Home
+    welcomeBack: "Ласкаво просимо,",
+    personalizedGoalTitle: "Твій активний напрям",
+    continueExplor: "Продовжити дослідження освіти",
+    progressTitle: "Прогрес навчання",
+    nextBestStep: "Рекомендований наступний крок",
+    recentActivity: "Останні регіональні новини",
+    allSystemsGo: "Ось де твій шлях на сьогодні.",
+    quickAccess: "Швидкий доступ",
+    advisorsAdvice: "Звіт ШІ-радника з освіти",
+    aiAnalyzing: "Опитуємо швейцарські освітні джерела...",
+    aiAdviceTitle: "Твій шлях навчання",
+
+    // Tracker Page
+    trackerHeader: "Твої цілі та звички",
+    trackerSub: "Складай щоденні списки справ і веди облік серій для будь-якої сфери життя.",
+    createTracker: "Створити новий трекер звичок",
+    trackerTitlePlace: "напр., щоденна практика з фізики, швейцарсько-німецький діалект",
+    addGoalBtn: "Додати ціль",
+    completeStreak: "серію розпочато",
+    completionPercentage: "Рівень виконання",
+    noTrackers: "Активних трекерів поки немає. Створи один вище, щоб почати.",
+    addChecklistItem: "Додати крок",
+    trackerDueDateLabel: "Цільова дата (необов'язково)",
+    trackerOverdueBadge: "Прострочено",
+    trackerDueSoonBadge: "Скоро термін",
+    trackerDuePrefix: "До",
+    dashboardReminderTitle: "Нагадування трекера",
+    dashboardReminderOverdueSuffix: "прострочено",
+    dashboardReminderDueSoonSuffix: "термін цього тижня",
+    advisorAddPathToTracker: "Додати цей шлях до мого трекера",
+    advisorPathInTracker: "Додано до твого трекера",
+    pathContentGermanOnly: "Кроки показано німецькою – переклад готується",
+    habitCat_education: "Школа та навчання",
+    habitCat_habit: "Щоденні звички",
+    habitCat_sport: "Спорт",
+    habitCat_health: "Здоров'я",
+    habitCat_productivity: "Робота та кар'єра",
+    habitCat_other: "Щось інше",
+
+    // Profile Page
+    profileHeader: "Твій профіль",
+    profileTheme: "Вигляд: тема «Violet Glass»",
+    profileRegion: "Поточний регіон проживання",
+    profileDataTitle: "Системні записи та безпека",
+    profileUserAddress: "Електронна пошта",
+    registeredAt: "Профіль створено",
+    profileBioLabel: "Про мене",
+    profileBioPlaceholder: "Напиши трохи про себе – про свої інтереси, до чого прагнеш, усе, що хочеш показати у своєму профілі.",
+    profileBioEmpty: "Про себе тут ще нічого не написано.",
+    profileBioEdit: "Редагувати",
+    profileBioSave: "Зберегти",
+    profileBioCancel: "Скасувати",
+
+    // Map Page
+    mapHeader: "Інтерактивна карта освіти Швейцарії",
+    mapSub: "Відкрий для себе федеральні інститути, університети прикладних наук і центри подвійного (дуального) навчання.",
+    selectPinAlert: "Вибери будь-яку позначку, щоб побачити дані про заклад.",
+    visitWebsite: "Відвідати сайт",
+    contactInstitution: "Зв'язатися з відділом",
+    admissionInfo: "Вступ і переведення",
+    institutionProfileLabel: "Про цей заклад",
+    languageEnvironmentLabel: "Мова викладання",
+    studentLifeLabel: "Студентське життя",
+    housingNotesLabel: "Житло",
+    applicationNotesLabel: "Як подати заявку",
+    whereToStudyLabel: "Де цьому вчитися",
+    institutionProfessionsLabel: "Професії, яких тут навчають",
+    mapToggle3D: "Показати 3D-вигляд",
+    mapMappedLabel: "на карті",
+    mapUnlocatedLabel: "без перевіреного місця",
+    mapUnlocatedHint: "Ці заклади є в списку, але не позначені на карті, бо Inspirella не вгадує координати.",
+    mapCantonUnknown: "Кантон не вказано",
+    mapNoCoordinates: "немає перевірених координат",
+    verifyWithInstitution: "Деталі можуть змінюватися. Перш ніж вирішувати, уточни їх у закладі.",
+
+    // Institution comparison
+    compareAdd: "Додати до порівняння",
+    compareRemove: "Прибрати з порівняння",
+    compareFull: "Можна порівнювати одночасно до 3 закладів.",
+    compareBarLabel: "Порівнюємо",
+    compareViewButton: "Переглянути порівняння",
+    compareClear: "Очистити",
+    compareModalTitle: "Порівняння закладів",
+    compareFieldCanton: "Кантон",
+    compareFieldCategory: "Тип",
+    compareFieldEstablished: "Рік заснування",
+    compareFieldStudents: "Студенти",
+    compareFieldLanguage: "Мова",
+    compareFieldWebsite: "Сайт",
+    compareFieldVerified: "Статус",
+    compareFieldRating: "Оцінка",
+    compareNoData: "Не вказано",
+
+    // Trust and data quality
+    qualityVerified: "Перевірено",
+    qualityProvisional: "Попередні дані",
+    dataNotAvailable: "Недоступно",
+    originCurated: "Добране вручну",
+    originCuratedHint: "Частина добраного вручну стартового набору Inspirella, а не запис із живої бази даних.",
+    filterAll: "Усі",
+    recommendedBadge: "Рекомендовано",
+
+    // Resources
+    resourcesHeader: "Офіційні ресурси Швейцарії",
+    resourcesSub: "Федеральні та кантональні сайти, з якими можна діяти напряму.",
+    resourcesSearchPlaceholder: "Шукати ресурси...",
+    resourcesAdaptedGuest: "Добірка під твій сеанс гостя",
+    resourcesAdaptedUser: "Добірка під твій профіль",
+    resourcesEmptyTitle: "Ресурсів за твоїм запитом поки немає.",
+    resourcesEmptyHint: "Спробуй коротший запит або повернись до категорії «Усі».",
+    resourceFederal: "Федеральний ресурс",
+    resourceSwiss: "Швейцарський ресурс",
+
+    // Professions
+    professionsEyebrow: "Професії та кар'єра",
+    professionsTitle: "Швейцарський провідник професій",
+    professionsSub: "Дізнайся про професійні маршрути, доступність через навчання з практикою та типові показники оплати.",
+    professionsSearchPlaceholder: "Шукати професії чи навички...",
+    professionsEmpty: "Підхожих професій не знайдено.",
+    professionsLoading: "Завантажуємо професії...",
+    professionsCatalogGrowing: "Наш каталог професій ще зростає – заглядай згодом, буде більше.",
+    professionsLoadError: "Зараз не вдалося завантажити професії. Спробуй ще раз за мить.",
+    professionSelectHint: "Вибери професію зі списку, щоб побачити потрібну освіту, попит і навички.",
+    professionSalaryLabel: "Типова річна оплата",
+    professionSalaryUnknown: "Дані про оплату не вказано",
+    professionEducationRequired: "Потрібна освіта",
+    professionTargetGroupLabel: "Чи це для тебе?",
+    professionDailyWorkLabel: "День у цій професії",
+    professionWorkplaceLabel: "Де ти працюватимеш",
+    professionAdmissionRealityLabel: "Як вступити, реалістично",
+    professionProgressionLabel: "Куди це може привести",
+    professionVetLabel: "Навчання з практикою (VET)",
+    professionVetCompatible: "Доступно через навчання з практикою",
+    professionVetTertiary: "Шлях через вищу освіту",
+    professionDemand: "Попит",
+    professionOutlook: "Перспективи",
+    professionSkillsLabel: "Ключові навички",
+    professionClustersLabel: "Основні регіональні центри",
+
+    // Resources & Careers hub (unifies web resources, professions, institutions)
+    resourcesCareersHeader: "Ресурси та професії",
+    resourcesCareersSub: "Усе, що потрібно, щоб дослідити можливості в Швейцарії – ресурси, професії та заклади – в одному місці.",
+    resourcesTabWeb: "Веб-ресурси",
+    resourcesTabProfessions: "Професії",
+    resourcesTabInstitutions: "Заклади",
+    institutionsEyebrow: "Заклади та школи",
+    institutionsTitle: "Швейцарський провідник закладів",
+    institutionsSub: "Шукай університети, коледжі та школи й порівнюй ті, що важливі для тебе.",
+    institutionsSearchPlaceholder: "Шукати заклади...",
+    institutionsEmpty: "Закладів за твоїм запитом немає.",
+    institutionsLoading: "Завантажуємо заклади...",
+    institutionsCatalogGrowing: "Наш каталог закладів ще зростає – заглядай згодом, буде більше.",
+    institutionsLoadError: "Зараз не вдалося завантажити заклади. Спробуй ще раз за мить.",
+    institutionSelectHint: "Вибери заклад зі списку, щоб побачити деталі, контакти та інформацію про вступ."
   }
 };
 
@@ -1412,19 +1762,22 @@ export const SWISS_EDUCATION_LEVELS: EducationLevel[] = [
       en: "Primary Level (Kindergarten & Volksschule)",
       de: "Primarstufe (Kindergarten & Volksschule)",
       fr: "Scolarité Obligatoire (École Primaire)",
-      it: "Scuola Elementare (Scolarità Obbligatoria)"
+      it: "Scuola Elementare (Scolarità Obbligatoria)",
+      uk: "Початковий рівень (дитячий садок і Volksschule)"
     },
     sub: {
       en: "Ages 4 to 12 • Core Foundations",
       de: "Alter 4 bis 12 • Grundlegende Basis",
       fr: "Âges 4 à 12 • Fondations initiales",
-      it: "Età da 4 a 12 • Competenze di Base"
+      it: "Età da 4 a 12 • Competenze di Base",
+      uk: "Вік від 4 до 12 років • Основи"
     },
     description: {
       en: "Compulsory education managed by the individual 26 cantons, providing strong multilingual baselines. Children learn a second national language early.",
       de: "Obligatorische Schule unter kantonaler Hoheit mit starker Ausrichtung auf Mehrsprachigkeit. Kinder erlernen früh eine zweite Landessprache.",
       fr: "Scolarité obligatoire gérée de manière souveraine par les 26 cantons suisses. Apprentissage renforcé précoce des langues nationales.",
-      it: "Scolarità obbligatoria regolata dai 26 cantoni con forte impronta sul multilinguismo. Apprendimento precoce di una seconda lingua nazionale."
+      it: "Scolarità obbligatoria regolata dai 26 cantoni con forte impronta sul multilinguismo. Apprendimento precoce di una seconda lingua nazionale.",
+      uk: "Обов'язкова освіта, якою керує кожен із 26 кантонів, з міцною багатомовною основою. Діти рано починають вивчати другу національну мову."
     },
     keyFacts: {
       en: [
@@ -1446,26 +1799,32 @@ export const SWISS_EDUCATION_LEVELS: EducationLevel[] = [
         "Interamente pubblico e finanziato dalle imposte cantonali.",
         "Durata di 8 anni, compresi 2 anni di scuola dell'infanzia obbligatoria.",
         "Integrare le necessità scolastiche nella classe standard è la norma."
+      ],
+      uk: [
+        "Повністю державна, фінансується з кантональних податків.",
+        "Триває 8 років, зокрема 2 роки обов'язкового дитячого садка (Kindergarten).",
+        "Інтеграція дітей з особливими потребами у звичайні класи – стандартна політика."
       ]
     },
     permeabilityText: {
       en: "Seamless progression to Lower Secondary tracking (Sekundarstufe I) based on academic evaluations and teacher-parent consensus.",
       de: "Reibungsloser Übergang in die Sekundarstufe I basierend auf Leistungsprüfungen und Lehrer-Eltern-Empfehlungen.",
       fr: "Passage direct au niveau secondaire I selon l'évaluation académique globale et l'accord des enseignants.",
-      it: "Transizione diretta al livello medio inferiore (Scuola media) basata sulle valutazioni accademiche."
+      it: "Transizione diretta al livello medio inferiore (Scuola media) basata sulle valutazioni accademiche.",
+      uk: "Плавний перехід до нижчого середнього рівня (Sekundarstufe I) на основі оцінок успішності та спільного рішення вчителів і батьків."
     },
     pathSteps: [
       {
         id: "p1",
-        title: { en: "Kindergarten Entry", de: "Eintritt Kindergarten", fr: "Entrée à l'école enfantine", it: "Ingresso Infanzia" },
-        description: { en: "Mandatory start focusing on developmental play and sensory mapping.", de: "Spielerische Förderung und sprachliche Erstsozialisation.", fr: "Sensibilisation et apprentissages par le jeu.", it: "Processo di apprendimento coordinato basato sul gioco." },
-        timeframe: { en: "Age 4-5", de: "Alter 4-5", fr: "Âge 4-5", it: "Età 4-5" }
+        title: { en: "Kindergarten Entry", de: "Eintritt Kindergarten", fr: "Entrée à l'école enfantine", it: "Ingresso Infanzia", uk: "Вступ до дитячого садка" },
+        description: { en: "Mandatory start focusing on developmental play and sensory mapping.", de: "Spielerische Förderung und sprachliche Erstsozialisation.", fr: "Sensibilisation et apprentissages par le jeu.", it: "Processo di apprendimento coordinato basato sul gioco.", uk: "Обов'язковий початок, який робить акцент на розвитку через гру та розвитку відчуттів." },
+        timeframe: { en: "Age 4-5", de: "Alter 4-5", fr: "Âge 4-5", it: "Età 4-5", uk: "Вік 4-5" }
       },
       {
         id: "p2",
-        title: { en: "Basic Skills Mastery", de: "Grundkompetenzen", fr: "Acquisition des fondamentaux", it: "Competenze Primarie" },
-        description: { en: "Focus on reading, writing, mathematical structures, and canton language.", de: "Fokus auf Lesen, Schreiben, Rechnen und die jeweilige Kantonssprache.", fr: "Apprentissage des langues, calculs et sciences naturelles.", it: "Insegnamento di matematica, scrittura, lettura e seconda lingua." },
-        timeframe: { en: "Grades 1-6", de: "Klassen 1-6", fr: "Degrés 1-6", it: "Classi 1-6" }
+        title: { en: "Basic Skills Mastery", de: "Grundkompetenzen", fr: "Acquisition des fondamentaux", it: "Competenze Primarie", uk: "Опанування базових навичок" },
+        description: { en: "Focus on reading, writing, mathematical structures, and canton language.", de: "Fokus auf Lesen, Schreiben, Rechnen und die jeweilige Kantonssprache.", fr: "Apprentissage des langues, calculs et sciences naturelles.", it: "Insegnamento di matematica, scrittura, lettura e seconda lingua.", uk: "Акцент на читанні, письмі, математичних структурах і мові кантону." },
+        timeframe: { en: "Grades 1-6", de: "Klassen 1-6", fr: "Degrés 1-6", it: "Classi 1-6", uk: "1-6 класи" }
       }
     ]
   },
@@ -1475,19 +1834,22 @@ export const SWISS_EDUCATION_LEVELS: EducationLevel[] = [
       en: "Lower Secondary Level (Sekundarstufe I)",
       de: "Sekundarstufe I (Stufe der Volksschule)",
       fr: "Secondaire I (Cycles d'Orientation)",
-      it: "Secondario I (Scuola Media)"
+      it: "Secondario I (Scuola Media)",
+      uk: "Нижчий середній рівень (Sekundarstufe I)"
     },
     sub: {
       en: "Ages 12 to 15 • Streamed Orientation",
       de: "Alter 12 bis 15 • Gestufte Orientierung",
       fr: "Âges 12 à 15 • Cycles d'Orientation structurés",
-      it: "Età da 12 a 15 • Orientamento e Livelli"
+      it: "Età da 12 a 15 • Orientamento e Livelli",
+      uk: "Вік від 12 до 15 років • Орієнтація за рівнями"
     },
     description: {
       en: "Students are divided into distinct performance levels based on academic capabilities, paving the way for either professional apprenticeships or higher academics.",
       de: "Einteilung nach Leistungsniveaus (z.B. Sekundar-, Real- oder Oberschule, je nach Kanton), zur Vorbereitung auf Berufsbildung oder Gymnasium.",
       fr: "Les élèves sont répartis selon leurs aptitudes scolaires, orientant leur avenir vers l'apprentissage pratique ou le cursus d'études long.",
-      it: "Gli studenti vengono divisi in livelli prestazionali per determinare l'attuazione di un apprendistato o del liceo accademico."
+      it: "Gli studenti vengono divisi in livelli prestazionali per determinare l'attuazione di un apprendistato o del liceo accademico.",
+      uk: "Учнів розподіляють за рівнями успішності відповідно до академічних здібностей, що відкриває шлях або до професійного навчання з практикою, або до вищої академічної освіти."
     },
     keyFacts: {
       en: [
@@ -1509,26 +1871,32 @@ export const SWISS_EDUCATION_LEVELS: EducationLevel[] = [
         "Dura comunemente 3 o 4 anni.",
         "Flessibilità strutturata in livelli di rendimento (A o B).",
         "L'orientamento professionale approfondito inizia in seconda media."
+      ],
+      uk: [
+        "Триває 3 роки навчання.",
+        "Має різні рівні (потоки), які відповідають індивідуальним технічним і когнітивним здібностям.",
+        "Інтенсивна профорієнтація (BIZ) починається у 8 класі."
       ]
     },
     permeabilityText: {
       en: "This is the core fork in Swiss education. High performing streams bridge to Gymnasium; other channels lead directly into high-tech corporate apprenticeships.",
       de: "Das Kern-Nadelöhr des Schweizer Systems: Leistungsstarke Kurse berechtigen zum Gymnasiumsaufstieg, andere zur dualen Berufsbildung.",
       fr: "C'est l'aiguillage fondamental : les profils académiques visent le gymnase, les profils pratiques entrent en apprentissage d'entreprise.",
-      it: "La deviazione principale: i corsi attitudinali avanzano al liceo, altri portano direttamente a un apprendistato tecnico."
+      it: "La deviazione principale: i corsi attitudinali avanzano al liceo, altri portano direttamente a un apprendistato tecnico.",
+      uk: "Це ключова розвилка швейцарської освіти. Потоки з високою успішністю ведуть до гімназії (Gymnasium); інші напрямки ведуть прямо до високотехнологічного професійного навчання в компаніях."
     },
     pathSteps: [
       {
         id: "s1_1",
-        title: { en: "Stream Allocation", de: "Niveauzuweisung", fr: "Répartition par voies", it: "Assegnazione ai Livelli" },
-        description: { en: "Cantonal metrics determine enrollment into basic or advanced classes.", de: "Zertifikate steuern die Einteilung in Basis- oder Erweiterungskurse.", fr: "Sélection sur dossier et notes pour l'admission de niveau.", it: "Inscrizione a corsi base o attitudinali basata sui risultati scolastici." },
-        timeframe: { en: "Grade 7", de: "7. Schuljahr", fr: "Degré 7", it: "Fase 1" }
+        title: { en: "Stream Allocation", de: "Niveauzuweisung", fr: "Répartition par voies", it: "Assegnazione ai Livelli", uk: "Розподіл за рівнями" },
+        description: { en: "Cantonal metrics determine enrollment into basic or advanced classes.", de: "Zertifikate steuern die Einteilung in Basis- oder Erweiterungskurse.", fr: "Sélection sur dossier et notes pour l'admission de niveau.", it: "Inscrizione a corsi base o attitudinali basata sui risultati scolastici.", uk: "Кантональні критерії визначають зарахування до базових або поглиблених класів." },
+        timeframe: { en: "Grade 7", de: "7. Schuljahr", fr: "Degré 7", it: "Fase 1", uk: "7 клас" }
       },
       {
         id: "s1_2",
-        title: { en: "Apprenticeship Sourcing or Gymi Prep", de: "Lehrstellensuche / Gymi-Vorbereitung", fr: "Recherche de contrat VET ou prépa Gymnase", it: "Ricerca Apprendistato o Preparazione Liceo" },
-        description: { en: "Students search for apprenticeships in companies or take national Gymnasium entry exams.", de: "Suche nach Lehrstellen in Betrieben oder Vorbereitung auf das Gymnasiums-Zulassungsexamen.", fr: "Dépôts de CV pour les stages ou préparation intensive de l'examen de maturité gynmasiale.", it: "Candidature per posti d'apprendistato o preparazione all'esame cantonale di ammissione." },
-        timeframe: { en: "Grade 8-9 (Age 14-15)", de: "8.-9. Schuljahr", fr: "Degrés 8-9", it: "Fine percorso" }
+        title: { en: "Apprenticeship Sourcing or Gymi Prep", de: "Lehrstellensuche / Gymi-Vorbereitung", fr: "Recherche de contrat VET ou prépa Gymnase", it: "Ricerca Apprendistato o Preparazione Liceo", uk: "Пошук місця навчання з практикою або підготовка до гімназії (Gymi)" },
+        description: { en: "Students search for apprenticeships in companies or take national Gymnasium entry exams.", de: "Suche nach Lehrstellen in Betrieben oder Vorbereitung auf das Gymnasiums-Zulassungsexamen.", fr: "Dépôts de CV pour les stages ou préparation intensive de l'examen de maturité gynmasiale.", it: "Candidature per posti d'apprendistato o preparazione all'esame cantonale di ammissione.", uk: "Учні шукають місця для професійного навчання в компаніях або складають національні вступні іспити до гімназії (Gymnasium)." },
+        timeframe: { en: "Grade 8-9 (Age 14-15)", de: "8.-9. Schuljahr", fr: "Degrés 8-9", it: "Fine percorso", uk: "8-9 класи (вік 14-15)" }
       }
     ]
   },
@@ -1538,19 +1906,22 @@ export const SWISS_EDUCATION_LEVELS: EducationLevel[] = [
       en: "Upper Secondary Level (Maturity & Vocational VET)",
       de: "Sekundarstufe II (Berufsbildung & Gymnasium)",
       fr: "Secondaire II (Maturité & Apprentissage CFC/VET)",
-      it: "Secondario II (Maturità & Formazione Professionale)"
+      it: "Secondario II (Maturità & Formazione Professionale)",
+      uk: "Вищий середній рівень (матура й професійне навчання VET)"
     },
     sub: {
       en: "Ages 15 to 19 • Dual tracking at its peak",
       de: "Alter 15 bis 19 • Das Herzstück des Systems",
       fr: "Âges 15 à 19 • L'âge d'or de la voie duale",
-      it: "Età da 15 a 19 • Il cuore dello studio svizzero"
+      it: "Età da 15 a 19 • Il cuore dello studio svizzero",
+      uk: "Вік від 15 до 19 років • Подвійна система на піку"
     },
     description: {
       en: "Switzerland's dual-track system. About 70% of teens choose vocational education (VET) with an apprenticeship in a company, while about 30% go to an academic high school (Gymnasium).",
       de: "Das duale Schweizer Bildungssystem. Ca. 70% der Jugendlichen wählen eine Berufslehre im Betrieb (EFZ / EBA); ca. 30% besuchen das Gymnasium.",
       fr: "Le système dual suisse. Près de 70% des jeunes choisissent un apprentissage en entreprise (CFC), tandis qu'environ 30% préparent la maturité gymnasiale.",
-      it: "Il sistema formativo duale svizzero. Circa il 70% dei giovani sceglie un tirocinio professionale AFC in azienda, mentre circa il 30% frequenta il liceo."
+      it: "Il sistema formativo duale svizzero. Circa il 70% dei giovani sceglie un tirocinio professionale AFC in azienda, mentre circa il 30% frequenta il liceo.",
+      uk: "Подвійна система Швейцарії. Близько 70% підлітків обирають професійну освіту (VET) з навчанням у компанії, а близько 30% йдуть в академічну старшу школу (гімназію, Gymnasium)."
     },
     keyFacts: {
       en: [
@@ -1572,26 +1943,32 @@ export const SWISS_EDUCATION_LEVELS: EducationLevel[] = [
         "Il liceo dura 4 anni e si conclude con l'attestato di Maturità cantonale.",
         "La formazione professionale alterna 3 giorni di lavoro retribuito in azienda e 2 giorni di scuola professionale.",
         "Le due strade si ricongiungono nei programmi universitari grazie alla Maturità Professionale."
+      ],
+      uk: [
+        "Гімназія триває 3-4 роки й веде до загального атестата зрілості (матури, Matura).",
+        "Професійні напрямки поєднують 3-4 дні оплачуваної роботи в компанії з 1-2 днями навчання в школі.",
+        "Обидва шляхи відкривають доступ до високоякісних програм вищої освіти через професійну матуру (Berufsmaturität)."
       ]
     },
     permeabilityText: {
       en: "The paths stay open: with a vocational Baccalaureate (Berufsmaturität) and the 'Passerelle' exam, a VET graduate can go on to university, including ETH Zurich.",
       de: "Die Wege bleiben offen: Mit der Berufsmaturität und der Passerellenprüfung können Berufslehrabgänger an eine Universität wechseln, auch an die ETH.",
       fr: "Les voies restent ouvertes : avec une maturité professionnelle et l'examen de la « Passerelle », un titulaire de CFC peut accéder à l'université, y compris à l'EPFL.",
-      it: "Le strade restano aperte: con la maturità professionale e l'esame 'Passerella', un diplomato AFC può accedere all'università, anche al Politecnico di Zurigo."
+      it: "Le strade restano aperte: con la maturità professionale e l'esame 'Passerella', un diplomato AFC può accedere all'università, anche al Politecnico di Zurigo.",
+      uk: "Шляхи залишаються відкритими: з професійною матурою (Berufsmaturität) та іспитом «пасерель» (Passerelle) випускник професійного навчання може вступити до університету, зокрема до ETH Zurich."
     },
     pathSteps: [
       {
         id: "s2_1",
-        title: { en: "Dual Track Bifurcation", de: "Weichenstellung", fr: "La croisée des chemins", it: "Scelta del Percorso" },
-        description: { en: "Enrollment into Gymnasium or starting a corporate employment VET apprenticeship.", de: "Eintritt ins Gymnasium oder offizieler Vertragsstart als Berufslernender im Betrieb.", fr: "Entrée définitive au gymnase ou début effectif de l'apprentissage rémunéré.", it: "Inizio ufficiale degli studi al liceo o avvio dell'apprendistato AFC stipendiato." },
-        timeframe: { en: "Age 15", de: "Alter 15", fr: "Âge 15", it: "Età 15" }
+        title: { en: "Dual Track Bifurcation", de: "Weichenstellung", fr: "La croisée des chemins", it: "Scelta del Percorso", uk: "Розвилка двох шляхів" },
+        description: { en: "Enrollment into Gymnasium or starting a corporate employment VET apprenticeship.", de: "Eintritt ins Gymnasium oder offizieler Vertragsstart als Berufslernender im Betrieb.", fr: "Entrée définitive au gymnase ou début effectif de l'apprentissage rémunéré.", it: "Inizio ufficiale degli studi al liceo o avvio dell'apprendistato AFC stipendiato.", uk: "Вступ до гімназії (Gymnasium) або початок професійного навчання з практикою (VET) у компанії." },
+        timeframe: { en: "Age 15", de: "Alter 15", fr: "Âge 15", it: "Età 15", uk: "Вік 15" }
       },
       {
         id: "s2_2",
-        title: { en: "Federal Certificate Exams", de: "Lehrabschluss (EFZ) / Abitur", fr: "Examens finaux CFC ou Bac", it: "Esami Finali di Maturità o AFC" },
-        description: { en: "Practical examinations and thesis defense for national title licenses.", de: "Abschlussprüfungen der Lehre (Qualifikationsverfahren QV) oder Maturitätsprüfungen.", fr: "Évaluations finales d'expertises d'apprentis ou épreuves de maturité fédérale.", it: "Procedura di qualificazione pratica (PQ) o prove cantonali scritte e orali." },
-        timeframe: { en: "Age 18-19", de: "Alter 18-19", fr: "Âge 18-19", it: "Età 18-19" }
+        title: { en: "Federal Certificate Exams", de: "Lehrabschluss (EFZ) / Abitur", fr: "Examens finaux CFC ou Bac", it: "Esami Finali di Maturità o AFC", uk: "Федеральні випускні іспити" },
+        description: { en: "Practical examinations and thesis defense for national title licenses.", de: "Abschlussprüfungen der Lehre (Qualifikationsverfahren QV) oder Maturitätsprüfungen.", fr: "Évaluations finales d'expertises d'apprentis ou épreuves de maturité fédérale.", it: "Procedura di qualificazione pratica (PQ) o prove cantonali scritte e orali.", uk: "Практичні іспити та захист роботи для отримання національних дипломів." },
+        timeframe: { en: "Age 18-19", de: "Alter 18-19", fr: "Âge 18-19", it: "Età 18-19", uk: "Вік 18-19" }
       }
     ]
   },
@@ -1601,19 +1978,22 @@ export const SWISS_EDUCATION_LEVELS: EducationLevel[] = [
       en: "Tertiary Level (Universities & Professional Colleges)",
       de: "Tertiärstufe (Hochschulen & Höhere Berufsbildung)",
       fr: "Niveau Tertiaire (Universités & Écoles Supérieures)",
-      it: "Livello Terziario (Politecnici & Formazione Superiore)"
+      it: "Livello Terziario (Politecnici & Formazione Superiore)",
+      uk: "Третинний рівень (університети та професійні коледжі)"
     },
     sub: {
       en: "Ages 19+ • Academic and Technical Excellence",
       de: "Alter 19+ • Akademische und professionelle Elite",
       fr: "Âges 19+ • Recherche de pointe et perfectionnement",
-      it: "Età 19+ • Scienze ed alta specializzazione"
+      it: "Età 19+ • Scienze ed alta specializzazione",
+      uk: "Вік 19+ • Академічна й технічна досконалість"
     },
     description: {
       en: "Switzerland's world-class tertiary institutions. Divided between world-leading traditional universities (like ETH and EPFL), Universities of Applied Sciences (Fachhochschulen), and Higher Professional Colleges (Höhere Fachschulen).",
       de: "Weltklasse-Hochschulwesen. Es gliedert sich in universitäre Hochschulen (wie ETHZ / EPFL), Fachhochschulen mit Praxisbezug und Höhere Fachschulen für Praxis-Experten.",
       fr: "L'enseignement supérieur d'excellence. Réparti entre universités du top mondial (comme l'ETH et l'EPFL), Hautes Écoles Spécialisées (HES) et Écoles Supérieures (ES) professionnelles.",
-      it: "Formazione terziaria svizzera tra le migliori al mondo. Sviluppata in Politecnici federali di eccellenza, Scuole universitarie professionali (SUP) e Scuole Superiori (SS)."
+      it: "Formazione terziaria svizzera tra le migliori al mondo. Sviluppata in Politecnici federali di eccellenza, Scuole universitarie professionali (SUP) e Scuole Superiori (SS).",
+      uk: "Заклади вищої освіти Швейцарії світового класу. Поділяються на провідні у світі класичні університети (як-от ETH та EPFL), університети прикладних наук (Fachhochschulen, FH) і вищі професійні школи (Höhere Fachschulen, HF)."
     },
     keyFacts: {
       en: [
@@ -1635,26 +2015,32 @@ export const SWISS_EDUCATION_LEVELS: EducationLevel[] = [
         "Le università tradizionali spingono sulla ricerca scientifica di base.",
         "Le scuole universitarie professionali (SUPSI) uniscono teoria ed esercizi applicativi commerciali.",
         "Il livello professionale superiore (Terziario B) qualifica i talenti pratici a ruoli dirigenziali d'azienda."
+      ],
+      uk: [
+        "Класичні університети зосереджені на науковій роботі високого рівня й теорії.",
+        "Університети прикладних наук (Fachhochschulen) напряму пов'язують дослідження з місцевим бізнесом і технічним застосуванням.",
+        "Вища професійна освіта (Tertiary B, Höhere Berufsbildung) виводить колишніх учнів на найвищі посади в галузі."
       ]
     },
     permeabilityText: {
       en: "There are no dead ends. A student who starts as an apprentice can easily transition to a master-level university or obtain postdoctoral academic titles later.",
       de: "Keine Einbahnstraßen: Ein gelernter Handwerker kann per Berufsausübung und Fortbildung Doktortitel an technischen Universitäten erwerben.",
       fr: "Aucune voie sans issue : un apprenti passionné peut obtenir un doctorat de recherche postdoctorat dans nos instituts fédéraux.",
-      it: "Nessun vicolo cieco formativo: chi inizia col lavoro sul campo può raggiungere il titolo di dottorato ai politecnici federali più alti."
+      it: "Nessun vicolo cieco formativo: chi inizia col lavoro sul campo può raggiungere il titolo di dottorato ai politecnici federali più alti.",
+      uk: "Глухих кутів немає. Той, хто починав як учень, може легко перейти до університету на магістерський рівень або пізніше здобути постдокторські наукові звання."
     },
     pathSteps: [
       {
         id: "t1",
-        title: { en: "Tertiary Enrollment", de: "Immatrikulation", fr: "Immatriculation universitaire / HES", it: "Immatricolazione Accademia" },
-        description: { en: "Applying to federal institutes, arts academies, or professional polytechnics.", de: "Einschreibung an Universitäten, Fachhochschulen oder höheren Fachschulen.", fr: "Dossiers d'études supérieures ou inscriptions directes sur concours.", it: "Domanda di iscrizione ai politecnici federali o alle SUPSI regionali." },
-        timeframe: { en: "Age 19-20", de: "Alter 19-20", fr: "Âge 19-20", it: "Età 19-20" }
+        title: { en: "Tertiary Enrollment", de: "Immatrikulation", fr: "Immatriculation universitaire / HES", it: "Immatricolazione Accademia", uk: "Вступ до закладу вищої освіти" },
+        description: { en: "Applying to federal institutes, arts academies, or professional polytechnics.", de: "Einschreibung an Universitäten, Fachhochschulen oder höheren Fachschulen.", fr: "Dossiers d'études supérieures ou inscriptions directes sur concours.", it: "Domanda di iscrizione ai politecnici federali o alle SUPSI regionali.", uk: "Подання заявок до федеральних інститутів, мистецьких академій або професійних політехнічних шкіл." },
+        timeframe: { en: "Age 19-20", de: "Alter 19-20", fr: "Âge 19-20", it: "Età 19-20", uk: "Вік 19-20" }
       },
       {
         id: "t2",
-        title: { en: "Bologna System Graduation", de: "Hochschulabschluss (Bologna)", fr: "Diplômes de Bachelors/Masters", it: "Laurea di Percorso (Bologna)" },
-        description: { en: "Securing globally recognized Bachelor, Master, PhD, or Federal Diploma credentials.", de: "Erwerb anerkannter Abschlüsse wie Bachelor, Master, Doktorat oder Eidg. Diplom.", fr: "Défense de thèses professionnelles ou de programmes techniques.", it: "Conclusione degli studi e conseguimento di Bachelor, Master o Diplomi federali." },
-        timeframe: { en: "Age 22+", de: "Alter 22+", fr: "Âge 22+", it: "Età 22+" }
+        title: { en: "Bologna System Graduation", de: "Hochschulabschluss (Bologna)", fr: "Diplômes de Bachelors/Masters", it: "Laurea di Percorso (Bologna)", uk: "Завершення за Болонською системою" },
+        description: { en: "Securing globally recognized Bachelor, Master, PhD, or Federal Diploma credentials.", de: "Erwerb anerkannter Abschlüsse wie Bachelor, Master, Doktorat oder Eidg. Diplom.", fr: "Défense de thèses professionnelles ou de programmes techniques.", it: "Conclusione degli studi e conseguimento di Bachelor, Master o Diplomi federali.", uk: "Здобуття визнаних у світі дипломів бакалавра, магістра, PhD або федерального диплома." },
+        timeframe: { en: "Age 22+", de: "Alter 22+", fr: "Âge 22+", it: "Età 22+", uk: "Вік 22+" }
       }
     ]
   }
@@ -1672,7 +2058,8 @@ export const SWISS_INSTITUTIONS: Institution[] = [
       en: "Consistently ranked as one of the world's absolute top 10 universities. Famously associated with Albert Einstein and 21 other Nobel laureates.",
       de: "Regelmäßig unter den weltweiten Top 10 Universitäten gerankt. Berühmt für Albert Einstein und 21 weitere Nobelpreisträger.",
       fr: "Régulièrement classée parmi les 10 meilleures universités de notre planète. Célèbre pour avoir formé Albert Einstein et 21 autres lauréats du prix Nobel.",
-      it: "Costantemente inserita tra le prime 10 università mondiali. Celebre università dove studiò Albert Einstein ed altri 21 premi Nobel."
+      it: "Costantemente inserita tra le prime 10 università mondiali. Celebre università dove studiò Albert Einstein ed altri 21 premi Nobel.",
+      uk: "Постійно входить до десятки найкращих університетів світу. Відомий завдяки Альберту Ейнштейну та ще 21 нобелівському лауреату."
     },
     website: "https://ethz.ch",
     email: "admission@ethz.ch",
@@ -1683,7 +2070,8 @@ export const SWISS_INSTITUTIONS: Institution[] = [
       en: "Requires Swiss Maturity or equivalent entry examination (reduced or comprehensive). High level of academic excellence is expected.",
       de: "Erfordert eidgenössische Maturität oder gleichwertiges Zulassungsverfahren. Höchste akademische Leistungsbereitschaft.",
       fr: "Maturité suisse requise ou examen d'admission équivalent. Très rigoureuse sélection sur critères académiques.",
-      it: "Richiede Maturità federale o esame d'ammissione equivalente. Elevata selezione accademica dei candidati."
+      it: "Richiede Maturità federale o esame d'ammissione equivalente. Elevata selezione accademica dei candidati.",
+      uk: "Потрібна швейцарська матура або рівноцінний вступний іспит (скорочений чи повний). Очікується високий рівень академічної досконалості."
     }
   },
   {
@@ -1696,7 +2084,8 @@ export const SWISS_INSTITUTIONS: Institution[] = [
       en: "Europe's most cosmopolitan technical university, excelling in computer science, biotechnology, robotics, and hardware rendering.",
       de: "Europas internationalste technische Hochschule. Führend im Bereich Informatik, Biotechnik, Robotik und Systemforschung.",
       fr: "L'université technique la plus cosmopolite d'Europe, leader en informatique, biotechnologie, robotique et recherche spatiale.",
-      it: "Il politecnico più cosmopolita d'Europa, polo primario per informatica, robotica, scienze biologiche e ingegnerie."
+      it: "Il politecnico più cosmopolita d'Europa, polo primario per informatica, robotica, scienze biologiche e ingegnerie.",
+      uk: "Найкосмополітичніший технічний університет Європи, сильний в інформатиці, біотехнологіях, робототехніці та апаратному рендерингу."
     },
     website: "https://epfl.ch",
     email: "student.services@epfl.ch",
@@ -1707,7 +2096,8 @@ export const SWISS_INSTITUTIONS: Institution[] = [
       en: "Swiss gymnasial maturity or foreign certificate with identical curricular credentials. Fluent French (C1) or English depending on department.",
       de: "Gymnasiale Maturität oder ausländischer Ausweis mit identischen Kriterien. Fließend Französisch (C1) oder Englisch nötig.",
       fr: "Maturité gymnasiale ou diplôme étranger équivalent. Exigence de français (niveau C1) ou d'anglais selon la filière d'études.",
-      it: "Maturità ginnasiale o certificati d'istruzione esteri equivalenti. Richiesto francese fluente (C1) o inglese ad indirizzo."
+      it: "Maturità ginnasiale o certificati d'istruzione esteri equivalenti. Richiesto francese fluente (C1) o inglese ad indirizzo.",
+      uk: "Швейцарська гімназійна матура або іноземний сертифікат із такою самою навчальною програмою. Вільне володіння французькою (C1) або англійською залежно від факультету."
     }
   },
   {
@@ -1720,7 +2110,8 @@ export const SWISS_INSTITUTIONS: Institution[] = [
       en: "Founded in 1833, UZH is Switzerland's largest university, representing breakthrough medical science, genomics, and leading economics.",
       de: "Gegründet 1833, ist die UZH die größte Universität der Schweiz, bekannt für Medizin, Genomforschung und exzellente Ökonomie.",
       fr: "Fondée en 1833, l'UZH est la plus grande université helvétique, réputée pour ses percées en médecine, génomique et économie.",
-      it: "Fondata nel 1833, UZH è la più grande università della Svizzera, leader per medicina, economia e genetica d'avanguardia."
+      it: "Fondata nel 1833, UZH è la più grande università della Svizzera, leader per medicina, economia e genetica d'avanguardia.",
+      uk: "Заснований 1833 року, UZH – найбільший університет Швейцарії, відомий проривами в медицині, геноміці та провідною економікою."
     },
     website: "https://uzh.ch",
     email: "admission@uzh.ch",
@@ -1731,7 +2122,8 @@ export const SWISS_INSTITUTIONS: Institution[] = [
       en: "Accredited Baccalaureate. Requires high German language capability (C1) for undergraduate structures.",
       de: "Anerkannte Maturität. C1 Deutschkenntnisse für Bachelor-Studiengänge zwingend erforderlich.",
       fr: "Certificat de maturité reconnu. Maîtrise avancée de l'allemand (C1) requise pour le premier cycle.",
-      it: "Certificato di maturità riconosciuto. Richiesta conoscenza avanzata della lingua tedesca (C1) per i programmi di laurea."
+      it: "Certificato di maturità riconosciuto. Richiesta conoscenza avanzata della lingua tedesca (C1) per i programmi di laurea.",
+      uk: "Визнаний атестат зрілості (Baccalaureate). Для бакалаврських програм потрібне добре знання німецької (C1)."
     }
   },
   {
@@ -1744,7 +2136,8 @@ export const SWISS_INSTITUTIONS: Institution[] = [
       en: "Highly international university deeply integrated with global governance agencies, the UN, and international finance structures.",
       de: "Sehr internationale Universität, eng vernetzt mit globalen Organisationen, der UNO und dem internationalen Finanzwesen.",
       fr: "Université prestigieuse avec une insertion unique auprès des organisations mondiales (ONU, OMC, OMS) et de la finance d'élite.",
-      it: "Ateneo ad altissima internazionalità, strettamente connesso alle agenzie globali dell'ONU, all'OMC e alla finanza internazionale."
+      it: "Ateneo ad altissima internazionalità, strettamente connesso alle agenzie globali dell'ONU, all'OMC e alla finanza internazionale.",
+      uk: "Дуже міжнародний університет, тісно пов'язаний зі світовими структурами управління, ООН і міжнародним фінансовим сектором."
     },
     website: "https://unige.ch",
     email: "admissions@unige.ch",
@@ -1755,7 +2148,8 @@ export const SWISS_INSTITUTIONS: Institution[] = [
       en: "Requires general maturity or similar. High French level is standard constraint.",
       de: "Allgemeine Maturität oder Äquivalent erforderlich. Fließend Französisch ist Standardanforderung.",
       fr: "Maturité reconnue ou titre jugé équivalent. Maîtrise certifiée de la langue française requise.",
-      it: "Maturità Cantonale o estera equivalente. Requisito primario è il possesso del livello C1 in francese."
+      it: "Maturità Cantonale o estera equivalente. Requisito primario è il possesso del livello C1 in francese.",
+      uk: "Потрібна загальна матура або рівноцінна. Високий рівень французької – стандартна вимога."
     }
   },
   {
@@ -1768,7 +2162,8 @@ export const SWISS_INSTITUTIONS: Institution[] = [
       en: "Unifies global academic postdoctoral researchers to test quantum mechanics using the world's largest Large Hadron Collider.",
       de: "Vereint globale Forscher zur Erforschung der Quantenmechanik am weltweit größten Teilchenbeschleuniger (LHC).",
       fr: "Le centre ultime de recherche atomique et physique quantique au monde, abritant le Grand collisionneur de hadrons.",
-      it: "Il centro più importante al mondo per lo studio della fisica atomica, contenitore del Large Hadron Collider (LHC)."
+      it: "Il centro più importante al mondo per lo studio della fisica atomica, contenitore del Large Hadron Collider (LHC).",
+      uk: "Об'єднує дослідників з усього світу для вивчення квантової механіки на найбільшому у світі Великому адронному колайдері."
     },
     website: "https://home.cern",
     email: "recruitment@cern.ch",
@@ -1786,7 +2181,8 @@ export const SWISS_INSTITUTIONS: Institution[] = [
       en: "Top tier academic powerhouse for management, law, business administration, and international affairs in Europe.",
       de: "Führende europäische Kaderschmiede für Betriebswirtschaft, Recht, Wirtschaftswissenschaften und Internationale Beziehungen.",
       fr: "L'un des meilleurs centres éducatifs européens pour le management, la gestion d'entreprise et les relations internationales.",
-      it: "Università d'élite a livello europeo per amministrazione aziendale, finanza internazionale, giurisprudenza e affari esteri."
+      it: "Università d'élite a livello europeo per amministrazione aziendale, finanza internazionale, giurisprudenza e affari esteri.",
+      uk: "Провідний академічний центр Європи з менеджменту, права, управління бізнесом і міжнародних відносин."
     },
     website: "https://unisg.ch",
     email: "admissions@unisg.ch",
@@ -1804,7 +2200,8 @@ export const SWISS_INSTITUTIONS: Institution[] = [
       en: "One of the largest vocational ternary-track bridges in German-speaking Switzerland, excelling in applied engineering, aviation, and health.",
       de: "Eine der größten Fachhochschulen für anwendungsorientierte Ingenieurwissenschaften, Luftfahrt und Gesundheit im Kanton Zürich.",
       fr: "L'une des plus grandes hautes écoles spécialisées (HES), leader en ingénierie appliquée, aviation et sciences de la santé.",
-      it: "Una delle più grandi università di scienze applicate, orientata a ingegnerieria, aeronautica civile e medicina pratica."
+      it: "Una delle più grandi università di scienze applicate, orientata a ingegnerieria, aeronautica civile e medicina pratica.",
+      uk: "Один із найбільших закладів німецькомовної Швейцарії, що поєднують професійний та університетський шляхи; сильний у прикладній інженерії, авіації та охороні здоров'я."
     },
     website: "https://zhaw.ch",
     email: "info@zhaw.ch",
@@ -1824,13 +2221,15 @@ export const OFF_RESOURCES: ResourceItem[] = [
       en: "CH.ch - Swiss Authority Education Portal",
       de: "CH.ch - Bildungsportal der Bundeskanzlei",
       fr: "CH.ch - Informations officielles du système scolaire",
-      it: "CH.ch - Portale ufficiale delle autorità svizzere"
+      it: "CH.ch - Portale ufficiale delle autorità svizzere",
+      uk: "CH.ch – освітній портал швейцарської влади"
     },
     description: {
       en: "Main federal gateway outlining school structures, cantonal rules, and school holiday tables.",
       de: "Zentraler Bundeskompass mit kantonalen Gegebenheiten, Schulrechten und Feriensystemen.",
       fr: "Principal site de la Confédération décrivant les cursus obligatoires et la souveraineté cantonale.",
-      it: "Principale portale federale che regola i cicli scolastici nei vari cantoni."
+      it: "Principale portale federale che regola i cicli scolastici nei vari cantoni.",
+      uk: "Головний федеральний портал зі структурою шкіл, кантональними правилами та таблицями шкільних канікул."
     },
     url: "https://www.ch.ch/en/school-and-education/"
   },
@@ -1842,13 +2241,15 @@ export const OFF_RESOURCES: ResourceItem[] = [
       en: "Berufsberatung.ch - Official Apprenticeship Registry",
       de: "Berufsberatung.ch - Offizielle Lehrstellenbörse",
       fr: "Orientation.ch - Portail officiel suisse des places d'apprentissage",
-      it: "Orientamento.ch - Servizio ufficiale svizzero per i posti di tirocinio"
+      it: "Orientamento.ch - Servizio ufficiale svizzero per i posti di tirocinio",
+      uk: "Berufsberatung.ch – офіційний реєстр місць навчання з практикою"
     },
     description: {
       en: "Comprehensive national directory to search and apply for active corporate vocational training contracts.",
       de: "Nationale Datenbank zum Finden und Bewerben auf freie Lehrstellen in Betrieben.",
       fr: "Répertoire officiel pour postuler en direct aux contrats d'apprentissage d'entreprises.",
-      it: "La risorsa ufficiale per individuare e contrattualizzare l'apprendistato commerciale o tecnico."
+      it: "La risorsa ufficiale per individuare e contrattualizzare l'apprendistato commerciale o tecnico.",
+      uk: "Повний національний довідник, щоб шукати чинні договори про професійне навчання в компаніях і подавати на них заявки."
     },
     url: "https://www.berufsberatung.ch"
   },
@@ -1860,13 +2261,15 @@ export const OFF_RESOURCES: ResourceItem[] = [
       en: "SBF_Swiss Government Excellence Scholarships",
       de: "SBFI - Bundesstipendien für ausländische Forschende",
       fr: "SEFRI - Bourses d'excellence de la Confédération",
-      it: "SEFRI - Borse di studio d'eccellenza della Confederazione svizzera"
+      it: "SEFRI - Borse di studio d'eccellenza della Confederazione svizzera",
+      uk: "SBFI – стипендії швейцарського уряду за досконалість (Swiss Government Excellence Scholarships)"
     },
     description: {
       en: "State-offered financial grants for foreign academic investigators, PhD students, and researchers.",
       de: "Staatliche Stipendienprogramme für ausländische Forschende und wissenschaftliche Spitzenkräfte.",
       fr: "Bourses fédérales destinées aux chercheurs et doctorants internationaux hautement qualifiés.",
-      it: "Finanziamenti statali svizzeri destinati a ricercatori d'eccellenza stranieri."
+      it: "Finanziamenti statali svizzeri destinati a ricercatori d'eccellenza stranieri.",
+      uk: "Державні фінансові гранти для іноземних науковців, докторантів (PhD) і дослідників."
     },
     url: "https://www.sbfi.admin.ch/sbfi/en/home/education/scholarships-and-grants.html"
   },
@@ -1878,13 +2281,15 @@ export const OFF_RESOURCES: ResourceItem[] = [
       en: "SEM - State Secretariat for Migration Setup",
       de: "SEM - Staatssekretariat für Migration (Visa & Einreise)",
       fr: "SEM - Secrétariat d'État aux migrations",
-      it: "SEM - Segreteria di Stato della migrazione"
+      it: "SEM - Segreteria di Stato della migrazione",
+      uk: "SEM – Державний секретаріат у справах міграції"
     },
     description: {
       en: "Visa guidelines for international educational applicants entering the Swiss Schengen zone.",
       de: "Offizielle Richtlinien für die Beantragung eines Studierendenvisums (Schengen-Raum).",
       fr: "Démarches pour l'obtention des visas d'études et autorisations de séjours cantonaux.",
-      it: "Linee guida per l'ingresso in Svizzera per motivi di studio."
+      it: "Linee guida per l'ingresso in Svizzera per motivi di studio.",
+      uk: "Правила оформлення візи для іноземних абітурієнтів, які в'їжджають до шенгенської зони Швейцарії."
     },
     url: "https://www.sem.admin.ch"
   }
