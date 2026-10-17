@@ -14,6 +14,7 @@ import {
   ProfessionFacts,
   AdmissionCondition,
   EducationProgram,
+  AudienceFact,
   CantonStageFact,
   EducationNode,
   EducationTransition,
@@ -1612,6 +1613,28 @@ export const DataRepository = {
         verified: r.verification_status === "verified"
       }];
     });
+  },
+
+  /** Education facts for one audience (e.g. people from Ukraine with status S). German first, English where written. */
+  getAudienceFacts: async (audience: string): Promise<AudienceFact[]> => {
+    const rows = (await loadActiveRows("audience_facts")).filter(r => r.audience === audience);
+    return rows
+      .flatMap((r): AudienceFact[] => {
+        const topic = normalizeText(r.topic);
+        const headlineDe = normalizeText(r.headline_de);
+        if (!topic || !headlineDe) return [];
+        return [{
+          audience,
+          topic,
+          node: normalizeText(r.node_code),
+          sortOrder: typeof r.sort_order === "number" ? r.sort_order : 50,
+          headline: { de: headlineDe, en: normalizeText(r.headline_en) ?? headlineDe },
+          text: { de: normalizeText(r.text_de) ?? "", en: normalizeText(r.text_en) ?? normalizeText(r.text_de) ?? "" },
+          url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
+          verified: r.verification_status === "verified"
+        }];
+      })
+      .sort((a, b) => a.sortOrder - b.sortOrder);
   },
 
   /** What each canton does at each stage of the system (Swiss Path Map, canton view). */

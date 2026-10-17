@@ -451,6 +451,18 @@ export interface CantonStageFact {
   verified: boolean;
 }
 
+/** An education fact for one audience, e.g. people from Ukraine with protection status S (audience_facts). German and English texts. */
+export interface AudienceFact {
+  audience: string;
+  topic: string;
+  node?: string;
+  sortOrder: number;
+  headline: { de: string; en: string };
+  text: { de: string; en: string };
+  url?: string;
+  verified: boolean;
+}
+
 /** A national or cantonal how-to resource by topic (resources.topic_code). */
 export interface TopicResource {
   topic: string;

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Briefcase, ExternalLink, Flag, MapPin, School, Sparkles, X } from "lucide-react";
 import { DataRepository } from "../data/Repository";
-import type { CantonStageFact, EducationNode, EducationTransition, LanguageCode, RouteBackground } from "../types";
+import type { AudienceFact, CantonStageFact, EducationNode, EducationTransition, LanguageCode, RouteBackground } from "../types";
 import { AdmissionBox, BridgeBox } from "./PathwayInfo";
 import { kindLabel, nodeLabel } from "../lib/pathwayInfo";
 import {
@@ -108,6 +108,9 @@ type Ui = {
   yearsAbout: (a: number, b: number) => string;
   yearsNote: string;
   notHere: string;
+  statusSTitle: string;
+  statusSHint: string;
+  statusSLang: string;
 };
 
 const UI: Record<LanguageCode, Ui> = {
@@ -172,7 +175,10 @@ const UI: Record<LanguageCode, Ui> = {
     option: n => `Variante ${n}`,
     yearsAbout: (a, b) => `ca. ${a === b ? a : a + "–" + b} Jahre`,
     yearsNote: "Die Dauer ist eine grobe Schätzung aus den Angaben der Stufen; sie hängt von Kanton, Schule und Person ab.",
-    notHere: "In diesem Kanton nicht angeboten"
+    notHere: "In diesem Kanton nicht angeboten",
+    statusSTitle: "Mit Schutzstatus S (Ukraine)",
+    statusSHint: "Kurz und mit offiziellen Quellen: Schule, Sprache, Lehre, Diplome, Studium.",
+    statusSLang: "Texte auf Deutsch"
   },
   en: {
     title: "Swiss Path Map",
@@ -235,7 +241,10 @@ const UI: Record<LanguageCode, Ui> = {
     option: n => `Option ${n}`,
     yearsAbout: (a, b) => `about ${a === b ? a : a + "–" + b} years`,
     yearsNote: "The length is a rough estimate from the stage details; it depends on canton, school and person.",
-    notHere: "Not offered in this canton"
+    notHere: "Not offered in this canton",
+    statusSTitle: "With protection status S (Ukraine)",
+    statusSHint: "Short and sourced from official pages: school, language, apprenticeship, diplomas, university.",
+    statusSLang: "Texts in English"
   },
   fr: {
     title: "Swiss Path Map",
@@ -298,7 +307,10 @@ const UI: Record<LanguageCode, Ui> = {
     option: n => `Variante ${n}`,
     yearsAbout: (a, b) => `env. ${a === b ? a : a + "–" + b} ans`,
     yearsNote: "La durée est une estimation approximative d'après les étapes; elle dépend du canton, de l'école et de la personne.",
-    notHere: "Non proposé dans ce canton"
+    notHere: "Non proposé dans ce canton",
+    statusSTitle: "Avec le statut de protection S (Ukraine)",
+    statusSHint: "Court et sourcé sur des pages officielles : école, langue, apprentissage, diplômes, université.",
+    statusSLang: "Textes en anglais"
   },
   it: {
     title: "Swiss Path Map",
@@ -361,7 +373,10 @@ const UI: Record<LanguageCode, Ui> = {
     option: n => `Variante ${n}`,
     yearsAbout: (a, b) => `circa ${a === b ? a : a + "–" + b} anni`,
     yearsNote: "La durata è una stima approssimativa dalle tappe; dipende da cantone, scuola e persona.",
-    notHere: "Non offerto in questo cantone"
+    notHere: "Non offerto in questo cantone",
+    statusSTitle: "Con lo statuto di protezione S (Ucraina)",
+    statusSHint: "Breve e con fonti ufficiali: scuola, lingua, apprendistato, diplomi, università.",
+    statusSLang: "Testi in inglese"
   }
 };
 
@@ -459,6 +474,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
     }
   });
   const [cantonFacts, setCantonFacts] = useState<CantonStageFact[]>([]);
+  const [statusSFacts, setStatusSFacts] = useState<AudienceFact[]>([]);
   const [routeIndex, setRouteIndex] = useState(0);
   const [showAllWays, setShowAllWays] = useState(false);
   const [professionCounts, setProfessionCounts] = useState<Record<string, number>>({});
@@ -502,6 +518,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   useEffect(() => {
     let active = true;
     DataRepository.getCantonStageFacts().then(rows => active && setCantonFacts(rows)).catch(() => undefined);
+    DataRepository.getAudienceFacts("ukraine_s").then(rows => active && setStatusSFacts(rows)).catch(() => undefined);
     return () => {
       active = false;
     };
@@ -761,6 +778,28 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
             </div>
           );
         })()}
+        {code === "arrival" && statusSFacts.length > 0 && (
+          <details open className={`rounded-xl border ${isDark ? "border-amber-300/30 bg-[#1a1405]/90" : "border-amber-500/50 bg-amber-50"}`}>
+            <summary className={`cursor-pointer px-3 py-2 text-[12.5px] font-bold ${isDark ? "text-amber-100" : "text-amber-950"}`}>{ui.statusSTitle}</summary>
+            <div className="space-y-2.5 px-3 pb-3">
+              <p className={`text-[11px] ${muted}`}>{ui.statusSHint}{currentLanguage !== "de" ? " " + ui.statusSLang + "." : ""}</p>
+              {statusSFacts.map(f => {
+                const lang = currentLanguage === "de" ? "de" : "en";
+                return (
+                  <div key={f.topic} className="space-y-0.5">
+                    <p className={`text-[12.5px] font-semibold leading-snug ${isDark ? "text-white" : "text-amber-950"}`}>{f.headline[lang]}</p>
+                    {f.text[lang] && <p className={`text-[12px] leading-relaxed ${cardText}`}>{f.text[lang]}</p>}
+                    {f.url && (
+                      <a href={f.url} target="_blank" rel="noopener noreferrer" className={link}>
+                        {ui.official} <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </details>
+        )}
         {(code === "bridge" || code === "integration") && canton && <BridgeBox canton={canton} language={currentLanguage} isDark={isDark} />}
         {routes.length > 0 && <AdmissionBox canton={canton || undefined} routes={routes} language={currentLanguage} isDark={isDark} />}
 
