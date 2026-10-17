@@ -94,7 +94,7 @@ export function HomeView({
       <section
         ref={heroRef}
         onMouseMove={handleHeroMouseMove}
-        className="pt-6 pb-14 md:pt-10 md:pb-24 lg:py-10 lg:-mt-12 lg:min-h-[calc(100svh-4rem)] lg:flex lg:items-center relative left-1/2 -ml-[50vw] w-screen px-4 sm:px-8 lg:px-16"
+        className="pt-6 pb-14 md:pt-10 md:pb-24 lg:pt-2 lg:pb-10 lg:-mt-12 lg:min-h-[calc(100svh-4rem)] lg:flex lg:items-start relative left-1/2 -ml-[50vw] w-screen px-4 sm:px-8 lg:px-16"
       >
         {/* CSS fallback only when WebGL isn't available */}
         {sceneStatus === "error" && <HeroBackground isDark={isDark} showPhoenixWatermark />}
@@ -103,30 +103,12 @@ export function HomeView({
             (-mt-12 cancels main/page top padding) and both columns are
             vertically centred, so text and phoenix sit square in the
             viewport at any window proportion. */}
-        <div className="relative w-full grid gap-6 lg:grid-cols-[0.85fr_1.15fr] items-start lg:items-center">
+        <div className="relative w-full grid gap-6 lg:grid-cols-[0.85fr_1.15fr] items-start">
           {/* Text column */}
-          <div className="space-y-8 text-center lg:text-left">
+          <div className="space-y-5 lg:space-y-5 text-center lg:text-left lg:pt-6">
             {/* Mobile/tablet: the particle phoenix gets its own space above
                 the headline (the desktop column is hidden below lg). */}
             <div data-scene-anchor="0" className="lg:hidden mx-auto h-56 w-56 sm:h-72 sm:w-72" aria-hidden="true" />
-
-            {/* Live Active Badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 }}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-300 ${
-                isDark
-                  ? "bg-white/5 border border-white/10 text-violet-300 shadow-lg shadow-violet-950/20"
-                  : "bg-violet-950/10 border border-violet-950/20 text-violet-950 font-bold shadow-sm"
-              }`}
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span>{t.swissSpecialGroup}</span>
-            </motion.div>
 
             {/* Hero headline = the brand slogan (00_Brain/Positioning.md).
                 heroTitle carries "first clause|second clause": the first
@@ -178,7 +160,7 @@ export function HomeView({
             </ul>
 
             {/* Hero Description Subtitle */}
-            <p className={`text-base md:text-xl font-sans max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal ${
+            <p className={`text-base md:text-lg lg:text-lg font-sans max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal ${
               isDark ? "text-zinc-300 [text-shadow:0_0_14px_rgba(3,0,8,0.95)]" : "text-violet-950/80 font-medium"
             }`}>
               {t.heroSubtitle}
@@ -230,7 +212,7 @@ export function HomeView({
           {/* Phoenix column: an empty anchor the WebGL particle phoenix
               (PhoenixScene) positions itself on. Without WebGL it shows the
               flat logo instead, so the column is never an empty box. */}
-          <div data-scene-anchor="0" className="hidden lg:flex relative lg:h-[min(640px,calc(100svh-9rem))] items-center justify-center">
+          <div data-scene-anchor="0" className="hidden lg:flex relative lg:h-[min(560px,calc(100svh-12rem))] items-center justify-center">
             {sceneStatus === "error" && (
               <img src="/logo-mark.png" alt="" className="w-3/4 opacity-90 drop-shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
             )}
