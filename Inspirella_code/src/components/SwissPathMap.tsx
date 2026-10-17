@@ -679,7 +679,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
 
   const wayButton = (e: MapEdge, otherCode: string) => (
     <li key={edgeKey(e)}>
-      <button type="button" onClick={() => setSelection({ type: "edge", key: edgeKey(e) })} className={`w-full cursor-pointer rounded-lg border px-2.5 py-1.5 text-left transition-colors ${isDark ? "border-white/10 bg-white/[0.03] hover:bg-white/[0.07]" : "border-violet-200 bg-white hover:bg-violet-50"}`}>
+      <button type="button" onClick={() => setSelection({ type: "edge", key: edgeKey(e) })} className={`w-full cursor-pointer rounded-lg border px-2.5 py-1.5 text-left transition-colors ${isDark ? "border-white/10 bg-[#0c0916]/90 hover:bg-[#17112b]" : "border-violet-200 bg-white hover:bg-violet-50"}`}>
         <span className="flex items-center justify-between gap-2">
           <b className={`text-[12px] ${isDark ? "text-white" : "text-violet-950"}`}>{labelOf(otherCode)}</b>
           <span className="shrink-0 text-[10px] font-mono text-violet-400">{kindLabel(e.kind, currentLanguage)}</span>
@@ -720,7 +720,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
         </div>
 
         {n && (
-          <div className={`space-y-3 rounded-xl border p-3 ${isDark ? "border-violet-400/20 bg-violet-500/[0.06]" : "border-violet-200 bg-violet-50/70"}`}>
+          <div className={`space-y-3 rounded-xl border p-3 ${isDark ? "border-violet-400/20 bg-[#120c24]/90" : "border-violet-200 bg-violet-50/95"}`}>
             <Fact name={ui.duration} value={n.duration} />
             <Fact name={ui.age} value={n.typicalAge} />
             <Fact name={ui.diploma} value={n.diploma} />
@@ -821,7 +821,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
           )}
         </div>
         {level && !isLoggedIn && (
-          <div className={`rounded-xl border p-3 ${isDark ? "border-violet-400/20 bg-violet-500/[0.06]" : "border-violet-200 bg-violet-50/70"}`}>
+          <div className={`rounded-xl border p-3 ${isDark ? "border-violet-400/20 bg-[#120c24]/90" : "border-violet-200 bg-violet-50/95"}`}>
             <p className={`text-[12px] leading-relaxed ${cardText}`}>{ui.needProfile}</p>
             <button type="button" className={`${btnPrimary} mt-2`} onClick={onStartPlanning}>{ui.planRoute} <ArrowRight className="h-3.5 w-3.5" /></button>
           </div>
@@ -844,7 +844,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
       </div>
       <ul className="space-y-3">
         {e.transitions.map(t => (
-          <li key={t.id} className={`space-y-2 rounded-xl border p-3 ${isDark ? "border-violet-400/20 bg-violet-500/[0.06]" : "border-violet-200 bg-violet-50/70"}`}>
+          <li key={t.id} className={`space-y-2 rounded-xl border p-3 ${isDark ? "border-violet-400/20 bg-[#120c24]/90" : "border-violet-200 bg-violet-50/95"}`}>
             <div className="flex items-start justify-between gap-2">
               <b className={`text-[13px] leading-snug ${isDark ? "text-white" : "text-violet-950"}`}>{t.label}</b>
               <span className="shrink-0 text-[10px] font-mono text-violet-400">{kindLabel(t.kind, currentLanguage)}</span>
@@ -872,7 +872,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
     openNode("arrival");
   };
 
-  const card = `rounded-2xl border ${isDark ? "border-white/10 bg-white/[0.03]" : "border-violet-200 bg-white/80"}`;
+  const card = `rounded-2xl border backdrop-blur-sm ${isDark ? "border-white/10 bg-[#0c0916]/90" : "border-violet-200 bg-white/95"}`;
   const select = `w-full rounded-lg border px-2.5 py-2 text-[12.5px] ${isDark ? "border-white/15 bg-zinc-900 text-white" : "border-violet-300 bg-white text-violet-950"}`;
 
   const nodeOption = (n: EducationNode) => <option key={n.code} value={n.code}>{n.label[currentLanguage]}</option>;
@@ -959,7 +959,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                       {path.map(step => (
                         <li key={edgeKey(step.edge)} className="flex items-center gap-2">
                           <ArrowRight className="h-4 w-4 shrink-0 text-violet-400" />
-                          <button type="button" onClick={() => setSelection({ type: "edge", key: edgeKey(step.edge) })} className={`cursor-pointer rounded-lg border px-2.5 py-1.5 text-left transition-colors ${isDark ? "border-white/15 bg-white/[0.04] hover:bg-white/[0.09]" : "border-violet-200 bg-white hover:bg-violet-50"}`}>
+                          <button type="button" onClick={() => setSelection({ type: "edge", key: edgeKey(step.edge) })} className={`cursor-pointer rounded-lg border px-2.5 py-1.5 text-left transition-colors ${isDark ? "border-white/15 bg-[#0c0916]/90 hover:bg-[#17112b]" : "border-violet-200 bg-white hover:bg-violet-50"}`}>
                             <b className={`block text-[12px] ${isDark ? "text-white" : "text-violet-950"}`}>{labelOf(step.to)}</b>
                             <span className="block text-[10px] font-mono text-violet-400">{kindLabel(step.edge.kind, currentLanguage)}{stepSummary(step.edge) ? ` · ${stepSummary(step.edge).slice(0, 60)}` : ""}</span>
                           </button>
@@ -1089,7 +1089,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                     <ul className="grid gap-2 sm:grid-cols-2">
                       {items.map(n => (
                         <li key={n.code}>
-                          <button type="button" onClick={() => openNode(n.code)} className={`h-full w-full cursor-pointer rounded-xl border p-3 text-left transition-colors ${nodeDimmed(n.code) ? "opacity-40" : ""} ${isDark ? "border-white/10 bg-white/[0.03] hover:bg-white/[0.07]" : "border-violet-200 bg-white hover:bg-violet-50"}`}>
+                          <button type="button" onClick={() => openNode(n.code)} className={`h-full w-full cursor-pointer rounded-xl border p-3 text-left transition-colors ${nodeDimmed(n.code) ? "opacity-40" : ""} ${isDark ? "border-white/10 bg-[#0c0916]/90 hover:bg-[#17112b]" : "border-violet-200 bg-white hover:bg-violet-50"}`}>
                             <span className="flex items-start justify-between gap-2">
                               <b className={`text-[13px] leading-snug ${isDark ? "text-white" : "text-violet-950"}`}>{n.label[currentLanguage]}</b>
                               <span className="shrink-0 text-[10px] font-mono text-violet-400">{ui.kinds[n.kind] ?? n.kind}</span>

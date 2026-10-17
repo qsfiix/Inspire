@@ -447,7 +447,9 @@ export default function PhoenixScene({ isDark, enabled = true, onStatus }: Phoen
         };
         // The old shape must not linger over the new page: stay invisible until the particles
         // have turned into the galaxy, then fade it in (the galaxy keeps its usual brightness).
-        targetOpacity = reduceMotion ? AMBIENT_OPACITY : AMBIENT_OPACITY * smooth(0.25, 0.9, current.ambient);
+        // The Swiss Path Map is a dense chart: the galaxy stays, but much fainter, so text reads clearly.
+        const pageDim = page === "pathmap" ? 0.4 : 1;
+        targetOpacity = (reduceMotion ? AMBIENT_OPACITY : AMBIENT_OPACITY * smooth(0.25, 0.9, current.ambient)) * pageDim;
       }
       current.ambient += ((isAmbient && !portalRect && !holding && !reduceMotion ? 1 : 0) - current.ambient) * (1 - Math.exp(-dt * 3));
       ambientSettled = isAmbient && current.ambient > 0.985 ? ambientSettled + dt : 0;
