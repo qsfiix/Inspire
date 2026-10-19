@@ -24,9 +24,13 @@ import {
   CantonalLink,
   RouteBackground,
   LanguageLevel,
-  CefrLevel
+  CefrLevel,
+  SalaryBenchmark,
+  ApprenticeWage
 } from "../types";
 import { OFF_RESOURCES, SWISS_INSTITUTIONS } from "../data";
+
+let salaryBenchmarksCache: SalaryBenchmark[] | null = null;
 import { normalizeCoordinates, normalizeId, normalizeText, normalizeUrl } from "../lib/validation";
 import { isLanguageCode, SUPPORTED_LANGUAGES } from "../lib/localized";
 
@@ -473,6 +477,8 @@ export const parseDbProfession = (db: Record<string, any>): Profession | null =>
       pick(db, "isApprenticeshipPath", "is_apprenticeship_path", "isApprenticesPath")
     ),
     professionType: normalizeText(pick(db, "professionType", "profession_type")),
+    iscoGroup: normalizeText(pick(db, "isco_group")),
+    iscoConfidence: normalizeText(pick(db, "isco_confidence")),
     customMetadata: asMetadata(pick(db, "customMetadata", "custom_metadata")),
     dataOrigin: "cloud"
   };
@@ -1656,6 +1662,7 @@ export const DataRepository = {
         if (!topic || !headlineDe) return [];
         return [{
           audience,
+          canton: normalizeText(r.canton_code)?.toUpperCase(),
           topic,
           node: normalizeText(r.node_code),
           sortOrder: typeof r.sort_order === "number" ? r.sort_order : 50,
@@ -1687,6 +1694,61 @@ export const DataRepository = {
         uk: { headline: normalizeText(r.headline_uk), text: normalizeText(r.text_uk) }
       }];
     });
+  },
+
+  /** BFS wage statistics by occupation group (Switzerland-wide, 2024), cached after the first call. */
+  getSalaryBenchmarks: async (): Promise<SalaryBenchmark[]> => {
+    if (salaryBenchmarksCache) return salaryBenchmarksCache;
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) return [];
+    try {
+      const { data, error } = await getSupabase()
+        .from("salary_benchmarks")
+        .select("isco_group, group_name_de, age_group, year, p10, p25, median, p75, p90, source_name, source_url")
+        .eq("region", "Schweiz");
+      if (error || !Array.isArray(data)) return [];
+      salaryBenchmarksCache = data.flatMap((r): SalaryBenchmark[] => {
+        const median = asNumber(r.median);
+        if (median === undefined) return [];
+        return [{
+          group: String(r.isco_group),
+          groupName: String(r.group_name_de ?? ""),
+          age: r.age_group as SalaryBenchmark["age"],
+          year: Number(r.year),
+          p10: asNumber(r.p10),
+          p25: asNumber(r.p25),
+          median,
+          p75: asNumber(r.p75),
+          p90: asNumber(r.p90),
+          sourceName: String(r.source_name ?? "BFS"),
+          sourceUrl: normalizeUrl(r.source_url)
+        }];
+      });
+      return salaryBenchmarksCache;
+    } catch {
+      return [];
+    }
+  },
+
+  /** Recommended apprentice pay per apprenticeship year (professional associations, via berufsberatung.ch). */
+  getApprenticeWages: async (professionId: string): Promise<ApprenticeWage[]> => {
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) return [];
+    try {
+      const { data, error } = await getSupabase()
+        .from("apprentice_wage_recommendations")
+        .select("year_no, min_chf, max_chf, source_url")
+        .eq("profession_id", professionId)
+        .order("year_no", { ascending: true });
+      if (error || !Array.isArray(data)) return [];
+      return data.flatMap((r): ApprenticeWage[] => {
+        const min = asNumber(r.min_chf);
+        const max = asNumber(r.max_chf) ?? min;
+        return min === undefined || max === undefined ? [] : [{ year: Number(r.year_no), min, max, sourceUrl: normalizeUrl(r.source_url) }];
+      });
+    } catch {
+      return [];
+    }
   },
 
   /** How-to resources for the given topic codes (national ones plus the canton's own). */

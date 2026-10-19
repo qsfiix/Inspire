@@ -260,6 +260,10 @@ export interface Profession extends RecordProvenance {
   /** Absent rather than defaulted: a guessed salary is a fabricated fact. */
   salaryCHF?: number;
 
+  /** ISCO-08 two-digit occupation group (BFS wage statistics); only set when the mapping is high/medium confidence. */
+  iscoGroup?: string;
+  iscoConfidence?: string;
+
   /** Absent rather than defaulted to "medium". */
   outlook?: string;
 
@@ -458,8 +462,32 @@ export interface CantonStageFact {
 }
 
 /** An education fact for one audience, e.g. people from Ukraine with protection status S (audience_facts). German and English texts. */
+/** BFS Lohnstrukturerhebung: monthly gross wage (CHF, standardised full time) of an occupation group in Switzerland. */
+export interface SalaryBenchmark {
+  group: string;
+  groupName: string;
+  age: "total" | "bis29" | "30-49" | "ab50";
+  year: number;
+  p10?: number;
+  p25?: number;
+  median: number;
+  p75?: number;
+  p90?: number;
+  sourceName: string;
+  sourceUrl?: string;
+}
+
+/** Recommended monthly pay in one apprenticeship year (an association recommendation, not a guarantee). */
+export interface ApprenticeWage {
+  year: number;
+  min: number;
+  max: number;
+  sourceUrl?: string;
+}
+
 export interface AudienceFact {
   audience: string;
+  canton?: string;
   topic: string;
   node?: string;
   sortOrder: number;
