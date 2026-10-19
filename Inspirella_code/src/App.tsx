@@ -24,7 +24,7 @@ import {
 import { LanguageCode, UserProfile, TrackerGoal, ResourceItem, RouteBackground } from "./types";
 import { TRANSLATIONS, OFF_RESOURCES } from "./data";
 import Navbar from "./components/Navbar";
-import MapboxMap from "./components/MapboxMap";
+import MapboxMapGate from "./components/MapboxMapGate";
 import SectionGlow from "./components/SectionGlow";
 import TrackerSystem from "./components/TrackerSystem";
 import { fetchSupabaseConfig, getMapboxConfig } from "./supabaseClient";
@@ -615,13 +615,14 @@ export default function App() {
               </div>
 
               {/* Render Mapbox Component */}
-              <MapboxMap
+              <MapboxMapGate
                 currentLanguage={currentLanguage}
                 theme={theme}
                 accessToken={mapboxConfig.accessToken}
                 styleUrl={mapboxConfig.styleUrl}
                 onGoalSet={() => handleTabTransition("dashboard")}
                 onShowOnPathMap={openPathMapAt}
+                onOpenSchools={() => handleTabTransition("resources")}
               />
             </motion.div>
           )}
