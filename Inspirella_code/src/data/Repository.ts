@@ -26,11 +26,14 @@ import {
   LanguageLevel,
   CefrLevel,
   SalaryBenchmark,
-  ApprenticeWage
+  ApprenticeWage,
+  ProfessionTrait,
+  ProfessionDetails
 } from "../types";
 import { OFF_RESOURCES, SWISS_INSTITUTIONS } from "../data";
 
 let salaryBenchmarksCache: SalaryBenchmark[] | null = null;
+let professionTraitsCache: Map<number, ProfessionTrait> | null = null;
 import { normalizeCoordinates, normalizeId, normalizeText, normalizeUrl } from "../lib/validation";
 import { isLanguageCode, SUPPORTED_LANGUAGES } from "../lib/localized";
 
@@ -477,6 +480,7 @@ export const parseDbProfession = (db: Record<string, any>): Profession | null =>
       pick(db, "isApprenticeshipPath", "is_apprenticeship_path", "isApprenticesPath")
     ),
     professionType: normalizeText(pick(db, "professionType", "profession_type")),
+    code: normalizeText(pick(db, "code")),
     iscoGroup: normalizeText(pick(db, "isco_group")),
     iscoConfidence: normalizeText(pick(db, "isco_confidence")),
     customMetadata: asMetadata(pick(db, "customMetadata", "custom_metadata")),
@@ -1694,6 +1698,48 @@ export const DataRepository = {
         uk: { headline: normalizeText(r.headline_uk), text: normalizeText(r.text_uk) }
       }];
     });
+  },
+
+  /** Controlled vocabulary of requirements / interests with translations, cached after the first call. */
+  getProfessionTraits: async (): Promise<Map<number, ProfessionTrait>> => {
+    if (professionTraitsCache) return professionTraitsCache;
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) return new Map();
+    try {
+      const { data, error } = await getSupabase().from("profession_traits").select("*");
+      if (error || !Array.isArray(data)) return new Map();
+      professionTraitsCache = new Map(
+        data.map((r): [number, ProfessionTrait] => [
+          Number(r.id),
+          { id: Number(r.id), kind: r.kind === "interest" ? "interest" : "requirement", text: { de: String(r.text_de), en: normalizeText(r.text_en) ?? String(r.text_de), fr: normalizeText(r.text_fr) ?? String(r.text_de), it: normalizeText(r.text_it) ?? String(r.text_de), uk: normalizeText(r.text_uk) ?? normalizeText(r.text_en) ?? String(r.text_de) } }
+        ])
+      );
+      return professionTraitsCache;
+    } catch {
+      return new Map();
+    }
+  },
+
+  /** Requirements, interests, duration and similar professions of one profession (berufsberatung.ch facts). */
+  getProfessionDetails: async (professionId: string): Promise<ProfessionDetails | null> => {
+    await fetchSupabaseConfig();
+    if (!isSupabaseActive()) return null;
+    try {
+      const { data, error } = await getSupabase().from("profession_details").select("*").eq("profession_id", professionId).maybeSingle();
+      if (error || !data) return null;
+      const ints = (v: unknown): number[] => (Array.isArray(v) ? v.map(Number).filter(Number.isFinite) : []);
+      return {
+        durationMinMonths: asNumber(data.duration_min_months),
+        durationMaxMonths: asNumber(data.duration_max_months),
+        durationNote: normalizeText(data.duration_note_de),
+        requirementIds: ints(data.requirement_ids),
+        interestIds: ints(data.interest_ids),
+        similarCodes: Array.isArray(data.similar_codes) ? data.similar_codes.map(String) : [],
+        sourceUrl: normalizeUrl(data.source_url)
+      };
+    } catch {
+      return null;
+    }
   },
 
   /** BFS wage statistics by occupation group (Switzerland-wide, 2024), cached after the first call. */

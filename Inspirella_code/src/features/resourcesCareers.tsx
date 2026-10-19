@@ -25,6 +25,7 @@ import { categoryLabel } from "../lib/categoryLabels";
 import GoalButton from "../components/GoalButton";
 import PathMapLink from "../components/PathMapLink";
 import ProfessionSalary from "../components/ProfessionSalary";
+import ProfessionDetailsBlock from "../components/ProfessionDetailsBlock";
 import { institutionSubgroupsForNode, nodeForProfessionType, professionTypesForNode } from "../lib/pathMap";
 import { nodeLabel } from "../lib/pathwayInfo";
 
@@ -620,6 +621,8 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                       {localizedText(selectedProf.description, currentLanguage)}
                     </p>
                   )}
+
+                  <ProfessionDetailsBlock profession={selectedProf} professions={professionsList} language={currentLanguage} isDark={isDark} onSelect={setSelectedProf} />
 
                   <ProfessionSalary profession={selectedProf} language={currentLanguage} isDark={isDark} />
 

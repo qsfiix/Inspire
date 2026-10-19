@@ -112,6 +112,9 @@ type Ui = {
   statusSTitle: string;
   statusSHint: string;
   statusSLang: string;
+  statusSCanton: (c: string) => string;
+  statusSPickCanton: string;
+  statusSNoCanton: string;
 };
 
 const UI: Record<LanguageCode, Ui> = {
@@ -179,7 +182,10 @@ const UI: Record<LanguageCode, Ui> = {
     notHere: "In diesem Kanton nicht angeboten",
     statusSTitle: "Mit Schutzstatus S (Ukraine)",
     statusSHint: "Kurz und mit offiziellen Quellen: Schule, Sprache, Lehre, Diplome, Studium.",
-    statusSLang: "Texte auf Deutsch"
+    statusSLang: "Texte auf Deutsch",
+    statusSCanton: c => `In deinem Kanton (${c})`,
+    statusSPickCanton: "Wähle oben deinen Kanton, dann siehst du die Angaben für Schule, Sprache und Lehre vor Ort.",
+    statusSNoCanton: "Für diesen Kanton haben wir noch keine geprüften Angaben. Frag bei deiner Wohngemeinde oder der kantonalen Integrationsstelle nach."
   },
   en: {
     title: "Swiss Path Map",
@@ -245,7 +251,10 @@ const UI: Record<LanguageCode, Ui> = {
     notHere: "Not offered in this canton",
     statusSTitle: "With protection status S (Ukraine)",
     statusSHint: "Short and sourced from official pages: school, language, apprenticeship, diplomas, university.",
-    statusSLang: "Texts in English"
+    statusSLang: "Texts in English",
+    statusSCanton: c => `In your canton (${c})`,
+    statusSPickCanton: "Choose your canton above to see the local details for school, language and apprenticeship.",
+    statusSNoCanton: "We have no checked details for this canton yet. Ask your municipality or the cantonal integration office."
   },
   fr: {
     title: "Swiss Path Map",
@@ -311,7 +320,10 @@ const UI: Record<LanguageCode, Ui> = {
     notHere: "Non proposé dans ce canton",
     statusSTitle: "Avec le statut de protection S (Ukraine)",
     statusSHint: "Court et sourcé sur des pages officielles : école, langue, apprentissage, diplômes, université.",
-    statusSLang: "Textes en anglais"
+    statusSLang: "Textes en anglais",
+    statusSCanton: c => `Dans ton canton (${c})`,
+    statusSPickCanton: "Choisis ton canton ci-dessus pour voir les informations locales sur l'école, la langue et l'apprentissage.",
+    statusSNoCanton: "Nous n'avons pas encore d'informations vérifiées pour ce canton. Demande à ta commune ou au service cantonal d'intégration."
   },
   it: {
     title: "Swiss Path Map",
@@ -377,7 +389,10 @@ const UI: Record<LanguageCode, Ui> = {
     notHere: "Non offerto in questo cantone",
     statusSTitle: "Con lo statuto di protezione S (Ucraina)",
     statusSHint: "Breve e con fonti ufficiali: scuola, lingua, apprendistato, diplomi, università.",
-    statusSLang: "Testi in inglese"
+    statusSLang: "Testi in inglese",
+    statusSCanton: c => `Nel tuo cantone (${c})`,
+    statusSPickCanton: "Scegli sopra il tuo cantone per vedere le informazioni locali su scuola, lingua e apprendistato.",
+    statusSNoCanton: "Per questo cantone non abbiamo ancora informazioni verificate. Chiedi al tuo comune o al servizio cantonale per l'integrazione."
   },
   uk: {
     title: "Swiss Path Map",
@@ -443,7 +458,10 @@ const UI: Record<LanguageCode, Ui> = {
     notHere: "У цьому кантоні не пропонується",
     statusSTitle: "Зі статусом захисту S (Україна)",
     statusSHint: "Коротко й з офіційними джерелами: школа, мова, професійне навчання з практикою (Lehre), дипломи, університет.",
-    statusSLang: "Тексти англійською"
+    statusSLang: "Тексти англійською",
+    statusSCanton: c => `У твоєму кантоні (${c})`,
+    statusSPickCanton: "Обери свій кантон вище, і ти побачиш місцеві дані про школу, мову та професійне навчання.",
+    statusSNoCanton: "Для цього кантону в нас ще немає перевірених даних. Запитай у своїй громаді або в кантональному відомстві з питань інтеграції."
   }
 };
 
@@ -850,7 +868,33 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
             <summary className={`cursor-pointer px-3 py-2 text-[12.5px] font-bold ${isDark ? "text-amber-100" : "text-amber-950"}`}>{ui.statusSTitle}</summary>
             <div className="space-y-2.5 px-3 pb-3">
               <p className={`text-[11px] ${muted}`}>{ui.statusSHint}{currentLanguage !== "de" && currentLanguage !== "uk" ? " " + ui.statusSLang + "." : ""}</p>
-              {statusSFacts.map(f => {
+              {(() => {
+                const lang = currentLanguage === "de" ? "de" : currentLanguage === "uk" ? "uk" : "en";
+                const cantonal = canton ? statusSFacts.filter(f => f.canton === canton) : [];
+                const renderFact = (f: AudienceFact) => (
+                  <div key={f.canton ? `${f.canton}-${f.topic}` : f.topic} className="space-y-0.5">
+                    <p className={`text-[12.5px] font-semibold leading-snug ${isDark ? "text-white" : "text-amber-950"}`}>{f.headline[lang]}</p>
+                    {f.text[lang] && <p className={`text-[12px] leading-relaxed ${cardText}`}>{f.text[lang]}</p>}
+                    {f.url && (
+                      <a href={f.url} target="_blank" rel="noopener noreferrer" className={link}>
+                        {ui.official} <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
+                );
+                return (
+                  <>
+                    <div className="space-y-2.5">
+                      <span className={label}>{canton ? ui.statusSCanton(canton) : ""}</span>
+                      {canton && cantonal.length === 0 && <p className={`text-[11.5px] ${muted}`}>{ui.statusSNoCanton}</p>}
+                      {!canton && <p className={`text-[11.5px] ${muted}`}>{ui.statusSPickCanton}</p>}
+                      {cantonal.map(renderFact)}
+                    </div>
+                    {statusSFacts.filter(f => !f.canton).map(renderFact)}
+                  </>
+                );
+              })()}
+              {false && statusSFacts.map(f => {
                 const lang = currentLanguage === "de" ? "de" : currentLanguage === "uk" ? "uk" : "en";
                 return (
                   <div key={f.topic} className="space-y-0.5">

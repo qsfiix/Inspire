@@ -251,6 +251,8 @@ export interface ResourceItem extends RecordProvenance {
 
 export interface Profession extends RecordProvenance {
   id: string;
+  /** Stable catalogue code (e.g. "informatiker_efz"). */
+  code?: string;
   title: Partial<Record<LanguageCode, string>>;
   description?: Partial<Record<LanguageCode, string>>;
 
@@ -462,6 +464,24 @@ export interface CantonStageFact {
 }
 
 /** An education fact for one audience, e.g. people from Ukraine with protection status S (audience_facts). German and English texts. */
+/** One phrase of the controlled vocabulary behind a profession's "requirements" and "interests" lists. */
+export interface ProfessionTrait {
+  id: number;
+  kind: "requirement" | "interest";
+  text: Record<LanguageCode, string>;
+}
+
+export interface ProfessionDetails {
+  durationMinMonths?: number;
+  durationMaxMonths?: number;
+  durationNote?: string;
+  requirementIds: number[];
+  interestIds: number[];
+  /** Codes of related professions (berufsberatung.ch "similar professions"). */
+  similarCodes: string[];
+  sourceUrl?: string;
+}
+
 /** BFS Lohnstrukturerhebung: monthly gross wage (CHF, standardised full time) of an occupation group in Switzerland. */
 export interface SalaryBenchmark {
   group: string;
