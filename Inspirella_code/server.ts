@@ -249,6 +249,9 @@ async function startServer() {
             p.includes("/dist/beruf/") ||
             p.includes("/dist/institution/") ||
             p.includes("/dist/ueber-inspirella/") ||
+            p.includes("/dist/bildungssystem/") ||
+            p.includes("/dist/en/") ||
+            p.includes("/dist/uk/") ||
             p.includes("/dist/impressum/") ||
             p.includes("/dist/datenschutz/") ||
             p.endsWith("/dist/sitemap.xml")

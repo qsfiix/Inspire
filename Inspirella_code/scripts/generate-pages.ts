@@ -182,6 +182,7 @@ body.light .card{box-shadow:0 4px 25px rgba(46,16,101,.06)}
 section.card{padding:26px 28px}
 section.card+section.card{margin-top:22px}
 .grid2 section.card+section.card{margin-top:0}
+h3{font:600 18px "Space Grotesk",sans-serif;margin:0 0 8px}
 h2{font-size:22px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
 h2::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,#fff,#a78bfa);box-shadow:0 0 12px #a78bfa}
 .dl{display:grid;gap:16px;margin:0}
@@ -242,19 +243,25 @@ interface LayoutOptions {
   indexable: boolean;
   ld: object;
   main: string;
+  /** Page language (default German) and its translations, for <html lang> and hreflang. */
+  lang?: string;
+  alternates?: { lang: string; href: string }[];
+  nav?: { about: string; app: string };
 }
 
 /** The shared page shell: head/SEO tags, ambient background, nav, footer, theme + sand script. */
 function layout(o: LayoutOptions): string {
+  const nav = o.nav ?? { about: "Über Inspirella", app: "Zur App" };
+  const hreflang = (o.alternates ?? []).map(a => `<link rel="alternate" hreflang="${esc(a.lang)}" href="${esc(a.href)}">`).join("\n");
   return `<!doctype html>
-<html lang="de">
+<html lang="${esc(o.lang ?? "de")}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(o.docTitle)}</title>
 <meta name="description" content="${esc(o.description)}">
 <link rel="canonical" href="${esc(o.url)}">
-${o.indexable ? "" : '<meta name="robots" content="noindex, follow">\n'}<meta name="theme-color" content="#0d0618">
+${hreflang ? hreflang + "\n" : ""}${o.indexable ? "" : '<meta name="robots" content="noindex, follow">\n'}<meta name="theme-color" content="#0d0618">
 <link rel="icon" type="image/png" href="/logo-mark.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Inspirella">
@@ -274,12 +281,12 @@ ${o.indexable ? "" : '<meta name="robots" content="noindex, follow">\n'}<meta na
 <div class="ambient" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div><canvas id="sand"></canvas><div class="grain"></div><div class="vignette"></div></div>
 <nav>
   <a class="logo" href="/"><img src="/logo-mark.png" alt="">Inspirella</a>
-  <div class="nav-r"><a href="/ueber-inspirella/">Über Inspirella</a><a href="/">Zur App</a><button class="tgl" id="tgl" type="button" aria-label="Design wechseln">☀ / ☾</button></div>
+  <div class="nav-r"><a href="/ueber-inspirella/">${esc(nav.about)}</a><a href="/">${esc(nav.app)}</a><button class="tgl" id="tgl" type="button" aria-label="Design wechseln">☀ / ☾</button></div>
 </nav>
 <main>
 ${o.main}
 </main>
-<div class="foot">© Inspirella · <a href="/">inspirella.ch</a> · <a href="/ueber-inspirella/">Über Inspirella</a> · <a href="/impressum/">Impressum</a> · <a href="/datenschutz/">Datenschutz</a></div>
+<div class="foot">© Inspirella · <a href="/">inspirella.ch</a> · <a href="/ueber-inspirella/">Über Inspirella</a> · <a href="/bildungssystem/">Bildungssystem</a> ·<a href="/impressum/">Impressum</a> · <a href="/datenschutz/">Datenschutz</a></div>
 <script>${SCRIPT}</script>
 </body>
 </html>
@@ -566,6 +573,263 @@ function renderAbout(counts: Counts): string {
 }
 
 // --------------------------------------------------------------------------
+// The education system overview (/bildungssystem/ and its translations)
+// --------------------------------------------------------------------------
+
+type SysLang = "de" | "en" | "uk";
+
+interface SysCopy {
+  path: string;
+  htmlLang: string;
+  hreflang: string;
+  title: string;
+  h1: string;
+  lead: string;
+  description: string;
+  crumb: string;
+  cta: string;
+  ctaNote: string;
+  bands: Record<string, string>;
+  duration: string;
+  age: string;
+  diploma: string;
+  requirements: string;
+  cantonal: string;
+  good: string;
+  official: string;
+  waysTitle: string;
+  waysLead: string;
+  statusTitle: string;
+  statusLead: string;
+  factsNodes: string;
+  factsWays: string;
+  factsCantons: string;
+  factsData: string;
+  detailsNote: string;
+  disclaimer: string;
+  nav: { about: string; app: string };
+}
+
+const SYS: Record<SysLang, SysCopy> = {
+  de: {
+    path: "/bildungssystem/",
+    htmlLang: "de",
+    hreflang: "de",
+    title: "Das Schweizer Bildungssystem auf einen Blick – alle Stufen und Wege | Inspirella",
+    h1: "Das Schweizer Bildungssystem auf einen Blick",
+    lead: "Von der Primarschule bis zur Weiterbildung: alle Stufen, wer wo einsteigen kann und wie man von einem Weg in einen anderen wechselt. Kurz erklärt, mit Quellen. Das Schweizer System ist durchlässig: Kein Abschluss ist eine Sackgasse.",
+    description: "Alle Stufen des Schweizer Bildungssystems erklärt: Primarstufe, Sekundarstufe I und II, Berufslehre EFZ/EBA, Gymnasium, Berufsmatura, Fachhochschule, Universität und Wege dazwischen – mit offiziellen Quellen.",
+    crumb: "Bildungssystem",
+    cta: "Karte interaktiv öffnen →",
+    ctaNote: "In der interaktiven Swiss Path Map wählst du deinen Kanton und siehst die Wege und Bedingungen dazu.",
+    bands: { "-1": "Ankommen", "0": "Primarstufe", "1": "Sekundarstufe I", "2": "Sekundarstufe II", "3": "Tertiärstufe", "4": "Master, Doktorat, Weiterbildung" },
+    duration: "Dauer",
+    age: "Typisches Alter",
+    diploma: "Abschluss",
+    requirements: "Wer kann starten",
+    cantonal: "Unterschiede zwischen den Kantonen",
+    good: "Gut zu wissen",
+    official: "Offizielle Seite",
+    waysTitle: "Wege zwischen den Stufen",
+    waysLead: "Wie man von einer Stufe zur nächsten kommt, auch über Umwege: Zweitausbildung, Passerelle, Berufsmatura und mehr.",
+    statusTitle: "Mit Schutzstatus S (Ukraine)",
+    statusLead: "Kurz und mit offiziellen Quellen: Schule, Sprache, Lehre, Diplome, Studium.",
+    factsNodes: "Stufen",
+    factsWays: "Wege dazwischen",
+    factsCantons: "Kantone",
+    factsData: "Stand der Daten",
+    detailsNote: "",
+    disclaimer: "Inspirella ist ein Orientierungswerkzeug und keine offizielle Stelle. Regeln unterscheiden sich je nach Kanton und Schule. Verbindliche Informationen findest du bei berufsberatung.ch, beim SBFI, bei der EDK, bei swissuniversities und beim kantonalen Berufsinformationszentrum (BIZ).",
+    nav: { about: "Über Inspirella", app: "Zur App" }
+  },
+  en: {
+    path: "/en/swiss-education-system/",
+    htmlLang: "en",
+    hreflang: "en",
+    title: "The Swiss education system at a glance – every stage and route | Inspirella",
+    h1: "The Swiss education system at a glance",
+    lead: "From primary school to continuing education: every stage, who can start where, and how to move from one route to another. Short explanations with sources. The Swiss system is permeable: no qualification is a dead end.",
+    description: "Every stage of the Swiss education system explained: primary, lower and upper secondary, apprenticeships (EFZ/EBA), Gymnasium, vocational Matura, universities of applied sciences, universities and the routes between them, with official sources.",
+    crumb: "Education system",
+    cta: "Open the interactive map →",
+    ctaNote: "In the interactive Swiss Path Map you choose your canton and see the routes and conditions for it.",
+    bands: { "-1": "Arriving", "0": "Primary", "1": "Lower secondary", "2": "Upper secondary", "3": "Tertiary", "4": "Master, doctorate, continuing education" },
+    duration: "Duration",
+    age: "Typical age",
+    diploma: "Qualification",
+    requirements: "Who can start",
+    cantonal: "Differences between cantons",
+    good: "Good to know",
+    official: "Official page",
+    waysTitle: "Routes between the stages",
+    waysLead: "",
+    statusTitle: "With protection status S (Ukraine)",
+    statusLead: "Short and sourced from official pages: school, language, apprenticeship, diplomas, university.",
+    factsNodes: "Stages",
+    factsWays: "Routes between them",
+    factsCantons: "Cantons",
+    factsData: "Data as of",
+    detailsNote: "Conditions, ages and cantonal details are available in German and Ukrainian on the other language versions of this page and in the interactive Swiss Path Map.",
+    disclaimer: "Inspirella is an orientation tool, not an official authority. Rules differ by canton and school. For binding information see berufsberatung.ch, SERI, EDK, swissuniversities and your cantonal careers office (BIZ).",
+    nav: { about: "About Inspirella", app: "Open the app" }
+  },
+  uk: {
+    path: "/uk/systema-osvity-shveitsarii/",
+    htmlLang: "uk",
+    hreflang: "uk",
+    title: "Система освіти Швейцарії: усі етапи й шляхи на одній сторінці | Inspirella",
+    h1: "Система освіти Швейцарії: усі етапи й шляхи",
+    lead: "Від початкової школи до підвищення кваліфікації: усі етапи, хто звідки може почати і як перейти з одного шляху на інший. Коротко, з джерелами. Швейцарська система гнучка: жоден диплом не веде в глухий кут.",
+    description: "Система освіти Швейцарії простими словами: початкова й середня школа, професійне навчання з практикою (EFZ/EBA), гімназія, професійна матура, університети прикладних наук, університети та переходи між ними, з офіційними джерелами.",
+    crumb: "Система освіти",
+    cta: "Відкрити інтерактивну мапу →",
+    ctaNote: "В інтерактивній Swiss Path Map ти обираєш свій кантон і бачиш шляхи та умови саме для нього.",
+    bands: { "-1": "Прибуття", "0": "Початкова школа", "1": "Нижча середня школа (Sekundarstufe I)", "2": "Вища середня школа (Sekundarstufe II)", "3": "Вища освіта", "4": "Магістратура, докторантура, підвищення кваліфікації" },
+    duration: "Тривалість",
+    age: "Типовий вік",
+    diploma: "Кваліфікація",
+    requirements: "Хто може почати",
+    cantonal: "Відмінності між кантонами",
+    good: "Корисно знати",
+    official: "Офіційна сторінка",
+    waysTitle: "Переходи між етапами",
+    waysLead: "Як потрапити з одного етапу на наступний, зокрема обхідними шляхами: друга професія, пасерель, професійна матура та інше.",
+    statusTitle: "Зі статусом захисту S (Україна)",
+    statusLead: "Коротко й з офіційними джерелами: школа, мова, професійне навчання з практикою (Lehre), дипломи, університет.",
+    factsNodes: "Етапів",
+    factsWays: "Переходів між ними",
+    factsCantons: "Кантонів",
+    factsData: "Дані станом на",
+    detailsNote: "",
+    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Правила різняться залежно від кантону й школи. Обов’язкову інформацію шукай на berufsberatung.ch, у SBFI, EDK, swissuniversities і в кантональному центрі профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено за допомогою ШІ.",
+    nav: { about: "Про Inspirella", app: "Відкрити застосунок" }
+  }
+};
+
+const MONTHS_UK = ["січень", "лютий", "березень", "квітень", "травень", "червень", "липень", "серпень", "вересень", "жовтень", "листопад", "грудень"];
+const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+function renderSystem(lang: SysLang, nodes: Row[], transitions: Row[], statusFacts: Row[]): string {
+  const c = SYS[lang];
+  const url = SITE + c.path;
+  const now = new Date();
+  const dateText = lang === "de" ? dataDate(now) : lang === "en" ? `${MONTHS_EN[now.getUTCMonth()]} ${now.getUTCFullYear()}` : `${MONTHS_UK[now.getUTCMonth()]} ${now.getUTCFullYear()}`;
+  const field = (row: Row, base: string): string | undefined => {
+    if (lang === "uk") return txt(row[`${base}_uk`]);
+    if (lang === "en") return txt(row[`${base}_en`]);
+    return txt(row[`${base}_de`]);
+  };
+  // Stage texts have English; the detail fields exist in German and Ukrainian only.
+  const label = (row: Row) => (lang === "en" ? txt(row.label_en) : field(row, "label")) ?? txt(row.label_de) ?? "";
+  const summary = (row: Row) => (lang === "en" ? txt(row.summary_en) : field(row, "summary")) ?? txt(row.summary_en) ?? txt(row.summary_de) ?? "";
+  const detail = (row: Row, base: string) => (lang === "en" ? undefined : field(row, base));
+  const goodList = (row: Row): string[] => {
+    const raw = lang === "uk" ? row.good_to_know_uk : lang === "de" ? row.good_to_know_de : undefined;
+    return Array.isArray(raw) ? raw.map(txt).filter((x): x is string => !!x) : [];
+  };
+
+  const sorted = [...nodes].sort((a, b) => Number(a.band) - Number(b.band) || Number(a.sort_order) - Number(b.sort_order));
+  const byBand = new Map<string, Row[]>();
+  for (const n of sorted) (byBand.get(String(n.band)) ?? byBand.set(String(n.band), []).get(String(n.band))!).push(n);
+
+  const bandsHtml = [...byBand.entries()]
+    .map(([band, list]) => {
+      const cards = list
+        .map(n => {
+          const rows: [string, string][] = [];
+          const dur = detail(n, "duration");
+          const age = detail(n, "typical_age");
+          const dip = detail(n, "diploma");
+          const req = detail(n, "requirements");
+          const cant = detail(n, "cantonal_note");
+          if (dur) rows.push([c.duration, dur]);
+          if (age) rows.push([c.age, age]);
+          if (dip) rows.push([c.diploma, dip]);
+          if (req) rows.push([c.requirements, req]);
+          if (cant) rows.push([c.cantonal, cant]);
+          const good = goodList(n);
+          const href = safeUrl(n.official_url) ?? safeUrl(n.evidence_url);
+          return `<section class="card prose" id="${esc(n.code)}"><h3>${esc(label(n))}</h3><p>${esc(summary(n))}</p>${
+            rows.length ? `<dl class="dl">${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""
+          }${good.length ? `<span class="eyebrow" style="margin-top:14px">${esc(c.good)}</span><ul>${good.map(g => `<li>${esc(g)}</li>`).join("")}</ul>` : ""}${
+            href ? `<p class="more"><a href="${esc(href)}" rel="noopener">${esc(c.official)} →</a></p>` : ""
+          }</section>`;
+        })
+        .join("\n  ");
+      return `<h2 style="margin-top:34px">${esc(c.bands[band] ?? band)}</h2>\n  ${cards}`;
+    })
+    .join("\n  ");
+
+  const waysHtml =
+    lang === "en" || transitions.length === 0
+      ? ""
+      : `<h2 style="margin-top:40px">${esc(c.waysTitle)}</h2>
+  <section class="card prose"><p>${esc(c.waysLead)}</p><ul>${transitions
+          .map(t => {
+            const lab = field(t, "label") ?? txt(t.label_de);
+            const cond = detail(t, "conditions") ?? detail(t, "notes");
+            return lab ? `<li><strong>${esc(lab)}</strong>${cond ? ": " + esc(truncate(cond, 220)) : ""}</li>` : "";
+          })
+          .join("")}</ul></section>`;
+
+  const statusRows = statusFacts
+    .map(f => {
+      const head = lang === "uk" ? txt(f.headline_uk) ?? txt(f.headline_en) : lang === "en" ? txt(f.headline_en) ?? txt(f.headline_de) : txt(f.headline_de);
+      const body = lang === "uk" ? txt(f.text_uk) ?? txt(f.text_en) : lang === "en" ? txt(f.text_en) ?? txt(f.text_de) : txt(f.text_de);
+      const href = safeUrl(f.official_url) ?? safeUrl(f.evidence_url);
+      return head && body ? `<li><strong>${esc(head)}</strong> ${esc(body)}${href ? ` <a href="${esc(href)}" rel="noopener">→</a>` : ""}</li>` : "";
+    })
+    .join("");
+  const statusHtml = statusRows
+    ? `<h2 style="margin-top:40px">${esc(c.statusTitle)}</h2>\n  <section class="card prose"><p>${esc(c.statusLead)}</p><ul>${statusRows}</ul></section>`
+    : "";
+
+  const alternates = (Object.keys(SYS) as SysLang[]).map(l => ({ lang: SYS[l].hreflang, href: SITE + SYS[l].path }));
+  alternates.push({ lang: "x-default", href: SITE + SYS.de.path });
+
+  const main = `  <div class="crumbs"><a href="/">Inspirella</a> › ${esc(c.crumb)}</div>
+  <header class="hero">
+    <div class="badges"><span class="badge">${esc(c.crumb)}</span><span class="badge warm">Schweiz · Suisse · Svizzera</span></div>
+    <h1>${esc(c.h1)}</h1>
+    <p class="lead">${esc(c.lead)}</p>
+    <div class="cta-row"><a class="btn btn-primary" href="/#/pathmap">${esc(c.cta)}</a></div>
+    <p class="more" style="margin:0">${esc(c.ctaNote)}</p>
+  </header>
+  ${factsHtml([
+    [c.factsNodes, String(nodes.length)],
+    [c.factsWays, String(transitions.length)],
+    [c.factsCantons, "26"],
+    [c.factsData, dateText]
+  ])}
+  ${c.detailsNote ? `<div class="note">${esc(c.detailsNote)}</div>` : ""}
+  ${bandsHtml}
+  ${waysHtml}
+  ${statusHtml}
+  <div class="source">${esc(c.disclaimer)}</div>`;
+
+  return layout({
+    docTitle: c.title,
+    ogTitle: c.h1,
+    description: c.description,
+    url,
+    indexable: nodes.length > 0,
+    lang: c.htmlLang,
+    alternates,
+    nav: c.nav,
+    ld: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: c.h1,
+      url,
+      inLanguage: c.htmlLang,
+      description: c.description,
+      isPartOf: { "@type": "WebSite", name: "Inspirella", url: SITE + "/" }
+    },
+    main
+  });
+}
+
+// --------------------------------------------------------------------------
 // Home (written into the SPA shell) and 404
 // --------------------------------------------------------------------------
 
@@ -593,7 +857,7 @@ function renderHomeBlock(counts: Counts, featured: HomeFeatured): string {
 <p style="font-size:19px;margin:0 0 12px">Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take.</p>
 <p lang="de" style="color:#b7aed6;margin:0 0 24px">Inspirella hilft dir, dich im Schweizer Bildungssystem zurechtzufinden: Berufe, die zu dir passen, Schulen, wo du sie lernst, und der nächste kleine Schritt. Kostenlos, auf Deutsch, Französisch, Italienisch und Englisch.</p>
 <p style="margin:0 0 24px">${counts.professions} professions and programmes, ${counts.institutions} schools and institutions, ${counts.resources} official resources. Data as of ${esc(dataDate())}. Inspirella is an orientation tool, not an official authority: for binding information see <a href="https://www.berufsberatung.ch/" style="color:#c4b5fd">berufsberatung.ch</a> and your cantonal careers office (BIZ).</p>
-<p style="margin:0 0 28px"><a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
+<p style="margin:0 0 28px"><a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/en/swiss-education-system/" style="color:#c4b5fd">Swiss education system</a> · <a href="/bildungssystem/" lang="de" style="color:#c4b5fd">Bildungssystem</a> · <a href="/uk/systema-osvity-shveitsarii/" lang="uk" style="color:#c4b5fd">Система освіти Швейцарії</a> ·<a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Professions</h2>
 <ul style="margin:0 0 24px;padding-left:20px">${list(featured.professions)}</ul>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Schools and institutions</h2>
@@ -770,6 +1034,24 @@ async function main() {
 
   const counts: Counts = { professions: professions.length, institutions: institutions.length, resources: resourceCount ?? 0 };
   await writePage(["ueber-inspirella"], renderAbout(counts));
+
+  // Education system overview in German, English and Ukrainian (a failure here only skips these pages).
+  try {
+    const nodes = await fetchAll((from, to) => supabase.from("education_nodes").select("*").eq("is_active", true).order("id", { ascending: true }).range(from, to));
+    const transitions = await fetchAll((from, to) => supabase.from("education_transitions").select("*").eq("is_active", true).order("code", { ascending: true }).range(from, to));
+    const statusFacts = await fetchAll((from, to) =>
+      supabase.from("audience_facts").select("*").eq("is_active", true).eq("audience", "ukraine_s").is("canton_code", null).order("sort_order", { ascending: true }).range(from, to)
+    );
+    if (nodes.length) {
+      for (const lang of Object.keys(SYS) as SysLang[]) {
+        await writePage(SYS[lang].path.split("/").filter(Boolean), renderSystem(lang, nodes, transitions, statusFacts));
+        urls.push({ loc: SITE + SYS[lang].path });
+      }
+      console.log(`[pages] education system pages: ${nodes.length} stages, ${transitions.length} routes, ${statusFacts.length} status S facts.`);
+    }
+  } catch (err: any) {
+    console.warn("[pages] Education system pages skipped:", err?.message || err);
+  }
   await fs.writeFile(path.join(DIST, "404.html"), render404(), "utf8");
   await writePage(["impressum"], renderLegal(IMPRESSUM.de, "impressum"));
   await writePage(["datenschutz"], renderLegal(PRIVACY.de, "datenschutz"));

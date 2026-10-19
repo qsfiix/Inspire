@@ -15,18 +15,19 @@
 
 - About 1,650 professions and education programmes (Lehre EFZ/EBA, Fachausweis, Diplom, HF, FH, university), about 530 schools, universities and training centres, and about 500 curated official resources.
 - Pathway data beyond single records: transitions between education levels (e.g. second EFZ, Gymnasium later, Passerelle, FMS to HF), bridge-year and pre-apprenticeship programmes across the cantons, and admission rules for Gymnasium, FMS and Berufsmaturität per canton, each with a source link.
-- Everything is paraphrased from official public sources (mainly berufsberatung.ch, cantonal offices and the schools themselves). Records are marked "Verified" or "Provisional" in the app. Salary data is not yet included.
+- Everything is paraphrased from official public sources (mainly berufsberatung.ch, cantonal offices and the schools themselves). Records are marked "Verified" or "Provisional" in the app. Salary information shows the apprentice pay recommended by the professional associations (per apprenticeship year, via berufsberatung.ch) and, for each profession's occupation group, the official median and middle range from the Federal Statistical Office (wage structure survey 2024); group figures are labelled as such.
 - The service is free. The recommendations are rule-based (no generative AI decides the path); the optional AI explanation is switched off at the moment.
 
 ## Languages
 
-German (de), French (fr), Italian (it) and English (en). Swiss content is primarily German/French/Italian; English texts are translations.
+German (de), French (fr), Italian (it), English (en) and Ukrainian (uk). Swiss content is primarily German/French/Italian; English and Ukrainian texts are translations (the Ukrainian layer for the education-system map, canton facts, admission conditions and bridge programmes was written with AI assistance and is not yet reviewed by a native speaker).
 
 ## How the content is delivered (important for AI readers)
 
 The app itself is a single-page application: its interactive parts (map, tracker, dashboard, comparison) are not separate URLs and load data after the page opens. For this reason the public content is also available as pre-rendered, plain-HTML pages with the full text (no JavaScript needed):
 
 - `https://www.inspirella.ch/ueber-inspirella/` - what Inspirella is: mission, features, values, current stage (start here for an overview of the platform).
+- `https://www.inspirella.ch/bildungssystem/` (German), `https://www.inspirella.ch/en/swiss-education-system/` (English), `https://www.inspirella.ch/uk/systema-osvity-shveitsarii/` (Ukrainian) - the Swiss education system at a glance: every stage (primary to continuing education), who can start where, routes between stages, official links; the German and Ukrainian versions include a section for people from Ukraine with protection status S. Interactive version: the Swiss Path Map in the app (`/#/pathmap`).
 - `https://www.inspirella.ch/beruf/<slug>/` - one page per profession or education programme (German): description, daily work, workplaces, tools, career progression, schools that offer it, link to official guidance.
 - `https://www.inspirella.ch/institution/<slug>/` - one page per school, university or training centre (German): profile, admission, language, location, programmes offered, link to the official website.
 - The complete list of these pages is in https://www.inspirella.ch/sitemap.xml.
@@ -36,6 +37,7 @@ Pages link to each other (professions to schools and back). Resources have no se
 ## Key pages
 
 - [About Inspirella](https://www.inspirella.ch/ueber-inspirella/): overview of the platform.
+- [Swiss education system at a glance](https://www.inspirella.ch/en/swiss-education-system/): all stages and routes ([Deutsch](https://www.inspirella.ch/bildungssystem/), [Українська](https://www.inspirella.ch/uk/systema-osvity-shveitsarii/)).
 - [Home](https://www.inspirella.ch/): entry point to the interactive app.
 - [Sitemap](https://www.inspirella.ch/sitemap.xml): list of all profession and institution pages.
 
