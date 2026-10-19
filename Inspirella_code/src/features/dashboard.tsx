@@ -2,7 +2,6 @@ import { stageLabelKey } from "../lib/stageLabel";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { BookOpen, Milestone, Sparkles, User, Pencil, Check, X, CalendarClock, AlertTriangle, Globe, Cloud, HardDrive, MapPin, Map as MapIcon, FileText, CheckSquare, ArrowUpRight } from "lucide-react";
-import { SWISS_EDUCATION_LEVELS } from "../data";
 import AdvisorReport from "../components/AdvisorReport";
 import MyPathLadder from "../components/MyPathLadder";
 import PersonalRoute from "../components/PersonalRoute";
@@ -11,6 +10,7 @@ import Reveal from "../components/Reveal";
 import { daysUntilDue } from "../components/TrackerSystem";
 import TrackerNextUp from "../components/TrackerNextUp";
 import PathMapLink from "../components/PathMapLink";
+import { DashboardFold, DashboardMapCard } from "../components/DashboardFold";
 import { EducationLevel, LanguageCode, TrackerGoal } from "../types";
 
 export function DashboardView({
@@ -25,8 +25,6 @@ export function DashboardView({
   onProfileUpdate,
   onOpenPathMap
 }: any) {
-  const [selectedSystemLevel, setSelectedSystemLevel] = useState<EducationLevel | null>(SWISS_EDUCATION_LEVELS[2]);
-
   // Passive tracker reminders: computed client-side from due dates, no push/
   // email infrastructure needed. Only counts goals that aren't already done.
   const overdueCount = (trackers as TrackerGoal[]).filter(g => {
@@ -137,6 +135,7 @@ export function DashboardView({
         </div>
       </section>
 
+      <DashboardFold language={currentLanguage} isDark={isDark}>
       <Reveal as="section">
         <PersonalRoute
           userProfile={userProfile}
@@ -161,100 +160,9 @@ export function DashboardView({
         />
       </Reveal>
 
-      <Reveal as="section" className="space-y-4">
-        <div className={`flex items-center justify-between border-b pb-2 ${isDark ? "border-white/10" : "border-purple-300"}`}>
-          <div className="flex items-center gap-1.5">
-            <BookOpen className={`h-4.5 w-4.5 ${isDark ? "text-violet-300" : "text-violet-950"}`} />
-            <h3 className={`text-sm font-semibold tracking-tight ${isDark ? "text-white" : "text-black font-black"}`}>{t.personalizedGoalTitle}</h3>
-          </div>
-          <span className={`text-xs font-mono uppercase ${isDark ? "text-zinc-400" : "text-black font-black"}`}>{t.dbPickStage}</span>
-        </div>
+      </DashboardFold>
 
-        <div className="grid gap-2 grid-cols-2 md:grid-cols-4">
-          {SWISS_EDUCATION_LEVELS.map((level) => (
-            <button
-              key={level.id}
-              onClick={() => setSelectedSystemLevel(level)}
-              className={`p-3.5 text-left rounded-xl border text-xs font-semibold transition cursor-pointer ${
-                selectedSystemLevel?.id === level.id
-                  ? isDark ? "border-violet-500 bg-violet-950/20 text-white" : "border-2 border-violet-950 bg-violet-100 text-violet-950 font-black shadow-sm"
-                  : isDark ? "border-white/10 bg-white/5 text-zinc-300 hover:border-white/20 hover:text-white" : "border-2 border-purple-300 bg-purple-50/50 text-black font-bold h-full hover:bg-violet-100"
-              }`}
-            >
-              <span className="block truncate">{level.title[currentLanguage]}</span>
-            </button>
-          ))}
-        </div>
-
-        <AnimatePresence mode="wait">
-          {selectedSystemLevel && (
-            <motion.div
-              key={selectedSystemLevel.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="card-premium p-6 space-y-6 text-left"
-            >
-              <div className="space-y-2">
-                <h4 className={`text-base font-extrabold ${isDark ? "text-white" : "text-black font-black"}`}>{selectedSystemLevel.title[currentLanguage]}</h4>
-                <span className={`inline-block text-xs font-mono tracking-wider px-2.5 py-0.5 rounded border ${
-                  isDark ? "text-violet-300 bg-white/10 border-white/10" : "text-violet-950 bg-violet-100 border-violet-950/30 font-black shadow-sm"
-                }`}>
-                  {selectedSystemLevel.sub[currentLanguage]}
-                </span>
-                <p className={`text-xs leading-relaxed font-sans ${isDark ? "text-zinc-200" : "text-black font-semibold"}`}>{selectedSystemLevel.description[currentLanguage]}</p>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {selectedSystemLevel.keyFacts[currentLanguage].map((fact, index) => (
-                  <div key={index} className="card-premium-accent p-3.5 text-left">
-                    <span className={`block font-mono text-[11px] uppercase mb-1 ${isDark ? "text-zinc-400" : "text-black font-black"}`}>{t.dbKeyFact} {index + 1}</span>
-                    <p className={`text-[11px] leading-relaxed font-sans ${isDark ? "text-zinc-200" : "text-black font-bold"}`}>{fact}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-4">
-                <span className={`block text-[11px] font-mono uppercase tracking-widest flex items-center gap-1 ${
-                  isDark ? "text-zinc-300" : "text-black font-black"
-                }`}>
-                  <Milestone className={`h-3.5 w-3.5 ${isDark ? "text-violet-300" : "text-violet-950"}`} />
-                  {t.dbProgression}
-                </span>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  {selectedSystemLevel.pathSteps.map((step) => (
-                    <div key={step.id} className="card-premium-accent p-4 text-left">
-                      <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className={`font-black text-xs ${isDark ? "text-violet-300" : "text-black bg-purple-100 px-1.5 py-0.5 rounded border border-purple-900/10 inline-block"}`}>{step.title[currentLanguage]}</span>
-                        {step.timeframe && (
-                          <span className={`rounded px-2 py-0.5 font-mono text-[11px] border ${
-                            isDark ? "bg-white/10 text-violet-300 border-white/5" : "bg-violet-950 text-white border-transparent shadow-sm font-black"
-                          }`}>
-                            {step.timeframe[currentLanguage]}
-                          </span>
-                        )}
-                      </div>
-                      <p className={`text-xs mt-1 leading-relaxed ${isDark ? "text-zinc-300" : "text-black font-semibold"}`}>{step.description[currentLanguage]}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className={`p-4 rounded-xl border text-xs leading-relaxed backdrop-blur-sm ${
-                isDark ? "border-white/10 bg-white/[0.02] text-zinc-200" : "border-2 border-purple-300 bg-emerald-500/15 text-black"
-              }`}>
-                <span className={`block text-[11px] font-mono uppercase tracking-widest font-semibold mb-1 ${
-                  isDark ? "text-emerald-400" : "text-emerald-950 font-black animate-pulse"
-                }`}>
-                  {t.dbPermeability}
-                </span>
-                <p className={`text-[11px] ${isDark ? "text-zinc-300" : "text-black font-bold"}`}>{selectedSystemLevel.permeabilityText[currentLanguage]}</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Reveal>
+      <DashboardMapCard language={currentLanguage} isDark={isDark} onOpen={() => onOpenPathMap?.()} />
 
       <section className="space-y-4">
         <div className={`flex items-center gap-1.5 border-b pb-2 ${isDark ? "border-white/10" : "border-purple-300"}`}>
