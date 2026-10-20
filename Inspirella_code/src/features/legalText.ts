@@ -271,7 +271,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
       },
       {
         heading: "Cookies & local storage",
-        paragraphs: ["We use your browser's local storage to remember your theme (dark/light) and, in guest mode, your profile and trackers. We do not use advertising or tracking cookies, and we do not run visitor analytics."]
+        paragraphs: ["We use your browser's local storage to remember your theme (dark/light) and, in guest mode, your profile and trackers. We do not use advertising or tracking cookies. To see how many people visit and which pages are used, we run cookie-free visit statistics (Umami Cloud): they count page views and the referring site, store no personal profile, set no cookie and do not follow you across websites."]
       }
     ],
     closing: "This is an honest first version, written in plain language rather than formal legal text. As Inspirella grows we intend to have it reviewed by a lawyer familiar with Swiss (revDSG / nFADP) and EU (GDPR) data protection law.",
@@ -319,7 +319,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
       },
       {
         heading: "Cookies & lokaler Speicher",
-        paragraphs: ["Wir nutzen den lokalen Speicher deines Browsers, um dein Farbschema (hell/dunkel) und im Gastmodus dein Profil und deine Tracker zu merken. Wir setzen keine Werbe- oder Tracking-Cookies und betreiben keine Besucheranalyse."]
+        paragraphs: ["Wir nutzen den lokalen Speicher deines Browsers, um dein Farbschema (hell/dunkel) und im Gastmodus dein Profil und deine Tracker zu merken. Wir setzen keine Werbe- oder Tracking-Cookies. Um zu sehen, wie viele Menschen die Seite besuchen und welche Seiten genutzt werden, nutzen wir eine cookiefreie Besucherstatistik (Umami Cloud): Sie zählt Seitenaufrufe und die verweisende Seite, speichert kein persönliches Profil, setzt kein Cookie und verfolgt dich nicht über andere Websites."]
       }
     ],
     closing: "Das ist eine ehrliche erste Fassung in einfacher Sprache statt in juristischem Fachtext. Wenn Inspirella wächst, möchten wir sie von einer auf Schweizer (revDSG) und EU-Datenschutzrecht (DSGVO) spezialisierten Fachperson prüfen lassen.",
@@ -367,7 +367,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
       },
       {
         heading: "Cookies et stockage local",
-        paragraphs: ["Nous utilisons le stockage local de ton navigateur pour retenir ton thème (clair/sombre) et, en mode invité, ton profil et tes suivis. Nous n'utilisons ni cookies publicitaires ni cookies de suivi, et nous ne faisons pas d'analyse des visiteurs."]
+        paragraphs: ["Nous utilisons le stockage local de ton navigateur pour retenir ton thème (clair/sombre) et, en mode invité, ton profil et tes suivis. Nous n'utilisons ni cookies publicitaires ni cookies de suivi. Pour savoir combien de personnes visitent le site et quelles pages sont utilisées, nous utilisons des statistiques de visite sans cookie (Umami Cloud) : elles comptent les pages vues et le site d'origine, ne créent aucun profil personnel, ne déposent aucun cookie et ne te suivent pas sur d'autres sites."]
       }
     ],
     closing: "Ceci est une première version honnête, rédigée en langage simple plutôt qu'en texte juridique formel. Quand Inspirella grandira, nous voulons la faire relire par une personne spécialisée en droit suisse (nLPD) et européen (RGPD) de la protection des données.",
@@ -415,7 +415,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
       },
       {
         heading: "Cookie e memoria locale",
-        paragraphs: ["Usiamo la memoria locale del browser per ricordare il tema (chiaro/scuro) e, in modalità ospite, profilo e tracker. Non usiamo cookie pubblicitari o di tracciamento e non facciamo analisi dei visitatori."]
+        paragraphs: ["Usiamo la memoria locale del browser per ricordare il tema (chiaro/scuro) e, in modalità ospite, profilo e tracker. Non usiamo cookie pubblicitari o di tracciamento. Per sapere quante persone visitano il sito e quali pagine vengono usate, utilizziamo statistiche di visita senza cookie (Umami Cloud): contano le visualizzazioni di pagina e il sito di provenienza, non creano alcun profilo personale, non impostano cookie e non ti seguono su altri siti."]
       }
     ],
     closing: "Questa è una prima versione onesta, scritta in linguaggio semplice e non in testo giuridico formale. Quando Inspirella crescerà, vogliamo farla rivedere da una persona esperta di diritto svizzero (nLPD) ed europeo (GDPR) sulla protezione dei dati.",
