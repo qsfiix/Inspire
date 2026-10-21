@@ -32,7 +32,7 @@ import { DataRepository } from "./data/Repository";
 import { EXAMPLE_TRACKERS } from "./data/seedData";
 import { localizedMatches } from "./lib/localized";
 
-import { LEGAL_LINKS } from "./features/legalText";
+import FooterLinks from "./components/FooterLinks";
 import { HomeView, AboutView, ContactView, PrivacyView, ImpressumView } from "./features/marketing";
 import { LoginView, OnboardingView } from "./features/auth";
 import { DashboardView, ProfileView } from "./features/dashboard";
@@ -43,33 +43,32 @@ import type { PhoenixSceneStatus } from "./components/phoenix/PhoenixScene";
 const PhoenixScene = lazy(() => import("./components/phoenix/PhoenixScene"));
 const SwissPathMap = lazy(() => import("./components/SwissPathMap"));
 
-const PUBLIC_TABS = ["home", "about", "contact", "privacy", "impressum", "pathmap", "login"];
-const PROTECTED_TABS = ["dashboard", "map", "resources", "tracker", "profile"];
-const ALL_TABS = [...PUBLIC_TABS, ...PROTECTED_TABS, "onboarding"];
-
-function tabFromHash(): string | null {
-  if (typeof window === "undefined") return null;
-  const m = window.location.hash.match(/^#\/([a-z]+)/);
-  return m && ALL_TABS.includes(m[1]) ? m[1] : null;
-}
+import { PUBLIC_TABS, PROTECTED_TABS, STATIC_TAB_PATHS, pathForTab, tabFromLocation } from "./lib/routes";
 
 export default function App() {
   // A first-time visitor whose browser is set to Ukrainian gets the Ukrainian interface; everyone else starts in English.
   const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>(() =>
     typeof navigator !== "undefined" && (navigator.languages ?? [navigator.language]).some(l => String(l).toLowerCase().startsWith("uk")) ? "uk" : "en"
   );
-  // The page lives in the URL hash (#/pathmap) so the browser's back/forward buttons walk through the pages
-  // instead of leaving the site; a pure-hash URL works on any host without server rewrites.
+  // Every page has its own address (/pathmap/, /ressourcen/ ...) so search engines can follow links to it and the
+  // browser's back/forward buttons walk through the pages instead of leaving the site.
   const [activeTab, setActiveTab] = useState<string>(() => {
-    const fromHash = tabFromHash();
-    return fromHash && PUBLIC_TABS.includes(fromHash) ? fromHash : "home";
+    const fromLocation = tabFromLocation();
+    return fromLocation && PUBLIC_TABS.includes(fromLocation) ? fromLocation : "home";
   });
   const isLoggedInRef = useRef(false);
   const replaceNextHistory = useRef(true);
-  const initialHashTab = useRef(tabFromHash());
+  // false until the stored profile has been read: a private address (/tracker/) must survive that short wait.
+  const bootstrapped = useRef(false);
+  const initialHashTab = useRef(tabFromLocation());
   // Links between the Swiss Path Map and the rest of the platform (cleared when the target page is left).
   const [pathMapFocus, setPathMapFocus] = useState<string | null>(null);
-  const [careersFocus, setCareersFocus] = useState<{ section: "professions" | "institutions"; node: string } | null>(null);
+  // "/ressourcen/?beruf=<code>" (the link on every profession page) opens that profession.
+  const [careersFocus, setCareersFocus] = useState<{ section: "professions" | "institutions"; node: string; profession?: string } | null>(() => {
+    if (typeof window === "undefined") return null;
+    const code = new URLSearchParams(window.location.search).get("beruf");
+    return code ? { section: "professions", node: "", profession: code } : null;
+  });
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [trackers, setTrackers] = useState<TrackerGoal[]>([]);
@@ -200,13 +199,21 @@ export default function App() {
         setCurrentLanguage(cachedProfile.language);
         setIsLoggedIn(true);
         isLoggedInRef.current = true;
-        // A refresh on #/tracker stays on the tracker; otherwise land on the dashboard (or onboarding).
+        // A refresh on /tracker/ stays on the tracker; otherwise land on the dashboard (or onboarding).
         const wanted = initialHashTab.current;
-        replaceNextHistory.current = true;
-        if (cachedProfile.onboardingComplete) {
-          setActiveTab(wanted && wanted !== "home" && wanted !== "login" && wanted !== "onboarding" ? wanted : "dashboard");
-        } else {
-          setActiveTab("onboarding");
+        const next = cachedProfile.onboardingComplete
+          ? (wanted && wanted !== "home" && wanted !== "login" && wanted !== "onboarding" ? wanted : "dashboard")
+          : "onboarding";
+        // only rewrite the current history entry when the page really changes
+        if ((tabFromLocation() ?? "home") !== next) replaceNextHistory.current = true;
+        setActiveTab(next);
+      }
+      bootstrapped.current = true;
+      if (!cachedProfile) {
+        const here = tabFromLocation();
+        if (here && PROTECTED_TABS.includes(here)) {
+          replaceNextHistory.current = true;
+          setActiveTab("login");
         }
       }
 
@@ -358,13 +365,15 @@ export default function App() {
   // Page -> URL: every page change adds a history entry (the first one, and the automatic jump to the
   // dashboard for a returning user, replace the current entry so back never lands on an empty page).
   useEffect(() => {
-    if ((tabFromHash() ?? "home") === activeTab) {
+    const here = tabFromLocation();
+    if (!bootstrapped.current && here && PROTECTED_TABS.includes(here) && activeTab === "home") return;
+    if ((here ?? "home") === activeTab) {
       replaceNextHistory.current = false;
+      // an old "#/pathmap" address is tidied up into the real path
+      if (window.location.hash.startsWith("#/")) window.history.replaceState({ tab: activeTab }, "", pathForTab(activeTab));
       return;
     }
-    const url = activeTab === "home"
-      ? window.location.pathname + window.location.search
-      : `${window.location.pathname}${window.location.search}#/${activeTab}`;
+    const url = pathForTab(activeTab);
     if (replaceNextHistory.current) window.history.replaceState({ tab: activeTab }, "", url);
     else window.history.pushState({ tab: activeTab }, "", url);
     replaceNextHistory.current = false;
@@ -373,7 +382,7 @@ export default function App() {
   // URL -> page: the browser's back/forward buttons.
   useEffect(() => {
     const onPopState = () => {
-      const tab = tabFromHash() ?? "home";
+      const tab = tabFromLocation() ?? "home";
       if (!isLoggedInRef.current && PROTECTED_TABS.includes(tab)) {
         replaceNextHistory.current = true;
         setActiveTab("login");
@@ -400,7 +409,10 @@ export default function App() {
   };
 
   const handleTabTransition = (tabId: string) => {
-    if (!isLoggedIn && ["dashboard", "map", "resources", "tracker", "profile"].includes(tabId)) {
+    if (tabId in STATIC_TAB_PATHS) {
+      // about / legal pages are static HTML pages
+      window.location.assign(STATIC_TAB_PATHS[tabId]);
+    } else if (!isLoggedIn && PROTECTED_TABS.includes(tabId)) {
       setActiveTab("login");
     } else {
       setActiveTab(tabId);
@@ -693,23 +705,7 @@ export default function App() {
           <span className="font-mono text-xs tracking-widest text-violet-500 uppercase font-black">
             © 2026 Inspirella
           </span>
-          <div className="flex items-center gap-4">
-            <span className={isDark ? "text-zinc-400" : "text-black font-extrabold"}>
-              Switzerland Education Explorer
-            </span>
-            <button
-              onClick={() => handleTabTransition("impressum")}
-              className={`underline-offset-2 hover:underline cursor-pointer ${isDark ? "text-zinc-400 hover:text-zinc-300" : "text-black font-extrabold"}`}
-            >
-              {LEGAL_LINKS.impressum[currentLanguage]}
-            </button>
-            <button
-              onClick={() => handleTabTransition("privacy")}
-              className={`underline-offset-2 hover:underline cursor-pointer ${isDark ? "text-zinc-400 hover:text-zinc-300" : "text-black font-extrabold"}`}
-            >
-              {LEGAL_LINKS.privacy[currentLanguage]}
-            </button>
-          </div>
+          <FooterLinks language={currentLanguage} isDark={isDark} />
         </div>
       </footer>
 

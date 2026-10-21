@@ -3,6 +3,8 @@ import path from "path";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
+import fs from "fs";
+import { TAB_PATHS, PROTECTED_TABS } from "./src/lib/routes";
 
 dotenv.config();
 
@@ -13,6 +15,18 @@ const PORT = Number(process.env.PORT) || 3000;
 // X-Forwarded-For - without this, req.ip is the proxy's own address and
 // every visitor would share one rate-limit bucket.
 app.set("trust proxy", 1);
+
+app.disable("x-powered-by");
+
+// Basic security headers on every response.
+app.use((req, res, next) => {
+  res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  next();
+});
 
 app.use(express.json({ limit: "50kb" }));
 
@@ -238,6 +252,20 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
+
+    // Old page addresses (written by the page generator) answer with a permanent redirect.
+    let movedPages: Record<string, string> = {};
+    try {
+      movedPages = JSON.parse(fs.readFileSync(path.join(distPath, "redirects.json"), "utf8"));
+    } catch {
+      /* no redirects yet */
+    }
+    app.use((req, res, next) => {
+      const target = movedPages[req.path.endsWith("/") ? req.path : req.path + "/"];
+      if (target) return res.redirect(301, target);
+      if (req.path === "/index.html") return res.redirect(301, "/");
+      next();
+    });
     app.use(
       express.static(distPath, {
         setHeaders: (res, filePath) => {
@@ -245,6 +273,8 @@ async function startServer() {
           // (Cloudflare) keep them, so bot traffic rarely reaches this server.
           const p = filePath.replace(/\\/g, "/");
           if (p.includes("/dist/fonts/")) res.setHeader("Cache-Control", "public, max-age=2592000");
+          // Vite file names contain a content hash: safe to cache for a year.
+          if (p.includes("/dist/assets/")) res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
           if (
             p.includes("/dist/beruf/") ||
             p.includes("/dist/institution/") ||
@@ -269,6 +299,16 @@ async function startServer() {
     // The app is a single page at "/": it has no other addresses of its own. Anything
     // else that is not a file or a pre-rendered page is a real 404 (not the app shell
     // with status 200, which search engines index as a "soft 404").
+    // The app's own pages have real addresses (/pathmap/, /ressourcen/ ...): they all serve the app shell.
+    const appPaths = new Map<string, string>(Object.entries(TAB_PATHS).map(([tab, p]) => [p, tab]));
+    app.get("*", (req, res, next) => {
+      const normalised = req.path.endsWith("/") ? req.path : req.path + "/";
+      const tab = appPaths.get(normalised);
+      if (!tab || tab === "home") return next();
+      // Private areas must not be indexed.
+      if (PROTECTED_TABS.includes(tab) || tab === "login" || tab === "onboarding") res.setHeader("X-Robots-Tag", "noindex");
+      res.sendFile(path.join(distPath, "index.html"));
+    });
     app.get("*", (req, res) => {
       if (req.path === "/" || req.path === "/index.html") {
         res.sendFile(path.join(distPath, "index.html"));

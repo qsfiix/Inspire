@@ -20,16 +20,19 @@
 
 ## Languages
 
-German (de), French (fr), Italian (it), English (en) and Ukrainian (uk). Swiss content is primarily German/French/Italian; English and Ukrainian texts are translations (the Ukrainian layer for the education-system map, canton facts, admission conditions and bridge programmes was written with AI assistance and is not yet reviewed by a native speaker).
+The app interface is available in German, French, Italian, English and Ukrainian. The pre-rendered pages for professions and schools are in German only; the education-system overview exists in German, English and Ukrainian. French and Italian page versions are planned. Translated texts are machine- or AI-assisted translations (the Ukrainian layer for the education-system map, canton facts, admission conditions and bridge programmes was written with AI assistance and is not yet reviewed by a native speaker).
 
 ## How the content is delivered (important for AI readers)
 
 The app itself is a single-page application: its interactive parts (map, tracker, dashboard, comparison) are not separate URLs and load data after the page opens. For this reason the public content is also available as pre-rendered, plain-HTML pages with the full text (no JavaScript needed):
 
 - `https://www.inspirella.ch/ueber-inspirella/` - what Inspirella is: mission, features, values, current stage (start here for an overview of the platform).
-- `https://www.inspirella.ch/bildungssystem/` (German), `https://www.inspirella.ch/en/swiss-education-system/` (English), `https://www.inspirella.ch/uk/systema-osvity-shveitsarii/` (Ukrainian) - the Swiss education system at a glance: every stage (primary to continuing education), who can start where, routes between stages, official links; the German and Ukrainian versions include a section for people from Ukraine with protection status S. Interactive version: the Swiss Path Map in the app (`/#/pathmap`).
-- `https://www.inspirella.ch/beruf/<slug>/` - one page per profession or education programme (German): description, daily work, workplaces, tools, career progression, schools that offer it, link to official guidance.
+- `https://www.inspirella.ch/bildungssystem/` (German), `https://www.inspirella.ch/en/swiss-education-system/` (English), `https://www.inspirella.ch/uk/systema-osvity-shveitsarii/` (Ukrainian) - the Swiss education system at a glance: every stage (primary to continuing education), who can start where, routes between stages, official links; the German and Ukrainian versions include a section for people from Ukraine with protection status S. Interactive version: the Swiss Path Map in the app (`/pathmap/`).
+- `https://www.inspirella.ch/berufe/` (A to Z), with sections `/berufe/efz/`, `/berufe/eba/`, `/berufe/hf/`, `/berufe/fh/`, `/berufe/uni/`, `/berufe/berufspruefung/`, `/berufe/hoehere-fachpruefung/` - catalogue of all professions.
+- `https://www.inspirella.ch/beruf/<slug>/` - one page per profession or education programme (German): an "at a glance" table (diploma, duration, recommended apprentice pay per year, median pay of the occupation group from the Federal Statistical Office, prerequisites, next steps, source and date checked, shown only where we hold the data), description, daily work, requirements and interests, schools that offer it, related professions, a short Q&A, and a link to the specific profile on berufsberatung.ch.
+- `https://www.inspirella.ch/schulen/` and `/schulen/<canton>/` (e.g. `/schulen/zh/`) - catalogue of schools by canton.
 - `https://www.inspirella.ch/institution/<slug>/` - one page per school, university or training centre (German): profile, admission, language, location, programmes offered, link to the official website.
+- `https://www.inspirella.ch/methodik/` - sources, how texts are produced (with AI assistance), how to read salaries, meaning of "Verified" and "Provisional".
 - The complete list of these pages is in https://www.inspirella.ch/sitemap.xml.
 
 Pages link to each other (professions to schools and back). Resources have no separate pages yet. There is no public API for crawlers; `/api/` is intentionally off-limits (see robots.txt). Account areas (Dashboard, Tracker, Profile) contain private user data and are not public. The interactive features can only be judged in a real browser.
@@ -49,7 +52,7 @@ Pages link to each other (professions to schools and back). Resources have no se
 
 ## Contact
 
-See the Contact section on https://www.inspirella.ch/. Privacy information is in the Privacy section of the same site.
+E-mail: iinspirella@gmail.com. Contact form: https://www.inspirella.ch/kontakt/ . Privacy information: https://www.inspirella.ch/datenschutz/ ; imprint: https://www.inspirella.ch/impressum/ .
 
 ## Policies
 

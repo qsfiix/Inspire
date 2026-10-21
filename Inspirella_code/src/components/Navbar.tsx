@@ -1,7 +1,10 @@
+import type { MouseEvent } from "react";
 import { motion } from "motion/react";
 import { Globe, LogOut, GraduationCap, Map, CheckSquare, FileText, User, Compass, Route, Sun, Moon } from "lucide-react";
 import { LanguageCode } from "../types";
 import { TRANSLATIONS } from "../data";
+
+import { pathForTab } from "../lib/routes";
 
 interface NavbarProps {
   currentLanguage: LanguageCode;
@@ -29,9 +32,17 @@ export default function Navbar({
   const t = TRANSLATIONS[currentLanguage];
   const isDark = theme === "dark";
 
+  // Real links (crawlers follow them, "open in new tab" works); a plain left click stays inside the app.
+  const go = (id: string) => (e: MouseEvent<HTMLElement>) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    onTabChange(id);
+  };
+
   const publicTabs = [
     { id: "home", label: t.navHome, icon: Compass },
     { id: "pathmap", label: t.navPathMap, sub: t.navPathMapSub, icon: Route },
+    { id: "resources", label: t.navResources, icon: FileText },
     { id: "about", label: t.navAbout, icon: FileText },
     { id: "contact", label: t.navContact, icon: Globe }
   ];
@@ -58,13 +69,16 @@ export default function Navbar({
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         
         {/* BRAND IDENTITY LOGO */}
-        <div 
-          className="flex items-center gap-2 cursor-pointer group" 
-          onClick={() => onTabChange(isLoggedIn ? "dashboard" : "home")}
+        <a
+          href={pathForTab(isLoggedIn ? "dashboard" : "home")}
+          className="flex items-center gap-2 cursor-pointer group"
+          onClick={go(isLoggedIn ? "dashboard" : "home")}
         >
           <div className="relative flex h-10 w-10 items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95">
             <img
-              src="/logo-mark.png"
+              src="/logo-mark-128.png"
+              width={40}
+              height={38}
               alt="Inspirella"
               className="h-full w-full object-contain drop-shadow-[0_2px_10px_rgba(139,92,246,0.5)]"
             />
@@ -77,7 +91,7 @@ export default function Navbar({
               Swiss Education Explorer
             </span>
           </div>
-        </div>
+        </a>
 
         {/* Navigation Tabs */}
         {/* Labels stay on one line (whitespace-nowrap); between md and xl
@@ -89,9 +103,10 @@ export default function Navbar({
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <button
+              <a
                 key={tab.id}
-                onClick={() => onTabChange(tab.id)}
+                href={pathForTab(tab.id)}
+                onClick={go(tab.id)}
                 title={tab.label}
                 aria-label={tab.label}
                 aria-current={isActive ? "page" : undefined}
@@ -120,7 +135,7 @@ export default function Navbar({
                     <span className={`hidden xl:block text-[9px] font-mono font-normal uppercase tracking-wider ${isDark ? "text-violet-300/80" : "text-violet-700/80"}`}>{tab.sub}</span>
                   )}
                 </span>
-              </button>
+              </a>
             );
           })}
         </nav>
@@ -181,12 +196,13 @@ export default function Navbar({
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => onTabChange("login")}
+            <a
+              href={pathForTab("login")}
+              onClick={go("login")}
               className="relative overflow-hidden inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-1.5 text-xs font-semibold text-white shadow-xl transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
             >
               {t.navLogin}
-            </button>
+            </a>
           )}
         </div>
       </div>
@@ -199,9 +215,10 @@ export default function Navbar({
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
-            <button
+            <a
               key={tab.id}
-              onClick={() => onTabChange(tab.id)}
+              href={pathForTab(tab.id)}
+              onClick={go(tab.id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs whitespace-nowrap rounded-lg transition-all duration-200 cursor-pointer ${
                 isActive 
                   ? isDark 
@@ -214,7 +231,7 @@ export default function Navbar({
             >
               <Icon className="h-3.5 w-3.5" />
               {tab.label}
-            </button>
+            </a>
           );
         })}
       </div>

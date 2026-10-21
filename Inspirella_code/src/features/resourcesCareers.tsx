@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Search,
@@ -125,7 +125,7 @@ export function ResourcesCareersView({
         )}
         {activeSection === "professions" && (
           <motion.div key="panel-professions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <ProfessionsExplorer isDark={isDark} currentLanguage={currentLanguage} t={t} onGoalSet={onGoalSet} initialStage={focus?.section === "professions" ? focus.node : undefined} onShowOnPathMap={onShowOnPathMap} />
+            <ProfessionsExplorer isDark={isDark} currentLanguage={currentLanguage} t={t} onGoalSet={onGoalSet} initialStage={focus?.section === "professions" ? focus.node || undefined : undefined} initialProfession={focus?.section === "professions" ? focus.profession : undefined} onShowOnPathMap={onShowOnPathMap} />
           </motion.div>
         )}
         {activeSection === "institutions" && (
@@ -374,7 +374,7 @@ function StageFilterChip({ stage, language, isDark, onClear }: { stage?: string;
   );
 }
 
-export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, initialStage, onShowOnPathMap }: any) {
+export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, initialStage, initialProfession, onShowOnPathMap }: any) {
   const [stage, setStage] = useState<string | undefined>(initialStage);
   const [professionsList, setProfessionsList] = useState<Profession[]>([]);
   const [profLoading, setProfLoading] = useState(true);
@@ -419,6 +419,17 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
     fetchProfs();
     return () => { active = false; };
   }, []);
+
+  // Opened from a profession page on the website: select that profession once the list is there.
+  const openedFromLink = useRef(false);
+  useEffect(() => {
+    if (!initialProfession || openedFromLink.current || professionsList.length === 0) return;
+    const wanted = professionsList.find(p => p.code === initialProfession);
+    if (wanted) {
+      openedFromLink.current = true;
+      setSelectedProf(wanted);
+    }
+  }, [initialProfession, professionsList]);
 
   const presentCategories: string[] = [];
   for (const profession of professionsList) {
