@@ -918,6 +918,215 @@ const SYS: Record<SysLang, SysCopy> = {
 const MONTHS_UK = ["січень", "лютий", "березень", "квітень", "травень", "червень", "липень", "серпень", "вересень", "жовтень", "листопад", "грудень"];
 const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+// --------------------------------------------------------------------------
+// Protection status S guide: a hub plus one page per canton (German, English, Ukrainian)
+// Built only from verified audience_facts rows; nothing is added that is not in the data.
+// --------------------------------------------------------------------------
+
+type SLang = "de" | "en" | "uk";
+
+const CANTON_NAMES_I18N: Record<"en" | "uk", Record<string, string>> = {
+  en: { AG: "Aargau", AI: "Appenzell Innerrhoden", AR: "Appenzell Ausserrhoden", BE: "Bern", BL: "Basel-Landschaft", BS: "Basel-Stadt", FR: "Fribourg", GE: "Geneva", GL: "Glarus", GR: "Graubünden", JU: "Jura", LU: "Lucerne", NE: "Neuchâtel", NW: "Nidwalden", OW: "Obwalden", SG: "St. Gallen", SH: "Schaffhausen", SO: "Solothurn", SZ: "Schwyz", TG: "Thurgau", TI: "Ticino", UR: "Uri", VD: "Vaud", VS: "Valais", ZG: "Zug", ZH: "Zurich" },
+  uk: { AG: "Аргау", AI: "Аппенцелль-Іннерроден", AR: "Аппенцелль-Ауссерроден", BE: "Берн", BL: "Базель-Ландшафт", BS: "Базель-Штадт", FR: "Фрібур", GE: "Женева", GL: "Гларус", GR: "Граубюнден", JU: "Юра", LU: "Люцерн", NE: "Невшатель", NW: "Нідвальден", OW: "Обвальден", SG: "Санкт-Галлен", SH: "Шаффгаузен", SO: "Золотурн", SZ: "Швіц", TG: "Тургау", TI: "Тічино", UR: "Урі", VD: "Во", VS: "Вале", ZG: "Цуг", ZH: "Цюрих" }
+};
+
+const STATUS_TOPIC_ORDER = ["contact", "school_registration", "school_language_support", "language_courses", "youth_transition"];
+
+interface StatusCopy {
+  base: string;
+  htmlLang: string;
+  hubTitle: string;
+  hubH1: string;
+  hubLead: string;
+  hubDescription: string;
+  crumb: string;
+  nationalTitle: string;
+  cantonsTitle: string;
+  cantonsLead: string;
+  otherCantons: string;
+  cantonTitles: (name: string) => string[];
+  cantonH1: (name: string) => string;
+  cantonLead: (name: string) => string;
+  cantonDescription: (name: string) => string;
+  more: string;
+  cta: string;
+  ctaNote: string;
+  official: string;
+  disclaimer: string;
+  updated: string;
+  nav: { about: string; app: string };
+}
+
+const STATUS_S: Record<SLang, StatusCopy> = {
+  de: {
+    base: "/status-s/",
+    htmlLang: "de",
+    hubTitle: "Schutzstatus S: Schule, Sprache und Lehre nach Kanton",
+    hubH1: "Schutzstatus S in der Schweiz: Schule, Sprache und Lehre",
+    hubLead: "Du bist mit Schutzstatus S (Ukraine) in die Schweiz gekommen oder begleitest jemanden? Hier steht, wo du anfängst, und für jeden Kanton, wo du dich meldest: Schule, Deutschkurse, Berufsbildung und Kontaktstellen. Jede Angabe führt zur offiziellen Seite.",
+    hubDescription: "Schutzstatus S in der Schweiz: Schule anmelden, Deutschkurse, Lehre und Diplome. Kontaktstellen und Wege in jedem Kanton, mit offiziellen Quellen.",
+    crumb: "Schutzstatus S",
+    nationalTitle: "Das Wichtigste für die ganze Schweiz",
+    cantonsTitle: "Wähle deinen Kanton",
+    cantonsLead: "Schule, Sprache und Berufsbildung sind Sache der Kantone. Darum unterscheiden sich Anmeldung, Kurse und Ansprechstellen.",
+    otherCantons: "Andere Kantone",
+    cantonTitles: n => [`Schutzstatus S im Kanton ${n}: Schule, Deutsch, Lehre`, `Schutzstatus S im Kanton ${n}`, `Status S: ${n}`],
+    cantonH1: n => `Schutzstatus S im Kanton ${n}`,
+    cantonLead: n => `Schule, Deutschkurse und Berufsbildung für Personen mit Schutzstatus S im Kanton ${n}: Anmeldung, Kontaktstellen und Angebote, jeweils mit Link auf die offizielle Seite.`,
+    cantonDescription: n => `Schutzstatus S im Kanton ${n}: Schule anmelden, Deutschkurse, Integrationsangebote und Lehre. Kontaktstellen und offizielle Quellen.`,
+    more: "Mehr dazu",
+    cta: "Swiss Path Map öffnen →",
+    ctaNote: "In der interaktiven Karte siehst du die Wege vom Ankommen bis zum Abschluss.",
+    official: "Offizielle Seite →",
+    disclaimer: "Inspirella ist ein Orientierungswerkzeug und keine offizielle Stelle. Regeln, Fristen und Kontaktdaten ändern sich: bitte immer auf der offiziellen Seite prüfen.",
+    updated: "Zuletzt aktualisiert",
+    nav: { about: "Über Inspirella", app: "Zur App" }
+  },
+  en: {
+    base: "/en/status-s/",
+    htmlLang: "en",
+    hubTitle: "Protection status S in Switzerland: school, language, work",
+    hubH1: "Protection status S in Switzerland: school, language and apprenticeships",
+    hubLead: "Did you come to Switzerland with protection status S (Ukraine), or are you helping someone who did? Here is where to start, and for each canton where to register: school, German courses, vocational training and contact points. Every item links to the official page.",
+    hubDescription: "Protection status S in Switzerland: register for school, German courses, apprenticeships and diplomas. Contact points and routes in every canton, with official sources.",
+    crumb: "Status S",
+    nationalTitle: "The essentials for all of Switzerland",
+    cantonsTitle: "Choose your canton",
+    cantonsLead: "School, language and vocational training are run by the cantons, so registration, courses and contact points differ.",
+    otherCantons: "Other cantons",
+    cantonTitles: n => [`Status S in Canton ${n}: school, German, apprenticeship`, `Protection status S in Canton ${n}`, `Status S: ${n}`],
+    cantonH1: n => `Protection status S in Canton ${n}`,
+    cantonLead: n => `School, German courses and vocational training for people with protection status S in Canton ${n}: registration, contact points and programmes, each with a link to the official page.`,
+    cantonDescription: n => `Protection status S in Canton ${n}: register for school, German courses, integration programmes and apprenticeships. Contact points and official sources.`,
+    more: "More",
+    cta: "Open the Swiss Path Map →",
+    ctaNote: "The interactive map shows the routes from arriving to a qualification.",
+    official: "Official page →",
+    disclaimer: "Inspirella is an orientation tool, not an official authority. Rules, deadlines and contact details change: please always check the official page. Texts are based on official German-language sources and were translated with AI.",
+    updated: "Last updated",
+    nav: { about: "About Inspirella", app: "Open the app" }
+  },
+  uk: {
+    base: "/uk/status-s/",
+    htmlLang: "uk",
+    hubTitle: "Статус S у Швейцарії: школа, мова, навчання за кантонами",
+    hubH1: "Статус захисту S у Швейцарії: школа, мова і професійне навчання",
+    hubLead: "Ти приїхав(ла) до Швейцарії зі статусом захисту S (Україна) або допомагаєш комусь? Тут написано, з чого почати, і для кожного кантону, куди звертатися: школа, курси німецької, професійне навчання та контакти. Кожен пункт веде на офіційну сторінку.",
+    hubDescription: "Статус захисту S у Швейцарії: запис до школи, курси німецької, професійне навчання (Lehre) і дипломи. Контакти та шляхи в кожному кантоні, з офіційними джерелами.",
+    crumb: "Статус S",
+    nationalTitle: "Найважливіше для всієї Швейцарії",
+    cantonsTitle: "Обери свій кантон",
+    cantonsLead: "Школа, мова і професійне навчання — справа кантонів, тому запис, курси та контакти відрізняються.",
+    otherCantons: "Інші кантони",
+    cantonTitles: n => [`Статус S у кантоні ${n}: школа, мова, навчання`, `Статус захисту S у кантоні ${n}`, `Статус S: ${n}`],
+    cantonH1: n => `Статус захисту S у кантоні ${n}`,
+    cantonLead: n => `Школа, курси німецької та професійне навчання для людей зі статусом захисту S у кантоні ${n}: запис, контакти й програми, кожен пункт з посиланням на офіційну сторінку.`,
+    cantonDescription: n => `Статус захисту S у кантоні ${n}: запис до школи, курси німецької, програми інтеграції та професійне навчання. Контакти й офіційні джерела.`,
+    more: "Детальніше",
+    cta: "Відкрити Swiss Path Map →",
+    ctaNote: "В інтерактивній мапі видно шляхи від прибуття до диплома.",
+    official: "Офіційна сторінка →",
+    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Правила, строки й контакти змінюються: завжди перевіряй офіційну сторінку. Тексти взято з офіційних німецькомовних джерел і перекладено за допомогою ШІ.",
+    updated: "Востаннє оновлено",
+    nav: { about: "Про Inspirella", app: "Відкрити застосунок" }
+  }
+};
+
+function statusCantonName(lang: SLang, code: string): string {
+  return lang === "de" ? CANTON_NAMES[code] : CANTON_NAMES_I18N[lang][code];
+}
+
+function statusFact(f: Row, lang: SLang): { head: string; body: string; href?: string } | undefined {
+  const head = txt(f[`headline_${lang}`]);
+  const body = txt(f[`text_${lang}`]);
+  if (!head || !body) return undefined;
+  return { head, body, href: safeUrl(f.official_url) ?? safeUrl(f.evidence_url) };
+}
+
+function statusSections(facts: Row[], lang: SLang): string {
+  const c = STATUS_S[lang];
+  return facts
+    .map(f => {
+      const p = statusFact(f, lang)!;
+      return `<section class="card prose"><h2>${esc(p.head)}</h2><p>${esc(p.body)}</p>${p.href ? `<p class="more"><a href="${esc(p.href)}" rel="noopener">${esc(c.official)}</a></p>` : ""}</section>`;
+    })
+    .join("\n  ");
+}
+
+function statusDate(lang: SLang, iso: string): string {
+  const d = new Date(iso);
+  return lang === "de" ? dataDate(d) : lang === "en" ? `${MONTHS_EN[d.getUTCMonth()]} ${d.getUTCFullYear()}` : `${MONTHS_UK[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+function newest(rows: Row[], fallback: string): string {
+  const dates = rows.map(r => String(r.updated_at || "").slice(0, 10)).filter(Boolean).sort();
+  return dates.length ? dates[dates.length - 1] : fallback;
+}
+
+function renderStatusPage(lang: SLang, canton: string | null, national: Row[], byCanton: Map<string, Row[]>, availableIn: (code: string) => SLang[], today: string): string {
+  const c = STATUS_S[lang];
+  const hubUrl = SITE + c.base;
+  const cantonCodes = [...byCanton.keys()].filter(code => availableIn(code).includes(lang)).sort((a, b) => statusCantonName(lang, a).localeCompare(statusCantonName(lang, b), lang));
+  const path = canton ? `${c.base}${canton.toLowerCase()}/` : c.base;
+  const url = SITE + path;
+
+  const facts = canton
+    ? [...(byCanton.get(canton) ?? [])].filter(f => statusFact(f, lang)).sort((a, b) => STATUS_TOPIC_ORDER.indexOf(String(a.topic)) - STATUS_TOPIC_ORDER.indexOf(String(b.topic)))
+    : national.filter(f => statusFact(f, lang));
+  const updated = newest(facts, today);
+
+  const name = canton ? statusCantonName(lang, canton) : "";
+  const brand = " | Inspirella";
+  const titles = canton ? c.cantonTitles(name) : [c.hubTitle];
+  const base = titles.find(t => t.length + brand.length <= 60) ?? titles.find(t => t.length <= 60) ?? truncate(titles[titles.length - 1], 60);
+  const docTitle = base.length + brand.length <= 60 ? base + brand : base;
+  const h1 = canton ? c.cantonH1(name) : c.hubH1;
+  const lead = canton ? c.cantonLead(name) : c.hubLead;
+  const description = truncate(canton ? c.cantonDescription(name) : c.hubDescription, 158);
+
+  const cantonList = (exclude?: string) =>
+    `<ul class="cols">${cantonCodes.filter(code => code !== exclude).map(code => `<li><a href="${c.base}${code.toLowerCase()}/" lang="${c.htmlLang}">${esc(statusCantonName(lang, code))}</a></li>`).join("")}</ul>`;
+
+  const body = canton
+    ? `${statusSections(facts, lang)}
+  <h2 style="margin-top:34px">${esc(c.otherCantons)}</h2>
+  <section class="card">${cantonList(canton)}</section>
+  <p class="more"><a href="${c.base}">${esc(c.crumb)}</a></p>`
+    : `<h2 style="margin-top:6px">${esc(c.nationalTitle)}</h2>
+  ${statusSections(facts, lang)}
+  <h2 style="margin-top:34px">${esc(c.cantonsTitle)}</h2>
+  <section class="card"><p>${esc(c.cantonsLead)}</p>${cantonList()}</section>`;
+
+  const alternates: { lang: string; href: string }[] = (["de", "en", "uk"] as SLang[])
+    .filter(l => canton === null || availableIn(canton).includes(l))
+    .map(l => ({ lang: l, href: SITE + (canton ? `${STATUS_S[l].base}${canton.toLowerCase()}/` : STATUS_S[l].base) }));
+  alternates.push({ lang: "x-default", href: SITE + (canton ? `${STATUS_S.de.base}${canton.toLowerCase()}/` : STATUS_S.de.base) });
+
+  const crumbs = canton
+    ? `<a href="/">Inspirella</a> › <a href="${c.base}">${esc(c.crumb)}</a> › ${esc(name)}`
+    : `<a href="/">Inspirella</a> › ${esc(c.crumb)}`;
+  const ldCrumbs = [{ name: "Inspirella", item: SITE + "/" }, { name: c.crumb, item: hubUrl }, ...(canton ? [{ name, item: url }] : [])];
+
+  return layout({
+    docTitle,
+    ogTitle: h1,
+    description,
+    url,
+    indexable: facts.length > 0,
+    lang: c.htmlLang,
+    alternates,
+    nav: c.nav,
+    ld: [
+      { "@context": "https://schema.org", "@type": "Article", headline: h1, url, inLanguage: c.htmlLang, description, dateModified: updated, publisher: { "@type": "Organization", name: "Inspirella", url: SITE + "/" } },
+      { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: ldCrumbs.map((b, i) => ({ "@type": "ListItem", position: i + 1, name: b.name, item: b.item })) }
+    ],
+    main: `  <div class="crumbs">${crumbs}</div>
+  <header class="hero"><h1>${esc(h1)}</h1><p class="lead">${esc(lead)}</p>${canton ? "" : `<div class="cta-row"><a class="btn btn-primary" href="/pathmap/">${esc(c.cta)}</a></div><p class="more" style="margin:0">${esc(c.ctaNote)}</p>`}</header>
+  ${body}
+  <div class="source">${esc(c.disclaimer)} ${esc(c.updated)}: ${esc(statusDate(lang, updated))}.</div>`
+  });
+}
+
 function renderSystem(lang: SysLang, nodes: Row[], transitions: Row[], statusFacts: Row[]): string {
   const c = SYS[lang];
   const url = SITE + c.path;
@@ -990,7 +1199,7 @@ function renderSystem(lang: SysLang, nodes: Row[], transitions: Row[], statusFac
     })
     .join("");
   const statusHtml = statusRows
-    ? `<h2 style="margin-top:40px">${esc(c.statusTitle)}</h2>\n  <section class="card prose"><p>${esc(c.statusLead)}</p><ul>${statusRows}</ul></section>`
+    ? `<h2 style="margin-top:40px">${esc(c.statusTitle)}</h2>\n  <section class="card prose"><p>${esc(c.statusLead)}</p><ul>${statusRows}</ul><p class="more"><a href="${STATUS_S[lang].base}">${esc(STATUS_S[lang].crumb)} →</a></p></section>`
     : "";
 
   const alternates = (Object.keys(SYS) as SysLang[]).map(l => ({ lang: SYS[l].hreflang, href: SITE + SYS[l].path }));
@@ -1066,7 +1275,7 @@ function renderHomeBlock(counts: Counts, featured: HomeFeatured): string {
 <p style="font-size:19px;margin:0 0 12px">Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take.</p>
 <p lang="de" style="color:#b7aed6;margin:0 0 24px">Inspirella hilft dir, dich im Schweizer Bildungssystem zurechtzufinden: Berufe, die zu dir passen, Schulen, wo du sie lernst, und der nächste kleine Schritt. Kostenlos, auf Deutsch, Französisch, Italienisch und Englisch.</p>
 <p style="margin:0 0 24px">${counts.professions} professions and programmes, ${counts.institutions} schools and institutions, ${counts.resources} official resources. Data as of ${esc(dataDate())}. Inspirella is an orientation tool, not an official authority: for binding information see <a href="https://www.berufsberatung.ch/" style="color:#c4b5fd">berufsberatung.ch</a> and your cantonal careers office (BIZ).</p>
-<p style="margin:0 0 28px"><a href="/berufe/" lang="de" style="color:#c4b5fd">Alle Berufe</a> · <a href="/schulen/" lang="de" style="color:#c4b5fd">Alle Schulen</a> · <a href="/lehrlingsloehne/" lang="de" style="color:#c4b5fd">Lehrlingslöhne</a> · <a href="/passerelle/" lang="de" style="color:#c4b5fd">Passerelle</a> · <a href="/methodik/" lang="de" style="color:#c4b5fd">Methodik</a> · <a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/en/swiss-education-system/" style="color:#c4b5fd">Swiss education system</a> · <a href="/bildungssystem/" lang="de" style="color:#c4b5fd">Bildungssystem</a> · <a href="/uk/systema-osvity-shveitsarii/" lang="uk" style="color:#c4b5fd">Система освіти Швейцарії</a> ·<a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
+<p style="margin:0 0 28px"><a href="/berufe/" lang="de" style="color:#c4b5fd">Alle Berufe</a> · <a href="/schulen/" lang="de" style="color:#c4b5fd">Alle Schulen</a> · <a href="/lehrlingsloehne/" lang="de" style="color:#c4b5fd">Lehrlingslöhne</a> · <a href="/passerelle/" lang="de" style="color:#c4b5fd">Passerelle</a> · <a href="/status-s/" lang="de" style="color:#c4b5fd">Schutzstatus S</a> · <a href="/methodik/" lang="de" style="color:#c4b5fd">Methodik</a> · <a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/en/swiss-education-system/" style="color:#c4b5fd">Swiss education system</a> · <a href="/bildungssystem/" lang="de" style="color:#c4b5fd">Bildungssystem</a> · <a href="/uk/systema-osvity-shveitsarii/" lang="uk" style="color:#c4b5fd">Система освіти Швейцарії</a> ·<a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Professions</h2>
 <ul style="margin:0 0 24px;padding-left:20px">${list(featured.professions)}</ul>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Schools and institutions</h2>
@@ -1481,6 +1690,40 @@ async function main() {
     }
   } catch (err: any) {
     console.warn("[pages] Education system pages skipped:", err?.message || err);
+  }
+  // Protection status S guide: hub plus one page per canton in German, English and Ukrainian (verified facts only).
+  try {
+    const sFacts = await fetchAll((from, to) =>
+      supabase.from("audience_facts").select("*").eq("is_active", true).eq("audience", "ukraine_s").eq("verification_status", "verified").order("sort_order", { ascending: true }).range(from, to)
+    );
+    const national = sFacts.filter(f => !f.canton_code);
+    const byCanton = new Map<string, Row[]>();
+    for (const f of sFacts) {
+      const code = String(f.canton_code || "").toUpperCase();
+      if (!code || !CANTON_NAMES[code]) continue;
+      byCanton.set(code, [...(byCanton.get(code) ?? []), f]);
+    }
+    const langs: SLang[] = ["de", "en", "uk"];
+    const avail = new Map<string, SLang[]>();
+    for (const [code, rows] of byCanton) avail.set(code, langs.filter(l => rows.some(r => statusFact(r, l))));
+    const availableIn = (code: string): SLang[] => avail.get(code) ?? [];
+    let statusPages = 0;
+    for (const lang of langs) {
+      if (!national.some(f => statusFact(f, lang))) continue;
+      const segs = STATUS_S[lang].base.split("/").filter(Boolean);
+      await writePage(segs, renderStatusPage(lang, null, national, byCanton, availableIn, today));
+      urls.push({ loc: SITE + STATUS_S[lang].base, lastmod: newest(national, today) });
+      statusPages++;
+      for (const code of byCanton.keys()) {
+        if (!availableIn(code).includes(lang)) continue;
+        await writePage([...segs, code.toLowerCase()], renderStatusPage(lang, code, national, byCanton, availableIn, today));
+        urls.push({ loc: `${SITE}${STATUS_S[lang].base}${code.toLowerCase()}/`, lastmod: newest(byCanton.get(code)!, today) });
+        statusPages++;
+      }
+    }
+    console.log(`[pages] status S pages: ${statusPages} (${national.length} national facts, ${byCanton.size} cantons).`);
+  } catch (err: any) {
+    console.warn("[pages] Status S pages skipped:", err?.message || err);
   }
   await fs.writeFile(path.join(DIST, "404.html"), render404(), "utf8");
   await writePage(["impressum"], renderLegal(IMPRESSUM.de, "impressum"));
