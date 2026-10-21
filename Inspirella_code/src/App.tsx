@@ -88,6 +88,24 @@ export default function App() {
   // The backdrop stops rendering there (the canvas is hidden) and the page gets a plain background.
   const sceneActive = activeTab !== "map";
   const sceneVisible = sceneStatus !== "error" && sceneActive;
+  // The 3D backdrop (three.js, a few hundred KB) is not needed for the first paint: it starts once the page is
+  // idle, and not at all for visitors who asked their system to reduce motion.
+  const [sceneAllowed, setSceneAllowed] = useState(false);
+  useEffect(() => {
+    // the plain-text home written into the HTML (see index.html) has done its job once the app is on screen
+    requestAnimationFrame(() => document.getElementById("prerender")?.remove());
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setSceneStatus("error");
+      return;
+    }
+    const start = () => setSceneAllowed(true);
+    if ("requestIdleCallback" in window) {
+      const id = (window as any).requestIdleCallback(start, { timeout: 2500 });
+      return () => (window as any).cancelIdleCallback?.(id);
+    }
+    const t = (window as any).setTimeout(start, 1200);
+    return () => (window as any).clearTimeout(t);
+  }, []);
 
   const handleThemeToggle = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
@@ -470,7 +488,7 @@ export default function App() {
     <div className={`min-h-screen transition-colors duration-300 flex flex-col relative select-none ${
       isDark ? "text-slate-100" : "text-indigo-950"
     } ${sceneVisible ? "bg-transparent" : isDark ? "bg-[#06040a]" : "bg-[#f5f3ff]"}`}>
-      {sceneStatus !== "error" && (
+      {sceneStatus !== "error" && sceneAllowed && (
         <Suspense fallback={null}>
           <PhoenixScene isDark={isDark} enabled={sceneActive} onStatus={setSceneStatus} />
         </Suspense>

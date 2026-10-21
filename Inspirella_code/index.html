@@ -30,7 +30,9 @@
     <!-- Mapbox GL (JS and CSS) comes from the npm bundle and loads only with the map: no third-party request on other pages. -->
   </head>
   <body class="bg-[#030008] text-slate-100">
-    <div id="root"><!--prerender-home--></div>
+    <!-- Plain-text home for crawlers and the first paint: it covers the page until the app has drawn itself, then App removes it. -->
+    <div id="prerender" style="position:absolute;inset:0;z-index:50;overflow:auto;background:#030008"><!--prerender-home--></div>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
