@@ -38,7 +38,9 @@ Related Files:
 - Sitemap: все страницы + хабы + три страницы Bildungssystem, у каждого адреса lastmod. llms.txt приведён в соответствие (язык, зарплаты, адреса, email).
 - Техническое: заголовки безопасности (HSTS, nosniff, Referrer-Policy, X-Frame-Options), x-powered-by убран, /assets/* кэшируется на год, лого 235 КБ → 9 КБ (64 px) / 28 КБ (128 px) с width/height, Organization с email и contactPoint.
 - Профессии без сопоставления с berufsberatung.ch (~190) остаются без блока деталей/зарплаты (честно: строка не показывается).
-- Не сделано (нужны отдельные шаги): ускорение главной на телефоне (LCP 9,3 c, hydrateRoot, ленивая загрузка PhoenixScene), французская и итальянская версии страниц, статьи (Passerelle, HF/FH, EFZ/EBA, таблица Lehrlingslöhne, статус S), Search Console/Bing, email в Impressum (Cloudflare Email Obfuscation), регистрация в каталогах/Wikidata.
+- Скорость главной: текстовая главная теперь закрывает страницу до готовности приложения (быстрый первый экран, ссылки видны роботам), 3D-феникс стартует в простое и не включается при «уменьшить движение». Лайтхаус после деплоя нужно перемерить.
+- Новые страницы из наших данных: /lehrlingsloehne/ (таблица 199 профессий), /efz-oder-eba/, /hf-oder-fh/, /passerelle/ (по кантонам).
+- Не сделано (нужны отдельные шаги): остальное ускорение главной на телефоне (LCP 9,3 c, hydrateRoot, ленивая загрузка PhoenixScene), французская и итальянская версии страниц, статьи (Passerelle, HF/FH, EFZ/EBA, таблица Lehrlingslöhne, статус S), Search Console/Bing, email в Impressum (Cloudflare Email Obfuscation), регистрация в каталогах/Wikidata.
 
 ## 2026-10-19 — Зарплаты, статус S по кантонам, детали профессий, страницы для поисковиков
 - Зарплаты: таблицы `salary_benchmarks` (BFS 2024, 48 групп ISCO x 4 возраста, пока только Швейцария целиком) и `apprentice_wage_recommendations` (606 строк, 199 профессий EFZ/EBA, рекомендации объединений с berufsberatung.ch). Профессии сопоставлены с ISCO (1575 из 1655, колонки `professions.isco_group/isco_confidence`, сопоставление агентами, не проверено человеком). Блок «Зарплата» в карточке профессии, подпись: цифры по группе, не по профессии.

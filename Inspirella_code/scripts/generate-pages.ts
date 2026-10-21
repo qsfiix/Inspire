@@ -185,6 +185,7 @@ section.card+section.card{margin-top:22px}
 .chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}.chips li{padding:6px 12px;border-radius:99px;border:1px solid var(--card-b);background:rgba(139,92,246,.08);font-size:14px}
 .qa{border-top:1px solid var(--card-b);padding:10px 0}.qa summary{cursor:pointer;font-weight:600}.qa p{margin:8px 0 0;color:var(--muted)}
 ul.cols{list-style:none;margin:0;padding:0;columns:2 260px;column-gap:28px}ul.cols li{break-inside:avoid;padding:3px 0}ul.cols a{text-decoration:none}ul.cols a:hover{color:var(--accent)}ul.cols span{color:var(--muted);font-size:13px}
+table.cmp{border-collapse:collapse;width:100%;font-size:15px}table.cmp th,table.cmp td{border-bottom:1px solid var(--card-b);padding:9px 12px;text-align:left;vertical-align:top}table.cmp thead th{color:var(--accent);font-size:13px;text-transform:uppercase;letter-spacing:.05em}
 h3{font:600 18px "Space Grotesk",sans-serif;margin:0 0 8px}
 h2{font-size:22px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
 h2::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,#fff,#a78bfa);box-shadow:0 0 12px #a78bfa}
@@ -1065,7 +1066,7 @@ function renderHomeBlock(counts: Counts, featured: HomeFeatured): string {
 <p style="font-size:19px;margin:0 0 12px">Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take.</p>
 <p lang="de" style="color:#b7aed6;margin:0 0 24px">Inspirella hilft dir, dich im Schweizer Bildungssystem zurechtzufinden: Berufe, die zu dir passen, Schulen, wo du sie lernst, und der nächste kleine Schritt. Kostenlos, auf Deutsch, Französisch, Italienisch und Englisch.</p>
 <p style="margin:0 0 24px">${counts.professions} professions and programmes, ${counts.institutions} schools and institutions, ${counts.resources} official resources. Data as of ${esc(dataDate())}. Inspirella is an orientation tool, not an official authority: for binding information see <a href="https://www.berufsberatung.ch/" style="color:#c4b5fd">berufsberatung.ch</a> and your cantonal careers office (BIZ).</p>
-<p style="margin:0 0 28px"><a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/en/swiss-education-system/" style="color:#c4b5fd">Swiss education system</a> · <a href="/bildungssystem/" lang="de" style="color:#c4b5fd">Bildungssystem</a> · <a href="/uk/systema-osvity-shveitsarii/" lang="uk" style="color:#c4b5fd">Система освіти Швейцарії</a> ·<a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
+<p style="margin:0 0 28px"><a href="/berufe/" lang="de" style="color:#c4b5fd">Alle Berufe</a> · <a href="/schulen/" lang="de" style="color:#c4b5fd">Alle Schulen</a> · <a href="/lehrlingsloehne/" lang="de" style="color:#c4b5fd">Lehrlingslöhne</a> · <a href="/passerelle/" lang="de" style="color:#c4b5fd">Passerelle</a> · <a href="/methodik/" lang="de" style="color:#c4b5fd">Methodik</a> · <a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/en/swiss-education-system/" style="color:#c4b5fd">Swiss education system</a> · <a href="/bildungssystem/" lang="de" style="color:#c4b5fd">Bildungssystem</a> · <a href="/uk/systema-osvity-shveitsarii/" lang="uk" style="color:#c4b5fd">Система освіти Швейцарії</a> ·<a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Professions</h2>
 <ul style="margin:0 0 24px;padding-left:20px">${list(featured.professions)}</ul>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Schools and institutions</h2>
@@ -1125,6 +1126,102 @@ function render404(): string {
 // --------------------------------------------------------------------------
 // Main
 // --------------------------------------------------------------------------
+
+// --------------------------------------------------------------------------
+// Guide pages built only from data we hold: apprentice pay table, EFZ vs EBA, HF vs FH, Passerelle
+// --------------------------------------------------------------------------
+
+function nodeRows(n: Row): [string, string][] {
+  const rows: [string, string][] = [];
+  const add = (k: string, v: unknown) => { const t = txt(v); if (t) rows.push([k, t]); };
+  add("Dauer", n.duration_de);
+  add("Typisches Alter", n.typical_age_de);
+  add("Abschluss", n.diploma_de);
+  add("Wer kann starten", n.requirements_de);
+  add("Unterschiede zwischen den Kantonen", n.cantonal_note_de);
+  return rows;
+}
+
+function renderCompare(a: Row, b: Row, o: { path: string; title: string; h1: string; lead: string; description: string; extra?: string }): string {
+  const url = SITE + o.path;
+  const la = txt(a.label_de) || String(a.code);
+  const lb = txt(b.label_de) || String(b.code);
+  const ra = new Map(nodeRows(a));
+  const rb = new Map(nodeRows(b));
+  const keys = [...new Set([...ra.keys(), ...rb.keys()])];
+  const goodList = (n: Row) => (Array.isArray(n.good_to_know_de) ? n.good_to_know_de.map(txt).filter((x): x is string => !!x) : []);
+  const side = (n: Row, label: string) => `<section class="card prose"><h2>${esc(label)}</h2><p>${esc(txt(n.summary_de) || "")}</p>${goodList(n).length ? `<ul>${goodList(n).map(g => `<li>${esc(g)}</li>`).join("")}</ul>` : ""}${safeUrl(n.official_url) ? `<p class="more"><a href="${esc(safeUrl(n.official_url)!)}" rel="noopener">Offizielle Quelle →</a></p>` : ""}</section>`;
+  const table = `<section class="card"><h2>Die wichtigsten Unterschiede</h2><div style="overflow-x:auto"><table class="cmp"><thead><tr><th></th><th>${esc(la)}</th><th>${esc(lb)}</th></tr></thead><tbody>${keys.map(k => `<tr><th>${esc(k)}</th><td>${esc(ra.get(k) || "–")}</td><td>${esc(rb.get(k) || "–")}</td></tr>`).join("")}</tbody></table></div></section>`;
+  return layout({
+    docTitle: truncate(o.title, 60),
+    ogTitle: o.h1,
+    description: truncate(o.description, 158),
+    url,
+    indexable: true,
+    ld: { "@context": "https://schema.org", "@type": "Article", headline: o.h1, url, inLanguage: "de", dateModified: new Date().toISOString().slice(0, 10), publisher: { "@type": "Organization", name: "Inspirella", url: SITE + "/" } },
+    main: `  <div class="crumbs"><a href="/">Inspirella</a> › <a href="/bildungssystem/">Bildungssystem</a> › ${esc(o.h1)}</div>
+  <header class="hero"><h1>${esc(o.h1)}</h1><p class="lead">${esc(o.lead)}</p></header>
+  ${table}
+  <div class="grid2">${side(a, la)}${side(b, lb)}</div>
+  ${o.extra ?? ""}
+  <div class="source">Quelle: offizielle Stellen (berufsberatung.ch, SBFI, EDK, swissuniversities), zusammengefasst von Inspirella. Zuletzt aktualisiert: ${esc(new Date().toISOString().slice(0, 10))}. <a href="/methodik/">So arbeiten wir</a>. Verbindliche Informationen findest du beim kantonalen Berufsinformationszentrum (BIZ).</div>`
+  });
+}
+
+function renderApprenticeWages(rows: { title: string; href: string; wages: Row[] }[]): string {
+  const url = `${SITE}/lehrlingsloehne/`;
+  const maxYears = 4;
+  const sorted = [...rows].sort((x, y) => x.title.localeCompare(y.title, "de"));
+  const cell = (w?: Row) => (w ? (w.min_chf === w.max_chf ? chf(w.min_chf) : `${chf(w.min_chf)}–${Math.round(w.max_chf).toLocaleString("de-CH")}`) : "–");
+  const body = sorted
+    .map(r => {
+      const byYear = new Map(r.wages.map(w => [Number(w.year_no), w]));
+      return `<tr><th><a href="${esc(r.href)}">${esc(r.title)}</a></th>${Array.from({ length: maxYears }, (_, i) => `<td>${esc(cell(byYear.get(i + 1)))}</td>`).join("")}</tr>`;
+    })
+    .join("");
+  const description = `Empfohlene Lehrlingslöhne pro Lehrjahr für ${rows.length} Lehrberufe in der Schweiz (EFZ und EBA), in CHF pro Monat, mit Quelle.`;
+  return layout({
+    docTitle: "Lehrlingslöhne in der Schweiz: Tabelle nach Beruf | Inspirella",
+    ogTitle: "Lehrlingslöhne in der Schweiz",
+    description,
+    url,
+    indexable: true,
+    ld: { "@context": "https://schema.org", "@type": "Dataset", name: "Empfohlene Lehrlingslöhne in der Schweiz", description, url, inLanguage: "de", creator: { "@type": "Organization", name: "Inspirella" }, isBasedOn: "https://www.berufsberatung.ch/" },
+    main: `  <div class="crumbs"><a href="/">Inspirella</a> › <a href="/berufe/">Berufe</a> › Lehrlingslöhne</div>
+  <header class="hero"><h1>Lehrlingslöhne in der Schweiz: Tabelle nach Beruf</h1><p class="lead">Was verdient man während der Lehre? Hier stehen die von den Berufsverbänden empfohlenen Monatslöhne pro Lehrjahr für ${rows.length} Lehrberufe.</p></header>
+  <section class="card"><div style="overflow-x:auto"><table class="cmp"><thead><tr><th>Beruf</th><th>1. Lehrjahr</th><th>2. Lehrjahr</th><th>3. Lehrjahr</th><th>4. Lehrjahr</th></tr></thead><tbody>${body}</tbody></table></div></section>
+  <div class="note">Beträge in CHF pro Monat. Das sind Empfehlungen der Berufsverbände, keine Garantie: Region und Lehrbetrieb bestimmen den tatsächlichen Lohn. Wo eine Zelle «–» zeigt, dauert die Lehre kürzer oder es gibt keine Angabe.</div>
+  <div class="source">Quelle: Lohnempfehlungen auf den Berufsprofilen von berufsberatung.ch, Stand ${esc(new Date().toISOString().slice(0, 10))}. <a href="/methodik/">So arbeiten wir</a>.</div>`
+  });
+}
+
+function renderPasserelle(node: Row | undefined, programs: Row[]): string {
+  const url = `${SITE}/passerelle/`;
+  const list = programs
+    .map(p => ({ canton: txt(p.canton_code)?.toUpperCase() || "CH", title: txt(p.title_de) || "", desc: txt(p.description_de), dur: txt(p.duration_text_de), adm: txt(p.admission_de), url: safeUrl(p.official_url) || safeUrl(p.evidence_url) }))
+    .filter(p => p.title)
+    .sort((x, y) => x.canton.localeCompare(y.canton) || x.title.localeCompare(y.title, "de"));
+  const nat = list.filter(p => p.canton === "CH");
+  const cant = list.filter(p => p.canton !== "CH");
+  const card = (p: (typeof list)[number]) => `<section class="card prose"><h3>${esc(p.title)}${p.canton !== "CH" ? ` <i class="cant">${esc(p.canton)}</i>` : ""}</h3>${p.desc ? `<p>${esc(p.desc)}</p>` : ""}<dl class="dl">${[["Dauer", p.dur], ["Zulassung und Anmeldung", p.adm]].filter(([, v]) => v).map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v as string)}</dd></div>`).join("")}</dl>${p.url ? `<p class="more"><a href="${esc(p.url)}" rel="noopener">Offizielle Seite →</a></p>` : ""}</section>`;
+  const summary = txt(node?.summary_de) || "Mit der Passerelle (Ergänzungsprüfung) bekommen Personen mit Berufsmaturität oder Fachmaturität Zugang zu allen Universitäten.";
+  const good = Array.isArray(node?.good_to_know_de) ? node!.good_to_know_de.map(txt).filter((x: unknown): x is string => !!x) : [];
+  const description = "Passerelle: von der Berufsmatura oder Fachmatura an die Universität. Ablauf, Dauer, Zulassung und Vorbereitungskurse nach Kanton, mit offiziellen Quellen.";
+  return layout({
+    docTitle: "Passerelle: von der Berufsmatura an die Uni | Inspirella",
+    ogTitle: "Passerelle: von der Berufsmatura an die Universität",
+    description,
+    url,
+    indexable: true,
+    ld: { "@context": "https://schema.org", "@type": "Article", headline: "Passerelle: von der Berufsmatura an die Universität", url, inLanguage: "de", dateModified: new Date().toISOString().slice(0, 10), publisher: { "@type": "Organization", name: "Inspirella", url: SITE + "/" } },
+    main: `  <div class="crumbs"><a href="/">Inspirella</a> › <a href="/bildungssystem/">Bildungssystem</a> › Passerelle</div>
+  <header class="hero"><h1>Passerelle: von der Berufsmatura an die Universität</h1><p class="lead">${esc(summary)}</p></header>
+  ${good.length ? `<section class="card prose"><h2>Gut zu wissen</h2><ul>${good.map(g => `<li>${esc(g)}</li>`).join("")}</ul></section>` : ""}
+  ${nat.length ? `<h2 style="margin-top:34px">Schweizweit</h2>${nat.map(card).join("\n  ")}` : ""}
+  ${cant.length ? `<h2 style="margin-top:34px">Vorbereitungskurse und Anmeldung nach Kanton</h2>${cant.map(card).join("\n  ")}` : ""}
+  <div class="source">Quelle: swissuniversities, kantonale Bildungsämter und die Schulen selbst; zusammengefasst von Inspirella. Fristen ändern sich jedes Jahr: bitte auf der offiziellen Seite prüfen. Zuletzt aktualisiert: ${esc(new Date().toISOString().slice(0, 10))}. <a href="/methodik/">So arbeiten wir</a>.</div>`
+  });
+}
 
 async function writePage(segments: string[], html: string): Promise<void> {
   const dir = path.join(DIST, ...segments);
@@ -1293,6 +1390,31 @@ async function main() {
   const counts: Counts = { professions: professions.length, institutions: institutions.length, resources: resourceCount ?? 0 };
   await writePage(["ueber-inspirella"], renderAbout(counts));
   await writePage(["methodik"], renderMethodology(counts));
+
+  // guide pages from the data we hold
+  try {
+    const nodeRowsAll = await fetchAll((from, to) => supabase.from("education_nodes").select("*").eq("is_active", true).order("id", { ascending: true }).range(from, to));
+    const nodeBy = (c: string) => nodeRowsAll.find(n => n.code === c);
+    const programRows = await fetchAll((from, to) => supabase.from("education_programs").select("*").eq("is_active", true).order("code", { ascending: true }).range(from, to));
+    const efz = nodeBy("efz"), eba = nodeBy("eba"), hf = nodeBy("hf"), fh = nodeBy("fh"), pass = nodeBy("passerelle");
+    if (efz && eba) {
+      await writePage(["efz-oder-eba"], renderCompare(efz, eba, { path: "/efz-oder-eba/", title: "EFZ oder EBA? Die Unterschiede einfach erklärt | Inspirella", h1: "EFZ oder EBA? Die Unterschiede einfach erklärt", lead: "Beide Lehren führen zu einem eidgenössischen Abschluss. Sie unterscheiden sich in Dauer, Anforderungen und Weiterbildungsmöglichkeiten.", description: "EFZ oder EBA: Dauer, Anforderungen, Abschluss und Anschlussmöglichkeiten der zwei Lehrformen in der Schweiz im Vergleich, mit offiziellen Quellen." }));
+      urls.push({ loc: `${SITE}/efz-oder-eba/`, lastmod: today });
+    }
+    if (hf && fh) {
+      await writePage(["hf-oder-fh"], renderCompare(hf, fh, { path: "/hf-oder-fh/", title: "HF oder FH? Höhere Fachschule und Fachhochschule | Inspirella", h1: "HF oder FH: was ist der Unterschied?", lead: "Höhere Fachschule und Fachhochschule bauen beide auf einer Berufsbildung auf, sind aber verschieden aufgebaut. Hier der direkte Vergleich.", description: "HF oder FH: Zulassung, Dauer, Abschluss und Praxisnähe der Höheren Fachschule und der Fachhochschule in der Schweiz im Vergleich." }));
+      urls.push({ loc: `${SITE}/hf-oder-fh/`, lastmod: today });
+    }
+    await writePage(["passerelle"], renderPasserelle(pass, programRows.filter(r => String(r.kind) === "passerelle")));
+    urls.push({ loc: `${SITE}/passerelle/`, lastmod: today });
+    const wageTable = professions.filter(pr => (wagesByProf.get(String(pr.id)) ?? []).length > 0 && profSlug.has(String(pr.id))).map(pr => ({ title: shortTitle(txt(pr.title_de) || txt(pr.name_de) || ""), href: `/beruf/${profSlug.get(String(pr.id))}/`, wages: (wagesByProf.get(String(pr.id)) ?? []).sort((a, b) => a.year_no - b.year_no) }));
+    if (wageTable.length) {
+      await writePage(["lehrlingsloehne"], renderApprenticeWages(wageTable));
+      urls.push({ loc: `${SITE}/lehrlingsloehne/`, lastmod: today });
+    }
+  } catch (err: any) {
+    console.warn("[pages] Guide pages skipped:", err?.message || err);
+  }
 
   // hub pages: plain link lists so every profession and school page has links pointing to it
   const hubTypes = Object.entries(TYPE_HUBS).filter(([t]) => (indexableByType.get(t) ?? []).length > 0);

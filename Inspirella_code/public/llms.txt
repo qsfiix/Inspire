@@ -32,6 +32,7 @@ The app itself is a single-page application: its interactive parts (map, tracker
 - `https://www.inspirella.ch/beruf/<slug>/` - one page per profession or education programme (German): an "at a glance" table (diploma, duration, recommended apprentice pay per year, median pay of the occupation group from the Federal Statistical Office, prerequisites, next steps, source and date checked, shown only where we hold the data), description, daily work, requirements and interests, schools that offer it, related professions, a short Q&A, and a link to the specific profile on berufsberatung.ch.
 - `https://www.inspirella.ch/schulen/` and `/schulen/<canton>/` (e.g. `/schulen/zh/`) - catalogue of schools by canton.
 - `https://www.inspirella.ch/institution/<slug>/` - one page per school, university or training centre (German): profile, admission, language, location, programmes offered, link to the official website.
+- Guides built from the same data: `/lehrlingsloehne/` (recommended apprentice pay per year for 199 apprenticeships), `/efz-oder-eba/`, `/hf-oder-fh/`, `/passerelle/` (from vocational/professional Matura to university, with cantonal preparation courses).
 - `https://www.inspirella.ch/methodik/` - sources, how texts are produced (with AI assistance), how to read salaries, meaning of "Verified" and "Provisional".
 - The complete list of these pages is in https://www.inspirella.ch/sitemap.xml.
 
