@@ -1241,7 +1241,7 @@ function guideField(row: Row, base: string, lang: GLang): string | undefined {
 
 function pickTitle(titles: string[]): { docTitle: string } {
   const brand = " | Inspirella";
-  const base = titles.find(t => t.length + brand.length <= 60) ?? titles.find(t => t.length <= 60) ?? truncate(titles[titles.length - 1], 60);
+  const base = titles.find(t => t.length <= 60) ?? truncate(titles[titles.length - 1], 60);
   return { docTitle: base.length + brand.length <= 60 ? base + brand : base };
 }
 
@@ -1351,6 +1351,172 @@ function renderAdultGuide(lang: GLang, node: Row, today: string): string {
   ${facts.length ? `<section class="card prose"><dl class="dl">${facts.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></section>` : ""}
   ${good.length ? `<section class="card prose"><h2>${esc(c.goodTitle)}</h2><ul>${good.map(g => `<li>${esc(g)}</li>`).join("")}</ul>${official ? `<p class="more"><a href="${esc(official)}" rel="noopener">${esc(c.official)}</a></p>` : ""}</section>` : official ? `<p class="more"><a href="${esc(official)}" rel="noopener">${esc(c.official)}</a></p>` : ""}
   <p class="more"><a href="${c.bridgeBase}">${esc(c.bridgeLink)}</a> · <a href="${STATUS_S[lang].base}">${esc(c.statusLink)}</a></p>
+  <div class="source">${esc(c.disclaimer)} ${esc(c.updated)}: ${esc(statusDate(lang, updated))}.</div>`
+  });
+}
+
+// --------------------------------------------------------------------------
+// Admission to Gymnasium, FMS, HMS and Berufsmaturität by canton (German, Ukrainian)
+// Built only from verified admission_conditions rows without an institution (cantonal rules).
+// --------------------------------------------------------------------------
+
+const ADMISSION_ROUTES = ["gymnasium_kurz", "gymnasium_lang", "fms", "hms", "bms_bm1", "bms_bm2"];
+
+interface AdmissionCopy {
+  base: string;
+  htmlLang: string;
+  nav: { about: string; app: string };
+  crumb: string;
+  hubTitles: string[];
+  hubH1: string;
+  hubLead: string;
+  hubDescription: string;
+  cantonTitles: (n: string) => string[];
+  cantonH1: (n: string) => string;
+  cantonLead: (n: string) => string;
+  cantonDescription: (n: string) => string;
+  routes: Record<string, string>;
+  routeHints: Record<string, string>;
+  dl: { requirements: string; exam: string; deadline: string; timing: string; cost: string };
+  tableTitle: string;
+  tableLead: string;
+  tableCanton: string;
+  otherCantons: string;
+  official: string;
+  disclaimer: string;
+  updated: string;
+  links: { bridge: string; adult: string; status: string };
+}
+
+const ADMISSION: Record<GLang, AdmissionCopy> = {
+  de: {
+    base: "/zulassung/",
+    htmlLang: "de",
+    nav: { about: "Über Inspirella", app: "Zur App" },
+    crumb: "Zulassung",
+    hubTitles: ["Zulassung Gymnasium, FMS und Berufsmatura nach Kanton", "Zulassung nach Kanton"],
+    hubH1: "Zulassung zu Gymnasium, FMS und Berufsmatura: Regeln nach Kanton",
+    hubLead: "Wie kommt man nach der obligatorischen Schule ans Gymnasium, an die Fachmittelschule oder zur Berufsmaturität? Das regeln die Kantone. Hier sind die Voraussetzungen, Prüfungen und Anmeldefristen pro Kanton, jeweils mit Link auf die offizielle Seite.",
+    hubDescription: "Zulassung zu Gymnasium, Fachmittelschule, Handelsmittelschule und Berufsmaturität in allen Kantonen: Voraussetzungen, Aufnahmeprüfung, Anmeldung und Kosten, mit offiziellen Quellen.",
+    cantonTitles: n => [`Aufnahme Gymnasium, FMS und BM im Kanton ${n}`, `Zulassung Gymnasium und FMS im Kanton ${n}`, `Zulassung im Kanton ${n}`],
+    cantonH1: n => `Zulassung zu Gymnasium, FMS und Berufsmatura im Kanton ${n}`,
+    cantonLead: n => `Voraussetzungen, Prüfung, Anmeldung und Kosten für den Eintritt ins Gymnasium, in die Fachmittelschule und zur Berufsmaturität im Kanton ${n}, jeweils mit Link auf die offizielle Seite.`,
+    cantonDescription: n => `Zulassung im Kanton ${n}: Gymnasium, Fachmittelschule, Handelsmittelschule und Berufsmaturität mit Voraussetzungen, Prüfung, Anmeldefrist und Kosten.`,
+    routes: { gymnasium_kurz: "Kurzgymnasium", gymnasium_lang: "Langgymnasium", fms: "Fachmittelschule (FMS)", hms: "Handelsmittelschule (HMS)", bms_bm1: "Berufsmaturität während der Lehre (BM 1)", bms_bm2: "Berufsmaturität nach der Lehre (BM 2)" },
+    routeHints: { gymnasium_kurz: "Gymnasium", gymnasium_lang: "Langgymnasium", fms: "FMS", hms: "HMS", bms_bm1: "BM 1", bms_bm2: "BM 2" },
+    dl: { requirements: "Voraussetzungen", exam: "Prüfung und Verfahren", deadline: "Anmeldung", timing: "Zeitpunkt", cost: "Kosten" },
+    tableTitle: "Übersicht: Welcher Kanton bietet was?",
+    tableLead: "Ein Punkt bedeutet: Für diesen Weg steht eine geprüfte Angabe zum Kanton zur Verfügung. Ein Strich bedeutet: keine Angabe in unserer Datenbank.",
+    tableCanton: "Kanton",
+    otherCantons: "Andere Kantone",
+    official: "Offizielle Seite →",
+    disclaimer: "Inspirella ist ein Orientierungswerkzeug und keine offizielle Stelle. Fristen, Noten und Bedingungen ändern sich jedes Jahr: bitte immer auf der offiziellen Seite prüfen. Verbindliche Auskunft gibt die Schule oder das kantonale Berufsinformationszentrum (BIZ).",
+    updated: "Zuletzt aktualisiert",
+    links: { bridge: "Brückenangebote nach Kanton", adult: "Berufsabschluss für Erwachsene", status: "Mit Schutzstatus S: Angebote nach Kanton" }
+  },
+  uk: {
+    base: "/uk/pryjom/",
+    htmlLang: "uk",
+    nav: { about: "Про Inspirella", app: "Відкрити застосунок" },
+    crumb: "Вступ",
+    hubTitles: ["Вступ до гімназії, FMS і професійної матури за кантонами", "Вступ за кантонами"],
+    hubH1: "Вступ до гімназії, FMS і професійної матури: правила за кантонами",
+    hubLead: "Як після обов’язкової школи потрапити до гімназії, до середньої фахової школи (FMS) або на професійну матуру? Це визначають кантони. Тут умови, іспити та строки подання для кожного кантону, з посиланням на офіційну сторінку.",
+    hubDescription: "Вступ до гімназії, FMS, торговельної середньої школи та професійної матури в усіх кантонах: умови, вступний іспит, запис і вартість, з офіційними джерелами.",
+    cantonTitles: n => [`Вступ до гімназії, FMS і матури у кантоні ${n}`, `Вступ до гімназії та FMS у кантоні ${n}`, `Вступ у кантоні ${n}`],
+    cantonH1: n => `Вступ до гімназії, FMS і професійної матури у кантоні ${n}`,
+    cantonLead: n => `Умови, іспит, запис і вартість вступу до гімназії, середньої фахової школи (FMS) і на професійну матуру у кантоні ${n}, з посиланням на офіційну сторінку.`,
+    cantonDescription: n => `Вступ у кантоні ${n}: гімназія, FMS, торговельна середня школа та професійна матура з умовами, іспитом, строком подання й вартістю.`,
+    routes: { gymnasium_kurz: "Коротка гімназія (Kurzgymnasium)", gymnasium_lang: "Довга гімназія (Langgymnasium)", fms: "Середня фахова школа (FMS)", hms: "Торговельна середня школа (HMS)", bms_bm1: "Професійна матура під час навчання (BM 1)", bms_bm2: "Професійна матура після навчання (BM 2)" },
+    routeHints: { gymnasium_kurz: "Гімназія", gymnasium_lang: "Довга гімн.", fms: "FMS", hms: "HMS", bms_bm1: "BM 1", bms_bm2: "BM 2" },
+    dl: { requirements: "Умови", exam: "Іспит і порядок", deadline: "Запис", timing: "Строки", cost: "Вартість" },
+    tableTitle: "Огляд: що пропонує кожен кантон",
+    tableLead: "Крапка означає: для цього шляху є перевірені дані про кантон. Риска означає: у нашій базі даних немає.",
+    tableCanton: "Кантон",
+    otherCantons: "Інші кантони",
+    official: "Офіційна сторінка →",
+    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Строки, оцінки й умови змінюються щороку: завжди перевіряй офіційну сторінку. Обов’язкову інформацію дає школа або кантональний центр профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено.",
+    updated: "Востаннє оновлено",
+    links: { bridge: "Перехідні програми за кантонами", adult: "Диплом для дорослих", status: "Зі статусом S: пропозиції за кантонами" }
+  }
+};
+
+function admissionField(row: Row, base: string, lang: GLang): string | undefined {
+  return txt(row[`${base}_${lang}`]);
+}
+
+function renderAdmissionPage(lang: GLang, canton: string | null, byCanton: Map<string, Row[]>, availableIn: (code: string) => GLang[], today: string): string {
+  const c = ADMISSION[lang];
+  const g = GUIDES[lang];
+  const cantonCodes = [...byCanton.keys()].filter(code => availableIn(code).includes(lang)).sort((a, b) => statusCantonName(lang, a).localeCompare(statusCantonName(lang, b), lang));
+  const path = canton ? `${c.base}${canton.toLowerCase()}/` : c.base;
+  const url = SITE + path;
+  const name = canton ? statusCantonName(lang, canton) : "";
+  const rows = canton
+    ? ADMISSION_ROUTES.map(route => (byCanton.get(canton) ?? []).find(r => String(r.route) === route)).filter((r): r is Row => !!r && !!admissionField(r, "headline", lang))
+    : [];
+  const updated = newest(canton ? rows : [...byCanton.values()].flat(), today);
+
+  const cantonList = (exclude?: string) =>
+    `<ul class="cols">${cantonCodes.filter(code => code !== exclude).map(code => `<li><a href="${c.base}${code.toLowerCase()}/" lang="${c.htmlLang}">${esc(statusCantonName(lang, code))}</a></li>`).join("")}</ul>`;
+
+  const card = (r: Row): string => {
+    const dl = [
+      [c.dl.requirements, admissionField(r, "requirements", lang)],
+      [c.dl.exam, admissionField(r, "exam_info", lang)],
+      [c.dl.deadline, admissionField(r, "deadline_text", lang)],
+      [c.dl.timing, admissionField(r, "typical_timing", lang)],
+      [c.dl.cost, admissionField(r, "cost_note", lang)]
+    ].filter(([, v]) => v);
+    const href = safeUrl(r.official_url) ?? safeUrl(r.evidence_url);
+    return `<section class="card prose"><h2>${esc(c.routes[String(r.route)])}</h2><p>${esc(admissionField(r, "headline", lang)!)}</p><dl class="dl">${dl.map(([k, v]) => `<div><dt>${esc(k as string)}</dt><dd>${esc(v as string)}</dd></div>`).join("")}</dl>${href ? `<p class="more"><a href="${esc(href)}" rel="noopener">${esc(c.official)}</a></p>` : ""}</section>`;
+  };
+
+  let body: string;
+  if (canton) {
+    body = `${rows.map(card).join("\n  ")}
+  <h2 style="margin-top:34px">${esc(c.otherCantons)}</h2>
+  <section class="card">${cantonList(canton)}</section>
+  <p class="more"><a href="${c.base}">${esc(c.crumb)}</a> · <a href="${g.bridgeBase}">${esc(c.links.bridge)}</a> · <a href="${g.adultPath}">${esc(c.links.adult)}</a></p>`;
+  } else {
+    const head = `<tr><th>${esc(c.tableCanton)}</th>${ADMISSION_ROUTES.map(r => `<th>${esc(c.routeHints[r])}</th>`).join("")}</tr>`;
+    const lines = cantonCodes
+      .map(code => {
+        const have = new Set((byCanton.get(code) ?? []).filter(r => admissionField(r, "headline", lang)).map(r => String(r.route)));
+        return `<tr><th><a href="${c.base}${code.toLowerCase()}/" lang="${c.htmlLang}">${esc(statusCantonName(lang, code))}</a></th>${ADMISSION_ROUTES.map(r => `<td>${have.has(r) ? "●" : "–"}</td>`).join("")}</tr>`;
+      })
+      .join("");
+    body = `<h2 style="margin-top:6px">${esc(c.tableTitle)}</h2>
+  <section class="card"><p>${esc(c.tableLead)}</p><div style="overflow-x:auto"><table class="cmp"><thead>${head}</thead><tbody>${lines}</tbody></table></div></section>
+  <h2 style="margin-top:34px">${esc(lang === "de" ? "Wähle deinen Kanton" : "Обери свій кантон")}</h2>
+  <section class="card">${cantonList()}</section>
+  <p class="more"><a href="${g.bridgeBase}">${esc(c.links.bridge)}</a> · <a href="${g.adultPath}">${esc(c.links.adult)}</a> · <a href="${STATUS_S[lang].base}">${esc(c.links.status)}</a></p>`;
+  }
+
+  const h1 = canton ? c.cantonH1(name) : c.hubH1;
+  const lead = canton ? c.cantonLead(name) : c.hubLead;
+  const description = truncate(canton ? c.cantonDescription(name) : c.hubDescription, 158);
+  const { docTitle } = pickTitle(canton ? c.cantonTitles(name) : c.hubTitles);
+  const crumbs = canton ? `<a href="/">Inspirella</a> › <a href="${c.base}">${esc(c.crumb)}</a> › ${esc(name)}` : `<a href="/">Inspirella</a> › ${esc(c.crumb)}`;
+  const ldCrumbs = [{ name: "Inspirella", item: SITE + "/" }, { name: c.crumb, item: SITE + c.base }, ...(canton ? [{ name, item: url }] : [])];
+  const alternates = guideAlternates(l => (canton ? `${ADMISSION[l].base}${canton.toLowerCase()}/` : ADMISSION[l].base), canton ? availableIn(canton) : (["de", "uk"] as GLang[]));
+
+  return layout({
+    docTitle,
+    ogTitle: h1,
+    description,
+    url,
+    indexable: canton ? rows.length > 0 : true,
+    lang: c.htmlLang,
+    alternates,
+    nav: c.nav,
+    ld: [
+      { "@context": "https://schema.org", "@type": "Article", headline: h1, url, inLanguage: c.htmlLang, description, dateModified: updated, publisher: { "@type": "Organization", name: "Inspirella", url: SITE + "/" } },
+      { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: ldCrumbs.map((b, i) => ({ "@type": "ListItem", position: i + 1, name: b.name, item: b.item })) }
+    ],
+    main: `  <div class="crumbs">${crumbs}</div>
+  <header class="hero"><h1>${esc(h1)}</h1><p class="lead">${esc(lead)}</p></header>
+  ${body}
   <div class="source">${esc(c.disclaimer)} ${esc(c.updated)}: ${esc(statusDate(lang, updated))}.</div>`
   });
 }
@@ -1503,7 +1669,7 @@ function renderHomeBlock(counts: Counts, featured: HomeFeatured): string {
 <p style="font-size:19px;margin:0 0 12px">Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take.</p>
 <p lang="de" style="color:#b7aed6;margin:0 0 24px">Inspirella hilft dir, dich im Schweizer Bildungssystem zurechtzufinden: Berufe, die zu dir passen, Schulen, wo du sie lernst, und der nächste kleine Schritt. Kostenlos, auf Deutsch, Französisch, Italienisch und Englisch.</p>
 <p style="margin:0 0 24px">${counts.professions} professions and programmes, ${counts.institutions} schools and institutions, ${counts.resources} official resources. Data as of ${esc(dataDate())}. Inspirella is an orientation tool, not an official authority: for binding information see <a href="https://www.berufsberatung.ch/" style="color:#c4b5fd">berufsberatung.ch</a> and your cantonal careers office (BIZ).</p>
-<p style="margin:0 0 28px"><a href="/berufe/" lang="de" style="color:#c4b5fd">Alle Berufe</a> · <a href="/schulen/" lang="de" style="color:#c4b5fd">Alle Schulen</a> · <a href="/lehrlingsloehne/" lang="de" style="color:#c4b5fd">Lehrlingslöhne</a> · <a href="/passerelle/" lang="de" style="color:#c4b5fd">Passerelle</a> · <a href="/status-s/" lang="de" style="color:#c4b5fd">Schutzstatus S</a> · <a href="/brueckenangebote/" lang="de" style="color:#c4b5fd">Brückenangebote</a> · <a href="/berufsabschluss-fuer-erwachsene/" lang="de" style="color:#c4b5fd">Berufsabschluss für Erwachsene</a> · <a href="/methodik/" lang="de" style="color:#c4b5fd">Methodik</a> · <a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/en/swiss-education-system/" style="color:#c4b5fd">Swiss education system</a> · <a href="/bildungssystem/" lang="de" style="color:#c4b5fd">Bildungssystem</a> · <a href="/uk/systema-osvity-shveitsarii/" lang="uk" style="color:#c4b5fd">Система освіти Швейцарії</a> ·<a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
+<p style="margin:0 0 28px"><a href="/berufe/" lang="de" style="color:#c4b5fd">Alle Berufe</a> · <a href="/schulen/" lang="de" style="color:#c4b5fd">Alle Schulen</a> · <a href="/lehrlingsloehne/" lang="de" style="color:#c4b5fd">Lehrlingslöhne</a> · <a href="/passerelle/" lang="de" style="color:#c4b5fd">Passerelle</a> · <a href="/status-s/" lang="de" style="color:#c4b5fd">Schutzstatus S</a> · <a href="/zulassung/" lang="de" style="color:#c4b5fd">Zulassung nach Kanton</a> · <a href="/brueckenangebote/" lang="de" style="color:#c4b5fd">Brückenangebote</a> · <a href="/berufsabschluss-fuer-erwachsene/" lang="de" style="color:#c4b5fd">Berufsabschluss für Erwachsene</a> · <a href="/methodik/" lang="de" style="color:#c4b5fd">Methodik</a> · <a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/en/swiss-education-system/" style="color:#c4b5fd">Swiss education system</a> · <a href="/bildungssystem/" lang="de" style="color:#c4b5fd">Bildungssystem</a> · <a href="/uk/systema-osvity-shveitsarii/" lang="uk" style="color:#c4b5fd">Система освіти Швейцарії</a> ·<a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Professions</h2>
 <ul style="margin:0 0 24px;padding-left:20px">${list(featured.professions)}</ul>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Schools and institutions</h2>
@@ -1996,6 +2162,41 @@ async function main() {
     console.log(`[pages] bridge/adult guide pages: ${guidePages} (${bridgeRows.length} programmes, ${byCanton.size} cantons).`);
   } catch (err: any) {
     console.warn("[pages] Bridge/adult guide pages skipped:", err?.message || err);
+  }
+  // Admission rules (Gymnasium, FMS, HMS, Berufsmaturität) by canton, German and Ukrainian, verified cantonal rows only.
+  try {
+    const adm = await fetchAll((from, to) =>
+      supabase.from("admission_conditions").select("*").eq("is_active", true).eq("verification_status", "verified").is("institution_id", null).order("code", { ascending: true }).range(from, to)
+    );
+    const admRows = adm.filter(r => ADMISSION_ROUTES.includes(String(r.route)));
+    const byCantonAdm = new Map<string, Row[]>();
+    for (const r of admRows) {
+      const code = String(r.canton_code || "").toUpperCase();
+      if (!code || !CANTON_NAMES[code]) continue;
+      byCantonAdm.set(code, [...(byCantonAdm.get(code) ?? []), r]);
+    }
+    const alangs: GLang[] = ["de", "uk"];
+    const aavail = new Map<string, GLang[]>();
+    for (const [code, rows] of byCantonAdm) aavail.set(code, alangs.filter(l => rows.some(r => admissionField(r, "headline", l))));
+    const aavailableIn = (code: string): GLang[] => aavail.get(code) ?? [];
+    let admissionPages = 0;
+    for (const lang of alangs) {
+      const a = ADMISSION[lang];
+      const segs = a.base.split("/").filter(Boolean);
+      if (!byCantonAdm.size) continue;
+      await writePage(segs, renderAdmissionPage(lang, null, byCantonAdm, aavailableIn, today));
+      urls.push({ loc: SITE + a.base, lastmod: newest(admRows, today) });
+      admissionPages++;
+      for (const code of byCantonAdm.keys()) {
+        if (!aavailableIn(code).includes(lang)) continue;
+        await writePage([...segs, code.toLowerCase()], renderAdmissionPage(lang, code, byCantonAdm, aavailableIn, today));
+        urls.push({ loc: `${SITE}${a.base}${code.toLowerCase()}/`, lastmod: newest(byCantonAdm.get(code)!, today) });
+        admissionPages++;
+      }
+    }
+    console.log(`[pages] admission pages: ${admissionPages} (${admRows.length} rules, ${byCantonAdm.size} cantons).`);
+  } catch (err: any) {
+    console.warn("[pages] Admission pages skipped:", err?.message || err);
   }
   await fs.writeFile(path.join(DIST, "404.html"), render404(), "utf8");
   await writePage(["impressum"], renderLegal(IMPRESSUM.de, "impressum"));
