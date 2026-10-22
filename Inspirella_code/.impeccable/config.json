@@ -47,6 +47,24 @@
         ],
         "createdAt": "2026-10-17T13:21:47.532Z",
         "reason": "Inter and Space Grotesk are the self-hosted brand fonts (public/fonts) chosen earlier for Inspirella; Sofiia has approved the current look. Assistant decision, not re-confirmed today."
+      },
+      {
+        "rule": "overused-font",
+        "value": "*",
+        "files": [
+          "scripts/generate-pages.ts"
+        ],
+        "createdAt": "2026-10-22T18:59:59.998Z",
+        "reason": "The static SEO pages deliberately reuse the app typography (Inter body, Space Grotesk headings, self-hosted woff2) so crawled pages look the same as the SPA; the brand typeface is not changing. Assistant decision, same reasoning as the existing src/index.css ignore."
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "src/index.css"
+        ],
+        "createdAt": "2026-10-22T18:59:59.998Z",
+        "reason": ".btn-primary violet gradient is the established Inspirella brand button; Sofiia confirmed on 2026-10-08 that the violet style stays. Pre-existing, not touched in this work."
       }
     ]
   }
