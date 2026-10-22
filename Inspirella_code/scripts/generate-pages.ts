@@ -1127,6 +1127,235 @@ function renderStatusPage(lang: SLang, canton: string | null, national: Row[], b
   });
 }
 
+// --------------------------------------------------------------------------
+// Bridge programmes (Brückenangebote) by canton and the adult-qualification guide (German, Ukrainian)
+// Built only from education_programs / education_nodes rows; nothing is added that is not in the data.
+// --------------------------------------------------------------------------
+
+type GLang = "de" | "uk";
+
+const BRIDGE_KIND_ORDER = ["bridge_year", "vorlehre", "integration_vorlehre", "motivation_semester", "other"];
+
+interface GuideCopy {
+  bridgeBase: string;
+  adultPath: string;
+  htmlLang: string;
+  nav: { about: string; app: string };
+  updated: string;
+  official: string;
+  disclaimer: string;
+  crumb: string;
+  bridgeHubTitles: string[];
+  bridgeHubH1: string;
+  bridgeHubDescription: string;
+  bridgeCantonsTitle: string;
+  bridgeCantonsLead: string;
+  bridgeCantonTitles: (n: string) => string[];
+  bridgeCantonH1: (n: string) => string;
+  bridgeCantonLead: (n: string) => string;
+  bridgeCantonDescription: (n: string) => string;
+  otherCantons: string;
+  goodTitle: string;
+  kinds: Record<string, string>;
+  dl: { target: string; duration: string; admission: string; provider: string };
+  statusLink: string;
+  adultLink: string;
+  bridgeLink: string;
+  adultTitles: string[];
+  adultH1: string;
+  adultDescription: string;
+  adultFacts: Record<string, string>;
+  adultCrumb: string;
+  adultCta: string;
+}
+
+const GUIDES: Record<GLang, GuideCopy> = {
+  de: {
+    bridgeBase: "/brueckenangebote/",
+    adultPath: "/berufsabschluss-fuer-erwachsene/",
+    htmlLang: "de",
+    nav: { about: "Über Inspirella", app: "Zur App" },
+    updated: "Zuletzt aktualisiert",
+    official: "Offizielle Seite →",
+    disclaimer: "Inspirella ist ein Orientierungswerkzeug und keine offizielle Stelle. Anmeldefristen, Voraussetzungen und Angebote ändern sich: bitte immer auf der offiziellen Seite prüfen. Verbindliche Auskunft gibt das kantonale Berufsinformationszentrum (BIZ).",
+    crumb: "Brückenangebote",
+    bridgeHubTitles: ["Brückenangebote nach Kanton: Vorlehre, Brückenjahr", "Brückenangebote nach Kanton"],
+    bridgeHubH1: "Brückenangebote in der Schweiz: Übersicht nach Kanton",
+    bridgeHubDescription: "Brückenangebote nach der obligatorischen Schule: Vorlehre, Berufsvorbereitungsjahr, Integrationsvorlehre und Motivationssemester in jedem Kanton, mit Zulassung und Quellen.",
+    bridgeCantonsTitle: "Wähle deinen Kanton",
+    bridgeCantonsLead: "Brückenangebote werden von den Kantonen organisiert. Darum unterscheiden sich Namen, Voraussetzungen und Anmeldung.",
+    bridgeCantonTitles: n => [`Brückenangebote im Kanton ${n}: Vorlehre, Brückenjahr`, `Brückenangebote im Kanton ${n}`, `Brückenangebote: ${n}`],
+    bridgeCantonH1: n => `Brückenangebote im Kanton ${n}`,
+    bridgeCantonLead: n => `Vorlehre, Berufsvorbereitungsjahr, Integrationsvorlehre und weitere Angebote zwischen Schule und Lehre im Kanton ${n}: für wen sie gedacht sind, wie man sich anmeldet und wo die offizielle Seite ist.`,
+    bridgeCantonDescription: n => `Brückenangebote im Kanton ${n}: Vorlehre, Berufsvorbereitungsjahr und Integrationsvorlehre mit Zielgruppe, Zulassung und offiziellen Quellen.`,
+    otherCantons: "Andere Kantone",
+    goodTitle: "Gut zu wissen",
+    kinds: { bridge_year: "Brückenjahr / Berufsvorbereitungsjahr", vorlehre: "Vorlehre", integration_vorlehre: "Integrationsvorlehre", motivation_semester: "Motivationssemester", other: "Weitere Angebote" },
+    dl: { target: "Für wen", duration: "Dauer", admission: "Zulassung und Anmeldung", provider: "Anbieter" },
+    statusLink: "Mit Schutzstatus S: Angebote nach Kanton",
+    adultLink: "Berufsabschluss für Erwachsene",
+    bridgeLink: "Brückenangebote nach Kanton",
+    adultTitles: ["Berufsabschluss für Erwachsene: EFZ nachholen", "Berufsabschluss für Erwachsene"],
+    adultH1: "Berufsabschluss für Erwachsene: EFZ oder EBA nachholen",
+    adultDescription: "Berufsabschluss für Erwachsene in der Schweiz: vier Wege zum EFZ oder EBA (reguläre Lehre, verkürzte Lehre, Artikel 32, Validierung), mit offizieller Quelle.",
+    adultFacts: { duration: "Dauer", typical_age: "Typisches Alter", diploma: "Abschluss", requirements: "Wer kann starten", cantonal_note: "Unterschiede zwischen den Kantonen" },
+    adultCrumb: "Berufsabschluss für Erwachsene",
+    adultCta: "Swiss Path Map öffnen →"
+  },
+  uk: {
+    bridgeBase: "/uk/perekhidni-prohramy/",
+    adultPath: "/uk/diplom-dlia-doroslykh/",
+    htmlLang: "uk",
+    nav: { about: "Про Inspirella", app: "Відкрити застосунок" },
+    updated: "Востаннє оновлено",
+    official: "Офіційна сторінка →",
+    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Строки подання, вимоги й пропозиції змінюються: завжди перевіряй офіційну сторінку. Обов’язкову інформацію дає кантональний центр профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено за допомогою ШІ.",
+    crumb: "Перехідні програми",
+    bridgeHubTitles: ["Перехідні програми у Швейцарії за кантонами", "Перехідні програми за кантонами"],
+    bridgeHubH1: "Перехідні програми у Швейцарії: огляд за кантонами",
+    bridgeHubDescription: "Перехідні програми після обов’язкової школи: Vorlehre, підготовчий рік, Integrationsvorlehre і мотиваційний семестр у кожному кантоні, з умовами вступу та джерелами.",
+    bridgeCantonsTitle: "Обери свій кантон",
+    bridgeCantonsLead: "Перехідні програми організують кантони, тому назви, вимоги й запис відрізняються.",
+    bridgeCantonTitles: n => [`Перехідні програми у кантоні ${n}: Vorlehre, рік`, `Перехідні програми у кантоні ${n}`, `Програми: ${n}`],
+    bridgeCantonH1: n => `Перехідні програми у кантоні ${n}`,
+    bridgeCantonLead: n => `Vorlehre, підготовчий рік, Integrationsvorlehre та інші програми між школою і Lehre у кантоні ${n}: для кого вони, як записатися і де офіційна сторінка.`,
+    bridgeCantonDescription: n => `Перехідні програми у кантоні ${n}: Vorlehre, підготовчий рік і Integrationsvorlehre з цільовою групою, умовами вступу та офіційними джерелами.`,
+    otherCantons: "Інші кантони",
+    goodTitle: "Корисно знати",
+    kinds: { bridge_year: "Підготовчий рік", vorlehre: "Vorlehre", integration_vorlehre: "Integrationsvorlehre", motivation_semester: "Мотиваційний семестр", other: "Інші програми" },
+    dl: { target: "Для кого", duration: "Тривалість", admission: "Вступ і запис", provider: "Організатор" },
+    statusLink: "Зі статусом S: пропозиції за кантонами",
+    adultLink: "Диплом для дорослих",
+    bridgeLink: "Перехідні програми за кантонами",
+    adultTitles: ["Диплом EFZ для дорослих у Швейцарії: 4 шляхи", "Диплом для дорослих у Швейцарії"],
+    adultH1: "Професійний диплом для дорослих: EFZ або EBA",
+    adultDescription: "Професійний диплом для дорослих у Швейцарії: чотири шляхи до EFZ або EBA (звичайне навчання, скорочене, стаття 32, валідація), з офіційним джерелом.",
+    adultFacts: { duration: "Тривалість", typical_age: "Типовий вік", diploma: "Кваліфікація", requirements: "Хто може почати", cantonal_note: "Відмінності між кантонами" },
+    adultCrumb: "Диплом для дорослих",
+    adultCta: "Відкрити Swiss Path Map →"
+  }
+};
+
+function guideField(row: Row, base: string, lang: GLang): string | undefined {
+  return txt(row[`${base}_${lang}`]);
+}
+
+function pickTitle(titles: string[]): { docTitle: string } {
+  const brand = " | Inspirella";
+  const base = titles.find(t => t.length + brand.length <= 60) ?? titles.find(t => t.length <= 60) ?? truncate(titles[titles.length - 1], 60);
+  return { docTitle: base.length + brand.length <= 60 ? base + brand : base };
+}
+
+function guideAlternates(pathFor: (l: GLang) => string, langs: GLang[]): { lang: string; href: string }[] {
+  const alts: { lang: string; href: string }[] = langs.map(l => ({ lang: l, href: SITE + pathFor(l) }));
+  alts.push({ lang: "x-default", href: SITE + pathFor("de") });
+  return alts;
+}
+
+function renderBridgePage(lang: GLang, canton: string | null, byCanton: Map<string, Row[]>, availableIn: (code: string) => GLang[], node: Row | undefined, today: string): string {
+  const c = GUIDES[lang];
+  const cantonCodes = [...byCanton.keys()].filter(code => availableIn(code).includes(lang)).sort((a, b) => statusCantonName(lang, a).localeCompare(statusCantonName(lang, b), lang));
+  const path = canton ? `${c.bridgeBase}${canton.toLowerCase()}/` : c.bridgeBase;
+  const url = SITE + path;
+  const name = canton ? statusCantonName(lang, canton) : "";
+  const rows = canton ? (byCanton.get(canton) ?? []).filter(r => guideField(r, "title", lang) && guideField(r, "description", lang)) : [];
+  const updated = newest(canton ? rows : [...byCanton.values()].flat(), today);
+
+  const cantonList = (exclude?: string) =>
+    `<ul class="cols">${cantonCodes.filter(code => code !== exclude).map(code => `<li><a href="${c.bridgeBase}${code.toLowerCase()}/" lang="${c.htmlLang}">${esc(statusCantonName(lang, code))}</a></li>`).join("")}</ul>`;
+
+  const card = (r: Row): string => {
+    const dl = [
+      [c.dl.target, guideField(r, "target_group", lang)],
+      [c.dl.duration, guideField(r, "duration_text", lang)],
+      [c.dl.admission, guideField(r, "admission", lang)],
+      [c.dl.provider, txt(r.provider_name)]
+    ].filter(([, v]) => v);
+    const href = safeUrl(r.official_url) ?? safeUrl(r.evidence_url);
+    return `<section class="card prose"><h3>${esc(guideField(r, "title", lang)!)}</h3><p>${esc(guideField(r, "description", lang)!)}</p><dl class="dl">${dl.map(([k, v]) => `<div><dt>${esc(k as string)}</dt><dd>${esc(v as string)}</dd></div>`).join("")}</dl>${href ? `<p class="more"><a href="${esc(href)}" rel="noopener">${esc(c.official)}</a></p>` : ""}</section>`;
+  };
+
+  let body: string;
+  if (canton) {
+    const groups = BRIDGE_KIND_ORDER.map(kind => ({ kind, items: rows.filter(r => String(r.kind) === kind) })).filter(g => g.items.length);
+    body = `${groups.map(g => `<h2 style="margin-top:30px">${esc(c.kinds[g.kind])}</h2>\n  ${g.items.map(card).join("\n  ")}`).join("\n  ")}
+  <h2 style="margin-top:34px">${esc(c.otherCantons)}</h2>
+  <section class="card">${cantonList(canton)}</section>
+  <p class="more"><a href="${c.bridgeBase}">${esc(c.bridgeLink)}</a> · <a href="${GUIDES[lang].adultPath}">${esc(c.adultLink)}</a></p>`;
+  } else {
+    const good = Array.isArray(node?.[`good_to_know_${lang}`]) ? (node![`good_to_know_${lang}`] as unknown[]).map(txt).filter((x): x is string => !!x) : [];
+    const official = node ? safeUrl(node.official_url) : undefined;
+    body = `${good.length ? `<section class="card prose"><h2>${esc(c.goodTitle)}</h2><ul>${good.map(g => `<li>${esc(g)}</li>`).join("")}</ul>${official ? `<p class="more"><a href="${esc(official)}" rel="noopener">${esc(c.official)}</a></p>` : ""}</section>` : ""}
+  <h2 style="margin-top:34px">${esc(c.bridgeCantonsTitle)}</h2>
+  <section class="card"><p>${esc(c.bridgeCantonsLead)}</p>${cantonList()}</section>
+  <p class="more"><a href="${STATUS_S[lang].base}">${esc(c.statusLink)}</a> · <a href="${c.adultPath}">${esc(c.adultLink)}</a></p>`;
+  }
+
+  const h1 = canton ? c.bridgeCantonH1(name) : c.bridgeHubH1;
+  const nodeSummary = node ? guideField(node, "summary", lang) : undefined;
+  const lead = canton ? c.bridgeCantonLead(name) : nodeSummary ?? c.bridgeHubDescription;
+  const description = truncate(canton ? c.bridgeCantonDescription(name) : c.bridgeHubDescription, 158);
+  const { docTitle } = pickTitle(canton ? c.bridgeCantonTitles(name) : c.bridgeHubTitles);
+  const crumbs = canton ? `<a href="/">Inspirella</a> › <a href="${c.bridgeBase}">${esc(c.crumb)}</a> › ${esc(name)}` : `<a href="/">Inspirella</a> › ${esc(c.crumb)}`;
+  const ldCrumbs = [{ name: "Inspirella", item: SITE + "/" }, { name: c.crumb, item: SITE + c.bridgeBase }, ...(canton ? [{ name, item: url }] : [])];
+  const alternates = guideAlternates(l => (canton ? `${GUIDES[l].bridgeBase}${canton.toLowerCase()}/` : GUIDES[l].bridgeBase), canton ? availableIn(canton) : (["de", "uk"] as GLang[]));
+
+  return layout({
+    docTitle,
+    ogTitle: h1,
+    description,
+    url,
+    indexable: canton ? rows.length > 0 : true,
+    lang: c.htmlLang,
+    alternates,
+    nav: c.nav,
+    ld: [
+      { "@context": "https://schema.org", "@type": "Article", headline: h1, url, inLanguage: c.htmlLang, description, dateModified: updated, publisher: { "@type": "Organization", name: "Inspirella", url: SITE + "/" } },
+      { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: ldCrumbs.map((b, i) => ({ "@type": "ListItem", position: i + 1, name: b.name, item: b.item })) }
+    ],
+    main: `  <div class="crumbs">${crumbs}</div>
+  <header class="hero"><h1>${esc(h1)}</h1><p class="lead">${esc(lead)}</p></header>
+  ${body}
+  <div class="source">${esc(c.disclaimer)} ${esc(c.updated)}: ${esc(statusDate(lang, updated))}.</div>`
+  });
+}
+
+function renderAdultGuide(lang: GLang, node: Row, today: string): string {
+  const c = GUIDES[lang];
+  const url = SITE + c.adultPath;
+  const summary = guideField(node, "summary", lang) ?? c.adultDescription;
+  const facts = Object.entries(c.adultFacts)
+    .map(([key, label]) => [label, guideField(node, key, lang)] as [string, string | undefined])
+    .filter((r): r is [string, string] => !!r[1]);
+  const good = Array.isArray(node[`good_to_know_${lang}`]) ? (node[`good_to_know_${lang}`] as unknown[]).map(txt).filter((x): x is string => !!x) : [];
+  const official = safeUrl(node.official_url);
+  const updated = newest([node], today);
+  const h1 = c.adultH1;
+  const description = truncate(c.adultDescription, 158);
+  const { docTitle } = pickTitle(c.adultTitles);
+  const crumbs = `<a href="/">Inspirella</a> › ${esc(c.adultCrumb)}`;
+  return layout({
+    docTitle,
+    ogTitle: h1,
+    description,
+    url,
+    indexable: true,
+    lang: c.htmlLang,
+    alternates: guideAlternates(l => GUIDES[l].adultPath, ["de", "uk"]),
+    nav: c.nav,
+    ld: [
+      { "@context": "https://schema.org", "@type": "Article", headline: h1, url, inLanguage: c.htmlLang, description, dateModified: updated, publisher: { "@type": "Organization", name: "Inspirella", url: SITE + "/" } },
+      { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Inspirella", item: SITE + "/" }, { "@type": "ListItem", position: 2, name: c.adultCrumb, item: url }] }
+    ],
+    main: `  <div class="crumbs">${crumbs}</div>
+  <header class="hero"><h1>${esc(h1)}</h1><p class="lead">${esc(summary)}</p><div class="cta-row"><a class="btn btn-primary" href="/pathmap/">${esc(c.adultCta)}</a></div></header>
+  ${facts.length ? `<section class="card prose"><dl class="dl">${facts.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></section>` : ""}
+  ${good.length ? `<section class="card prose"><h2>${esc(c.goodTitle)}</h2><ul>${good.map(g => `<li>${esc(g)}</li>`).join("")}</ul>${official ? `<p class="more"><a href="${esc(official)}" rel="noopener">${esc(c.official)}</a></p>` : ""}</section>` : official ? `<p class="more"><a href="${esc(official)}" rel="noopener">${esc(c.official)}</a></p>` : ""}
+  <p class="more"><a href="${c.bridgeBase}">${esc(c.bridgeLink)}</a> · <a href="${STATUS_S[lang].base}">${esc(c.statusLink)}</a></p>
+  <div class="source">${esc(c.disclaimer)} ${esc(c.updated)}: ${esc(statusDate(lang, updated))}.</div>`
+  });
+}
+
 function renderSystem(lang: SysLang, nodes: Row[], transitions: Row[], statusFacts: Row[]): string {
   const c = SYS[lang];
   const url = SITE + c.path;
@@ -1275,7 +1504,7 @@ function renderHomeBlock(counts: Counts, featured: HomeFeatured): string {
 <p style="font-size:19px;margin:0 0 12px">Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take.</p>
 <p lang="de" style="color:#b7aed6;margin:0 0 24px">Inspirella hilft dir, dich im Schweizer Bildungssystem zurechtzufinden: Berufe, die zu dir passen, Schulen, wo du sie lernst, und der nächste kleine Schritt. Kostenlos, auf Deutsch, Französisch, Italienisch und Englisch.</p>
 <p style="margin:0 0 24px">${counts.professions} professions and programmes, ${counts.institutions} schools and institutions, ${counts.resources} official resources. Data as of ${esc(dataDate())}. Inspirella is an orientation tool, not an official authority: for binding information see <a href="https://www.berufsberatung.ch/" style="color:#c4b5fd">berufsberatung.ch</a> and your cantonal careers office (BIZ).</p>
-<p style="margin:0 0 28px"><a href="/berufe/" lang="de" style="color:#c4b5fd">Alle Berufe</a> · <a href="/schulen/" lang="de" style="color:#c4b5fd">Alle Schulen</a> · <a href="/lehrlingsloehne/" lang="de" style="color:#c4b5fd">Lehrlingslöhne</a> · <a href="/passerelle/" lang="de" style="color:#c4b5fd">Passerelle</a> · <a href="/status-s/" lang="de" style="color:#c4b5fd">Schutzstatus S</a> · <a href="/methodik/" lang="de" style="color:#c4b5fd">Methodik</a> · <a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/en/swiss-education-system/" style="color:#c4b5fd">Swiss education system</a> · <a href="/bildungssystem/" lang="de" style="color:#c4b5fd">Bildungssystem</a> · <a href="/uk/systema-osvity-shveitsarii/" lang="uk" style="color:#c4b5fd">Система освіти Швейцарії</a> ·<a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
+<p style="margin:0 0 28px"><a href="/berufe/" lang="de" style="color:#c4b5fd">Alle Berufe</a> · <a href="/schulen/" lang="de" style="color:#c4b5fd">Alle Schulen</a> · <a href="/lehrlingsloehne/" lang="de" style="color:#c4b5fd">Lehrlingslöhne</a> · <a href="/passerelle/" lang="de" style="color:#c4b5fd">Passerelle</a> · <a href="/status-s/" lang="de" style="color:#c4b5fd">Schutzstatus S</a> · <a href="/brueckenangebote/" lang="de" style="color:#c4b5fd">Brückenangebote</a> · <a href="/berufsabschluss-fuer-erwachsene/" lang="de" style="color:#c4b5fd">Berufsabschluss für Erwachsene</a> · <a href="/methodik/" lang="de" style="color:#c4b5fd">Methodik</a> · <a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/en/swiss-education-system/" style="color:#c4b5fd">Swiss education system</a> · <a href="/bildungssystem/" lang="de" style="color:#c4b5fd">Bildungssystem</a> · <a href="/uk/systema-osvity-shveitsarii/" lang="uk" style="color:#c4b5fd">Система освіти Швейцарії</a> ·<a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Professions</h2>
 <ul style="margin:0 0 24px;padding-left:20px">${list(featured.professions)}</ul>
 <h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Schools and institutions</h2>
@@ -1724,6 +1953,50 @@ async function main() {
     console.log(`[pages] status S pages: ${statusPages} (${national.length} national facts, ${byCanton.size} cantons).`);
   } catch (err: any) {
     console.warn("[pages] Status S pages skipped:", err?.message || err);
+  }
+  // Bridge programmes by canton + adult qualification guide (German and Ukrainian, verified rows only).
+  try {
+    const progs = await fetchAll((from, to) =>
+      supabase.from("education_programs").select("*").eq("is_active", true).eq("verification_status", "verified").order("code", { ascending: true }).range(from, to)
+    );
+    const bridgeRows = progs.filter(r => BRIDGE_KIND_ORDER.includes(String(r.kind)));
+    const byCanton = new Map<string, Row[]>();
+    for (const r of bridgeRows) {
+      const code = String(r.canton_code || "").toUpperCase();
+      if (!code || !CANTON_NAMES[code]) continue;
+      byCanton.set(code, [...(byCanton.get(code) ?? []), r]);
+    }
+    const guideNodes = await fetchAll((from, to) => supabase.from("education_nodes").select("*").eq("is_active", true).in("code", ["bridge", "adult"]).range(from, to));
+    const bridgeNode = guideNodes.find(n => n.code === "bridge");
+    const adultNode = guideNodes.find(n => n.code === "adult");
+    const glangs: GLang[] = ["de", "uk"];
+    const gavail = new Map<string, GLang[]>();
+    for (const [code, rows] of byCanton) gavail.set(code, glangs.filter(l => rows.some(r => guideField(r, "title", l) && guideField(r, "description", l))));
+    const gavailableIn = (code: string): GLang[] => gavail.get(code) ?? [];
+    let guidePages = 0;
+    for (const lang of glangs) {
+      const g = GUIDES[lang];
+      const segs = g.bridgeBase.split("/").filter(Boolean);
+      if (byCanton.size) {
+        await writePage(segs, renderBridgePage(lang, null, byCanton, gavailableIn, bridgeNode, today));
+        urls.push({ loc: SITE + g.bridgeBase, lastmod: newest(bridgeRows, today) });
+        guidePages++;
+        for (const code of byCanton.keys()) {
+          if (!gavailableIn(code).includes(lang)) continue;
+          await writePage([...segs, code.toLowerCase()], renderBridgePage(lang, code, byCanton, gavailableIn, bridgeNode, today));
+          urls.push({ loc: `${SITE}${g.bridgeBase}${code.toLowerCase()}/`, lastmod: newest(byCanton.get(code)!, today) });
+          guidePages++;
+        }
+      }
+      if (adultNode && guideField(adultNode, "summary", lang)) {
+        await writePage(g.adultPath.split("/").filter(Boolean), renderAdultGuide(lang, adultNode, today));
+        urls.push({ loc: SITE + g.adultPath, lastmod: newest([adultNode], today) });
+        guidePages++;
+      }
+    }
+    console.log(`[pages] bridge/adult guide pages: ${guidePages} (${bridgeRows.length} programmes, ${byCanton.size} cantons).`);
+  } catch (err: any) {
+    console.warn("[pages] Bridge/adult guide pages skipped:", err?.message || err);
   }
   await fs.writeFile(path.join(DIST, "404.html"), render404(), "utf8");
   await writePage(["impressum"], renderLegal(IMPRESSUM.de, "impressum"));
