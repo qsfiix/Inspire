@@ -692,7 +692,7 @@ function renderMethodology(counts: Counts): string {
   const url = `${SITE}/methodik/`;
   const items: [string, string][] = [
     ["Woher die Daten kommen", "Berufsbeschreibungen, Ausbildungsdauer, empfohlene Lehrlingslöhne und ähnliche Berufe stammen aus dem Berufsportal berufsberatung.ch (SDBB), Angaben zu Schulen aus den offiziellen Websites der Schulen und Kantone, Zulassungsregeln aus den Seiten der Kantone, der Hochschulen und von swissuniversities. Die Lohnzahlen im Beruf stammen vom Bundesamt für Statistik (Lohnstrukturerhebung 2024, nach Berufsgruppe)."],
-    ["Wie Texte entstehen", "Inspirella fasst offizielle Quellen in eigenen Worten zusammen. Beim Erstellen der Texte wird KI-Unterstützung eingesetzt. Zahlen wie Fristen, Löhne oder Kosten werden aus den Quellen übernommen und nicht geschätzt: Fehlt eine Angabe, zeigen wir die Zeile nicht an."],
+    ["Wie Texte entstehen", "Inspirella fasst offizielle Quellen in eigenen Worten zusammen. Zahlen wie Fristen, Löhne oder Kosten werden aus den Quellen übernommen und nicht geschätzt: Fehlt eine Angabe, zeigen wir die Zeile nicht an."],
     ["Löhne richtig lesen", "Der Lehrlingslohn ist eine Empfehlung der Berufsverbände; Region und Lehrbetrieb bestimmen den tatsächlichen Lohn. Der Lohn im Beruf ist der Median (mittlerer Wert) einer ganzen Berufsgruppe, nicht eines einzelnen Berufs, brutto und auf Vollzeit umgerechnet. Die Zuordnung eines Berufs zu einer Berufsgruppe ist mit «ungefähr» gekennzeichnet, wenn sie nicht eindeutig ist."],
     ["«Verified» und «Provisional»", "«Verified» bedeutet: Die Angaben wurden mit einer offiziellen Quelle abgeglichen. «Provisional» bedeutet: Der Eintrag ist noch nicht vollständig geprüft oder stützt sich auf weniger eindeutige Quellen."],
     ["Aktualität", `Fristen und Bedingungen ändern sich jedes Jahr. Auf jeder Seite steht, wann der Eintrag zuletzt geprüft wurde, und ein Link zur offiziellen Quelle. Aktueller Stand des Katalogs: ${counts.professions} Berufe und Programme, ${counts.institutions} Schulen und Institutionen, ${counts.resources} Ressourcen (${dataDate()}).`],
@@ -734,8 +734,7 @@ function renderAbout(counts: Counts): string {
     ["Persönlicher Weg", "Aus Interessen, Zielen und aktuellem Stand entsteht ein persönlicher Bildungsweg („My Path“) – als Leiter vom heutigen Stand zum Ziel."],
     ["Tracker", "Eigene Ziele und Schritte festhalten und den Fortschritt verfolgen (mit Konto)."],
     ["Ressourcen", `${counts.resources} geprüfte Ressourcen und offizielle Anlaufstellen zu Berufswahl, Ausbildung und Studium.`],
-    ["KI-Beratung", "Ein KI-Berater schlägt einen Bildungsweg vor. Er ersetzt keine Berufsberatung."],
-    ["Vier Sprachen", "Deutsch, Französisch, Italienisch und Englisch."]
+    ["Fünf Sprachen", "Deutsch, Französisch, Italienisch, Englisch und Ukrainisch."]
   ];
 
   const values: [string, string][] = [1, 2, 3, 4].map(n => [t[`aboutValue${n}Title`], t[`aboutValue${n}Desc`]] as [string, string]).filter(([a, b]) => a && b);
@@ -910,7 +909,7 @@ const SYS: Record<SysLang, SysCopy> = {
     factsCantons: "Кантонів",
     factsData: "Дані станом на",
     detailsNote: "",
-    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Правила різняться залежно від кантону й школи. Обов’язкову інформацію шукай на berufsberatung.ch, у SBFI, EDK, swissuniversities і в кантональному центрі профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено за допомогою ШІ.",
+    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Правила різняться залежно від кантону й школи. Обов’язкову інформацію шукай на berufsberatung.ch, у SBFI, EDK, swissuniversities і в кантональному центрі профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено.",
     nav: { about: "Про Inspirella", app: "Відкрити застосунок" }
   }
 };
@@ -1002,7 +1001,7 @@ const STATUS_S: Record<SLang, StatusCopy> = {
     cta: "Open the Swiss Path Map →",
     ctaNote: "The interactive map shows the routes from arriving to a qualification.",
     official: "Official page →",
-    disclaimer: "Inspirella is an orientation tool, not an official authority. Rules, deadlines and contact details change: please always check the official page. Texts are based on official German-language sources and were translated with AI.",
+    disclaimer: "Inspirella is an orientation tool, not an official authority. Rules, deadlines and contact details change: please always check the official page. Texts are based on official German-language sources and translated.",
     updated: "Last updated",
     nav: { about: "About Inspirella", app: "Open the app" }
   },
@@ -1026,7 +1025,7 @@ const STATUS_S: Record<SLang, StatusCopy> = {
     cta: "Відкрити Swiss Path Map →",
     ctaNote: "В інтерактивній мапі видно шляхи від прибуття до диплома.",
     official: "Офіційна сторінка →",
-    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Правила, строки й контакти змінюються: завжди перевіряй офіційну сторінку. Тексти взято з офіційних німецькомовних джерел і перекладено за допомогою ШІ.",
+    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Правила, строки й контакти змінюються: завжди перевіряй офіційну сторінку. Тексти взято з офіційних німецькомовних джерел і перекладено.",
     updated: "Востаннє оновлено",
     nav: { about: "Про Inspirella", app: "Відкрити застосунок" }
   }
@@ -1209,7 +1208,7 @@ const GUIDES: Record<GLang, GuideCopy> = {
     nav: { about: "Про Inspirella", app: "Відкрити застосунок" },
     updated: "Востаннє оновлено",
     official: "Офіційна сторінка →",
-    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Строки подання, вимоги й пропозиції змінюються: завжди перевіряй офіційну сторінку. Обов’язкову інформацію дає кантональний центр профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено за допомогою ШІ.",
+    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Строки подання, вимоги й пропозиції змінюються: завжди перевіряй офіційну сторінку. Обов’язкову інформацію дає кантональний центр профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено.",
     crumb: "Перехідні програми",
     bridgeHubTitles: ["Перехідні програми у Швейцарії за кантонами", "Перехідні програми за кантонами"],
     bridgeHubH1: "Перехідні програми у Швейцарії: огляд за кантонами",
