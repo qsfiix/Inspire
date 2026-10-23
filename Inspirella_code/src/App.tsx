@@ -26,7 +26,6 @@ import { TRANSLATIONS, OFF_RESOURCES } from "./data";
 import Navbar from "./components/Navbar";
 import MapboxMapGate from "./components/MapboxMapGate";
 import SectionGlow from "./components/SectionGlow";
-import TrackerSystem from "./components/TrackerSystem";
 import { fetchSupabaseConfig, getMapboxConfig } from "./supabaseClient";
 import { DataRepository } from "./data/Repository";
 import { EXAMPLE_TRACKERS } from "./data/seedData";
@@ -34,14 +33,18 @@ import { localizedMatches } from "./lib/localized";
 
 import FooterLinks from "./components/FooterLinks";
 import { HomeView, AboutView, ContactView, PrivacyView, ImpressumView } from "./features/marketing";
-import { LoginView, OnboardingView } from "./features/auth";
-import { DashboardView, ProfileView } from "./features/dashboard";
-import { ResourcesCareersView } from "./features/resourcesCareers";
 import type { PhoenixSceneStatus } from "./components/phoenix/PhoenixScene";
 
 // three.js is split into its own chunk and loaded after the first paint.
 const PhoenixScene = lazy(() => import("./components/phoenix/PhoenixScene"));
 const SwissPathMap = lazy(() => import("./components/SwissPathMap"));
+// The signed-in screens are only needed after the visitor leaves the home page, so they load on demand.
+const LoginView = lazy(() => import("./features/auth").then(m => ({ default: m.LoginView })));
+const OnboardingView = lazy(() => import("./features/auth").then(m => ({ default: m.OnboardingView })));
+const DashboardView = lazy(() => import("./features/dashboard").then(m => ({ default: m.DashboardView })));
+const ProfileView = lazy(() => import("./features/dashboard").then(m => ({ default: m.ProfileView })));
+const ResourcesCareersView = lazy(() => import("./features/resourcesCareers").then(m => ({ default: m.ResourcesCareersView })));
+const TrackerSystem = lazy(() => import("./components/TrackerSystem"));
 
 import { PUBLIC_TABS, PROTECTED_TABS, STATIC_TAB_PATHS, pathForTab, tabFromLocation } from "./lib/routes";
 
@@ -562,7 +565,7 @@ export default function App() {
 
           {/* VIEW: Login Sign Up Frame */}
           {activeTab === "login" && (
-            <LoginView
+            <Suspense key="view-login" fallback={null}><LoginView
               t={t}
               currentLanguage={currentLanguage}
               isDark={isDark}
@@ -573,12 +576,12 @@ export default function App() {
               authError={authError}
               pendingConfirmationEmail={pendingConfirmationEmail}
               onDismissConfirmation={() => setPendingConfirmationEmail(null)}
-            />
+            /></Suspense>
           )}
 
           {/* VIEW: Onboarding Questionnaire */}
           {activeTab === "onboarding" && (
-            <OnboardingView t={t} currentLanguage={currentLanguage} isDark={isDark} initialProfile={userProfile} submitOnboarding={async (interests: string[], goals: string[], stage: string, route?: RouteBackground) => {
+            <Suspense key="view-onboarding" fallback={null}><OnboardingView t={t} currentLanguage={currentLanguage} isDark={isDark} initialProfile={userProfile} submitOnboarding={async (interests: string[], goals: string[], stage: string, route?: RouteBackground) => {
               if (!userProfile) return;
               const completedProfile: UserProfile = {
                 ...userProfile,
@@ -596,12 +599,12 @@ export default function App() {
                 if (answered) await DataRepository.saveRouteBackground(route);
               }
               setActiveTab("dashboard");
-            }} />
+            }} /></Suspense>
           )}
 
           {/* VIEW: Personalized Dashboard & Home */}
           {activeTab === "dashboard" && (
-            <DashboardView
+            <Suspense key="view-dashboard" fallback={null}><DashboardView
               onProfileUpdate={handleProfileUpdate}
               t={t}
               isDark={isDark}
@@ -612,7 +615,7 @@ export default function App() {
               trackers={trackers}
               onTrackersChange={handleUpdateTrackers}
               onOpenPathMap={openPathMapAt}
-            />
+            /></Suspense>
           )}
 
           {/* VIEW: Interactive Mapbox WebGIS Grid */}
@@ -672,7 +675,7 @@ export default function App() {
 
           {/* VIEW: Resources & Careers hub (web resources + professions + institutions) */}
           {activeTab === "resources" && (
-            <ResourcesCareersView
+            <Suspense key="view-resources" fallback={null}><ResourcesCareersView
               t={t}
               isDark={isDark}
               currentLanguage={currentLanguage}
@@ -687,7 +690,7 @@ export default function App() {
               onGoalSet={() => handleTabTransition("dashboard")}
               focus={careersFocus}
               onShowOnPathMap={openPathMapAt}
-            />
+            /></Suspense>
           )}
 
           {/* VIEW: Fully Interactive Habit & Goals Tracker */}
@@ -705,18 +708,18 @@ export default function App() {
               </div>
 
               {/* Render the full tracker mini-system */}
-              <TrackerSystem
+              <Suspense fallback={null}><TrackerSystem
                 currentLanguage={currentLanguage}
                 trackers={trackers}
                 onTrackersChange={handleUpdateTrackers}
                 theme={theme}
-              />
+              /></Suspense>
             </motion.div>
           )}
 
           {/* VIEW: Profile & Account preferences */}
           {activeTab === "profile" && (
-            <ProfileView
+            <Suspense key="view-profile" fallback={null}><ProfileView
               t={t}
               isDark={isDark}
               userProfile={userProfile}
@@ -724,7 +727,7 @@ export default function App() {
               handleLanguageChange={handleLanguageChange}
               handleLogout={handleLogout}
               handleUpdateProfile={handleUpdateProfile}
-            />
+            /></Suspense>
           )}
 
         </AnimatePresence>
