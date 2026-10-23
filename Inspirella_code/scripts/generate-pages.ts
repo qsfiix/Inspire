@@ -344,10 +344,21 @@ interface Ctx {
   traits: Map<number, Row>;
   wagesByProf: Map<string, Row[]>;
   benchByGroup: Map<string, Record<string, Row>>;
+  regionByGroup: Map<string, Row[]>;
   factsByProf: Map<string, Row>;
   instById: Map<string, { slug: string; title: string; city?: string; canton?: string }>;
   today: string;
 }
+
+const WAGE_REGIONS: [string, string][] = [
+  ["Zürich", "ZH"],
+  ["Nordwestschweiz", "BS, BL, AG"],
+  ["Espace Mittelland", "BE, FR, SO, NE, JU"],
+  ["Genferseeregion", "VD, VS, GE"],
+  ["Zentralschweiz", "LU, UR, SZ, OW, NW, ZG"],
+  ["Ostschweiz", "GL, SH, AR, AI, SG, GR, TG"],
+  ["Tessin", "TI"]
+];
 
 const TYPE_HUBS: Record<string, { slug: string; label: string; heading: string }> = {
   apprenticeship_efz: { slug: "efz", label: "Lehrberufe EFZ", heading: "Lehrberufe mit eidgenössischem Fähigkeitszeugnis (EFZ)" },
@@ -446,6 +457,14 @@ function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx): { ht
   const approx = p.isco_confidence === "medium" ? "ungefähr " : "";
   const groupName = bench ? String(bench.group_name_de).replace(/^\d+\s+/, "") : "";
   const medianText = bench ? `${approx}${chf(bench.median)} pro Monat (Median, brutto, Vollzeit; mittlere 50 %: ${chf(bench.p25)} bis ${chf(bench.p75)})` : undefined;
+  const regionRows = bench ? ctx.regionByGroup.get(String(p.isco_group)) ?? [] : [];
+  const regionHtml =
+    bench && regionRows.length >= 4
+      ? `<section class="card"><h2>Lohn nach Region (Berufsgruppe «${esc(groupName)}»)</h2><div style="overflow-x:auto"><table class="cmp"><thead><tr><th>Grossregion (Kantone)</th><th>Median, CHF pro Monat</th></tr></thead><tbody>${WAGE_REGIONS.map(([name, cantons]) => {
+          const row = regionRows.find(r => String(r.region) === name);
+          return row ? `<tr><th>${esc(name)} <small>(${esc(cantons)})</small></th><td>${esc(approx + chf(row.median))}</td></tr>` : "";
+        }).join("")}<tr><th>Schweiz</th><td>${esc(approx + chf(bench.median))}</td></tr></tbody></table></div><p class="more">Zahlen für die ganze Berufsgruppe, nicht für diesen Beruf allein: brutto, Vollzeit, Median, Bundesamt für Statistik, Lohnstrukturerhebung 2024. Das BFS weist die Löhne nach Grossregionen aus; die Kantone sind der jeweiligen Region zugeordnet. Wo eine Region fehlt, ist die Zahl statistisch unsicher oder geschützt.</p></section>`
+      : "";
   const ageTexts = group ? (["bis29", "30-49", "ab50"] as const).filter(a => group[a]).map(a => `${a === "bis29" ? "bis 29 Jahre" : a === "30-49" ? "30–49 Jahre" : "ab 50 Jahre"}: ${chf(group[a].median)}`) : [];
   const bm = txt(facts?.bm_possible);
   const bmText = bm ? (/^(ja|yes|true)/i.test(bm) ? "Ja" : /^(nein|no|false)/i.test(bm) ? "Nein" : bm) : undefined;
@@ -545,6 +564,7 @@ function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx): { ht
     <div class="cta-row"><a class="btn btn-primary" href="/ressourcen/?beruf=${encodeURIComponent(String(p.code || ""))}">Beruf in Inspirella erkunden →</a></div>
   </header>
   ${glance.length ? `<section class="card"><h2>Auf einen Blick</h2><dl class="dl">${glance.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>${ageTexts.length ? `<p class="more">Mittlerer Lohn der Berufsgruppe nach Alter: ${esc(ageTexts.join(" · "))}.</p>` : ""}<p class="more">Lehrlingslohn: Empfehlung der Berufsverbände (berufsberatung.ch), der tatsächliche Lohn hängt von Region und Betrieb ab. Lohn im Beruf: Zahlen für die ganze Berufsgruppe, Bundesamt für Statistik, Lohnstrukturerhebung 2024.</p></section>` : ""}
+  ${regionHtml}
   <div class="grid">
     <div>
       ${dlSection("Was macht man in diesem Beruf?", detail)}
@@ -703,7 +723,7 @@ function renderMethodology(counts: Counts): string {
   const items: [string, string][] = [
     ["Woher die Daten kommen", "Berufsbeschreibungen, Ausbildungsdauer, empfohlene Lehrlingslöhne und ähnliche Berufe stammen aus dem Berufsportal berufsberatung.ch (SDBB), Angaben zu Schulen aus den offiziellen Websites der Schulen und Kantone, Zulassungsregeln aus den Seiten der Kantone, der Hochschulen und von swissuniversities. Die Lohnzahlen im Beruf stammen vom Bundesamt für Statistik (Lohnstrukturerhebung 2024, nach Berufsgruppe)."],
     ["Wie Texte entstehen", "Inspirella fasst offizielle Quellen in eigenen Worten zusammen. Zahlen wie Fristen, Löhne oder Kosten werden aus den Quellen übernommen und nicht geschätzt: Fehlt eine Angabe, zeigen wir die Zeile nicht an."],
-    ["Löhne richtig lesen", "Der Lehrlingslohn ist eine Empfehlung der Berufsverbände; Region und Lehrbetrieb bestimmen den tatsächlichen Lohn. Der Lohn im Beruf ist der Median (mittlerer Wert) einer ganzen Berufsgruppe, nicht eines einzelnen Berufs, brutto und auf Vollzeit umgerechnet. Die Zuordnung eines Berufs zu einer Berufsgruppe ist mit «ungefähr» gekennzeichnet, wenn sie nicht eindeutig ist."],
+    ["Löhne richtig lesen", "Der Lehrlingslohn ist eine Empfehlung der Berufsverbände; Region und Lehrbetrieb bestimmen den tatsächlichen Lohn. Der Lohn im Beruf ist der Median (mittlerer Wert) einer ganzen Berufsgruppe, nicht eines einzelnen Berufs, brutto und auf Vollzeit umgerechnet. Die Zuordnung eines Berufs zu einer Berufsgruppe ist mit «ungefähr» gekennzeichnet, wenn sie nicht eindeutig ist. Zusätzlich zeigen wir den Median je Grossregion (Zürich, Nordwestschweiz, Espace Mittelland, Genferseeregion, Zentralschweiz, Ostschweiz, Tessin); auch das sind Zahlen der Berufsgruppe, nicht des einzelnen Berufs. Für einzelne Kantone gibt das BFS keine Löhne an."],
     ["«Verified» und «Provisional»", "«Verified» bedeutet: Die Angaben wurden mit einer offiziellen Quelle abgeglichen. «Provisional» bedeutet: Der Eintrag ist noch nicht vollständig geprüft oder stützt sich auf weniger eindeutige Quellen."],
     ["Aktualität", `Fristen und Bedingungen ändern sich jedes Jahr. Auf jeder Seite steht, wann der Eintrag zuletzt geprüft wurde, und ein Link zur offiziellen Quelle. Aktueller Stand des Katalogs: ${counts.professions} Berufe und Programme, ${counts.institutions} Schulen und Institutionen, ${counts.resources} Ressourcen (${dataDate()}).`],
     ["Fehler melden", "Wenn dir ein Fehler auffällt, schreib uns über die Kontaktseite der App. Wir korrigieren Angaben, sobald wir sie mit der Quelle abgeglichen haben."]
@@ -1879,6 +1899,7 @@ async function main() {
   const traitRows = await grab("profession_traits");
   const wageRows = await grab("apprentice_wage_recommendations");
   const benchRows = await grab("salary_benchmarks", "*", q => q.eq("region", "Schweiz"));
+  const regionBenchRows = await grab("salary_benchmarks", "*", q => q.neq("region", "Schweiz").eq("age_group", "total"));
   const factRows = await grab("profession_facts");
 
   if (!professions.length) {
@@ -1912,6 +1933,8 @@ async function main() {
     const g = (benchByGroup.get(String(b.isco_group)) ?? benchByGroup.set(String(b.isco_group), {}).get(String(b.isco_group))!);
     g[String(b.age_group)] = b;
   }
+  const regionByGroup = new Map<string, Row[]>();
+  for (const b of regionBenchRows) (regionByGroup.get(String(b.isco_group)) ?? regionByGroup.set(String(b.isco_group), []).get(String(b.isco_group))!).push(b);
   const wagesByProf = new Map<string, Row[]>();
   for (const w of wageRows) (wagesByProf.get(String(w.profession_id)) ?? wagesByProf.set(String(w.profession_id), []).get(String(w.profession_id))!).push(w);
   const ctx: Ctx = {
@@ -1921,6 +1944,7 @@ async function main() {
     traits: new Map(traitRows.map(t => [Number(t.id), t])),
     wagesByProf,
     benchByGroup,
+    regionByGroup,
     factsByProf: new Map(factRows.map(f => [String(f.profession_id), f])),
     instById: new Map(),
     today

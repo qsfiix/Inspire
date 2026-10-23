@@ -125,7 +125,7 @@ export default function HeroBackground({ isDark, showPhoenixWatermark = true }: 
             }}
           />
           <img
-            src="/logo-mark.png"
+            src="/logo-mark-256.png"
             alt=""
             className="hero-phoenix-mark relative h-44 w-44 md:h-56 md:w-56 object-contain"
             style={{ opacity: isDark ? 0.16 : 0.09 }}

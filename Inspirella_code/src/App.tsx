@@ -120,8 +120,21 @@ export default function App() {
 
   const t = TRANSLATIONS[currentLanguage];
 
+  // The full resources table is ~1.9 MB and the home page does not show it: load it once the visitor leaves
+  // the home page, or after a long idle wait, instead of competing with the first paint.
+  const [resourcesWanted, setResourcesWanted] = useState(false);
+  useEffect(() => {
+    if (activeTab !== "home") {
+      setResourcesWanted(true);
+      return;
+    }
+    const timer = (window as any).setTimeout(() => setResourcesWanted(true), 12000);
+    return () => (window as any).clearTimeout(timer);
+  }, [activeTab]);
+
   // Fetch and sync resources from DataRepository
   useEffect(() => {
+    if (!resourcesWanted) return;
     let active = true;
     let subscription: any = null;
 
@@ -148,7 +161,7 @@ export default function App() {
         subscription.unsubscribe();
       }
     };
-  }, []);
+  }, [resourcesWanted]);
 
   // Coordinate theme classes on document body
   useEffect(() => {
