@@ -31,11 +31,17 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "50kb" }));
 
 // Fallback tokens from PDF to ensure robust out-of-the-box execution
+if (process.env.MAPBOX_ACCESS_TOKEN && !process.env.MAPBOX_ACCESS_TOKEN.startsWith("pk.")) {
+  console.error("[config] MAPBOX_ACCESS_TOKEN is not a public pk. token: it is NOT sent to the browser. Fix the variable.");
+}
+
 const CONFIG = {
   SUPABASE_PROJECT_ID: process.env.SUPABASE_PROJECT_ID || "",
   SUPABASE_URL: process.env.SUPABASE_URL || "",
   SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || "",
-  MAPBOX_ACCESS_TOKEN: process.env.MAPBOX_ACCESS_TOKEN || "",
+  // /api/config is public: only a Mapbox PUBLIC token (pk.) may ever be handed to the browser. Anything else
+  // (a secret sk. token, or a key pasted into the wrong variable) is withheld and logged.
+  MAPBOX_ACCESS_TOKEN: (process.env.MAPBOX_ACCESS_TOKEN || "").startsWith("pk.") ? process.env.MAPBOX_ACCESS_TOKEN! : "",
   MAPBOX_STYLE_URL: process.env.MAPBOX_STYLE_URL || ""
 };
 
