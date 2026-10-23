@@ -130,6 +130,7 @@ body.light{--bg:#f5f3ff;--fg:#1e1b4b;--muted:#5b5280;--card:#fff;--card-b:#e9d5f
 body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,sans-serif;line-height:1.6;transition:background .4s,color .4s;overflow-x:hidden}
 h1,h2{font-family:"Space Grotesk",sans-serif;margin:0;line-height:1.15}
 a{color:inherit}
+main li,main dd,main td,main th,main p{overflow-wrap:anywhere}
 .ambient{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 .blob{position:absolute;border-radius:50%;filter:blur(110px);animation:drift 22s ease-in-out infinite}
 .b1{width:28rem;height:28rem;top:-2rem;left:-2rem;background:radial-gradient(circle,rgba(139,92,246,.28),rgba(99,102,241,0) 70%)}
