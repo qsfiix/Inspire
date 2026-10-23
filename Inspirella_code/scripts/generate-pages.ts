@@ -371,6 +371,15 @@ function shortTitle(title: string): string {
     const [a, b] = parts;
     if (a.startsWith(b) && ["in", "frau", "e"].includes(a.slice(b.length))) out = `${b}/${a.slice(b.length)}`;
     else if (b.startsWith(a) && ["in", "frau", "e"].includes(b.slice(a.length))) out = `${a}/${b.slice(a.length)}`;
+    else {
+      // "Bauführerin / Bauführer Gebäudehülle mit eidg. Fachausweis": keep the qualifier that follows the second form
+      const aWords = a.split(" ");
+      const bWords = b.split(" ");
+      if (aWords.length === 1 && bWords.length > 1) {
+        const rest = bWords.slice(1).join(" ").replace(/\s*mit eidg\. Fachausweis$/, " BP").replace(/\s*mit eidg\. Diplom$/, " HFP").replace(/\s*mit eidg\. FA$/, " BP");
+        out = `${a} ${rest}`.trim();
+      }
+    }
   }
   return (out + (suffix ? " " + suffix : "")).trim();
 }
@@ -472,7 +481,8 @@ function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx): { ht
 
   const totalText = [short, ...detail.map(d => d[1]), progression, ...glance.map(g => g[1])].filter(Boolean).join(" ");
   const indexable = totalText.length >= MIN_INDEXABLE_CHARS;
-  const descBits = [short ? truncate(short, 110) : "", duration ? `Dauer: ${duration}.` : "", wageLines.length ? `Lehrlingslohn ab ${chf(wages[0].min_chf)}.` : bench ? `Lohn: Median ${chf(bench.median)}.` : ""].filter(Boolean);
+  const descBits = [short ? truncate(short, 110) : `${title}: Beruf in der Schweiz${typeLabel ? ` (${typeLabel})` : ""}.`, duration ? `Dauer: ${duration}.` : "", wageLines.length ? `Lehrlingslohn ab ${chf(wages[0].min_chf)}.` : bench ? `Lohn: Median ${chf(bench.median)}.` : ""].filter(Boolean);
+  if (descBits.join(" ").length < 100) descBits.push(schools.length ? "Mit Schulen und Quelle." : "Mit Quelle und Hinweisen zur Ausbildung.");
   const description = truncate(descBits.join(" ") || title, 158);
 
   // questions people ask, answered only from data we hold
