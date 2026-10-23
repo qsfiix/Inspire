@@ -2128,6 +2128,11 @@ async function main() {
     }));
     urls.push({ loc: `${SITE}/schulen/${c.toLowerCase()}/`, lastmod: today });
   }
+  // duplicate professions merged in the database (2026-10-23): the removed addresses forward to the kept page
+  Object.assign(redirects, {
+    "/beruf/techniker-in-hf-bauplanung/": "/beruf/technikerin-hf-bauplanung/",
+    "/beruf/techniker-in-hf-grossanlagenbetrieb/": "/beruf/technikerin-hf-grossanlagenbetrieb/"
+  });
   await fs.writeFile(path.join(DIST, "redirects.json"), JSON.stringify(redirects), "utf8");
 
   // Education system overview in German, English and Ukrainian (a failure here only skips these pages).

@@ -11,6 +11,15 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 const MAX_COMPARE = 3;
 
+// Shown instead of a silently empty map when the map service cannot start (no token configured, token rejected).
+const MAP_UNAVAILABLE: Record<LanguageCode, string> = {
+  en: "The 3D map is temporarily unavailable. The same schools are in the list under Resources & Careers.",
+  de: "Die 3D-Karte ist vorübergehend nicht verfügbar. Dieselben Schulen findest du in der Liste unter Ressourcen und Berufe.",
+  fr: "La carte 3D est momentanément indisponible. Les mêmes écoles sont dans la liste sous Ressources et métiers.",
+  it: "La mappa 3D è temporaneamente non disponibile. Le stesse scuole sono nell'elenco sotto Risorse e professioni.",
+  uk: "3D-карта тимчасово недоступна. Ті самі школи є у списку в розділі «Ресурси та професії»."
+};
+
 // Locks panning/zooming to Switzerland (plus a little breathing room past the
 // border, so it doesn't feel like hitting a hard wall right at the edge of
 // the country). Sofiia's request 2026-09-14: the map is Swiss-only right
@@ -40,6 +49,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
   const [selectedInst, setSelectedInst] = useState<Institution | null>(SWISS_INSTITUTIONS[0] ?? null);
   const [is3DMode, setIs3DMode] = useState<boolean>(true);
   const [mapEngineLoaded, setMapEngineLoaded] = useState<boolean>(false);
+  const [mapUnavailable, setMapUnavailable] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [compareList, setCompareList] = useState<Institution[]>([]);
   const [showCompareModal, setShowCompareModal] = useState<boolean>(false);
@@ -232,6 +242,13 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
     };
 
     const loadMapbox = async () => {
+      if (!accessToken) {
+        // no token (yet): do not start the engine, tell the visitor instead of leaving an empty map
+        setMapUnavailable(true);
+        setMapEngineLoaded(false);
+        return;
+      }
+      setMapUnavailable(false);
       try {
         const mapboxgl: any = await import("mapbox-gl").then(m => m.default || m);
         if (cancelled || !mapContainerRef.current) return;
@@ -259,6 +276,10 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
         // custom layers), so the layers are installed from here, once per style.
         map.on("style.load", () => installLayers(map));
         map.once("load", () => setMapEngineLoaded(true));
+        map.on("error", (e: any) => {
+          const status = e?.error?.status;
+          if (status === 401 || status === 403) setMapUnavailable(true);
+        });
 
         // Pins and clusters: handlers registered once, they follow the layers across style changes.
         map.on("click", "inspirella-clusters", (e: any) => {
@@ -457,6 +478,12 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
             mapEngineLoaded ? "opacity-100 z-0" : "opacity-0 -z-10"
           }`}
         />
+
+        {mapUnavailable && !mapEngineLoaded && (
+          <div className={`absolute left-3 right-3 top-3 z-20 rounded-xl border px-4 py-3 text-xs font-semibold ${isDark ? "border-amber-400/40 bg-amber-950/60 text-amber-100" : "border-amber-500/50 bg-amber-50 text-amber-900"}`} role="status">
+            {MAP_UNAVAILABLE[currentLanguage] ?? MAP_UNAVAILABLE.en}
+          </div>
+        )}
 
         {/* Fallback Dynamic VECTOR SWITZERLAND MAP */}
         {!mapEngineLoaded && (
