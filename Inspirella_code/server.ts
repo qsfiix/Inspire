@@ -5,6 +5,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import fs from "fs";
 import { TAB_PATHS, PROTECTED_TABS } from "./src/lib/routes";
+import { renderOgImage } from "./ogImage";
 
 dotenv.config();
 
@@ -25,6 +26,11 @@ app.use((req, res, next) => {
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
   res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  // The safe part of a Content-Security-Policy: no plugins, no <base> tricks, no framing by other sites, plain-http
+  // sub-resources upgraded. Script/style sources are deliberately not restricted (map, analytics, inline page scripts).
+  if (process.env.NODE_ENV === "production") {
+    res.setHeader("Content-Security-Policy", "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; upgrade-insecure-requests");
+  }
   next();
 });
 
@@ -266,6 +272,17 @@ async function startServer() {
     } catch {
       /* no redirects yet */
     }
+    // Share-preview images (1200x630) for the pre-rendered pages, drawn on first request and cached by the CDN.
+    app.get(/^\/og\/(.+)\.png$/, async (req, res) => {
+      try {
+        const png = await renderOgImage("/" + req.params[0], distPath);
+        if (!png) return res.status(404).type("text/plain").send("No preview for this address");
+        res.set({ "Content-Type": "image/png", "Cache-Control": "public, max-age=86400, s-maxage=604800" }).send(png);
+      } catch (err) {
+        console.error("[og] image failed:", err);
+        res.status(500).type("text/plain").send("Preview unavailable");
+      }
+    });
     app.use((req, res, next) => {
       const target = movedPages[req.path.endsWith("/") ? req.path : req.path + "/"];
       if (target) return res.redirect(301, target);

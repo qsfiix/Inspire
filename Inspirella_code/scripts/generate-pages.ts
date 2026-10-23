@@ -254,9 +254,40 @@ interface LayoutOptions {
   nav?: { about: string; app: string };
 }
 
+/** Entries for the share-preview images the server draws on request (dist/og-index.json, see ogImage.ts). */
+const OG_INDEX: Record<string, { t: string; s?: string; k?: string }> = {};
+const OG_KINDS: Record<string, string> = {
+  beruf: "Beruf",
+  institution: "Schule",
+  berufe: "Berufe",
+  schulen: "Schulen",
+  methodik: "Methodik",
+  lehrlingsloehne: "Lehrlingslöhne",
+  "status-s": "Schutzstatus S",
+  zulassung: "Zulassung",
+  brueckenangebote: "Brückenangebote",
+  passerelle: "Passerelle",
+  "berufsabschluss-fuer-erwachsene": "Berufsabschluss für Erwachsene",
+  bildungssystem: "Bildungssystem",
+  "swiss-education-system": "Education system",
+  "systema-osvity-shveitsarii": "Система освіти",
+  pryjom: "Вступ",
+  "perekhidni-prohramy": "Перехідні програми",
+  "diplom-dlia-doroslykh": "Диплом для дорослих"
+};
+function registerOg(url: string, title: string, description: string): string {
+  const p = new URL(url).pathname.replace(/\/+$/, "");
+  if (!p) return SITE + "/og-image.png";
+  const parts = p.split("/").filter(Boolean);
+  const seg = parts[0] === "en" || parts[0] === "uk" ? parts[1] ?? "" : parts[0];
+  OG_INDEX[p] = { t: title.replace(/\s*\|\s*Inspirella$/, ""), s: truncate(description, 110), k: OG_KINDS[seg] ?? "Inspirella" };
+  return `${SITE}/og${p}.png`;
+}
+
 /** The shared page shell: head/SEO tags, ambient background, nav, footer, theme + sand script. */
 function layout(o: LayoutOptions): string {
   const nav = o.nav ?? { about: "Über Inspirella", app: "Zur App" };
+  const ogImage = registerOg(o.url, o.ogTitle, o.description);
   const hreflang = (o.alternates ?? []).map(a => `<link rel="alternate" hreflang="${esc(a.lang)}" href="${esc(a.href)}">`).join("\n");
   return `<!doctype html>
 <html lang="${esc(o.lang ?? "de")}">
@@ -273,11 +304,11 @@ ${hreflang ? hreflang + "\n" : ""}${o.indexable ? "" : '<meta name="robots" cont
 <meta property="og:title" content="${esc(o.ogTitle)}">
 <meta property="og:description" content="${esc(o.description)}">
 <meta property="og:url" content="${esc(o.url)}">
-<meta property="og:image" content="${SITE}/og-image.png">
+<meta property="og:image" content="${ogImage}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="${SITE}/og-image.png">
+<meta name="twitter:image" content="${ogImage}">
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script type="application/ld+json">${JSON.stringify(o.ld).replace(/</g, "\\u003c")}</script>
 <style>${CSS}</style>
@@ -452,6 +483,23 @@ function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx): { ht
   const detail = sections.filter((s): s is [string, string] => !!s[1]);
   const progression = clean(p.progression_notes_de);
 
+  // "Davor / danach": links to the next and previous steps of the Swiss system, by type of qualification
+  const STEP_LINKS: Record<string, { before?: [string, string][]; after?: [string, string][] }> = {
+    apprenticeship_eba: { before: [["Brückenangebote nach Kanton", "/brueckenangebote/"]], after: [["Lehrberufe EFZ", "/berufe/efz/"]] },
+    apprenticeship_efz: {
+      before: [["Brückenangebote nach Kanton", "/brueckenangebote/"], ["Lehrberufe EBA", "/berufe/eba/"]],
+      after: [["Höhere Fachschule (HF)", "/berufe/hf/"], ["Berufsprüfung (Fachausweis)", "/berufe/berufspruefung/"], ["Fachhochschule (FH), mit Berufsmaturität", "/berufe/fh/"]]
+    },
+    hf_diploma: { before: [["Lehrberufe EFZ", "/berufe/efz/"]], after: [["Höhere Fachprüfung (Diplom)", "/berufe/hoehere-fachpruefung/"]] },
+    fachausweis: { before: [["Lehrberufe EFZ", "/berufe/efz/"]], after: [["Höhere Fachprüfung (Diplom)", "/berufe/hoehere-fachpruefung/"]] },
+    diplom: { before: [["Berufsprüfung (Fachausweis)", "/berufe/berufspruefung/"]] },
+    fh_bachelor: { before: [["Zulassung nach Kanton", "/zulassung/"], ["Lehrberufe EFZ", "/berufe/efz/"]] },
+    university: { before: [["Zulassung nach Kanton", "/zulassung/"]] }
+  };
+  const steps = STEP_LINKS[type];
+  const stepList = (label: string, items?: [string, string][]) => (items?.length ? `<p style="margin:0 0 6px"><strong>${label}</strong></p><ul>${items.map(([t, h]) => `<li><a href="${h}">${esc(t)}</a></li>`).join("")}</ul>` : "");
+  const stepsHtml = steps ? `<section class="card prose"><h2>Davor und danach</h2>${stepList("Davor", steps.before)}${stepList("Danach", steps.after)}</section>` : "";
+
   const typeLabel = TYPE_LABELS[type];
   const duration = monthsText(details?.duration_min_months, details?.duration_max_months) || (facts?.duration_years ? `${String(facts.duration_years).replace(".", ",")} Jahre` : undefined);
   const wageLines = wages.map(w => `${w.year_no}. Lehrjahr: ${w.min_chf === w.max_chf ? chf(w.min_chf) : `${chf(w.min_chf)} bis ${chf(w.max_chf)}`} pro Monat`);
@@ -576,6 +624,7 @@ function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx): { ht
     </div>
     <aside>
       ${linkListSection("Wo lernt man das?", schools, 100, n => `und ${n} weitere`)}
+      ${stepsHtml}
       ${linkListSection("Verwandte Berufe", related, 10, n => `und ${n} weitere`)}
     </aside>
   </div>
@@ -1627,6 +1676,14 @@ function renderSystem(lang: SysLang, nodes: Row[], transitions: Row[], statusFac
     ? `<h2 style="margin-top:40px">${esc(c.statusTitle)}</h2>\n  <section class="card prose"><p>${esc(c.statusLead)}</p><ul>${statusRows}</ul><p class="more"><a href="${STATUS_S[lang].base}">${esc(STATUS_S[lang].crumb)} →</a></p></section>`
     : "";
 
+  // links from each stage of the system to the lists of professions and the guides (pages are in German)
+  const EXPLORE: Record<SysLang, { title: string; links: [string, string][] }> = {
+    de: { title: "Weiter erkunden", links: [["Alle Berufe von A bis Z", "/berufe/"], ["Lehrberufe EFZ", "/berufe/efz/"], ["Lehrberufe EBA", "/berufe/eba/"], ["Höhere Fachschule (HF)", "/berufe/hf/"], ["Fachhochschule (FH)", "/berufe/fh/"], ["Universität und ETH", "/berufe/uni/"], ["Zulassung nach Kanton", "/zulassung/"], ["Brückenangebote", "/brueckenangebote/"], ["Passerelle", "/passerelle/"], ["Schulen nach Kanton", "/schulen/"]] },
+    en: { title: "Explore further (pages in German)", links: [["All professions A to Z", "/berufe/"], ["Apprenticeships EFZ", "/berufe/efz/"], ["Apprenticeships EBA", "/berufe/eba/"], ["Higher vocational colleges (HF)", "/berufe/hf/"], ["Universities of applied sciences (FH)", "/berufe/fh/"], ["Universities and ETH", "/berufe/uni/"], ["Admission by canton", "/zulassung/"], ["Bridge programmes", "/brueckenangebote/"], ["Passerelle", "/passerelle/"], ["Schools by canton", "/schulen/"]] },
+    uk: { title: "Дивитися далі (сторінки німецькою)", links: [["Усі професії від A до Z", "/berufe/"], ["Професії EFZ", "/berufe/efz/"], ["Професії EBA", "/berufe/eba/"], ["Вищі професійні школи (HF)", "/berufe/hf/"], ["Університети прикладних наук (FH)", "/berufe/fh/"], ["Університети та ETH", "/berufe/uni/"], ["Вступ за кантонами", "/uk/pryjom/"], ["Перехідні програми", "/uk/perekhidni-prohramy/"], ["Пасерель", "/passerelle/"], ["Школи за кантонами", "/schulen/"]] }
+  };
+  const exploreHtml = `<h2 style="margin-top:40px">${esc(EXPLORE[lang].title)}</h2>\n  <section class="card"><ul class="cols">${EXPLORE[lang].links.map(([t, h]) => `<li><a href="${h}"${h.startsWith("/uk/") ? "" : ' lang="de"'}>${esc(t)}</a></li>`).join("")}</ul></section>`;
+
   const alternates = (Object.keys(SYS) as SysLang[]).map(l => ({ lang: SYS[l].hreflang, href: SITE + SYS[l].path }));
   alternates.push({ lang: "x-default", href: SITE + SYS.de.path });
 
@@ -1648,6 +1705,7 @@ function renderSystem(lang: SysLang, nodes: Row[], transitions: Row[], statusFac
   ${bandsHtml}
   ${waysHtml}
   ${statusHtml}
+  ${exploreHtml}
   <div class="source">${esc(c.disclaimer)}</div>`;
 
   return layout({
@@ -1697,13 +1755,13 @@ function renderHomeBlock(counts: Counts, featured: HomeFeatured): string {
     items.map(i => `<li><a href="${esc(i.href)}" style="color:#c4b5fd">${esc(i.title)}</a></li>`).join("");
   return `<div style="max-width:760px;margin:0 auto;padding:56px 20px;font-family:Inter,system-ui,sans-serif;color:#e8e4f5;line-height:1.65">
 <h1 style="font:700 38px 'Space Grotesk',system-ui,sans-serif;margin:0 0 14px;line-height:1.15">Inspirella</h1>
-<p style="font-size:19px;margin:0 0 12px">Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take.</p>
-<p lang="de" style="color:#b7aed6;margin:0 0 24px">Inspirella hilft dir, dich im Schweizer Bildungssystem zurechtzufinden: Berufe, die zu dir passen, Schulen, wo du sie lernst, und der nächste kleine Schritt. Kostenlos, auf Deutsch, Französisch, Italienisch und Englisch.</p>
-<p style="margin:0 0 24px">${counts.professions} professions and programmes, ${counts.institutions} schools and institutions, ${counts.resources} official resources. Data as of ${esc(dataDate())}. Inspirella is an orientation tool, not an official authority: for binding information see <a href="https://www.berufsberatung.ch/" style="color:#c4b5fd">berufsberatung.ch</a> and your cantonal careers office (BIZ).</p>
+<p lang="de" style="font-size:19px;margin:0 0 12px">Inspirella hilft dir, dich im Schweizer Bildungssystem zurechtzufinden: Berufe, die zu dir passen, Schulen, wo du sie lernst, und der nächste kleine Schritt. Kostenlos, auf Deutsch, Französisch, Italienisch, Englisch und Ukrainisch.</p>
+<p lang="de" style="margin:0 0 24px">${counts.professions} Berufe und Programme, ${counts.institutions} Schulen und Institutionen, ${counts.resources} offizielle Ressourcen. Stand der Daten: ${esc(dataDate())}. Inspirella ist ein Orientierungswerkzeug und keine offizielle Stelle: Verbindliche Informationen findest du auf <a href="https://www.berufsberatung.ch/" style="color:#c4b5fd">berufsberatung.ch</a> und beim kantonalen Berufsinformationszentrum (BIZ).</p>
+<p lang="en" style="color:#b7aed6;margin:0 0 24px">Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take. Free, in German, French, Italian, English and Ukrainian.</p>
 <p style="margin:0 0 28px"><a href="/berufe/" lang="de" style="color:#c4b5fd">Alle Berufe</a> · <a href="/schulen/" lang="de" style="color:#c4b5fd">Alle Schulen</a> · <a href="/lehrlingsloehne/" lang="de" style="color:#c4b5fd">Lehrlingslöhne</a> · <a href="/passerelle/" lang="de" style="color:#c4b5fd">Passerelle</a> · <a href="/status-s/" lang="de" style="color:#c4b5fd">Schutzstatus S</a> · <a href="/zulassung/" lang="de" style="color:#c4b5fd">Zulassung nach Kanton</a> · <a href="/brueckenangebote/" lang="de" style="color:#c4b5fd">Brückenangebote</a> · <a href="/berufsabschluss-fuer-erwachsene/" lang="de" style="color:#c4b5fd">Berufsabschluss für Erwachsene</a> · <a href="/methodik/" lang="de" style="color:#c4b5fd">Methodik</a> · <a href="/ueber-inspirella/" style="color:#c4b5fd">About Inspirella</a> · <a href="/en/swiss-education-system/" style="color:#c4b5fd">Swiss education system</a> · <a href="/bildungssystem/" lang="de" style="color:#c4b5fd">Bildungssystem</a> · <a href="/uk/systema-osvity-shveitsarii/" lang="uk" style="color:#c4b5fd">Система освіти Швейцарії</a> ·<a href="/sitemap.xml" style="color:#c4b5fd">Sitemap</a> · <a href="/llms.txt" style="color:#c4b5fd">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#c4b5fd">Impressum</a> · <a href="/datenschutz/" style="color:#c4b5fd">Datenschutz</a></p>
-<h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Professions</h2>
+<h2 lang="de" style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Berufe</h2>
 <ul style="margin:0 0 24px;padding-left:20px">${list(featured.professions)}</ul>
-<h2 style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Schools and institutions</h2>
+<h2 lang="de" style="font:600 20px 'Space Grotesk',system-ui,sans-serif;margin:0 0 8px">Schulen und Institutionen</h2>
 <ul style="margin:0;padding-left:20px">${list(featured.institutions)}</ul>
 <noscript><p style="margin-top:28px;color:#fdba74">The interactive app (map, personal path, tracker) needs JavaScript.</p></noscript>
 </div>`;
@@ -2292,6 +2350,7 @@ async function main() {
     console.warn("[pages] Could not write the home content:", err?.message || err);
   }
 
+  await fs.writeFile(path.join(DIST, "og-index.json"), JSON.stringify(OG_INDEX), "utf8");
   const sitemap =
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
     urls.map(u => `  <url><loc>${esc(u.loc)}</loc><lastmod>${u.lastmod || today}</lastmod></url>`).join("\n") +
