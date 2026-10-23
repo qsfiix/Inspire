@@ -427,6 +427,15 @@ function shortTitle(title: string): string {
   return (out + (suffix ? " " + suffix : "")).trim();
 }
 
+/** The short title, or the full one when another page already took that short title (keeps every page title unique). */
+const USED_TITLE_BASES = new Set<string>();
+function uniqueBase(title: string): string {
+  const short = shortTitle(title);
+  if (USED_TITLE_BASES.has(short)) return title;
+  USED_TITLE_BASES.add(short);
+  return short;
+}
+
 /** A page title of at most 60 characters; the brand is added only when it fits. */
 function fitTitle(base: string, parts: string[], brand = "Inspirella"): string {
   for (let n = parts.length; n >= 0; n--) {
@@ -633,7 +642,7 @@ function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx): { ht
   } und beim kantonalen Berufsinformationszentrum (BIZ). Zuletzt geprüft: ${esc(checked)}. <a href="/methodik/">So arbeiten wir</a>.</div>`;
 
   return {
-    html: layout({ docTitle: fitTitle(shortTitle(title), [type === "apprenticeship_efz" || type === "apprenticeship_eba" ? "Lehre" : "Ausbildung", ...(wageLines.length || bench ? ["Lohn"] : []), ...(schools.length ? ["Schulen"] : [])]), ogTitle: `${shortTitle(title)} | Inspirella`, description, url, indexable, ld, main }),
+    html: layout({ docTitle: fitTitle(uniqueBase(title), [type === "apprenticeship_efz" || type === "apprenticeship_eba" ? "Lehre" : "Ausbildung", ...(wageLines.length || bench ? ["Lohn"] : []), ...(schools.length ? ["Schulen"] : [])]), ogTitle: `${shortTitle(title)} | Inspirella`, description, url, indexable, ld, main }),
     indexable,
     lastmod: isoDate(p.updated_at)
   };
