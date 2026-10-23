@@ -1984,6 +1984,7 @@ async function main() {
 
   const indexableProfs: Link[] = [];
   const indexableByType = new Map<string, Link[]>();
+  const indexableByCategory = new Map<string, Link[]>();
   const indexableSchools: (Link & { cantonCode?: string })[] = [];
   for (const p of professions) {
     const slug = profSlug.get(String(p.id));
@@ -2003,6 +2004,8 @@ async function main() {
     indexableProfs.push(link);
     const t = String(p.profession_type || "other");
     (indexableByType.get(t) ?? indexableByType.set(t, []).get(t)!).push(link);
+    const cid = String(p.profession_category_id || "");
+    if (cid) (indexableByCategory.get(cid) ?? indexableByCategory.set(cid, []).get(cid)!).push(link);
   }
 
   const instTaken = new Set<string>();
@@ -2055,6 +2058,19 @@ async function main() {
 
   // hub pages: plain link lists so every profession and school page has links pointing to it
   const hubTypes = Object.entries(TYPE_HUBS).filter(([t]) => (indexableByType.get(t) ?? []).length > 0);
+  let fieldHubs: { slug: string; name: string; description?: string; list: Link[] }[] = [];
+  try {
+    const cats = await fetchAll((from, to) => supabase.from("profession_categories").select("*").eq("is_active", true).order("sort_order", { ascending: true }).range(from, to));
+    fieldHubs = cats
+      .map(c => ({ slug: String(c.code || "").replace(/_/g, "-"), name: txt(c.name_de) || "", description: txt(c.description_de), list: indexableByCategory.get(String(c.id)) ?? [] }))
+      .filter(c => c.slug && c.name && c.list.length > 0);
+  } catch (err: any) {
+    console.warn("[pages] Profession field hubs skipped:", err?.message || err);
+  }
+  const fieldSection = fieldHubs.length
+    ? `<section class="card"><h2>Nach Berufsfeld</h2><ul class="cols">${fieldHubs.map(h => `<li><a href="/berufe/bereich/${h.slug}/">${esc(h.name)} (${h.list.length})</a></li>`).join("")}</ul></section>
+  `
+    : "";
   await writePage(["berufe"], renderHub({
     path: "/berufe/",
     title: "Alle Berufe in der Schweiz von A bis Z",
@@ -2062,7 +2078,7 @@ async function main() {
     lead: `${indexableProfs.length} Berufe und Ausbildungen mit Dauer, Lohn und Schulen: Lehre (EFZ, EBA), Höhere Berufsbildung, Fachhochschule und Universität.`,
     description: "Alle Berufe und Ausbildungen der Schweiz von A bis Z: Lehre EFZ und EBA, Höhere Fachschule, Fachhochschule, Universität, Berufsprüfung und höhere Fachprüfung.",
     crumbs: [["Inspirella", "/"], ["Berufe"]],
-    body: `<section class="card"><h2>Nach Abschluss</h2><ul class="cols">${hubTypes.map(([t, h]) => `<li><a href="/berufe/${h.slug}/">${esc(h.label)} (${(indexableByType.get(t) ?? []).length})</a></li>`).join("")}</ul></section>\n  ${azList(indexableProfs)}`
+    body: `${fieldSection}<section class="card"><h2>Nach Abschluss</h2><ul class="cols">${hubTypes.map(([t, h]) => `<li><a href="/berufe/${h.slug}/">${esc(h.label)} (${(indexableByType.get(t) ?? []).length})</a></li>`).join("")}</ul></section>\n  ${azList(indexableProfs)}`
   }));
   for (const [t, h] of hubTypes) {
     const list = indexableByType.get(t) ?? [];
@@ -2076,6 +2092,18 @@ async function main() {
       body: azList(list)
     }));
     urls.push({ loc: `${SITE}/berufe/${h.slug}/`, lastmod: today });
+  }
+  for (const h of fieldHubs) {
+    await writePage(["berufe", "bereich", h.slug], renderHub({
+      path: `/berufe/bereich/${h.slug}/`,
+      title: `Berufe im Bereich ${h.name}`,
+      h1: `Berufe im Bereich ${h.name}`,
+      lead: h.description ? `${h.description} ${h.list.length} Berufe und Ausbildungen von A bis Z.` : `${h.list.length} Berufe und Ausbildungen von A bis Z.`,
+      description: truncate(`Berufe im Bereich ${h.name}: ${h.list.length} Berufe und Ausbildungen mit Beschreibung, Dauer, Lohn und Schulen in der Schweiz.`, 158),
+      crumbs: [["Inspirella", "/"], ["Berufe", "/berufe/"], [h.name]],
+      body: azList(h.list)
+    }));
+    urls.push({ loc: `${SITE}/berufe/bereich/${h.slug}/`, lastmod: today });
   }
   const cantonsPresent = [...new Set(indexableSchools.map(s => s.cantonCode).filter((c): c is string => !!c && !!CANTON_NAMES[c]))].sort((a, b) => CANTON_NAMES[a].localeCompare(CANTON_NAMES[b], "de"));
   await writePage(["schulen"], renderHub({
