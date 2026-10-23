@@ -564,7 +564,7 @@ function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx): { ht
     ${short ? `<p class="lead">${esc(short)}</p>` : ""}
     <div class="cta-row"><a class="btn btn-primary" href="/ressourcen/?beruf=${encodeURIComponent(String(p.code || ""))}">Beruf in Inspirella erkunden →</a></div>
   </header>
-  ${glance.length ? `<section class="card"><h2>Auf einen Blick</h2><dl class="dl">${glance.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>${ageTexts.length ? `<p class="more">Mittlerer Lohn der Berufsgruppe nach Alter: ${esc(ageTexts.join(" · "))}.</p>` : ""}<p class="more">Lehrlingslohn: Empfehlung der Berufsverbände (berufsberatung.ch), der tatsächliche Lohn hängt von Region und Betrieb ab. Lohn im Beruf: Zahlen für die ganze Berufsgruppe, Bundesamt für Statistik, Lohnstrukturerhebung 2024.</p></section>` : ""}
+  ${glance.length ? `<section class="card"><h2>Auf einen Blick</h2><dl class="dl">${glance.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>${ageTexts.length ? `<p class="more">Mittlerer Lohn der Berufsgruppe nach Alter: ${esc(ageTexts.join(" · "))}.</p>` : ""}${wageLines.length || medianText ? `<p class="more">${wageLines.length ? "Lehrlingslohn: Empfehlung der Berufsverbände (berufsberatung.ch), der tatsächliche Lohn hängt von Region und Betrieb ab. " : ""}${medianText ? "Lohn im Beruf: Zahlen für die ganze Berufsgruppe, Bundesamt für Statistik, Lohnstrukturerhebung 2024." : ""}</p>` : ""}</section>` : ""}
   ${regionHtml}
   <div class="grid">
     <div>
