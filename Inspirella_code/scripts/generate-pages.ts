@@ -2199,7 +2199,14 @@ async function main() {
   // duplicate professions merged in the database (2026-10-23): the removed addresses forward to the kept page
   Object.assign(redirects, {
     "/beruf/techniker-in-hf-bauplanung/": "/beruf/technikerin-hf-bauplanung/",
-    "/beruf/techniker-in-hf-grossanlagenbetrieb/": "/beruf/technikerin-hf-grossanlagenbetrieb/"
+    "/beruf/techniker-in-hf-grossanlagenbetrieb/": "/beruf/technikerin-hf-grossanlagenbetrieb/",
+    // schools that were listed twice (2026-10-24): the removed address forwards to the kept school
+    "/institution/fms-kantonale-fachmittelschule-lerbermatt/": "/institution/gymnasium-lerbermatt/",
+    "/institution/fms-fms-der-kantonsschule-sursee/": "/institution/kantonsschule-sursee/",
+    "/institution/fms-ecg-de-bienne-et-du-jura-bernois/": "/institution/gymnase-de-bienne-et-du-jura-bernois/",
+    "/institution/wirtschaftsmittelschule-basel-wms/": "/institution/wirtschaftsgymnasium-basel-wg/",
+    "/institution/informatikmittelschule-basel-ims/": "/institution/wirtschaftsgymnasium-basel-wg/",
+    "/institution/sam-bellinzona/": "/institution/centro-professionale-tecnico-bellinzona/"
   });
   await fs.writeFile(path.join(DIST, "redirects.json"), JSON.stringify(redirects), "utf8");
 
