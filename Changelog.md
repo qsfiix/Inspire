@@ -30,6 +30,14 @@ Related Files:
 
 ---
 
+## 2026-10-25 — Связи формальных профессий (Fachausweis, Diplom, вузы) с учреждениями
+
+- Этап 2 после связей профшкол: 4 агента искали, где учатся профессии без единой школы (Berufsprüfung, höhere Fachprüfung, университетские и FH-направления, HF). Источники: страницы berufsberatung.ch, сайты организаторов экзаменов и программы самих учреждений. Привязаны только учреждения, которые уже есть в базе.
+- +265 связей `profession_institutions` (58 + 68 + 82 + 57), всего 3347, дублей 0. У каждой в `notes_de` ссылка «Quelle: …». Из 147 обработанных профессий без школы осталось 82 (по этим типам): чаще всего курсы ведёт сама отраслевая ассоциация, которой нет в базе, либо школа за границей (Wertheim), либо провайдер на официальных страницах не назван.
+- Слабые связи (оставлены, проверить при случае): AZEK для Vermögensberater (на странице только «Kurse von AZEK»), SIU Zürich для Pharma-Betriebsassistent (город из поисковой выдачи), Allpura для Gebäudereiniger, Changins для Weintechnologiemeister (по ремеслу), STFW Winterthur и BBZ Zürich для Komfortlüftung (площадки, не организатор).
+- Кандидаты на добавление в базу (около 60, с URL в отчётах `scratchpad/work17/ps_*_report.md`): отраслевые ассоциации и центры курсов (SVGW, Lungenliga, Kaminfeger Schweiz, Spedlogswiss, SLG Olten, Digicomp, SBVV, VSA, HEPIA, HEG-FR, HESAV, HEdS Genève и др.). Решение о добавлении за Sofiia.
+- Известная странность: `metallbauprojektleiter_in_hfp` в базе, по-видимому, смешан с Berufsprüfung (найдены только курсы BP), оставлен без связи.
+
 ## 2026-10-21 — SEO-аудит (внешний): что сделано
 - Реальные адреса страниц вместо #/…: /pathmap/, /ressourcen/, /karte/, /dashboard/, /tracker/, /profil/, /kontakt/, /login/, /onboarding/ (History API). Старые #/-ссылки автоматически превращаются в пути. Сервер отдаёт приложение для этих путей (приватные с noindex). «Ресурсы и профессии» теперь доступны без входа (данные публичные). About/Impressum/Datenschutz ведут на статичные страницы.
 - Меню, лого, кнопка входа, футер: настоящие ссылки <a href>. В футере постоянный блок: Alle Berufe, Alle Schulen, Bildungssystem, Methodik, Über Inspirella, Impressum, Datenschutz.
