@@ -656,7 +656,33 @@ const CANTON_NAMES: Record<string, string> = {
   AG: "Aargau", AI: "Appenzell Innerrhoden", AR: "Appenzell Ausserrhoden", BE: "Bern", BL: "Basel-Landschaft", BS: "Basel-Stadt", FR: "Freiburg", GE: "Genf", GL: "Glarus", GR: "Graubünden", JU: "Jura", LU: "Luzern", NE: "Neuenburg", NW: "Nidwalden", OW: "Obwalden", SG: "St. Gallen", SH: "Schaffhausen", SO: "Solothurn", SZ: "Schwyz", TG: "Thurgau", TI: "Tessin", UR: "Uri", VD: "Waadt", VS: "Wallis", ZG: "Zug", ZH: "Zürich"
 };
 
-function renderInstitution(i: Row, slug: string, professions: Link[]): { html: string; indexable: boolean; lastmod?: string } {
+const PROGRAM_LEVELS: [string[], string][] = [
+  [["bachelor"], "Bachelor"],
+  [["master"], "Master"],
+  [["cas", "das", "mas", "emba"], "Weiterbildung (CAS, DAS, MAS, EMBA)"],
+  [["other", "phd"], "Weitere Angebote"]
+];
+
+function programsSection(programs: Row[]): string {
+  const active = programs.filter(p => p.is_active !== false && safeUrl(p.official_url));
+  if (!active.length) return "";
+  const byTitle = (a: Row, b: Row) => String(a.title).localeCompare(String(b.title), "de");
+  const item = (p: Row) => {
+    const meta = [txt(p.field_de), txt(p.duration_text), p.ects ? `${p.ects} ECTS` : "", txt(p.teaching_languages) ? `Sprache: ${txt(p.teaching_languages)}` : ""].filter(Boolean).join(" · ");
+    return `<li><a href="${esc(safeUrl(p.official_url)!)}" rel="noopener">${esc(String(p.title))}</a>${meta ? ` <span>${esc(meta)}</span>` : ""}</li>`;
+  };
+  let out = "";
+  for (const [levels, label] of PROGRAM_LEVELS) {
+    const list = active.filter(p => levels.includes(String(p.level))).sort(byTitle);
+    if (list.length) out += `<h3>${esc(label)} <small>(${list.length})</small></h3><ul class="cols">${list.map(item).join("")}</ul>`;
+  }
+  const overview = active.find(p => p.level === "weiterbildung_overview");
+  if (overview) out += `<p class="more"><a href="${esc(safeUrl(overview.official_url)!)}" rel="noopener">Alle Weiterbildungsangebote auf der Website der Hochschule</a></p>`;
+  if (!out) return "";
+  return `<section class="card" id="studienangebot"><h2>Studienangebot</h2>${out}<p class="more">Die Weiterbildungen sind eine Auswahl. Das vollständige und aktuelle Angebot steht auf der Website der Hochschule.</p></section>`;
+}
+
+function renderInstitution(i: Row, slug: string, professions: Link[], programs: Row[] = []): { html: string; indexable: boolean; lastmod?: string } {
   const title = txt(i.title_de) || txt(i.name) || slug;
   const url = `${SITE}/institution/${slug}/`;
 
@@ -730,6 +756,7 @@ function renderInstitution(i: Row, slug: string, professions: Link[]): { html: s
   <div class="grid">
     <div>
       ${dlSection("Über diese Schule", detail)}
+      ${programsSection(programs)}
     </div>
     <aside>
       ${linkListSection("Berufe und Programme", professions, 200, n => `und ${n} weitere`)}
@@ -1958,6 +1985,11 @@ async function main() {
   const links = await fetchAll((from, to) =>
     supabase.from("profession_institutions").select("profession_id, institution_id").eq("is_active", true).order("id", { ascending: true }).range(from, to)
   );
+  const programRows = await fetchAll((from, to) =>
+    supabase.from("institution_programs").select("*").eq("is_active", true).order("id", { ascending: true }).range(from, to)
+  ).catch(() => [] as Row[]);
+  const programsByInstitution = new Map<string, Row[]>();
+  for (const p of programRows) (programsByInstitution.get(String(p.institution_id)) ?? programsByInstitution.set(String(p.institution_id), []).get(String(p.institution_id))!).push(p);
   const { count: resourceCount } = await supabase.from("resources").select("*", { count: "exact", head: true }).eq("is_active", true);
 
   // data for the richer profession pages (all public-read tables)
@@ -2084,7 +2116,7 @@ async function main() {
       continue;
     }
     instTaken.add(slug);
-    const { html, indexable, lastmod } = renderInstitution(i, slug, (professionsByInstitution.get(String(i.id)) ?? []).sort(byTitle));
+    const { html, indexable, lastmod } = renderInstitution(i, slug, (professionsByInstitution.get(String(i.id)) ?? []).sort(byTitle), programsByInstitution.get(String(i.id)) ?? []);
     await writePage(["institution", slug], html);
     stats.institutions++;
     if (!indexable) {

@@ -30,6 +30,14 @@ Related Files:
 
 ---
 
+## 2026-10-25 — Studienangebot: программы по каждому Hochschule
+
+- Новая таблица `institution_programs` (public read): учреждение, уровень (bachelor/master/cas/das/mas/emba/weiterbildung_overview/other), название в оригинале, язык названия, сфера, язык обучения, длительность, ECTS, официальная ссылка на страницу самой Hochschule, статус проверки.
+- Загружено 2391 строка для 53 учреждений (университеты, ETH/EPFL, FH, PH, HES-SO и их школы, hotel schools): 775 Bachelor, 1089 Master, 438 CAS/DAS/MAS/EMBA, 37 «other» (HF/ES-дипломы, Lehrdiplome Sek II, Executive Master и т.п.) + по одной ссылке «Weiterbildung» на каталог вуза. Bachelor и Master полные (по списку программ самого вуза), Weiterbildung только выборка до 12 на вуз. Длительность, ECTS и язык заполнены только там, где указаны на странице (UZH, HSLU, USI почти везде NULL).
+- Страницы учреждений (`generate-pages.ts`): раздел «Studienangebot» (Bachelor / Master / Weiterbildung / Weitere Angebote, у каждой строки ссылка на страницу вуза), 53 страницы. Появится после сборки на Railway.
+- Не сделано: HEAD Genève (сайт отдавал 502, повторить позже); Les Roches — кампусы программ (Crans-Montana, Marbella, Abu Dhabi) на страницах не различаются, в notes_de стоит пометка; общие Master HES-SO показаны у нескольких школ по замыслу; Fribourg: несколько Master с одинаковым названием объединены, треки в notes_de.
+- К проверке: у PH Zug в `institutions.website_url` стоит каталог сотрудников (phzg.zug.ch), настоящий сайт phzg.ch.
+
 ## 2026-10-25 — Связи формальных профессий (Fachausweis, Diplom, вузы) с учреждениями
 
 - Этап 2 после связей профшкол: 4 агента искали, где учатся профессии без единой школы (Berufsprüfung, höhere Fachprüfung, университетские и FH-направления, HF). Источники: страницы berufsberatung.ch, сайты организаторов экзаменов и программы самих учреждений. Привязаны только учреждения, которые уже есть в базе.
