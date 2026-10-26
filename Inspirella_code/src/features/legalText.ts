@@ -26,7 +26,7 @@ const IMPRESSUM_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
   de: {
     eyebrow: "Rechtliches",
     title: "Impressum",
-    updated: "Stand: 12. Oktober 2026",
+    updated: "Stand: 26. Oktober 2026",
     sections: [
       {
         heading: "Verantwortlich",
@@ -76,7 +76,7 @@ const IMPRESSUM_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
   en: {
     eyebrow: "Legal",
     title: "Legal notice (Impressum)",
-    updated: "As of 12 October 2026",
+    updated: "As of 26 October 2026",
     sections: [
       {
         heading: "Responsible",
@@ -126,7 +126,7 @@ const IMPRESSUM_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
   fr: {
     eyebrow: "Mentions légales",
     title: "Mentions légales (Impressum)",
-    updated: "État au 12 octobre 2026",
+    updated: "État au 26 octobre 2026",
     sections: [
       {
         heading: "Responsable",
@@ -176,7 +176,7 @@ const IMPRESSUM_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
   it: {
     eyebrow: "Note legali",
     title: "Note legali (Impressum)",
-    updated: "Stato al 12 ottobre 2026",
+    updated: "Stato al 26 ottobre 2026",
     sections: [
       {
         heading: "Responsabile",
@@ -232,7 +232,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
   en: {
     eyebrow: "Privacy",
     title: "Privacy notice",
-    updated: "Last updated: 12 October 2026 · Plain-language summary, not a substitute for legal advice.",
+    updated: "Last updated: 26 October 2026 · Plain-language summary, not a substitute for legal advice.",
     sections: [
       {
         heading: "Who is responsible",
@@ -271,7 +271,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
       },
       {
         heading: "Cookies & local storage",
-        paragraphs: ["We use your browser's local storage to remember your theme (dark/light) and, in guest mode, your profile and trackers. We do not use advertising or tracking cookies. To see how many people visit and which pages are used, we run cookie-free visit statistics (Umami Cloud): they count page views and the referring site, store no personal profile, set no cookie and do not follow you across websites."]
+        paragraphs: ["We use your browser's local storage to remember your theme (dark/light) and, in guest mode, your profile and trackers. We do not use advertising cookies. To see how many people visit and which pages are used, we use Google Analytics (Google Ireland Limited / Google LLC), but only if you agree in the banner at the bottom of the page. Without your consent Google Analytics is not loaded at all and nothing is sent to Google. If you agree, Google sets cookies (_ga) and receives technical data such as your IP address (shortened by Google), the pages you open, your browser and approximate location; Google may process this data outside Switzerland and the EU. We use it only for visit statistics, not for advertising. You can change your choice at any time via “Cookie settings” in the footer."]
       }
     ],
     closing: "This is an honest first version, written in plain language rather than formal legal text. As Inspirella grows we intend to have it reviewed by a lawyer familiar with Swiss (revDSG / nFADP) and EU (GDPR) data protection law.",
@@ -280,7 +280,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
   de: {
     eyebrow: "Datenschutz",
     title: "Datenschutzerklärung",
-    updated: "Zuletzt aktualisiert: 12. Oktober 2026 · Zusammenfassung in einfacher Sprache, kein Ersatz für Rechtsberatung.",
+    updated: "Zuletzt aktualisiert: 26. Oktober 2026 · Zusammenfassung in einfacher Sprache, kein Ersatz für Rechtsberatung.",
     sections: [
       {
         heading: "Wer ist verantwortlich",
@@ -319,7 +319,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
       },
       {
         heading: "Cookies & lokaler Speicher",
-        paragraphs: ["Wir nutzen den lokalen Speicher deines Browsers, um dein Farbschema (hell/dunkel) und im Gastmodus dein Profil und deine Tracker zu merken. Wir setzen keine Werbe- oder Tracking-Cookies. Um zu sehen, wie viele Menschen die Seite besuchen und welche Seiten genutzt werden, nutzen wir eine cookiefreie Besucherstatistik (Umami Cloud): Sie zählt Seitenaufrufe und die verweisende Seite, speichert kein persönliches Profil, setzt kein Cookie und verfolgt dich nicht über andere Websites."]
+        paragraphs: ["Wir nutzen den lokalen Speicher deines Browsers, um dein Farbschema (hell/dunkel) und im Gastmodus dein Profil und deine Tracker zu merken. Wir setzen keine Werbe-Cookies. Um zu sehen, wie viele Menschen die Seite besuchen und welche Seiten genutzt werden, nutzen wir Google Analytics (Google Ireland Limited / Google LLC), aber nur, wenn du im Hinweis am unteren Seitenrand zustimmst. Ohne deine Zustimmung wird Google Analytics gar nicht geladen und es wird nichts an Google gesendet. Wenn du zustimmst, setzt Google Cookies (_ga) und erhält technische Daten wie deine IP-Adresse (von Google gekürzt), die aufgerufenen Seiten, deinen Browser und deinen ungefähren Standort; Google kann diese Daten auch ausserhalb der Schweiz und der EU verarbeiten. Wir nutzen sie nur für die Besucherstatistik, nicht für Werbung. Deine Wahl kannst du jederzeit über «Cookie-Einstellungen» im Fussbereich ändern."]
       }
     ],
     closing: "Das ist eine ehrliche erste Fassung in einfacher Sprache statt in juristischem Fachtext. Wenn Inspirella wächst, möchten wir sie von einer auf Schweizer (revDSG) und EU-Datenschutzrecht (DSGVO) spezialisierten Fachperson prüfen lassen.",
@@ -328,7 +328,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
   fr: {
     eyebrow: "Confidentialité",
     title: "Déclaration de confidentialité",
-    updated: "Dernière mise à jour : 12 octobre 2026 · Résumé en langage simple, ne remplace pas un conseil juridique.",
+    updated: "Dernière mise à jour : 26 octobre 2026 · Résumé en langage simple, ne remplace pas un conseil juridique.",
     sections: [
       {
         heading: "Qui est responsable",
@@ -367,7 +367,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
       },
       {
         heading: "Cookies et stockage local",
-        paragraphs: ["Nous utilisons le stockage local de ton navigateur pour retenir ton thème (clair/sombre) et, en mode invité, ton profil et tes suivis. Nous n'utilisons ni cookies publicitaires ni cookies de suivi. Pour savoir combien de personnes visitent le site et quelles pages sont utilisées, nous utilisons des statistiques de visite sans cookie (Umami Cloud) : elles comptent les pages vues et le site d'origine, ne créent aucun profil personnel, ne déposent aucun cookie et ne te suivent pas sur d'autres sites."]
+        paragraphs: ["Nous utilisons le stockage local de ton navigateur pour retenir ton thème (clair/sombre) et, en mode invité, ton profil et tes suivis. Nous n'utilisons pas de cookies publicitaires. Pour savoir combien de personnes visitent le site et quelles pages sont utilisées, nous utilisons Google Analytics (Google Ireland Limited / Google LLC), mais seulement si tu acceptes dans le bandeau en bas de page. Sans ton accord, Google Analytics n'est pas chargé du tout et rien n'est envoyé à Google. Si tu acceptes, Google dépose des cookies (_ga) et reçoit des données techniques comme ton adresse IP (raccourcie par Google), les pages consultées, ton navigateur et ta localisation approximative ; Google peut traiter ces données hors de Suisse et de l'UE. Nous les utilisons uniquement pour les statistiques de visite, pas pour la publicité. Tu peux modifier ton choix à tout moment via « Paramètres des cookies » en bas de page."]
       }
     ],
     closing: "Ceci est une première version honnête, rédigée en langage simple plutôt qu'en texte juridique formel. Quand Inspirella grandira, nous voulons la faire relire par une personne spécialisée en droit suisse (nLPD) et européen (RGPD) de la protection des données.",
@@ -376,7 +376,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
   it: {
     eyebrow: "Privacy",
     title: "Informativa sulla privacy",
-    updated: "Ultimo aggiornamento: 12 ottobre 2026 · Riepilogo in linguaggio semplice, non sostituisce una consulenza legale.",
+    updated: "Ultimo aggiornamento: 26 ottobre 2026 · Riepilogo in linguaggio semplice, non sostituisce una consulenza legale.",
     sections: [
       {
         heading: "Chi è responsabile",
@@ -415,7 +415,7 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
       },
       {
         heading: "Cookie e memoria locale",
-        paragraphs: ["Usiamo la memoria locale del browser per ricordare il tema (chiaro/scuro) e, in modalità ospite, profilo e tracker. Non usiamo cookie pubblicitari o di tracciamento. Per sapere quante persone visitano il sito e quali pagine vengono usate, utilizziamo statistiche di visita senza cookie (Umami Cloud): contano le visualizzazioni di pagina e il sito di provenienza, non creano alcun profilo personale, non impostano cookie e non ti seguono su altri siti."]
+        paragraphs: ["Usiamo la memoria locale del browser per ricordare il tema (chiaro/scuro) e, in modalità ospite, profilo e tracker. Non usiamo cookie pubblicitari. Per sapere quante persone visitano il sito e quali pagine vengono usate, utilizziamo Google Analytics (Google Ireland Limited / Google LLC), ma solo se acconsenti nel banner in fondo alla pagina. Senza il tuo consenso Google Analytics non viene caricato affatto e a Google non viene inviato nulla. Se acconsenti, Google imposta cookie (_ga) e riceve dati tecnici come il tuo indirizzo IP (abbreviato da Google), le pagine aperte, il browser e la posizione approssimativa; Google può trattare questi dati anche fuori dalla Svizzera e dall'UE. Li usiamo solo per le statistiche di visita, non per la pubblicità. Puoi cambiare la scelta in qualsiasi momento tramite «Impostazioni cookie» nel piè di pagina."]
       }
     ],
     closing: "Questa è una prima versione onesta, scritta in linguaggio semplice e non in testo giuridico formale. Quando Inspirella crescerà, vogliamo farla rivedere da una persona esperta di diritto svizzero (nLPD) ed europeo (GDPR) sulla protezione dei dati.",

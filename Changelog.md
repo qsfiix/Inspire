@@ -30,6 +30,12 @@ Related Files:
 
 ---
 
+## 2026-10-26 — Google Analytics (GA4) с согласием посетителя
+
+- Тег GA4 `G-Y3MTLQ5TT7` подключён через `public/analytics.js` (скрипт в `index.html` и в шаблоне статических страниц). Без согласия ничего не загружается и ничего не уходит в Google; баннер внизу страницы (de/en/fr/it/uk по языку страницы), «Ablehnen» и «Zustimmen» равнозначны, выбор хранится в localStorage (`inspirella-consent`). На localhost GA не грузится (баннер виден для проверки). Ссылка «Cookie-Einstellungen» в футере (и в приложении, и на статических страницах) снова открывает баннер; при отзыве согласия `_ga`-cookie удаляются.
+- Datenschutz (de/en/fr/it): вместо «cookiefreie Statistik (Umami)» описан Google Analytics с согласием, передача данных за пределы CH/ЕС, без рекламы; «Zuletzt aktualisiert» 26.10.2026. В VITE_ANALYTICS_SRC (Umami/Plausible) по-прежнему ничего не задано.
+- uk-версия политики пока показывает английский текст (как и раньше).
+
 ## 2026-10-25 — Studienangebot: программы по каждому Hochschule
 
 - Новая таблица `institution_programs` (public read): учреждение, уровень (bachelor/master/cas/das/mas/emba/weiterbildung_overview/other), название в оригинале, язык названия, сфера, язык обучения, длительность, ECTS, официальная ссылка на страницу самой Hochschule, статус проверки.

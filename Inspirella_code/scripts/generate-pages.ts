@@ -312,6 +312,7 @@ ${hreflang ? hreflang + "\n" : ""}${o.indexable ? "" : '<meta name="robots" cont
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script type="application/ld+json">${JSON.stringify(o.ld).replace(/</g, "\\u003c")}</script>
 <style>${CSS}</style>
+<script src="/analytics.js" defer></script>
 </head>
 <body>
 <div class="ambient" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div><canvas id="sand"></canvas><div class="grain"></div><div class="vignette"></div></div>
@@ -322,7 +323,7 @@ ${hreflang ? hreflang + "\n" : ""}${o.indexable ? "" : '<meta name="robots" cont
 <main>
 ${o.main}
 </main>
-<div class="foot">© Inspirella · <a href="/">inspirella.ch</a> · <a href="/ueber-inspirella/">Über Inspirella</a> · <a href="/bildungssystem/">Bildungssystem</a> ·<a href="/impressum/">Impressum</a> · <a href="/datenschutz/">Datenschutz</a></div>
+<div class="foot">© Inspirella · <a href="/">inspirella.ch</a> · <a href="/ueber-inspirella/">Über Inspirella</a> · <a href="/bildungssystem/">Bildungssystem</a> ·<a href="/impressum/">Impressum</a> · <a href="/datenschutz/">Datenschutz</a> · <a href="#cookie-settings" data-cookie-settings>Cookie-Einstellungen</a></div>
 <script>${SCRIPT}</script>
 </body>
 </html>
