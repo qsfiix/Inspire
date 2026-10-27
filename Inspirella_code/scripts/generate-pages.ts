@@ -560,7 +560,11 @@ function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx): { ht
   const totalText = [short, ...detail.map(d => d[1]), progression, ...glance.map(g => g[1])].filter(Boolean).join(" ");
   const indexable = totalText.length >= MIN_INDEXABLE_CHARS;
   const descBits = [short ? truncate(short, 110) : `${title}: Beruf in der Schweiz${typeLabel ? ` (${typeLabel})` : ""}.`, duration ? `Dauer: ${duration}.` : "", wageLines.length ? `Lehrlingslohn ab ${chf(wages[0].min_chf)}.` : bench ? `Lohn: Median ${chf(bench.median)}.` : ""].filter(Boolean);
-  if (descBits.join(" ").length < 100) descBits.push(schools.length ? "Mit Schulen und Quelle." : "Mit Quelle und Hinweisen zur Ausbildung.");
+  // name what the page covers in the words people search with (Ausbildung, Lohn/Gehalt, Schulen)
+  const covers = ["Ausbildung", ...(wageLines.length || bench ? ["Lohn (Gehalt)"] : []), ...(schools.length ? ["Schulen"] : [])];
+  const coverText = `Mit ${covers.length > 1 ? `${covers.slice(0, -1).join(", ")} und ${covers[covers.length - 1]}` : covers[0]}.`;
+  if (descBits.join(" ").length + coverText.length < 158) descBits.push(coverText);
+  else if (descBits.join(" ").length < 100) descBits.push(schools.length ? "Mit Schulen und Quelle." : "Mit Quelle und Hinweisen zur Ausbildung.");
   const description = truncate(descBits.join(" ") || title, 158);
 
   // questions people ask, answered only from data we hold
@@ -686,6 +690,11 @@ function programsSection(programs: Row[]): string {
 function renderInstitution(i: Row, slug: string, professions: Link[], programs: Row[] = []): { html: string; indexable: boolean; lastmod?: string } {
   const title = txt(i.title_de) || txt(i.name) || slug;
   const url = `${SITE}/institution/${slug}/`;
+  const abbreviation = txt(i.abbreviation);
+  const aliases = (txt(i.search_aliases) ?? "").split(";").map(a => a.trim()).filter(Boolean);
+  const hasAbbr = !!abbreviation && !title.split(/[^A-Za-z]+/).includes(abbreviation);
+  // the short name people search for goes into the browser title: "Berufsfachschule Oberwallis (BFO)"
+  const titleWithAbbr = hasAbbr ? `${title} (${abbreviation})` : title;
 
   const short = txt(i.short_description_de) || txt(i.summary_de) || txt(i.overview_de) || txt(i.description_de);
   const overview = txt(i.overview_de) || txt(i.description_de);
@@ -719,6 +728,7 @@ function renderInstitution(i: Row, slug: string, professions: Link[], programs: 
   const description = truncate(descBits.join(" "), 158);
 
   const facts: [string, string][] = [];
+  if (abbreviation) facts.push(["Kurzname", [abbreviation, ...aliases.filter(a => a.toLowerCase() !== abbreviation.toLowerCase())].join(", ")]);
   if (typeLabel) facts.push(["Art", typeLabel]);
   if (city || canton) facts.push(["Standort", [city, cantonName ?? canton].filter(Boolean).join(", ")]);
   if (address) facts.push(["Adresse", address]);
@@ -729,6 +739,7 @@ function renderInstitution(i: Row, slug: string, professions: Link[], programs: 
       "@context": "https://schema.org",
       "@type": "EducationalOrganization",
       name: title,
+      ...(abbreviation || aliases.length ? { alternateName: [...(abbreviation ? [abbreviation] : []), ...aliases] } : {}),
       description,
       url: website || url,
       ...(website ? { sameAs: [website] } : {}),
@@ -768,7 +779,7 @@ function renderInstitution(i: Row, slug: string, professions: Link[], programs: 
   } und beim kantonalen Berufsinformationszentrum (BIZ). Zuletzt geprüft: ${esc(verified || "siehe Methodik")}. <a href="/methodik/">So arbeiten wir</a>.</div>`;
 
   return {
-    html: layout({ docTitle: fitTitle(title, ["Ausbildungen", "Zulassung"]), ogTitle: `${title} | Inspirella`, description, url, indexable, ld, main }),
+    html: layout({ docTitle: fitTitle(titleWithAbbr, ["Ausbildungen", "Zulassung"]), ogTitle: `${titleWithAbbr} | Inspirella`, description, url, indexable, ld, main }),
     indexable,
     lastmod: isoDate(i.updated_at)
   };
@@ -2233,6 +2244,7 @@ async function main() {
   Object.assign(redirects, {
     "/beruf/techniker-in-hf-bauplanung/": "/beruf/technikerin-hf-bauplanung/",
     "/beruf/techniker-in-hf-grossanlagenbetrieb/": "/beruf/technikerin-hf-grossanlagenbetrieb/",
+    "/beruf/physician-university/": "/beruf/arzt-aerztin/",
     // schools that were listed twice (2026-10-24): the removed address forwards to the kept school
     "/institution/fms-kantonale-fachmittelschule-lerbermatt/": "/institution/gymnasium-lerbermatt/",
     "/institution/fms-fms-der-kantonsschule-sursee/": "/institution/kantonsschule-sursee/",
