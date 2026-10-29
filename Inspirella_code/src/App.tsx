@@ -49,10 +49,21 @@ const TrackerSystem = lazy(() => import("./components/TrackerSystem"));
 import { PUBLIC_TABS, PROTECTED_TABS, STATIC_TAB_PATHS, pathForTab, tabFromLocation } from "./lib/routes";
 
 export default function App() {
-  // A first-time visitor whose browser is set to Ukrainian gets the Ukrainian interface; everyone else starts in English.
-  const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>(() =>
-    typeof navigator !== "undefined" && (navigator.languages ?? [navigator.language]).some(l => String(l).toLowerCase().startsWith("uk")) ? "uk" : "en"
-  );
+  // Language of a visitor without a saved profile: the address (?lang=uk, used for shared links), then the language
+  // chosen on an earlier visit, then the browser (Ukrainian), otherwise English.
+  const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>(() => {
+    const known = ["de", "en", "fr", "it", "uk"];
+    try {
+      const fromUrl = new URLSearchParams(window.location.search).get("lang")?.toLowerCase();
+      if (fromUrl && known.includes(fromUrl)) {
+        window.localStorage.setItem("inspirella-lang", fromUrl);
+        return fromUrl as LanguageCode;
+      }
+      const saved = window.localStorage.getItem("inspirella-lang");
+      if (saved && known.includes(saved)) return saved as LanguageCode;
+    } catch { /* blocked storage: fall through */ }
+    return typeof navigator !== "undefined" && (navigator.languages ?? [navigator.language]).some(l => String(l).toLowerCase().startsWith("uk")) ? "uk" : "en";
+  });
   // Every page has its own address (/pathmap/, /ressourcen/ ...) so search engines can follow links to it and the
   // browser's back/forward buttons walk through the pages instead of leaving the site.
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -230,7 +241,8 @@ export default function App() {
 
       if (cachedProfile) {
         setUserProfile(cachedProfile);
-        setCurrentLanguage(cachedProfile.language);
+        // a language in the address (?lang=uk on a shared link) wins over the saved profile for this visit
+        if (!/[?&]lang=(de|en|fr|it|uk)\b/i.test(window.location.search)) setCurrentLanguage(cachedProfile.language);
         setIsLoggedIn(true);
         isLoggedInRef.current = true;
         // A refresh on /tracker/ stays on the tracker; otherwise land on the dashboard (or onboarding).
@@ -282,6 +294,7 @@ export default function App() {
 
   const handleLanguageChange = async (lang: LanguageCode) => {
     setCurrentLanguage(lang);
+    try { window.localStorage.setItem("inspirella-lang", lang); } catch { /* ignore */ }
     if (userProfile) {
       const nextProfile = { ...userProfile, language: lang };
       setUserProfile(nextProfile);

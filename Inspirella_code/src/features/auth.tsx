@@ -123,9 +123,9 @@ const AUTH_TRANSLATIONS: Record<string, Record<string, string>> = {
   },
   uk: {
     welcomeTitle: "Ласкаво просимо до Inspirella",
-    welcomeSubtitle: "Створи акаунт, щоб дослідити швейцарську освітню систему з двома шляхами (академічним і професійним) та відстежувати свій прогрес.",
-    signInSubtitle: "Увійди, щоб продовжити з того місця, де ти зупинився(-лась).",
-    nameLabel: "Твоє ім'я",
+    welcomeSubtitle: "Створіть акаунт, щоб дослідити швейцарську освітню систему з двома шляхами (академічним і професійним) та відстежувати свій прогрес.",
+    signInSubtitle: "Увійдіть, щоб продовжити з того місця, де ви зупинилися.",
+    nameLabel: "Ваше ім'я",
     emailLabel: "Електронна пошта",
     passwordLabel: "Пароль",
     submitBtn: "Створити акаунт і продовжити",
@@ -136,15 +136,15 @@ const AUTH_TRANSLATIONS: Record<string, Record<string, string>> = {
     emailPlaceholder: "наприклад, marie@domain.ch",
     passwordPlaceholder: "Щонайменше 8 символів",
     backHome: "Назад на головну",
-    disclaimer: "Твій акаунт безпечно створюється й зберігається в Supabase, тож профіль буде з тобою на всіх пристроях.",
+    disclaimer: "Ваш акаунт безпечно створюється й зберігається в Supabase, тож профіль буде з вами на всіх пристроях.",
     stepLabel: "Крок",
     signUpTabLabel: "Створити акаунт",
     signInTabLabel: "Увійти",
     switchToSignIn: "Уже є акаунт? Увійти",
-    switchToSignUp: "Ти тут уперше? Створи акаунт",
-    confirmEmailTitle: "Перевір пошту",
-    confirmEmailMessage: "Ми надіслали посилання для підтвердження на {email}. Підтверди його, а потім увійди нижче.",
-    genericAuthError: "Щось пішло не так. Спробуй ще раз."
+    switchToSignUp: "Ви тут уперше? Створіть акаунт",
+    confirmEmailTitle: "Перевірте пошту",
+    confirmEmailMessage: "Ми надіслали посилання для підтвердження на {email}. Підтвердіть його, а потім увійдіть нижче.",
+    genericAuthError: "Щось пішло не так. Спробуйте ще раз."
   }
 };
 
@@ -626,7 +626,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
         currentLanguage === "de" ? "Definiere ein oder mehrere gewünschte Ziele."
         : currentLanguage === "fr" ? "Définis un ou plusieurs objectifs d'orientation."
         : currentLanguage === "it" ? "Definisci uno o più obiettivi formativi o professionali."
-        : currentLanguage === "uk" ? "Обери одну або кілька цілей."
+        : currentLanguage === "uk" ? "Оберіть одну або кілька цілей."
         : "Pick everything that fits. You can change it later."
     },
     target: { title: c.targetTitle, subtitle: c.targetSubtitle },
@@ -636,7 +636,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
         currentLanguage === "de" ? "Wähle deine aktuelle Ausbildungs- oder Berufsphase (Einzelauswahl)."
         : currentLanguage === "fr" ? "Sélectionne ton profil d'activité (une seule option)."
         : currentLanguage === "it" ? "Seleziona la tua attuale fase accademica o lavorativa."
-        : currentLanguage === "uk" ? "Обери свій теперішній етап навчання або роботи (один варіант)."
+        : currentLanguage === "uk" ? "Оберіть свій теперішній етап навчання або роботи (один варіант)."
         : "Pick the one that fits you best right now."
     },
     interests: {
@@ -645,7 +645,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
         currentLanguage === "de" ? "Wähle ein oder mehrere Interessengebiete aus."
         : currentLanguage === "fr" ? "Sélectionne un ou plusieurs domaines d'intérêt."
         : currentLanguage === "it" ? "Seleziona una o più aree di interesse principale."
-        : currentLanguage === "uk" ? "Обери одну або кілька сфер, які тебе цікавлять."
+        : currentLanguage === "uk" ? "Оберіть одну або кілька сфер, які вас цікавлять."
         : "Pick as many as you like."
     },
     education: { title: c.eduTitle, subtitle: c.eduSubtitle },

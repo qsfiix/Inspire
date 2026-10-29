@@ -323,7 +323,13 @@ ${hreflang ? hreflang + "\n" : ""}${o.indexable ? "" : '<meta name="robots" cont
 <main>
 ${o.main}
 </main>
-<div class="foot">© Inspirella · <a href="/">inspirella.ch</a> · <a href="/ueber-inspirella/">Über Inspirella</a> · <a href="/bildungssystem/">Bildungssystem</a> ·<a href="/impressum/">Impressum</a> · <a href="/datenschutz/">Datenschutz</a> · <a href="#cookie-settings" data-cookie-settings>Cookie-Einstellungen</a></div>
+<div class="foot">© Inspirella · <a href="/">inspirella.ch</a> · ${
+    o.lang === "uk"
+      ? `<a href="/ueber-inspirella/">Про Inspirella</a> · <a href="/uk/systema-osvity-shveitsarii/">Система освіти</a> · <a href="/impressum/">Імпресум</a> · <a href="/datenschutz/">Конфіденційність</a> · <a href="#cookie-settings" data-cookie-settings>Налаштування cookie</a>`
+      : o.lang === "en"
+        ? `<a href="/ueber-inspirella/">About Inspirella</a> · <a href="/en/swiss-education-system/">Education system</a> · <a href="/impressum/">Imprint</a> · <a href="/datenschutz/">Privacy</a> · <a href="#cookie-settings" data-cookie-settings>Cookie settings</a>`
+        : `<a href="/ueber-inspirella/">Über Inspirella</a> · <a href="/bildungssystem/">Bildungssystem</a> · <a href="/impressum/">Impressum</a> · <a href="/datenschutz/">Datenschutz</a> · <a href="#cookie-settings" data-cookie-settings>Cookie-Einstellungen</a>`
+  }</div>
 <script>${SCRIPT}</script>
 </body>
 </html>
@@ -1019,7 +1025,7 @@ const SYS: Record<SysLang, SysCopy> = {
     description: "Система освіти Швейцарії простими словами: початкова й середня школа, професійне навчання з практикою (EFZ/EBA), гімназія, професійна матура, університети прикладних наук, університети та переходи між ними, з офіційними джерелами.",
     crumb: "Система освіти",
     cta: "Відкрити інтерактивну мапу →",
-    ctaNote: "В інтерактивній Swiss Path Map ти обираєш свій кантон і бачиш шляхи та умови саме для нього.",
+    ctaNote: "В інтерактивній Swiss Path Map ви обираєте свій кантон і бачите шляхи та умови саме для нього.",
     bands: { "-1": "Прибуття", "0": "Початкова школа", "1": "Нижча середня школа (Sekundarstufe I)", "2": "Вища середня школа (Sekundarstufe II)", "3": "Вища освіта", "4": "Магістратура, докторантура, підвищення кваліфікації" },
     duration: "Тривалість",
     age: "Типовий вік",
@@ -1037,7 +1043,7 @@ const SYS: Record<SysLang, SysCopy> = {
     factsCantons: "Кантонів",
     factsData: "Дані станом на",
     detailsNote: "",
-    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Правила різняться залежно від кантону й школи. Обов’язкову інформацію шукай на berufsberatung.ch, у SBFI, EDK, swissuniversities і в кантональному центрі профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено.",
+    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Правила різняться залежно від кантону й школи. Обов’язкову інформацію шукайте на berufsberatung.ch, у SBFI, EDK, swissuniversities і в кантональному центрі профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено.",
     nav: { about: "Про Inspirella", app: "Відкрити застосунок" }
   }
 };
@@ -1138,11 +1144,11 @@ const STATUS_S: Record<SLang, StatusCopy> = {
     htmlLang: "uk",
     hubTitle: "Статус S у Швейцарії: школа, мова, навчання за кантонами",
     hubH1: "Статус захисту S у Швейцарії: школа, мова і професійне навчання",
-    hubLead: "Ти приїхав(ла) до Швейцарії зі статусом захисту S (Україна) або допомагаєш комусь? Тут написано, з чого почати, і для кожного кантону, куди звертатися: школа, курси німецької, професійне навчання та контакти. Кожен пункт веде на офіційну сторінку.",
+    hubLead: "Ви приїхали до Швейцарії зі статусом захисту S (Україна) або допомагаєте комусь? Тут написано, з чого почати, і для кожного кантону, куди звертатися: школа, курси німецької, професійне навчання та контакти. Кожен пункт веде на офіційну сторінку.",
     hubDescription: "Статус захисту S у Швейцарії: запис до школи, курси німецької, професійне навчання (Lehre) і дипломи. Контакти та шляхи в кожному кантоні, з офіційними джерелами.",
     crumb: "Статус S",
     nationalTitle: "Найважливіше для всієї Швейцарії",
-    cantonsTitle: "Обери свій кантон",
+    cantonsTitle: "Оберіть свій кантон",
     cantonsLead: "Школа, мова і професійне навчання — справа кантонів, тому запис, курси та контакти відрізняються.",
     otherCantons: "Інші кантони",
     cantonTitles: n => [`Статус S у кантоні ${n}: школа, мова, навчання`, `Статус захисту S у кантоні ${n}`, `Статус S: ${n}`],
@@ -1153,7 +1159,7 @@ const STATUS_S: Record<SLang, StatusCopy> = {
     cta: "Відкрити Swiss Path Map →",
     ctaNote: "В інтерактивній мапі видно шляхи від прибуття до диплома.",
     official: "Офіційна сторінка →",
-    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Правила, строки й контакти змінюються: завжди перевіряй офіційну сторінку. Тексти взято з офіційних німецькомовних джерел і перекладено.",
+    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Правила, строки й контакти змінюються: завжди перевіряйте офіційну сторінку. Тексти взято з офіційних німецькомовних джерел і перекладено.",
     updated: "Востаннє оновлено",
     nav: { about: "Про Inspirella", app: "Відкрити застосунок" }
   }
@@ -1336,12 +1342,12 @@ const GUIDES: Record<GLang, GuideCopy> = {
     nav: { about: "Про Inspirella", app: "Відкрити застосунок" },
     updated: "Востаннє оновлено",
     official: "Офіційна сторінка →",
-    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Строки подання, вимоги й пропозиції змінюються: завжди перевіряй офіційну сторінку. Обов’язкову інформацію дає кантональний центр профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено.",
+    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Строки подання, вимоги й пропозиції змінюються: завжди перевіряйте офіційну сторінку. Обов’язкову інформацію дає кантональний центр профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено.",
     crumb: "Перехідні програми",
     bridgeHubTitles: ["Перехідні програми у Швейцарії за кантонами", "Перехідні програми за кантонами"],
     bridgeHubH1: "Перехідні програми у Швейцарії: огляд за кантонами",
     bridgeHubDescription: "Перехідні програми після обов’язкової школи: Vorlehre, підготовчий рік, Integrationsvorlehre і мотиваційний семестр у кожному кантоні, з умовами вступу та джерелами.",
-    bridgeCantonsTitle: "Обери свій кантон",
+    bridgeCantonsTitle: "Оберіть свій кантон",
     bridgeCantonsLead: "Перехідні програми організують кантони, тому назви, вимоги й запис відрізняються.",
     bridgeCantonTitles: n => [`Перехідні програми у кантоні ${n}: Vorlehre, рік`, `Перехідні програми у кантоні ${n}`, `Програми: ${n}`],
     bridgeCantonH1: n => `Перехідні програми у кантоні ${n}`,
@@ -1563,7 +1569,7 @@ const ADMISSION: Record<GLang, AdmissionCopy> = {
     tableCanton: "Кантон",
     otherCantons: "Інші кантони",
     official: "Офіційна сторінка →",
-    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Строки, оцінки й умови змінюються щороку: завжди перевіряй офіційну сторінку. Обов’язкову інформацію дає школа або кантональний центр профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено.",
+    disclaimer: "Inspirella — інструмент для орієнтації, а не офіційна установа. Строки, оцінки й умови змінюються щороку: завжди перевіряйте офіційну сторінку. Обов’язкову інформацію дає школа або кантональний центр профорієнтації (BIZ). Тексти взято з офіційних німецькомовних джерел і перекладено.",
     updated: "Востаннє оновлено",
     links: { bridge: "Перехідні програми за кантонами", adult: "Диплом для дорослих", status: "Зі статусом S: пропозиції за кантонами" }
   }
@@ -1616,7 +1622,7 @@ function renderAdmissionPage(lang: GLang, canton: string | null, byCanton: Map<s
       .join("");
     body = `<h2 style="margin-top:6px">${esc(c.tableTitle)}</h2>
   <section class="card"><p>${esc(c.tableLead)}</p><div style="overflow-x:auto"><table class="cmp"><thead>${head}</thead><tbody>${lines}</tbody></table></div></section>
-  <h2 style="margin-top:34px">${esc(lang === "de" ? "Wähle deinen Kanton" : "Обери свій кантон")}</h2>
+  <h2 style="margin-top:34px">${esc(lang === "de" ? "Wähle deinen Kanton" : "Оберіть свій кантон")}</h2>
   <section class="card">${cantonList()}</section>
   <p class="more"><a href="${g.bridgeBase}">${esc(c.links.bridge)}</a> · <a href="${g.adultPath}">${esc(c.links.adult)}</a> · <a href="${STATUS_S[lang].base}">${esc(c.links.status)}</a></p>`;
   }
@@ -1646,6 +1652,73 @@ function renderAdmissionPage(lang: GLang, canton: string | null, byCanton: Map<s
   <header class="hero"><h1>${esc(h1)}</h1><p class="lead">${esc(lead)}</p></header>
   ${body}
   <div class="source">${esc(c.disclaimer)} ${esc(c.updated)}: ${esc(statusDate(lang, updated))}.</div>`
+  });
+}
+
+// --------------------------------------------------------------------------
+// Ukrainian start page (/uk/): the page to share with Ukrainian-speaking newcomers. Only links and short pointers to
+// pages that already hold verified information; it states no rules of its own.
+// --------------------------------------------------------------------------
+
+function renderUkStart(counts: Counts, programCount: number): string {
+  const url = SITE + "/uk/";
+  const cards: [string, string, string][] = [
+    ["Я щойно приїхав(-ла) зі статусом захисту S", "Школа для дітей, курси німецької, контакти та перші кроки у вашому кантоні. Обираєте кантон і бачите, що там працює.", "/uk/status-s/"],
+    ["Хочу здобути професію у Швейцарії", "Як дорослі отримують швейцарський диплом з професії: шляхи для тих, хто вже має досвід або вже працює.", "/uk/diplom-dlia-doroslykh/"],
+    ["Моя дитина вступає до гімназії або професійної школи", "Які бувають шляхи після початкової школи, що потрібно для вступу і де дізнатися про умови у вашому кантоні.", "/uk/pryjom/"],
+    ["Молодь 15–25 років: перехідні програми", "Програми, які допомагають підготуватися до професійного навчання або школи: мова, орієнтація, практика.", "/uk/perekhidni-prohramy/"],
+    ["Як улаштована система освіти", "Усі етапи від початкової школи до університету на одній сторінці та переходи між ними, у тому числі обхідні шляхи.", "/uk/systema-osvity-shveitsarii/"],
+    ["Каталог професій, шкіл і ресурсів", "Професії, школи, вищі навчальні заклади та корисні сайти. Український інтерфейс у застосунку.", "/ressourcen/?lang=uk"],
+    ["Мапа шкіл", "Школи та вищі навчальні заклади на мапі Швейцарії.", "/karte/?lang=uk"]
+  ];
+  const cardsHtml = cards
+    .map(([t, d, h]) => `<li><a class="school" href="${esc(h)}"><div><b>${esc(t)}</b><br><span>${esc(d)}</span></div></a></li>`)
+    .join("");
+  const description = "Освіта та навчання у Швейцарії для українців: статус захисту S, школа для дітей, курси німецької, професійне навчання, вступ до університету. Українською, з офіційними джерелами.";
+  const main = `  <header class="hero">
+    <div class="badges"><span class="badge">Для українців у Швейцарії</span><span class="badge warm">Безкоштовно</span></div>
+    <h1>Освіта та навчання у Швейцарії: з чого почати</h1>
+    <p class="lead">Школа, професійне навчання, мовні курси та вступ до університету. Прості пояснення українською, з посиланнями на офіційні джерела та контакти у вашому кантоні.</p>
+    <div class="cta-row"><a class="btn btn-primary" href="/uk/status-s/">Обрати свій кантон →</a><a class="btn btn-sec" href="/?lang=uk">Відкрити застосунок</a></div>
+  </header>
+  ${factsHtml([
+    ["Професій у каталозі", String(counts.professions)],
+    ["Шкіл і вишів", String(counts.institutions)],
+    ["Програм навчання у вишах", String(programCount)],
+    ["Кантонів", "26"]
+  ])}
+  <section class="card">
+    <h2>Оберіть свою ситуацію</h2>
+    <ul class="schools">${cardsHtml}</ul>
+  </section>
+  <section class="card prose" style="margin-top:22px">
+    <h2>Як користуватися</h2>
+    <ul>
+      <li>Почніть зі сторінки свого кантону: там контакти, запис до школи та курси німецької.</li>
+      <li>У застосунку оберіть мову інтерфейсу українську: мова збережеться, і сторінки відкриватимуться українською.</li>
+      <li>Усі правила можуть відрізнятися за кантонами та школами. Остаточну інформацію завжди перевіряйте на офіційному сайті та в центрі профорієнтації вашого кантону (BIZ).</li>
+    </ul>
+  </section>
+  <div class="source">Inspirella — незалежний інструмент для орієнтації, а не офіційна установа. Відомості беруться з офіційних джерел (SEM, SBFI, EDK, berufsberatung.ch, swissuniversities, кантонів) і містять посилання на джерело. Якщо помітите помилку або застарілу інформацію, напишіть на <a href="mailto:iinspirella@gmail.com">iinspirella@gmail.com</a>. <a href="/methodik/">Як ми працюємо</a> (німецькою).</div>`;
+
+  return layout({
+    docTitle: "Освіта у Швейцарії для українців: з чого почати | Inspirella",
+    ogTitle: "Освіта та навчання у Швейцарії для українців",
+    description,
+    url,
+    indexable: true,
+    lang: "uk",
+    nav: { about: "Про Inspirella", app: "Відкрити застосунок" },
+    ld: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "Освіта та навчання у Швейцарії: з чого почати",
+      url,
+      inLanguage: "uk",
+      description,
+      isPartOf: { "@type": "WebSite", name: "Inspirella", url: SITE + "/" }
+    },
+    main
   });
 }
 
@@ -2271,6 +2344,14 @@ async function main() {
     }
   } catch (err: any) {
     console.warn("[pages] Education system pages skipped:", err?.message || err);
+  }
+  // Ukrainian start page
+  try {
+    const { count: programCount } = await supabase.from("institution_programs").select("*", { count: "exact", head: true }).eq("is_active", true);
+    await writePage(["uk"], renderUkStart(counts, programCount ?? 0));
+    urls.push({ loc: SITE + "/uk/", lastmod: today });
+  } catch (err: any) {
+    console.warn("[pages] Ukrainian start page skipped:", err?.message || err);
   }
   // Protection status S guide: hub plus one page per canton in German, English and Ukrainian (verified facts only).
   try {

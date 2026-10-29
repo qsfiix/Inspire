@@ -41,7 +41,7 @@ const UI: Record<LanguageCode, { foldTitle: string; foldHint: string; mapTitle: 
     foldTitle: "Докладніше про мій шлях",
     foldHint: "Особистий маршрут і чому саме ці рекомендації",
     mapTitle: "Уся система освіти Швейцарії",
-    mapText: "Усі етапи й переходи на одній мапі, з умовами для твого кантону.",
+    mapText: "Усі етапи й переходи на одній мапі, з умовами для вашого кантону.",
     mapButton: "Відкрити Swiss Path Map"
   }
 };

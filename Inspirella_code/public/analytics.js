@@ -12,13 +12,21 @@
     en: { t: "We would like to use visitor statistics (Google Analytics) to improve the site. Nothing is loaded without your consent.", y: "Accept", n: "Decline", p: "Privacy", pu: "/datenschutz/" },
     fr: { t: "Nous aimerions utiliser des statistiques de visite (Google Analytics) pour améliorer le site. Rien n'est chargé sans ton accord.", y: "Accepter", n: "Refuser", p: "Confidentialité", pu: "/datenschutz/" },
     it: { t: "Vorremmo usare statistiche di visita (Google Analytics) per migliorare il sito. Senza il tuo consenso non viene caricato nulla.", y: "Accetta", n: "Rifiuta", p: "Privacy", pu: "/datenschutz/" },
-    uk: { t: "Ми хотіли б використовувати статистику відвідувань (Google Analytics), щоб покращувати сайт. Без твоєї згоди нічого не завантажується.", y: "Погодитись", n: "Відмовитись", p: "Конфіденційність", pu: "/datenschutz/" }
+    uk: { t: "Ми хотіли б використовувати статистику відвідувань (Google Analytics), щоб покращувати сайт. Без вашої згоди нічого не завантажується.", y: "Погодитись", n: "Відмовитись", p: "Конфіденційність", pu: "/datenschutz/" }
   };
 
   function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
   function write(v) { try { localStorage.setItem(KEY, v); } catch (e) { /* private mode: choice lasts for this page only */ } }
   function lang() {
-    var l = (document.documentElement.lang || navigator.language || "de").slice(0, 2).toLowerCase();
+    var l = "";
+    try {
+      l = (new URLSearchParams(location.search).get("lang") || localStorage.getItem("inspirella-lang") || "").toLowerCase();
+    } catch (e) { /* ignore */ }
+    if (!TEXTS[l]) {
+      var langs = navigator.languages || [navigator.language || ""];
+      for (var i = 0; i < langs.length; i++) { if (String(langs[i]).slice(0, 2).toLowerCase() === "uk") { l = "uk"; break; } }
+    }
+    if (!TEXTS[l]) l = (document.documentElement.lang || "de").slice(0, 2).toLowerCase();
     return TEXTS[l] ? l : "de";
   }
   function isLocal() { return /^(localhost|127\.0\.0\.1)$/.test(location.hostname); }

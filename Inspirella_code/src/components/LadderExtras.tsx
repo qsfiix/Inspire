@@ -125,14 +125,14 @@ const UI: Record<LanguageCode, Record<string, string>> = {
     nothingCanton: "Non abbiamo ancora una pagina per il tuo cantone."
   },
   uk: {
-    noFacts: "Для цієї професії в нас ще немає докладних даних. Зазирни на berufsberatung.ch.",
+    noFacts: "Для цієї професії в нас ще немає докладних даних. Зазирніть на berufsberatung.ch.",
     source: "Джерело",
     firmsHead: "Компанії, які навчають цієї професії",
-    noFirms: "У нашому переліку для цієї професії ще немає компаній. Шукай на berufsberatung.ch (LENA) та серед компаній поруч із тобою.",
-    pickCanton: "Обери кантон у своєму профілі, і ми покажемо пропозиції поруч із тобою.",
-    reasons_canton: "У твоєму кантоні",
-    reasons_language: "Твоя мова",
-    reasons_interest: "Відповідає твоїм інтересам",
+    noFirms: "У нашому переліку для цієї професії ще немає компаній. Шукайте на berufsberatung.ch (LENA) та серед компаній поруч із вами.",
+    pickCanton: "Оберіть кантон у своєму профілі, і ми покажемо пропозиції поруч із вами.",
+    reasons_canton: "У вашому кантоні",
+    reasons_language: "Ваша мова",
+    reasons_interest: "Відповідає вашим інтересам",
     reasons_schnupperlehre: "Можна пройти пробну практику (Schnupperlehre)",
     training: "Сторінка місць для навчання з практикою",
     linksHead: "Корисні посилання",
@@ -141,8 +141,8 @@ const UI: Record<LanguageCode, Record<string, string>> = {
     noSchools: "Відповідних шкіл не знайдено.",
     altHead: "Споріднені професії",
     followHead: "Відповідні напрями навчання",
-    cantonLinksHead: "Офіційна сторінка твого кантону",
-    nothingCanton: "Для твого кантону в нас тут ще немає сторінки."
+    cantonLinksHead: "Офіційна сторінка вашого кантону",
+    nothingCanton: "Для вашого кантону в нас тут ще немає сторінки."
   }
 };
 

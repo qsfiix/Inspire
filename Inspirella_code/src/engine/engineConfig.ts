@@ -195,7 +195,7 @@ export const EngineConfig: EngineConfigType = {
           de: "Gymnasiale Maturität mit Berufslehre vergleichen",
           fr: "Comparer Maturité Gymnasiale et Apprentissage CFC",
           it: "Confronta Maturità Liceale e Apprendistato AFC",
-          uk: "Порівняй гімназійну матуру (Gymnasium) і професійне навчання з практикою (Lehre) з дипломом EFZ"
+          uk: "Порівняйте гімназійну матуру (Gymnasium) і професійне навчання з практикою (Lehre) з дипломом EFZ"
         }
       },
       {
@@ -205,7 +205,7 @@ export const EngineConfig: EngineConfigType = {
           de: "Masterstudiengänge oder Höhere Fachschulen erkunden",
           fr: "Explorer les Masters ou Hautes Écoles Spécialisées",
           it: "Esplora Master o Scuole Specializzate Superiori",
-          uk: "Дізнайся про магістерські програми або вищі професійні школи (HF)"
+          uk: "Дізнайтеся про магістерські програми або вищі професійні школи (HF)"
         }
       },
       {
@@ -215,7 +215,7 @@ export const EngineConfig: EngineConfigType = {
           de: "Weiterbildung oder Eidgenössisches Diplom prüfen",
           fr: "Envisager un diplôme fédéral ou une formation continue",
           it: "Valuta un diploma federale o formazione continua",
-          uk: "Розглянь федеральний диплом або підвищення кваліфікації"
+          uk: "Розгляньте федеральний диплом або підвищення кваліфікації"
         }
       }
     ],
@@ -224,7 +224,7 @@ export const EngineConfig: EngineConfigType = {
         de: "Beratungstermin vereinbaren oder offizielle Portale prüfen",
         fr: "Planifier une consultation ou lire les portails officiels",
         it: "Fissa una consulenza o controlla i portali ufficiali",
-        uk: "Домовся про консультацію або перевір офіційні портали"
+        uk: "Домовтеся про консультацію або перевірте офіційні портали"
     }
   }
 };
