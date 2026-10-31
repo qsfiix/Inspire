@@ -23,8 +23,9 @@ export const STATIC_TAB_PATHS: Record<string, string> = {
   impressum: "/impressum/"
 };
 
-export const PUBLIC_TABS = ["home", "pathmap", "resources", "contact", "login"];
-export const PROTECTED_TABS = ["dashboard", "map", "tracker", "profile"];
+// The catalogue and the Swiss Path Map open after sign-up or "Find your path" (guest mode); the static pages stay public.
+export const PUBLIC_TABS = ["home", "contact", "login"];
+export const PROTECTED_TABS = ["dashboard", "pathmap", "resources", "map", "tracker", "profile"];
 
 /** Address of a tab, whichever kind it is. */
 export function pathForTab(tab: string): string {

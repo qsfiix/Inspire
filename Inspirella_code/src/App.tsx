@@ -71,6 +71,13 @@ export default function App() {
     return fromLocation && PUBLIC_TABS.includes(fromLocation) ? fromLocation : "home";
   });
   const isLoggedInRef = useRef(false);
+  // A guest who opened a members' page (a shared link to /ressourcen/ or /pathmap/) lands there after sign-up or guest start.
+  const pendingTab = useRef<string | null>(null);
+  const takePendingTab = (fallback: string) => {
+    const tab = pendingTab.current;
+    pendingTab.current = null;
+    return tab ?? fallback;
+  };
   const replaceNextHistory = useRef(true);
   // false until the stored profile has been read: a private address (/tracker/) must survive that short wait.
   const bootstrapped = useRef(false);
@@ -258,6 +265,7 @@ export default function App() {
       if (!cachedProfile) {
         const here = tabFromLocation();
         if (here && PROTECTED_TABS.includes(here)) {
+          pendingTab.current = here;
           replaceNextHistory.current = true;
           setActiveTab("login");
         }
@@ -356,7 +364,7 @@ export default function App() {
     setUserProfile(profile);
     setCurrentLanguage(profile.language);
     setIsLoggedIn(true);
-    setActiveTab(profile.onboardingComplete ? "dashboard" : "onboarding");
+    setActiveTab(profile.onboardingComplete ? takePendingTab("dashboard") : "onboarding");
   };
 
   const handleBypassAuth = async () => {
@@ -431,6 +439,7 @@ export default function App() {
     const onPopState = () => {
       const tab = tabFromLocation() ?? "home";
       if (!isLoggedInRef.current && PROTECTED_TABS.includes(tab)) {
+        pendingTab.current = tab;
         replaceNextHistory.current = true;
         setActiveTab("login");
       } else {
@@ -442,8 +451,9 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (activeTab !== "pathmap") setPathMapFocus(null);
-    if (activeTab !== "resources") setCareersFocus(null);
+    // a focus waiting behind sign-up (a shared profession link) is kept until that page opens
+    if (activeTab !== "pathmap" && pendingTab.current !== "pathmap") setPathMapFocus(null);
+    if (activeTab !== "resources" && pendingTab.current !== "resources") setCareersFocus(null);
   }, [activeTab]);
 
   const openPathMapAt = (node?: string) => {
@@ -460,6 +470,7 @@ export default function App() {
       // about / legal pages are static HTML pages
       window.location.assign(STATIC_TAB_PATHS[tabId]);
     } else if (!isLoggedIn && PROTECTED_TABS.includes(tabId)) {
+      pendingTab.current = tabId;
       setActiveTab("login");
     } else {
       setActiveTab(tabId);
@@ -611,7 +622,7 @@ export default function App() {
                 );
                 if (answered) await DataRepository.saveRouteBackground(route);
               }
-              setActiveTab("dashboard");
+              setActiveTab(takePendingTab("dashboard"));
             }} /></Suspense>
           )}
 

@@ -41,8 +41,6 @@ export default function Navbar({
 
   const publicTabs = [
     { id: "home", label: t.navHome, icon: Compass },
-    { id: "pathmap", label: t.navPathMap, sub: t.navPathMapSub, icon: Route },
-    { id: "resources", label: t.navResources, icon: FileText },
     { id: "about", label: t.navAbout, icon: FileText },
     { id: "contact", label: t.navContact, icon: Globe }
   ];
