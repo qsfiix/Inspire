@@ -109,6 +109,8 @@ type Ui = {
   yearsAbout: (a: number, b: number) => string;
   yearsNote: string;
   notHere: string;
+  exceptionNote: string;
+  onlyIn: (cantons: string) => string;
   statusSTitle: string;
   statusSHint: string;
   statusSLang: string;
@@ -180,6 +182,8 @@ const UI: Record<LanguageCode, Ui> = {
     yearsAbout: (a, b) => `ca. ${a === b ? a : a + "–" + b} Jahre`,
     yearsNote: "Die Dauer ist eine grobe Schätzung aus den Angaben der Stufen; sie hängt von Kanton, Schule und Person ab.",
     notHere: "In diesem Kanton nicht angeboten",
+    exceptionNote: "Ausnahme: nicht der übliche Weg. Er gilt nur unter besonderen Bedingungen und wird deshalb nie als Standardweg vorgeschlagen.",
+    onlyIn: c => `Nur in einigen Kantonen: ${c}`,
     statusSTitle: "Mit Schutzstatus S (Ukraine)",
     statusSHint: "Kurz und mit offiziellen Quellen: Schule, Sprache, Lehre, Diplome, Studium.",
     statusSLang: "Texte auf Deutsch",
@@ -249,6 +253,8 @@ const UI: Record<LanguageCode, Ui> = {
     yearsAbout: (a, b) => `about ${a === b ? a : a + "–" + b} years`,
     yearsNote: "The length is a rough estimate from the stage details; it depends on canton, school and person.",
     notHere: "Not offered in this canton",
+    exceptionNote: "Exception: not the usual way. It applies only under special conditions, so it is never suggested as the default route.",
+    onlyIn: c => `Only in some cantons: ${c}`,
     statusSTitle: "With protection status S (Ukraine)",
     statusSHint: "Short and sourced from official pages: school, language, apprenticeship, diplomas, university.",
     statusSLang: "Texts in English",
@@ -318,6 +324,8 @@ const UI: Record<LanguageCode, Ui> = {
     yearsAbout: (a, b) => `env. ${a === b ? a : a + "–" + b} ans`,
     yearsNote: "La durée est une estimation approximative d'après les étapes; elle dépend du canton, de l'école et de la personne.",
     notHere: "Non proposé dans ce canton",
+    exceptionNote: "Exception : ce n'est pas la voie habituelle. Elle ne vaut qu'à des conditions particulières et n'est donc jamais proposée comme parcours par défaut.",
+    onlyIn: c => `Seulement dans certains cantons : ${c}`,
     statusSTitle: "Avec le statut de protection S (Ukraine)",
     statusSHint: "Court et sourcé sur des pages officielles : école, langue, apprentissage, diplômes, université.",
     statusSLang: "Textes en anglais",
@@ -387,6 +395,8 @@ const UI: Record<LanguageCode, Ui> = {
     yearsAbout: (a, b) => `circa ${a === b ? a : a + "–" + b} anni`,
     yearsNote: "La durata è una stima approssimativa dalle tappe; dipende da cantone, scuola e persona.",
     notHere: "Non offerto in questo cantone",
+    exceptionNote: "Eccezione: non è la via abituale. Vale solo a condizioni particolari e quindi non viene mai proposta come percorso predefinito.",
+    onlyIn: c => `Solo in alcuni cantoni: ${c}`,
     statusSTitle: "Con lo statuto di protezione S (Ucraina)",
     statusSHint: "Breve e con fonti ufficiali: scuola, lingua, apprendistato, diplomi, università.",
     statusSLang: "Testi in inglese",
@@ -456,6 +466,8 @@ const UI: Record<LanguageCode, Ui> = {
     yearsAbout: (a, b) => `прибл. ${a === b ? a : a + "–" + b} р.`,
     yearsNote: "Тривалість — це приблизна оцінка за даними етапів; вона залежить від кантону, школи та людини.",
     notHere: "У цьому кантоні не пропонується",
+    exceptionNote: "Виняток: це не звичайний шлях. Він діє лише за особливих умов, тому ми ніколи не пропонуємо його як основний маршрут.",
+    onlyIn: c => `Лише в деяких кантонах: ${c}`,
     statusSTitle: "Зі статусом захисту S (Україна)",
     statusSHint: "Коротко й з офіційними джерелами: школа, мова, професійне навчання з практикою (Lehre), дипломи, університет.",
     statusSLang: "Тексти англійською",
@@ -590,7 +602,11 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
     };
   }, []);
 
-  const edges = useMemo(() => buildEdges(transitions), [transitions]);
+  // a way limited to some cantons disappears when another canton is chosen
+  const edges = useMemo(
+    () => buildEdges(transitions.filter(t => !canton || !t.cantons || t.cantons.includes(canton.toUpperCase()))),
+    [transitions, canton]
+  );
 
   useEffect(() => {
     try {
@@ -678,11 +694,11 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   }, [selectedNodeCode, selectedEdge, edges]);
 
   const focusActive = !!selection || pathNodes.size > 0;
-  const hiddenWays = edges.filter(e => !MAIN_KINDS.has(e.kind)).length;
+  const hiddenWays = edges.filter(e => !MAIN_KINDS.has(e.kind) || e.exception).length;
   /** The main ways always; the others when asked for, and whenever a stage, a way or a route points at them. */
   const edgeVisible = (e: MapEdge): boolean =>
     showAllWays ||
-    MAIN_KINDS.has(e.kind) ||
+    (MAIN_KINDS.has(e.kind) && !e.exception) ||
     pathEdgeKeys.has(edgeKey(e)) ||
     (!!selectedNodeCode && (e.from === selectedNodeCode || e.to === selectedNodeCode)) ||
     (!!selectedEdge && edgeKey(selectedEdge) === edgeKey(e));
@@ -999,6 +1015,11 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
               <b className={`text-[13px] leading-snug ${isDark ? "text-white" : "text-violet-950"}`}>{inLang(currentLanguage, t.label, t.uk?.label)}</b>
               <span className="shrink-0 text-[10px] font-mono text-violet-400">{kindLabel(t.kind, currentLanguage)}</span>
             </div>
+            {(t.exception || t.cantons) && (
+              <p className={`rounded-lg border px-2.5 py-1.5 text-[11.5px] leading-snug ${isDark ? "border-amber-400/30 bg-amber-400/10 text-amber-200" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
+                {[t.exception ? ui.exceptionNote : "", t.cantons ? ui.onlyIn(t.cantons.join(", ")) : ""].filter(Boolean).join(" ")}
+              </p>
+            )}
             <Fact name={ui.conditions} value={inLang(currentLanguage, t.conditions, t.uk?.conditions)} />
             <Fact name={ui.duration} value={inLang(currentLanguage, t.duration, t.uk?.duration)} />
             <Fact name={ui.age} value={inLang(currentLanguage, t.typicalAge, t.uk?.typicalAge)} />
@@ -1174,7 +1195,14 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                           <rect x={x} y={0} width={w} height={size.height} fill={i % 2 === 0 ? palette.bandA : palette.bandB} />
                           <line x1={x} y1={0} x2={x} y2={size.height} stroke={palette.bandLine} />
                           <text x={x + 10} y={16} fontSize="10.5" fontWeight="700" letterSpacing="0.06em" fill={palette.ink} opacity="0.7" style={{ textTransform: "uppercase" }}>
-                            {ui.bands[b.band]}
+                            {/* long names (Ukrainian, French) would run into the next column: drop the bracket, then shorten */}
+                            <title>{ui.bands[b.band]}</title>
+                            {(() => {
+                              const full = ui.bands[b.band] ?? "";
+                              const short = full.length * 7 > w - 16 ? full.replace(/\s*\([^)]*\)/g, "").trim() : full;
+                              const max = Math.floor((w - 16) / 7);
+                              return short.length > max ? short.slice(0, Math.max(1, max - 1)).trimEnd() + "…" : short;
+                            })()}
                           </text>
                           {BAND_AGES[b.band] && (
                             <text x={x + 10} y={29} fontSize="10" fill={palette.ink} opacity="0.55">

@@ -425,6 +425,10 @@ export interface EducationTransition {
   notes?: string;
   url?: string;
   verified: boolean;
+  /** A rare, conditional or canton-limited way: shown as an alternative, never as the default route. */
+  exception?: boolean;
+  /** Cantons where this way exists (two-letter codes); undefined = everywhere. */
+  cantons?: string[];
   uk?: { label?: string; conditions?: string; duration?: string; typicalAge?: string; notes?: string };
 }
 

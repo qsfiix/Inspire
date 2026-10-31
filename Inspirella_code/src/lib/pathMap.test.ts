@@ -13,6 +13,20 @@ describe("swiss path map", () => {
     expect(canonicalNode("bm1")).toBe("berufsmatura");
   });
 
+  it("never takes an exception as the default route, even when it has fewer steps", () => {
+    const langgym = { ...tr("primar", "gymnasium", "with_exam"), exception: true };
+    const edges = buildEdges([
+      tr("primar", "sek1", "direct"),
+      tr("sek1", "gymnasium", "with_exam"),
+      langgym,
+      tr("gymnasium", "gym_matura", "direct")
+    ]);
+    expect(edges.find(e => e.from === "primar" && e.to === "gymnasium")?.exception).toBe(true);
+    expect(shortestPath(edges, "primar", "gym_matura")!.map(s => s.to)).toEqual(["sek1", "gymnasium", "gym_matura"]);
+    // without the usual way the exception is still found
+    expect(shortestPath(buildEdges([langgym]), "primar", "gymnasium")!.map(s => s.to)).toEqual(["gymnasium"]);
+  });
+
   it("leaves out self loops, arrows into work and stages that are not on the map", () => {
     const edges = buildEdges([tr("efz", "efz", "shortened"), tr("fh", "work", "direct"), tr("efz", "mystery", "direct"), tr("sek1", "efz", "direct")]);
     expect(edges.map(e => `${e.from}>${e.to}`)).toEqual(["sek1>efz"]);

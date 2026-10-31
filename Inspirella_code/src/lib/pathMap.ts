@@ -59,6 +59,13 @@ export function mapSize(): { width: number; height: number } {
 /** Lower = the more direct way. Used to pick a bundle's look and as path cost. */
 export const KIND_WEIGHT: Record<string, number> = { direct: 1, shortened: 1.3, with_exam: 1.6, with_bridge: 1.8, second_chance: 2.2, after_work: 2.6 };
 
+/**
+ * Added to a connection that exists only as an exception (Langzeitgymnasium after the 6th class in a few cantons,
+ * foreign diplomas straight into a university): such a shortcut skips a stage most people go through, so it must
+ * never win the route search just because it has fewer steps.
+ */
+export const EXCEPTION_PENALTY = 4;
+
 export interface MapEdge {
   from: string;
   to: string;
@@ -68,6 +75,8 @@ export interface MapEdge {
   transitions: EducationTransition[];
   /** Same column or backwards: drawn as an arc around the stages. */
   loops: boolean;
+  /** Every transition of this pair is an exception: an alternative, never the default route. */
+  exception: boolean;
 }
 
 /**
@@ -87,14 +96,18 @@ export function buildEdges(transitions: EducationTransition[]): MapEdge[] {
   }
   return [...byPair.entries()].map(([key, list]) => {
     const [from, to] = key.split(">");
-    const best = [...list].sort((a, b) => (KIND_WEIGHT[a.kind] ?? 3) - (KIND_WEIGHT[b.kind] ?? 3))[0];
+    // the usual ways decide the look and the cost; exceptions only count when there is nothing else
+    const standard = list.filter(t => !t.exception);
+    const exception = standard.length === 0;
+    const best = [...(exception ? list : standard)].sort((a, b) => (KIND_WEIGHT[a.kind] ?? 3) - (KIND_WEIGHT[b.kind] ?? 3))[0];
     return {
       from,
       to,
       kind: best.kind,
-      weight: KIND_WEIGHT[best.kind] ?? 3,
+      weight: (KIND_WEIGHT[best.kind] ?? 3) + (exception ? EXCEPTION_PENALTY : 0),
       transitions: list,
-      loops: NODE_LAYOUT[to].col <= NODE_LAYOUT[from].col
+      loops: NODE_LAYOUT[to].col <= NODE_LAYOUT[from].col,
+      exception
     };
   });
 }

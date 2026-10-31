@@ -1603,6 +1603,8 @@ export const DataRepository = {
         notes: normalizeText(r.notes_de),
         url: normalizeUrl(r.official_url) ?? normalizeUrl(r.evidence_url),
         verified: r.verification_status === "verified",
+        exception: r.route_role === "exception",
+        cantons: Array.isArray(r.cantons) && r.cantons.length ? r.cantons.map((c: unknown) => String(c).toUpperCase()) : undefined,
         uk: {
           label: normalizeText(r.label_uk),
           conditions: normalizeText(r.conditions_uk),
