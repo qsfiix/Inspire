@@ -1829,12 +1829,161 @@ function render(){
 document.getElementById("planner").addEventListener("change",function(e){render();if(e.target.name==="goal"){box.scrollIntoView({behavior:"smooth",block:"start"});}});
 })();`;
 
+// --------------------------------------------------------------------------
+// Ukrainian school planner for parents (/uk/dity/): canton, age and interest -> where the child is in the system,
+// school registration and language support in the canton, and the admission rules of the next school.
+// Only verified rows: Status S facts per canton, admission_conditions (uk), the Langzeitgymnasium cantons.
+// --------------------------------------------------------------------------
+
+function renderUkKids(schoolFacts: Row[], admissions: Row[], langgymCantons: string[], today: string): string {
+  const url = SITE + "/uk/dity/";
+  const names = CANTON_NAMES_I18N.uk;
+  const src = (r?: Row) => (r ? safeUrl(r.official_url) ?? safeUrl(r.evidence_url) : undefined);
+  const routeNames = ADMISSION.uk.routes;
+
+  const cantonCodes = [...new Set(schoolFacts.map(r => String(r.canton_code).toUpperCase()))].filter(c => names[c]).sort((a, b) => names[a].localeCompare(names[b], "uk"));
+  const facts: Record<string, Record<string, { head: string; text: string; url: string }>> = {};
+  for (const r of schoolFacts) {
+    const c = String(r.canton_code).toUpperCase();
+    if (!txt(r.headline_uk) || !txt(r.text_uk)) continue;
+    (facts[c] ??= {})[String(r.topic)] = { head: txt(r.headline_uk)!, text: txt(r.text_uk)!, url: src(r) ?? "" };
+  }
+  const adm: Record<string, Record<string, { name: string; head: string; req: string; deadline: string; timing: string; url: string }>> = {};
+  for (const r of admissions) {
+    const c = String(r.canton_code).toUpperCase();
+    const head = txt(r.headline_uk);
+    if (!head || !routeNames[String(r.route)]) continue;
+    (adm[c] ??= {})[String(r.route)] = {
+      name: routeNames[String(r.route)],
+      head,
+      req: txt(r.requirements_uk) ?? "",
+      deadline: txt(r.deadline_text_uk) ?? "",
+      timing: txt(r.typical_timing_uk) ?? "",
+      url: src(r) ?? ""
+    };
+  }
+  const data = { names, facts, adm, langgym: langgymCantons };
+
+  const ages = Array.from({ length: 17 }, (_, i) => i + 4)
+    .map(a => `<option value="${a}">${a} ${a < 5 ? "роки" : "років"}</option>`)
+    .join("");
+  const interests: [string, string][] = [
+    ["unknown", "Ще не знаємо"],
+    ["gym", "Гімназія, а потім університет"],
+    ["lehre", "Професія: навчання з практикою (Lehre)"],
+    ["fms", "FMS: здоров’я, соціальна сфера, педагогіка"]
+  ];
+  const description = "Шкільний план для дитини у Швейцарії: у якому класі за віком, як записати до школи у вашому кантоні, підтримка мови, гімназія, FMS чи Lehre і коли подаватися. Для батьків з України та всіх новоприбулих.";
+
+  const css = `
+  .planner{display:grid;gap:16px}
+  .step{padding:20px 22px}.step h2{margin-bottom:6px}.step .hint{color:var(--muted);font-size:14px;margin:0 0 12px}
+  .opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--card-b);border-radius:12px;margin-top:8px;cursor:pointer;background:rgba(139,92,246,.05)}
+  .opt:has(input:checked){border-color:var(--accent);background:rgba(139,92,246,.16)}
+  .opt input{margin-top:4px;accent-color:#8b5cf6}
+  select.pick{width:100%;padding:12px;border-radius:12px;border:1px solid var(--card-b);background:var(--card);color:var(--fg);font:500 16px Inter,sans-serif}
+  .row2{display:grid;gap:12px;grid-template-columns:1fr 1fr}@media(max-width:560px){.row2{grid-template-columns:1fr}}
+  .result{padding:22px;border:1px solid var(--accent)}
+  .stage{display:inline-block;padding:6px 12px;border-radius:99px;background:rgba(139,92,246,.18);font-weight:700;margin:4px 0 10px}
+  ol.plan{padding-left:20px;margin:12px 0 0}ol.plan li{margin-bottom:12px}ol.plan a{color:var(--accent)}
+  .admit{border-left:3px solid var(--accent);padding:6px 0 6px 12px;margin:8px 0}
+  .admit small{display:block;color:var(--muted)}
+  table.need{width:100%;border-collapse:collapse;font-size:15px}table.need td{border-bottom:1px solid var(--card-b);padding:9px 8px;vertical-align:top}table.need td:first-child{font-weight:600;width:38%}
+  .founder{display:flex;gap:14px;align-items:flex-start;padding:18px 20px;font-size:15px}.founder img{width:40px;height:40px;flex:none}
+  .founder p{margin:0 0 8px;color:var(--muted)}.founder p:last-child{margin:0}
+  `;
+
+  const main = `  <style>${css}</style>
+  <div class="crumbs"><a href="/uk/">Inspirella</a> › Дитина і школа</div>
+  <header class="hero">
+    <div class="badges"><span class="badge">Для батьків</span><span class="badge warm">2 хвилини · без реєстрації</span></div>
+    <h1>Шкільний план для вашої дитини</h1>
+    <p class="lead">Оберіть кантон, вік дитини й те, що їй цікаво: ви побачите, де вона зараз у швейцарській системі, як записати її до школи, яку підтримку з мовою вона отримає і як вступати далі саме у вашому кантоні.</p>
+  </header>
+  <div class="planner" id="planner">
+    <section class="card step"><h2>1. Кантон і вік</h2><p class="hint">Вік на початок навчального року (у більшості кантонів контрольна дата — 31 липня).</p>
+      <div class="row2"><select class="pick" id="canton"><option value="">Оберіть кантон</option>${cantonCodes.map(c => `<option value="${esc(c)}">${esc(names[c])}</option>`).join("")}</select>
+      <select class="pick" id="age"><option value="">Вік дитини</option>${ages}</select></div></section>
+    <section class="card step"><h2>2. Що цікаво дитині?</h2><p class="hint">Можна змінити будь-коли: у Швейцарії майже з будь-якого шляху можна перейти на інший.</p>${interests.map(([v, l]) => `<label class="opt"><input type="radio" name="int" value="${v}"><span>${esc(l)}</span></label>`).join("")}</section>
+    <section class="card result" id="result" hidden aria-live="polite"></section>
+  </div>
+  <noscript><p class="note">Для плану потрібен JavaScript. Нижче — основне у звичайному вигляді.</p></noscript>
+
+  <h2 style="margin-top:40px">Школа у Швейцарії за віком</h2>
+  <section class="card"><table class="need">
+    <tr><td>близько 4–6 років</td><td>Дитячий садок (Kindergarten). Обов’язкова школа триває 11 років і починається приблизно з 4 років; у кількох кантонах садок не обов’язковий або обов’язковий лише рік.</td></tr>
+    <tr><td>близько 6–12 років</td><td>Початкова школа (Primarschule).</td></tr>
+    <tr><td>з 12-го року життя</td><td>Нижча середня школа (Sekundarstufe I), зазвичай 3 роки (у Тічино інакше). У деяких кантонах після 6-го класу можна вступити до довгої гімназії.</td></tr>
+    <tr><td>близько 15–16 років</td><td>Після обов’язкової школи: гімназія, середня фахова школа (FMS), професійне навчання з практикою (Lehre) або перехідна програма.</td></tr>
+  </table><p class="more"><a href="/uk/systema-osvity-shveitsarii/">Уся система освіти на одній сторінці →</a></p></section>
+
+  <section class="card prose" style="margin-top:22px"><p>Далі: <a href="/uk/pryjom/">вступ за кантонами</a> · <a href="/uk/perekhidni-prohramy/">перехідні програми для молоді</a> · <a href="/uk/status-s/">статус S за кантонами</a> · <a href="/uk/mova/">мовний план для дорослих</a></p></section>
+
+  <section class="card founder" style="margin-top:22px"><img src="/logo-mark-64.png" alt="" width="40" height="40"><div><p>Inspirella створена Софією, яка сама колись потребувала такої підтримки.</p><p>У 2022 році вона приїхала з Києва до Швейцарії. Спочатку навчалася в класі для українських дітей, а згодом перейшла до швейцарської школи, де не розуміла ні діалекту, ні системи, ні завдань. Сьогодні вона вільно орієнтується в швейцарському середовищі, володіє німецькою на рівні B2 і навчається в гімназії.</p></div></section>
+  <div class="source">Inspirella — незалежний інструмент для орієнтації, а не офіційна установа. Дані взято з офіційних сторінок кантонів, EDK і berufsberatung.ch і перекладено; правила й терміни можуть змінюватися, тому перевіряйте їх за посиланнями. Вік указано приблизно: клас визначає школа. Дані станом на ${esc(today)}. Помітили помилку? Напишіть на <a href="mailto:iinspirella@gmail.com">iinspirella@gmail.com</a>.</div>
+  <script type="application/json" id="kids-data">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>
+  <script>${KIDS_SCRIPT}</script>`;
+
+  return layout({
+    docTitle: "Шкільний план для дитини у Швейцарії: клас, школа, вступ | Inspirella",
+    ogTitle: "Шкільний план для вашої дитини у Швейцарії",
+    description,
+    url,
+    indexable: true,
+    lang: "uk",
+    nav: { about: "Про Inspirella", app: "Відкрити застосунок" },
+    ld: { "@context": "https://schema.org", "@type": "WebPage", name: "Шкільний план для вашої дитини", url, inLanguage: "uk", description, dateModified: today, isPartOf: { "@type": "WebSite", name: "Inspirella", url: SITE + "/" } },
+    main
+  });
+}
+
+const KIDS_SCRIPT = `(function(){
+var d=JSON.parse(document.getElementById("kids-data").textContent);
+var box=document.getElementById("result");
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;"}[c];});}
+function link(u,t){return u?' <a href="'+esc(u)+'"'+(u.charAt(0)==="/"?"":' rel="noopener" target="_blank"')+'>'+esc(t)+'</a>':"";}
+function fact(f,more){if(!f)return "";return '<b>'+esc(f.head)+'.</b>'+(more?'<details class="qa"><summary>Докладніше</summary><p>'+esc(f.text)+'</p></details>':'')+link(f.url,"Офіційна сторінка →");}
+function admit(a){if(!a)return "";return '<div class="admit"><b>'+esc(a.name)+'</b><br>'+esc(a.head)+(a.timing?'<small>Коли: '+esc(a.timing)+'</small>':'')+(a.deadline?'<small>Термін: '+esc(a.deadline)+'</small>':'')+(a.req?'<details class="qa"><summary>Умови вступу</summary><p>'+esc(a.req)+'</p></details>':'')+link(a.url,"Офіційна сторінка →")+'</div>';}
+function render(){
+  var c=document.getElementById("canton").value, age=+document.getElementById("age").value;
+  var e=document.querySelector('input[name="int"]:checked'), it=e?e.value:null;
+  if(!c||!age||!it){box.hidden=true;return;}
+  var name=d.names[c], f=d.facts[c]||{}, a=d.adm[c]||{}, lg=d.langgym.indexOf(c)>=0;
+  var stage, from;
+  if(age<=5){stage="Дитячий садок (Kindergarten)";from="primar";}
+  else if(age<=11){stage="Початкова школа (Primarschule)";from="primar";}
+  else if(age<=14){stage="Нижча середня школа (Sekundarstufe I)";from="sek1";}
+  else if(age===15){stage="Останній рік обов’язкової школи або перший крок після неї";from="sek1";}
+  else {stage="Після обов’язкової школи";from="arrival";}
+  var h='<h2>План для дитини '+age+' років у кантоні '+esc(name)+'</h2><span class="stage">'+esc(stage)+'</span><p class="more">Орієнтир за віком: клас визначає школа.</p>';
+  var steps=[];
+  if(age<=15){steps.push(f.school_registration?'<b>Запис до школи.</b> '+fact(f.school_registration,true):'<b>Запис до школи.</b> Зверніться до громади за місцем проживання.');}
+  if(f.school_language_support&&age<=16){steps.push('<b>Підтримка мови в школі.</b> '+fact(f.school_language_support,true));}
+  if(age>=14&&f.youth_transition){steps.push('<b>Після обов’язкової школи.</b> '+fact(f.youth_transition,true));}
+  var next=[];
+  if(it==="gym"||it==="unknown"){ if(lg&&age<=12){next.push(admit(a.gymnasium_lang)||'');} next.push(admit(a.gymnasium_kurz)); }
+  if(it==="fms"||it==="unknown"){ next.push(admit(a.fms)); }
+  if(it==="lehre"||it==="unknown"){ next.push(admit(a.bms_bm1)); }
+  next=next.filter(Boolean);
+  var lehreStep=(it==="lehre"||it==="unknown")?'<b>Професія (Lehre).</b> З вибором професії, пробними днями (Schnupperlehre) і пошуком місця для навчання допомагає кантональний центр профорієнтації (BIZ).'+link("https://www.berufsberatung.ch/de/eine-berufslehre-in-der-schweiz-absolvieren","berufsberatung.ch →"):'';
+  if(next.length){steps.push('<b>Вступ далі у кантоні '+esc(name)+'.</b>'+next.join(""));}
+  if(lehreStep){steps.push(lehreStep);}
+  if(it==="gym"&&lg&&age<=12){steps.push('<b>Довга гімназія.</b> У кантоні '+esc(name)+' після 6-го класу можна вступити до довгої гімназії; її перші роки замінюють нижчу середню школу.');}
+  if(it==="gym"&&!lg&&age<=12){steps.push('<b>Гімназія.</b> У кантоні '+esc(name)+' до гімназії зазвичай вступають після нижчої середньої школи.');}
+  h+='<ol class="plan"><li>'+steps.join('</li><li>')+'</li></ol>';
+  var to=it==="gym"?"gymnasium":it==="fms"?"fms":it==="lehre"?"efz":"";
+  h+='<div class="cta-row" style="margin-top:14px"><a class="btn btn-primary" href="/pathmap/?lang=uk&from='+from+(to?'&to='+to:'')+'">Побачити шлях на мапі →</a><a class="btn btn-sec" href="/uk/pryjom/'+c.toLowerCase()+'/">Усі умови вступу в кантоні</a></div><p class="more">Мапа відкривається після короткого старту без реєстрації.</p>';
+  box.innerHTML=h;box.hidden=false;
+}
+document.getElementById("planner").addEventListener("change",function(e){render();if(e.target.name==="int"&&!box.hidden){box.scrollIntoView({behavior:"smooth",block:"start"});}});
+})();`;
+
 function renderUkStart(counts: Counts, programCount: number): string {
   const url = SITE + "/uk/";
   const cards: [string, string, string][] = [
     ["Я щойно приїхав(-ла) зі статусом захисту S", "Школа для дітей, курси німецької, контакти та перші кроки у вашому кантоні. Обираєте кантон і бачите, що там працює.", "/uk/status-s/"],
     ["Хочу здобути професію у Швейцарії", "Як дорослі отримують швейцарський диплом з професії: шляхи для тих, хто вже має досвід або вже працює.", "/uk/diplom-dlia-doroslykh/"],
-    ["Моя дитина вступає до гімназії або професійної школи", "Які бувають шляхи після початкової школи, що потрібно для вступу і де дізнатися про умови у вашому кантоні.", "/uk/pryjom/"],
+    ["Шкільний план для дитини", "У якому класі за віком, як записати до школи у вашому кантоні, підтримка мови, гімназія, FMS чи Lehre і коли подаватися.", "/uk/dity/"],
     ["Мовний план за 2 хвилини", "Ваш рівень, ваша мета (Lehre, виш, робота, дозвіл C, громадянство) і що робити далі, з курсами саме у вашому кантоні.", "/uk/mova/"],
     ["Молодь 15–25 років: перехідні програми", "Програми, які допомагають підготуватися до професійного навчання або школи: мова, орієнтація, практика.", "/uk/perekhidni-prohramy/"],
     ["Як улаштована система освіти", "Усі етапи від початкової школи до університету на одній сторінці та переходи між ними, у тому числі обхідні шляхи.", "/uk/systema-osvity-shveitsarii/"],
@@ -2526,6 +2675,15 @@ async function main() {
     if (langFacts.length) {
       await writePage(["uk", "mova"], renderUkLanguage(langNode ?? undefined, langFacts, courseFacts, today));
       urls.push({ loc: SITE + "/uk/mova/", lastmod: today });
+    }
+    // school planner for parents
+    const schoolFacts = await fetchAll((from, to) => supabase.from("audience_facts").select("*").eq("is_active", true).eq("verification_status", "verified").eq("audience", "ukraine_s").in("topic", ["school_registration", "school_language_support", "youth_transition"]).not("canton_code", "is", null).order("canton_code", { ascending: true }).range(from, to));
+    const admissionRows = await fetchAll((from, to) => supabase.from("admission_conditions").select("*").eq("is_active", true).eq("verification_status", "verified").order("code", { ascending: true }).range(from, to));
+    const langgymRow = (await supabase.from("education_transitions").select("cantons").eq("code", "primar__gymnasium__langgym").eq("is_active", true).maybeSingle()).data as Row | null;
+    const langgymCantons = Array.isArray(langgymRow?.cantons) ? (langgymRow!.cantons as unknown[]).map(c => String(c).toUpperCase()) : [];
+    if (schoolFacts.length) {
+      await writePage(["uk", "dity"], renderUkKids(schoolFacts, admissionRows.filter(r => !r.institution_id), langgymCantons, today));
+      urls.push({ loc: SITE + "/uk/dity/", lastmod: today });
     }
   } catch (err: any) {
     console.warn("[pages] Ukrainian start page skipped:", err?.message || err);
