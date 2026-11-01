@@ -1660,12 +1660,97 @@ function renderAdmissionPage(lang: GLang, canton: string | null, byCanton: Map<s
 // pages that already hold verified information; it states no rules of its own.
 // --------------------------------------------------------------------------
 
+// --------------------------------------------------------------------------
+// Ukrainian language page (/uk/mova/): levels, what each level opens, certificates, courses in every canton.
+// Built only from verified rows: the "language" stage, the newcomer facts of that stage and the Status S
+// language-course facts per canton.
+// --------------------------------------------------------------------------
+
+function renderUkLanguage(node: Row | undefined, facts: Row[], cantonFacts: Row[], today: string): string {
+  const url = SITE + "/uk/mova/";
+  const fact = (topic: string) => facts.filter(r => r.topic === topic && txt(r.headline_uk) && txt(r.text_uk));
+  const factCards = (rows: Row[]) =>
+    rows
+      .map(r => {
+        const href = safeUrl(r.official_url) ?? safeUrl(r.evidence_url);
+        return `<section class="card prose"><h3>${esc(txt(r.headline_uk)!)}</h3><p>${esc(txt(r.text_uk)!)}</p>${href ? `<p class="more"><a href="${esc(href)}" rel="noopener">Офіційне джерело →</a></p>` : ""}</section>`;
+      })
+      .join("\n  ");
+  const good = Array.isArray(node?.good_to_know_uk) ? (node!.good_to_know_uk as unknown[]).map(txt).filter((x): x is string => !!x) : [];
+  const names = CANTON_NAMES_I18N.uk;
+  const byCanton = [...cantonFacts]
+    .filter(r => txt(r.headline_uk) && txt(r.text_uk) && names[String(r.canton_code).toUpperCase()])
+    .sort((a, b) => names[String(a.canton_code).toUpperCase()].localeCompare(names[String(b.canton_code).toUpperCase()], "uk"));
+  const cantonList = byCanton
+    .map(r => {
+      const code = String(r.canton_code).toUpperCase();
+      const href = safeUrl(r.official_url) ?? safeUrl(r.evidence_url);
+      return `<details class="qa" id="kanton-${esc(code.toLowerCase())}"><summary>${esc(names[code])}</summary><p><strong>${esc(txt(r.headline_uk)!)}</strong></p><p>${esc(txt(r.text_uk)!)}</p><p>${href ? `<a href="${esc(href)}" rel="noopener">Офіційна сторінка кантону →</a> · ` : ""}<a href="/uk/status-s/${esc(code.toLowerCase())}/">Усе про статус S у кантоні ${esc(names[code])} →</a></p></details>`;
+    })
+    .join("");
+  const jump = byCanton.map(r => { const c = String(r.canton_code).toUpperCase(); return `<a href="#kanton-${esc(c.toLowerCase())}">${esc(names[c])}</a>`; }).join(" · ");
+
+  const summary = txt(node?.summary_uk);
+  const requirements = txt(node?.requirements_uk);
+  const cantonal = txt(node?.cantonal_note_uk);
+  const diploma = txt(node?.diploma_uk);
+  const description = "Мова у Швейцарії для дорослих: рівні A1–C2, який рівень потрібен для навчання, роботи, дозволу C і громадянства, визнані сертифікати (fide, Goethe, telc) і курси в кожному кантоні. З офіційними джерелами.";
+  const qa: [string, string][] = [];
+  if (requirements) qa.push(["Який рівень мови потрібен?", requirements]);
+  if (diploma) qa.push(["Чим підтвердити рівень мови?", diploma]);
+  if (cantonal) qa.push(["Хто організовує курси?", cantonal]);
+
+  const main = `  <div class="crumbs"><a href="/uk/">Inspirella</a> › Мова</div>
+  <header class="hero">
+    <div class="badges"><span class="badge">Для новоприбулих</span><span class="badge warm">Німецька · французька · італійська</span></div>
+    <h1>Мова у Швейцарії: рівні, сертифікати, курси</h1>
+    ${summary ? `<p class="lead">${esc(summary)}</p>` : ""}
+    <div class="cta-row"><a class="btn btn-primary" href="#kantony">Курси у моєму кантоні →</a><a class="btn btn-sec" href="/pathmap/?lang=uk">Мій шлях на мапі</a></div>
+  </header>
+  ${factsHtml([["Рівні", "A1–C2"], ["Для Lehre", "від B1"], ["Для вишу", "B2–C1"], ["Кантонів із курсами", String(byCanton.length)]])}
+  <h2 style="margin-top:34px">Що означає кожен рівень</h2>
+  ${factCards(fact("language_levels"))}
+  <h2 style="margin-top:34px">Який рівень потрібен</h2>
+  ${factCards(fact("language_requirements"))}
+  <h2 style="margin-top:34px">Сертифікати</h2>
+  ${factCards(fact("language_certificates"))}
+  <h2 style="margin-top:34px">Курси</h2>
+  ${factCards(fact("language_courses_free"))}
+  <h2 id="kantony" style="margin-top:34px">Курси мови у вашому кантоні</h2>
+  <section class="card prose"><p>Для людей зі статусом S (тимчасовий захист) у кожному кантоні. Оберіть свій кантон:</p><p class="more">${jump}</p>${cantonList}</section>
+  <script>(function(){function o(){var d=location.hash&&document.getElementById(location.hash.slice(1));if(d&&d.tagName==="DETAILS"){d.open=true;d.scrollIntoView();}}window.addEventListener("hashchange",o);o();})();</script>
+  <h2 style="margin-top:34px">Офіційні сайти</h2>
+  ${factCards(fact("language_online"))}
+  ${good.length ? `<h2 style="margin-top:34px">Корисно знати</h2><section class="card prose"><ul>${good.map(g => `<li>${esc(g)}</li>`).join("")}</ul></section>` : ""}
+  ${qa.length ? `<h2 style="margin-top:34px">Коротко</h2><section class="card">${qa.map(([q, a]) => `<details class="qa"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</section>` : ""}
+  <section class="card prose" style="margin-top:22px"><p>Далі: <a href="/uk/">з чого почати у Швейцарії</a> · <a href="/uk/status-s/">статус S за кантонами</a> · <a href="/uk/diplom-dlia-doroslykh/">диплом з професії для дорослих</a> · <a href="/uk/systema-osvity-shveitsarii/">система освіти</a></p></section>
+  <div class="source">Inspirella — незалежний інструмент для орієнтації, а не офіційна установа. Тексти взято з офіційних джерел (SEM, fide, berufsberatung.ch, кантони) і перекладено; вимоги та курси можуть змінюватися, тому перевіряйте їх за посиланнями. Дані станом на ${esc(today)}. Помітили помилку? Напишіть на <a href="mailto:iinspirella@gmail.com">iinspirella@gmail.com</a>.</div>`;
+
+  const ld: Record<string, unknown>[] = [
+    { "@context": "https://schema.org", "@type": "WebPage", name: "Мова у Швейцарії: рівні, сертифікати, курси", url, inLanguage: "uk", description, dateModified: today, isPartOf: { "@type": "WebSite", name: "Inspirella", url: SITE + "/" } }
+  ];
+  if (qa.length) ld.push({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: qa.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) });
+
+  return layout({
+    docTitle: "Мова у Швейцарії: рівні A1–C2, сертифікати, курси | Inspirella",
+    ogTitle: "Мова у Швейцарії: рівні, сертифікати, курси",
+    description,
+    url,
+    indexable: true,
+    lang: "uk",
+    nav: { about: "Про Inspirella", app: "Відкрити застосунок" },
+    ld,
+    main
+  });
+}
+
 function renderUkStart(counts: Counts, programCount: number): string {
   const url = SITE + "/uk/";
   const cards: [string, string, string][] = [
     ["Я щойно приїхав(-ла) зі статусом захисту S", "Школа для дітей, курси німецької, контакти та перші кроки у вашому кантоні. Обираєте кантон і бачите, що там працює.", "/uk/status-s/"],
     ["Хочу здобути професію у Швейцарії", "Як дорослі отримують швейцарський диплом з професії: шляхи для тих, хто вже має досвід або вже працює.", "/uk/diplom-dlia-doroslykh/"],
     ["Моя дитина вступає до гімназії або професійної школи", "Які бувають шляхи після початкової школи, що потрібно для вступу і де дізнатися про умови у вашому кантоні.", "/uk/pryjom/"],
+    ["Мова: рівні, сертифікати, курси", "Який рівень мови потрібен для навчання, роботи й дозволів, які сертифікати визнають і де знайти курси у вашому кантоні.", "/uk/mova/"],
     ["Молодь 15–25 років: перехідні програми", "Програми, які допомагають підготуватися до професійного навчання або школи: мова, орієнтація, практика.", "/uk/perekhidni-prohramy/"],
     ["Як улаштована система освіти", "Усі етапи від початкової школи до університету на одній сторінці та переходи між ними, у тому числі обхідні шляхи.", "/uk/systema-osvity-shveitsarii/"],
     ["Каталог професій, шкіл і ресурсів", "Професії, школи, вищі навчальні заклади та корисні сайти українською. Відкривається після короткого старту «Знайдіть свій шлях» (без реєстрації) або входу.", "/ressourcen/?lang=uk"],
@@ -2350,6 +2435,13 @@ async function main() {
     const { count: programCount } = await supabase.from("institution_programs").select("*", { count: "exact", head: true }).eq("is_active", true);
     await writePage(["uk"], renderUkStart(counts, programCount ?? 0));
     urls.push({ loc: SITE + "/uk/", lastmod: today });
+    const langNode = (await supabase.from("education_nodes").select("*").eq("code", "language").eq("is_active", true).maybeSingle()).data as Row | null;
+    const langFacts = await fetchAll((from, to) => supabase.from("audience_facts").select("*").eq("is_active", true).eq("verification_status", "verified").eq("audience", "newcomer").eq("node_code", "language").order("sort_order", { ascending: true }).range(from, to));
+    const courseFacts = await fetchAll((from, to) => supabase.from("audience_facts").select("*").eq("is_active", true).eq("verification_status", "verified").eq("audience", "ukraine_s").eq("topic", "language_courses").not("canton_code", "is", null).order("canton_code", { ascending: true }).range(from, to));
+    if (langFacts.length) {
+      await writePage(["uk", "mova"], renderUkLanguage(langNode ?? undefined, langFacts, courseFacts, today));
+      urls.push({ loc: SITE + "/uk/mova/", lastmod: today });
+    }
   } catch (err: any) {
     console.warn("[pages] Ukrainian start page skipped:", err?.message || err);
   }
