@@ -1745,7 +1745,7 @@ function renderUkLanguage(node: Row | undefined, facts: Row[], cantonFacts: Row[
   table.need{width:100%;border-collapse:collapse;font-size:15px}table.need td{border-bottom:1px solid var(--card-b);padding:9px 8px;vertical-align:top}table.need td:first-child{font-weight:600;width:48%}
   .founder{display:flex;gap:14px;align-items:flex-start;padding:18px 20px;font-size:15px}
   .founder img{width:40px;height:40px;flex:none}
-  .founder p{margin:0;color:var(--muted)}
+  .founder p{margin:0 0 8px;color:var(--muted)}.founder p:last-child{margin:0}
   `;
 
   const main = `  <style>${css}</style>
@@ -1773,7 +1773,7 @@ function renderUkLanguage(node: Row | undefined, facts: Row[], cantonFacts: Row[
   ${courses ? `<h2 style="margin-top:34px">Курси</h2><section class="card prose"><p>${esc(txt(courses.text_uk)!)}</p>${src(courses) ? `<p class="more"><a href="${esc(src(courses)!)}" rel="noopener">Офіційне джерело →</a></p>` : ""}</section>` : ""}
   ${online ? `<h2 style="margin-top:34px">Де тренуватися</h2><section class="card prose"><p>${esc(txt(online.text_uk)!)}</p>${src(online) ? `<p class="more"><a href="${esc(src(online)!)}" rel="noopener">Модельні тести fide →</a></p>` : ""}</section>` : ""}
 
-  <section class="card founder" style="margin-top:34px"><img src="/logo-mark-64.png" alt="" width="40" height="40"><p>Inspirella створила Софія. У 2022 році вона приїхала з Києва, вчилася в класі для українських дітей, потім у швейцарській школі, де спершу не розуміла ні діалекту, ні завдань на уроках. Сьогодні вона розуміє діалект, її німецька майже B2, і вона вчиться в гімназії. Такий план їй самій колись був потрібен.</p></section>
+  <section class="card founder" style="margin-top:34px"><img src="/logo-mark-64.png" alt="" width="40" height="40"><div><p>Inspirella створена Софією, яка сама колись потребувала такої підтримки.</p><p>У 2022 році вона приїхала з Києва до Швейцарії. Спочатку навчалася в класі для українських дітей, а згодом перейшла до швейцарської школи, де не розуміла ні діалекту, ні системи, ні завдань. Сьогодні вона вільно орієнтується в швейцарському середовищі, володіє німецькою на рівні B2 і навчається в гімназії.</p><p>Inspirella — це частково той план, якого їй самій колись бракувало. Вона створює платформу, яка може допомогти іншим українцям, підліткам у Швейцарії краще зрозуміти освітню систему, побачити свої можливості та знайти власний шлях до майбутнього.</p></div></section>
 
   <section class="card prose" style="margin-top:22px"><p>Далі: <a href="/uk/">з чого почати у Швейцарії</a> · <a href="/uk/status-s/">статус S за кантонами</a> · <a href="/uk/diplom-dlia-doroslykh/">диплом з професії для дорослих</a> · <a href="/uk/systema-osvity-shveitsarii/">система освіти</a></p></section>
   <div class="source">Inspirella — незалежний інструмент для орієнтації, а не офіційна установа. Вимоги й курси взято з офіційних джерел (SEM, fide, berufsberatung.ch, swissuniversities, кантони) і перекладено; вони можуть змінюватися, тому перевіряйте їх за посиланнями. Оцінка рівня — лише орієнтир. Дані станом на ${esc(today)}. Помітили помилку? Напишіть на <a href="mailto:iinspirella@gmail.com">iinspirella@gmail.com</a>.</div>
