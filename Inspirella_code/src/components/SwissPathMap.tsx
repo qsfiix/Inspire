@@ -634,7 +634,18 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
         setRoute(routeAnswers ?? undefined);
         setState(nodeList.length + transitionList.length > 0 ? "ready" : "failed");
         const guess = nodeFromProfile(routeAnswers ?? undefined);
-        if (guess.from || guess.to) {
+        // a route handed over by a link (language planner) wins over the profile guess
+        let linked: { from?: string; to?: string } | null = null;
+        try {
+          linked = JSON.parse(window.sessionStorage.getItem("inspirella_pathmap_route") ?? "null");
+          window.sessionStorage.removeItem("inspirella_pathmap_route");
+        } catch { /* ignore */ }
+        const known = new Set(nodeList.map(n => n.code));
+        if (linked && ((linked.from && known.has(linked.from)) || (linked.to && known.has(linked.to)))) {
+          setFrom(linked.from && known.has(linked.from) ? linked.from : "");
+          setTo(linked.to && known.has(linked.to) ? linked.to : "");
+          setFromProfile(false);
+        } else if (guess.from || guess.to) {
           setFrom(guess.from ?? "");
           setTo(guess.to ?? "");
           setFromProfile(true);
@@ -924,6 +935,9 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
             </div>
           );
         })()}
+        {code === "language" && currentLanguage === "uk" && (
+          <a href="/uk/mova/" className={`${btnPrimary} inline-flex`}>Мовний план за 2 хвилини <ArrowRight className="h-3.5 w-3.5" /></a>
+        )}
         {NEWCOMER_STAGES.has(code) && newcomerFacts.some(f => f.node === code) && (
           <details open className={`rounded-xl border ${isDark ? "border-sky-300/30 bg-[#06131a]/90" : "border-sky-500/50 bg-sky-50"}`}>
             <summary className={`cursor-pointer px-3 py-2 text-[12.5px] font-bold ${isDark ? "text-sky-100" : "text-sky-950"}`}>{ui.newcomerTitle}</summary>

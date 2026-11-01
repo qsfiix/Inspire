@@ -1668,81 +1668,166 @@ function renderAdmissionPage(lang: GLang, canton: string | null, byCanton: Map<s
 
 function renderUkLanguage(node: Row | undefined, facts: Row[], cantonFacts: Row[], today: string): string {
   const url = SITE + "/uk/mova/";
-  const fact = (topic: string) => facts.filter(r => r.topic === topic && txt(r.headline_uk) && txt(r.text_uk));
-  const factCards = (rows: Row[]) =>
-    rows
-      .map(r => {
-        const href = safeUrl(r.official_url) ?? safeUrl(r.evidence_url);
-        return `<section class="card prose"><h3>${esc(txt(r.headline_uk)!)}</h3><p>${esc(txt(r.text_uk)!)}</p>${href ? `<p class="more"><a href="${esc(href)}" rel="noopener">Офіційне джерело →</a></p>` : ""}</section>`;
-      })
-      .join("\n  ");
-  const good = Array.isArray(node?.good_to_know_uk) ? (node!.good_to_know_uk as unknown[]).map(txt).filter((x): x is string => !!x) : [];
   const names = CANTON_NAMES_I18N.uk;
-  const byCanton = [...cantonFacts]
+  const fact = (topic: string) => facts.find(r => r.topic === topic && txt(r.headline_uk) && txt(r.text_uk));
+  const src = (r?: Row) => (r ? safeUrl(r.official_url) ?? safeUrl(r.evidence_url) : undefined);
+
+  // the canton cards of the planner (verified Status S language-course facts)
+  const cantons = [...cantonFacts]
     .filter(r => txt(r.headline_uk) && txt(r.text_uk) && names[String(r.canton_code).toUpperCase()])
-    .sort((a, b) => names[String(a.canton_code).toUpperCase()].localeCompare(names[String(b.canton_code).toUpperCase()], "uk"));
-  const cantonList = byCanton
-    .map(r => {
-      const code = String(r.canton_code).toUpperCase();
-      const href = safeUrl(r.official_url) ?? safeUrl(r.evidence_url);
-      return `<details class="qa" id="kanton-${esc(code.toLowerCase())}"><summary>${esc(names[code])}</summary><p><strong>${esc(txt(r.headline_uk)!)}</strong></p><p>${esc(txt(r.text_uk)!)}</p><p>${href ? `<a href="${esc(href)}" rel="noopener">Офіційна сторінка кантону →</a> · ` : ""}<a href="/uk/status-s/${esc(code.toLowerCase())}/">Усе про статус S у кантоні ${esc(names[code])} →</a></p></details>`;
-    })
-    .join("");
-  const jump = byCanton.map(r => { const c = String(r.canton_code).toUpperCase(); return `<a href="#kanton-${esc(c.toLowerCase())}">${esc(names[c])}</a>`; }).join(" · ");
+    .map(r => ({ code: String(r.canton_code).toUpperCase(), name: names[String(r.canton_code).toUpperCase()], head: txt(r.headline_uk)!, text: txt(r.text_uk)!, url: src(r) ?? "" }))
+    .sort((a, b) => a.name.localeCompare(b.name, "uk"));
 
-  const summary = txt(node?.summary_uk);
-  const requirements = txt(node?.requirements_uk);
-  const cantonal = txt(node?.cantonal_note_uk);
-  const diploma = txt(node?.diploma_uk);
-  const description = "Мова у Швейцарії для дорослих: рівні A1–C2, який рівень потрібен для навчання, роботи, дозволу C і громадянства, визнані сертифікати (fide, Goethe, telc) і курси в кожному кантоні. З офіційними джерелами.";
-  const qa: [string, string][] = [];
-  if (requirements) qa.push(["Який рівень мови потрібен?", requirements]);
-  if (diploma) qa.push(["Чим підтвердити рівень мови?", diploma]);
-  if (cantonal) qa.push(["Хто організовує курси?", cantonal]);
-
-  const main = `  <div class="crumbs"><a href="/uk/">Inspirella</a> › Мова</div>
-  <header class="hero">
-    <div class="badges"><span class="badge">Для новоприбулих</span><span class="badge warm">Німецька · французька · італійська</span></div>
-    <h1>Мова у Швейцарії: рівні, сертифікати, курси</h1>
-    ${summary ? `<p class="lead">${esc(summary)}</p>` : ""}
-    <div class="cta-row"><a class="btn btn-primary" href="#kantony">Курси у моєму кантоні →</a><a class="btn btn-sec" href="/pathmap/?lang=uk">Мій шлях на мапі</a></div>
-  </header>
-  ${factsHtml([["Рівні", "A1–C2"], ["Для Lehre", "від B1"], ["Для вишу", "B2–C1"], ["Кантонів із курсами", String(byCanton.length)]])}
-  <h2 style="margin-top:34px">Що означає кожен рівень</h2>
-  ${factCards(fact("language_levels"))}
-  <h2 style="margin-top:34px">Який рівень потрібен</h2>
-  ${factCards(fact("language_requirements"))}
-  <h2 style="margin-top:34px">Сертифікати</h2>
-  ${factCards(fact("language_certificates"))}
-  <h2 style="margin-top:34px">Курси</h2>
-  ${factCards(fact("language_courses_free"))}
-  <h2 id="kantony" style="margin-top:34px">Курси мови у вашому кантоні</h2>
-  <section class="card prose"><p>Для людей зі статусом S (тимчасовий захист) у кожному кантоні. Оберіть свій кантон:</p><p class="more">${jump}</p>${cantonList}</section>
-  <script>(function(){function o(){var d=location.hash&&document.getElementById(location.hash.slice(1));if(d&&d.tagName==="DETAILS"){d.open=true;d.scrollIntoView();}}window.addEventListener("hashchange",o);o();})();</script>
-  <h2 style="margin-top:34px">Офіційні сайти</h2>
-  ${factCards(fact("language_online"))}
-  ${good.length ? `<h2 style="margin-top:34px">Корисно знати</h2><section class="card prose"><ul>${good.map(g => `<li>${esc(g)}</li>`).join("")}</ul></section>` : ""}
-  ${qa.length ? `<h2 style="margin-top:34px">Коротко</h2><section class="card">${qa.map(([q, a]) => `<details class="qa"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</section>` : ""}
-  <section class="card prose" style="margin-top:22px"><p>Далі: <a href="/uk/">з чого почати у Швейцарії</a> · <a href="/uk/status-s/">статус S за кантонами</a> · <a href="/uk/diplom-dlia-doroslykh/">диплом з професії для дорослих</a> · <a href="/uk/systema-osvity-shveitsarii/">система освіти</a></p></section>
-  <div class="source">Inspirella — незалежний інструмент для орієнтації, а не офіційна установа. Тексти взято з офіційних джерел (SEM, fide, berufsberatung.ch, кантони) і перекладено; вимоги та курси можуть змінюватися, тому перевіряйте їх за посиланнями. Дані станом на ${esc(today)}. Помітили помилку? Напишіть на <a href="mailto:iinspirella@gmail.com">iinspirella@gmail.com</a>.</div>`;
-
-  const ld: Record<string, unknown>[] = [
-    { "@context": "https://schema.org", "@type": "WebPage", name: "Мова у Швейцарії: рівні, сертифікати, курси", url, inLanguage: "uk", description, dateModified: today, isPartOf: { "@type": "WebSite", name: "Inspirella", url: SITE + "/" } }
+  // levels: the same wording as the verified levels fact (CEFR global scale, fide)
+  const levels = [
+    { id: 0, code: "0", label: "Я ще майже не знаю мови" },
+    { id: 1, code: "A1", label: "Можу представитися простими реченнями й сказати, що мені потрібно, якщо говорять повільно" },
+    { id: 2, code: "A2", label: "Порозуміюся в простих ситуаціях: магазин, лікар, установа" },
+    { id: 3, code: "B1", label: "Впораюся з більшістю повсякденних ситуацій і розумію листи від школи, роботодавця чи органів влади" },
+    { id: 4, code: "B2", label: "Розумію основний зміст складних текстів і фахові розмови у своїй галузі" },
+    { id: 5, code: "C1", label: "Розумію складні довгі тексти, навіть те, що сказано не прямо" }
   ];
-  if (qa.length) ld.push({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: qa.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) });
+
+  const reqLehre = fact("language_requirements") && facts.filter(r => r.topic === "language_requirements")[1];
+  const reqPermit = facts.filter(r => r.topic === "language_requirements")[0];
+  const certs = fact("language_certificates");
+  const courses = fact("language_courses_free");
+  const online = fact("language_online");
+  const levelFact = fact("language_levels");
+
+  // goals: required level only where a verified fact states it
+  const goals = [
+    { id: "lehre", label: "Професійне навчання (Lehre)", need: 3, needText: "щонайменше B1, для деяких професій B2", node: "efz", step: "Запишіться на консультацію в центр профорієнтації вашого кантону (BIZ): там допоможуть обрати професію й підготуватися до пошуку місця для навчання.", stepUrl: "https://www.berufsberatung.ch/de/eine-berufslehre-in-der-schweiz-absolvieren", source: src(reqLehre) },
+    { id: "adult", label: "Диплом з професії для дорослих (без звичайного Lehre)", need: 4, needText: "щонайменше B2 для прямого допуску до випускного іспиту", node: "adult", step: "Перевірте, чи підходить вам прямий допуск до іспиту або валідація досвіду: усі шляхи для дорослих зібрані на окремій сторінці.", stepUrl: "/uk/diplom-dlia-doroslykh/", source: src(reqLehre) },
+    { id: "uni", label: "Навчання в університеті чи FH", need: 4, needText: "від B2 до C1 залежно від вишу (наприклад, Університет Цюриха — C1)", node: "uni", step: "Напишіть у приймальну службу обраного вишу: вона скаже, який сертифікат потрібен і чи визнають ваш атестат чи диплом.", stepUrl: "https://www.swissuniversities.ch/themen/zulassung", source: src(reqLehre) },
+    { id: "permit", label: "Дозвіл на постійне проживання (C)", need: 2, needText: "A2 усно й A1 письмово", node: "", step: "Сертифікат для дозволу перевіряє міграційний орган кантону або громади: уточніть у них, який документ подати.", stepUrl: src(reqPermit) ?? "", source: src(reqPermit) },
+    { id: "citizen", label: "Громадянство", need: 3, needText: "B1 усно й A2 письмово", node: "", step: "Вимоги до натуралізації перевіряє громада й кантон; почніть із їхньої сторінки про громадянство.", stepUrl: src(reqPermit) ?? "", source: src(reqPermit) },
+    { id: "work", label: "Робота", need: -1, needText: "єдиної вимоги немає: рівень залежить від посади й роботодавця", node: "work", step: "Зареєструйтеся в регіональному центрі працевлаштування (RAV) і покажіть роботодавцям визнаний мовний сертифікат.", stepUrl: "https://www.sem.admin.ch/sem/de/home/integration-einbuergerung/mein-beitrag/zugewandert/sprache.html", source: "https://www.sem.admin.ch/sem/de/home/integration-einbuergerung/mein-beitrag/zugewandert/sprache.html" }
+  ];
+
+  const data = {
+    cantons,
+    goals,
+    levels: levels.map(l => ({ id: l.id, code: l.code })),
+    fideUrl: "https://fide-service.ch/de/sprachnachweise/fide-test",
+    certUrl: src(certs) ?? ""
+  };
+
+  const levelOptions = levels
+    .map(l => `<label class="opt"><input type="radio" name="lvl" value="${l.id}"><span><b>${esc(l.code === "0" ? "—" : l.code)}</b> ${esc(l.label)}</span></label>`)
+    .join("");
+  const goalOptions = goals.map(g => `<label class="opt"><input type="radio" name="goal" value="${esc(g.id)}"><span>${esc(g.label)}</span></label>`).join("");
+  const cantonOptions = cantons.map(c => `<option value="${esc(c.code)}">${esc(c.name)}</option>`).join("");
+
+  const needRows = goals
+    .map(g => `<tr><td>${esc(g.label)}</td><td>${esc(g.needText)}</td></tr>`)
+    .join("");
+
+  const description = "Мовний план за 2 хвилини: ваш рівень, що він вам відкриває, скільки ще потрібно для Lehre, вишу, дозволу C чи громадянства, і курси у вашому кантоні. Для українців і всіх новоприбулих у Швейцарії.";
+
+  const css = `
+  .planner{display:grid;gap:16px}
+  .step{padding:20px 22px}
+  .step h2{margin-bottom:6px}
+  .step .hint{color:var(--muted);font-size:14px;margin:0 0 12px}
+  .opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--card-b);border-radius:12px;margin-top:8px;cursor:pointer;background:rgba(139,92,246,.05)}
+  .opt:has(input:checked){border-color:var(--accent);background:rgba(139,92,246,.16)}
+  .opt input{margin-top:4px;accent-color:#8b5cf6}
+  .opt b{display:inline-block;min-width:28px;color:var(--accent)}
+  select.pick{width:100%;padding:12px;border-radius:12px;border:1px solid var(--card-b);background:var(--card);color:var(--fg);font:500 16px Inter,sans-serif}
+  .result{padding:22px;border:1px solid var(--accent)}
+  .bar{display:flex;gap:4px;margin:12px 0 6px}
+  .bar span{flex:1;text-align:center;font:600 12px Inter,sans-serif;padding:6px 0;border-radius:8px;background:rgba(139,92,246,.08);color:var(--muted)}
+  .bar span.have{background:rgba(139,92,246,.45);color:#fff}
+  .bar span.need{outline:2px solid #fb923c;outline-offset:-2px;color:var(--fg)}
+  ol.plan{padding-left:20px;margin:12px 0 0}ol.plan li{margin-bottom:10px}
+  ol.plan a{color:var(--accent)}
+  table.need{width:100%;border-collapse:collapse;font-size:15px}table.need td{border-bottom:1px solid var(--card-b);padding:9px 8px;vertical-align:top}table.need td:first-child{font-weight:600;width:48%}
+  .founder{display:flex;gap:14px;align-items:flex-start;padding:18px 20px;font-size:15px}
+  .founder img{width:40px;height:40px;flex:none}
+  .founder p{margin:0;color:var(--muted)}
+  `;
+
+  const main = `  <style>${css}</style>
+  <div class="crumbs"><a href="/uk/">Inspirella</a> › Мова</div>
+  <header class="hero">
+    <div class="badges"><span class="badge">Мовний план</span><span class="badge warm">2 хвилини · без реєстрації</span></div>
+    <h1>Ваш мовний план у Швейцарії</h1>
+    <p class="lead">Оберіть кантон, свій рівень і мету: ви побачите, скільки ще потрібно, що робити далі й де шукати курси саме у вашому кантоні.</p>
+  </header>
+  <div class="planner" id="planner">
+    <section class="card step"><h2>1. Ваш кантон</h2><p class="hint">Покажемо, як працюють курси саме там.</p>
+      <select class="pick" id="canton"><option value="">Оберіть кантон</option>${cantonOptions}</select></section>
+    <section class="card step"><h2>2. Що з цього про вас?</h2><p class="hint">Оберіть найвищий пункт, з яким ви погоджуєтеся. Це орієнтир за шкалою рівнів (GER/CEFR), а не тест.</p>${levelOptions}</section>
+    <section class="card step"><h2>3. Ваша мета</h2><p class="hint">Для чого вам мова насамперед?</p>${goalOptions}</section>
+    <section class="card result" id="result" hidden aria-live="polite"></section>
+  </div>
+  <noscript><p class="note">Для мовного плану потрібен JavaScript. Нижче — вся інформація у звичайному вигляді.</p></noscript>
+
+  <h2 style="margin-top:40px">Який рівень потрібен для чого</h2>
+  <section class="card"><table class="need">${needRows}</table>
+    <p class="more">Джерела: ${[src(reqPermit), src(reqLehre)].filter(Boolean).map((h, i) => `<a href="${esc(h!)}" rel="noopener">${i === 0 ? "SEM (дозволи, громадянство)" : "berufsberatung.ch (Lehre, виш)"}</a>`).join(" · ")}</p></section>
+
+  ${levelFact ? `<h2 style="margin-top:34px">Рівні A1–C2 простими словами</h2><section class="card prose"><p>${esc(txt(levelFact.text_uk)!)}</p>${src(levelFact) ? `<p class="more"><a href="${esc(src(levelFact)!)}" rel="noopener">Шкала рівнів fide →</a></p>` : ""}</section>` : ""}
+  ${certs ? `<h2 style="margin-top:34px">Сертифікати</h2><section class="card prose"><p>${esc(txt(certs.text_uk)!)}</p>${src(certs) ? `<p class="more"><a href="${esc(src(certs)!)}" rel="noopener">Список визнаних сертифікатів (SEM) →</a></p>` : ""}</section>` : ""}
+  ${courses ? `<h2 style="margin-top:34px">Курси</h2><section class="card prose"><p>${esc(txt(courses.text_uk)!)}</p>${src(courses) ? `<p class="more"><a href="${esc(src(courses)!)}" rel="noopener">Офіційне джерело →</a></p>` : ""}</section>` : ""}
+  ${online ? `<h2 style="margin-top:34px">Де тренуватися</h2><section class="card prose"><p>${esc(txt(online.text_uk)!)}</p>${src(online) ? `<p class="more"><a href="${esc(src(online)!)}" rel="noopener">Модельні тести fide →</a></p>` : ""}</section>` : ""}
+
+  <section class="card founder" style="margin-top:34px"><img src="/logo-mark-64.png" alt="" width="40" height="40"><p>Inspirella створила Софія. У 2022 році вона приїхала з Києва, вчилася в класі для українських дітей, потім у швейцарській школі, де спершу не розуміла ні діалекту, ні завдань на уроках. Сьогодні вона розуміє діалект, її німецька майже B2, і вона вчиться в гімназії. Такий план їй самій колись був потрібен.</p></section>
+
+  <section class="card prose" style="margin-top:22px"><p>Далі: <a href="/uk/">з чого почати у Швейцарії</a> · <a href="/uk/status-s/">статус S за кантонами</a> · <a href="/uk/diplom-dlia-doroslykh/">диплом з професії для дорослих</a> · <a href="/uk/systema-osvity-shveitsarii/">система освіти</a></p></section>
+  <div class="source">Inspirella — незалежний інструмент для орієнтації, а не офіційна установа. Вимоги й курси взято з офіційних джерел (SEM, fide, berufsberatung.ch, swissuniversities, кантони) і перекладено; вони можуть змінюватися, тому перевіряйте їх за посиланнями. Оцінка рівня — лише орієнтир. Дані станом на ${esc(today)}. Помітили помилку? Напишіть на <a href="mailto:iinspirella@gmail.com">iinspirella@gmail.com</a>.</div>
+  <script type="application/json" id="plan-data">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>
+  <script>${PLANNER_SCRIPT}</script>`;
 
   return layout({
-    docTitle: "Мова у Швейцарії: рівні A1–C2, сертифікати, курси | Inspirella",
-    ogTitle: "Мова у Швейцарії: рівні, сертифікати, курси",
+    docTitle: "Мовний план у Швейцарії: ваш рівень, мета й курси | Inspirella",
+    ogTitle: "Ваш мовний план у Швейцарії за 2 хвилини",
     description,
     url,
     indexable: true,
     lang: "uk",
     nav: { about: "Про Inspirella", app: "Відкрити застосунок" },
-    ld,
+    ld: { "@context": "https://schema.org", "@type": "WebPage", name: "Ваш мовний план у Швейцарії", url, inLanguage: "uk", description, dateModified: today, isPartOf: { "@type": "WebSite", name: "Inspirella", url: SITE + "/" } },
     main
   });
 }
+
+/** The planner's logic: plain script, no framework; renders the result from the embedded data. */
+const PLANNER_SCRIPT = `(function(){
+var d=JSON.parse(document.getElementById("plan-data").textContent);
+var codes=["—","A1","A2","B1","B2","C1"];
+var box=document.getElementById("result");
+function val(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:null;}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;"}[c];});}
+function link(u,t){return u?'<a href="'+esc(u)+'"'+(u.charAt(0)==="/"?"":' rel="noopener" target="_blank"')+'>'+esc(t)+'</a>':esc(t);}
+function render(){
+  var lvl=val("lvl"),gid=val("goal"),cc=document.getElementById("canton").value;
+  if(lvl===null||gid===null){box.hidden=true;return;}
+  lvl=+lvl;var g=d.goals.filter(function(x){return x.id===gid;})[0];
+  var c=d.cantons.filter(function(x){return x.code===cc;})[0];
+  var h='<h2>Ваш план</h2>';
+  if(g.need>=0){
+    var bar='<div class="bar">';for(var i=1;i<codes.length;i++){bar+='<span class="'+(i<=lvl?"have ":"")+(i===g.need?"need":"")+'">'+codes[i]+'</span>';}bar+='</div>';
+    h+=bar;
+    h+= lvl>=g.need ? '<p><b>Ваш рівень уже відповідає вимозі</b> ('+esc(g.needText)+'). Наступний крок — офіційний сертифікат.</p>'
+      : '<p>Потрібно: <b>'+esc(g.needText)+'</b>. Ви зараз приблизно на рівні <b>'+(lvl===0?"початківця":codes[lvl])+'</b>: до мети '+(g.need-lvl)+' '+((g.need-lvl)===1?"рівень":"рівні")+'.</p>';
+  } else {
+    h+='<p>'+esc(g.needText)+'.</p>';
+  }
+  var steps=[];
+  if(lvl<5){steps.push(c?'<b>Курс у кантоні '+esc(c.name)+'.</b> '+esc(c.head)+'.<details class="qa"><summary>Докладніше про курси в кантоні</summary><p>'+esc(c.text)+'</p></details>'+link(c.url,"Офіційна сторінка кантону →"):'<b>Курс у вашому кантоні.</b> Оберіть кантон угорі, і тут з’явиться, як записатися.');}
+  steps.push(lvl<=3?'<b>Тренуйтеся до тесту.</b> На сайті fide є безкоштовні модельні тести для читання, письма, говоріння й аудіювання. '+link(d.fideUrl,"fide-service.ch →"):'<b>Підтвердіть рівень сертифікатом.</b> Зараховують лише сертифікати зі списку SEM (наприклад Goethe, telc, ÖSD, fide). '+link(d.certUrl,"Список SEM →"));
+  if(g.need<0||lvl>=g.need){steps.push('<b>Сертифікат.</b> Довідки про курс недостатньо: потрібен визнаний сертифікат. '+link(d.certUrl,"Список SEM →"));}
+  steps.push('<b>'+esc(g.label)+'.</b> '+esc(g.step)+' '+link(g.stepUrl,"Детальніше →"));
+  h+='<ol class="plan"><li>'+steps.join('</li><li>')+'</li></ol>';
+  var mapUrl='/pathmap/?lang=uk&from=language'+(g.node?'&to='+g.node:'');
+  h+='<div class="cta-row" style="margin-top:14px"><a class="btn btn-primary" href="'+mapUrl+'">Зберегти й побачити шлях на мапі →</a></div>';
+  h+='<p class="more">Мапа відкривається після короткого старту без реєстрації. '+(g.source?link(g.source,"Джерело вимоги"):"")+'</p>';
+  box.innerHTML=h;box.hidden=false;
+}
+document.getElementById("planner").addEventListener("change",function(e){render();if(e.target.name==="goal"){box.scrollIntoView({behavior:"smooth",block:"start"});}});
+})();`;
 
 function renderUkStart(counts: Counts, programCount: number): string {
   const url = SITE + "/uk/";
@@ -1750,7 +1835,7 @@ function renderUkStart(counts: Counts, programCount: number): string {
     ["Я щойно приїхав(-ла) зі статусом захисту S", "Школа для дітей, курси німецької, контакти та перші кроки у вашому кантоні. Обираєте кантон і бачите, що там працює.", "/uk/status-s/"],
     ["Хочу здобути професію у Швейцарії", "Як дорослі отримують швейцарський диплом з професії: шляхи для тих, хто вже має досвід або вже працює.", "/uk/diplom-dlia-doroslykh/"],
     ["Моя дитина вступає до гімназії або професійної школи", "Які бувають шляхи після початкової школи, що потрібно для вступу і де дізнатися про умови у вашому кантоні.", "/uk/pryjom/"],
-    ["Мова: рівні, сертифікати, курси", "Який рівень мови потрібен для навчання, роботи й дозволів, які сертифікати визнають і де знайти курси у вашому кантоні.", "/uk/mova/"],
+    ["Мовний план за 2 хвилини", "Ваш рівень, ваша мета (Lehre, виш, робота, дозвіл C, громадянство) і що робити далі, з курсами саме у вашому кантоні.", "/uk/mova/"],
     ["Молодь 15–25 років: перехідні програми", "Програми, які допомагають підготуватися до професійного навчання або школи: мова, орієнтація, практика.", "/uk/perekhidni-prohramy/"],
     ["Як улаштована система освіти", "Усі етапи від початкової школи до університету на одній сторінці та переходи між ними, у тому числі обхідні шляхи.", "/uk/systema-osvity-shveitsarii/"],
     ["Каталог професій, шкіл і ресурсів", "Професії, школи, вищі навчальні заклади та корисні сайти українською. Відкривається після короткого старту «Знайдіть свій шлях» (без реєстрації) або входу.", "/ressourcen/?lang=uk"],

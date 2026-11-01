@@ -73,6 +73,16 @@ export default function App() {
   const isLoggedInRef = useRef(false);
   // A guest who opened a members' page (a shared link to /ressourcen/ or /pathmap/) lands there after sign-up or guest start.
   const pendingTab = useRef<string | null>(null);
+  // a shared map link (/pathmap/?from=language&to=efz) keeps its route through the sign-up or guest start
+  useState(() => {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      if (window.location.pathname.startsWith("/pathmap") && (q.get("from") || q.get("to"))) {
+        window.sessionStorage.setItem("inspirella_pathmap_route", JSON.stringify({ from: q.get("from") ?? "", to: q.get("to") ?? "" }));
+      }
+    } catch { /* ignore */ }
+    return null;
+  });
   const takePendingTab = (fallback: string) => {
     const tab = pendingTab.current;
     pendingTab.current = null;
