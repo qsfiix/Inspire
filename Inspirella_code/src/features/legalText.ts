@@ -249,7 +249,8 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
           "**Profile data you provide:** name, interface language, current education/career stage, and optional canton/city if you enter one.",
           "**Personalisation signals:** the interests, goals and target canton/language you select, used to compute your recommendations. Optional background answers (such as education, residence status, language levels) stay on your device unless you give explicit consent to store them.",
           "**Trackers:** the goals and tasks you create, so they follow you across devices.",
-          "**Basic technical data:** standard server access logs (e.g. IP address, timestamp) generated automatically by our hosting infrastructure."
+          "**Basic technical data:** standard server access logs (e.g. IP address, timestamp) generated automatically by our hosting infrastructure.",
+          "**Anonymous feedback:** on some pages you can answer «Did this help?» and write what is missing. We store the answer, the page and the time, without name, e-mail or IP address; please do not write personal data in the text."
         ]
       },
       {
@@ -297,7 +298,8 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
           "**Profildaten, die du angibst:** Name, Sprache der Oberfläche, aktuelle Ausbildungs-/Berufsphase und optional Kanton/Ort.",
           "**Angaben zur Personalisierung:** die gewählten Interessen, Ziele und der Zielkanton bzw. die Sprache, damit wir deine Empfehlungen berechnen können. Freiwillige Hintergrundangaben (z. B. Ausbildung, Aufenthaltsstatus, Sprachniveaus) bleiben auf deinem Gerät, solange du nicht ausdrücklich der Speicherung zustimmst.",
           "**Tracker:** die Ziele und Aufgaben, die du anlegst, damit sie dir auf allen Geräten folgen.",
-          "**Technische Basisdaten:** übliche Server-Zugriffsprotokolle (z. B. IP-Adresse, Zeitstempel), die unsere Hosting-Infrastruktur automatisch erzeugt."
+          "**Technische Basisdaten:** übliche Server-Zugriffsprotokolle (z. B. IP-Adresse, Zeitstempel), die unsere Hosting-Infrastruktur automatisch erzeugt.",
+          "**Anonymes Feedback:** Auf einigen Seiten kannst du angeben, ob sie geholfen haben, und schreiben, was fehlt. Wir speichern die Antwort, die Seite und den Zeitpunkt, ohne Namen, E-Mail oder IP-Adresse; bitte schreibe keine persönlichen Daten in den Text."
         ]
       },
       {
@@ -345,7 +347,8 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
           "**Données de profil que tu indiques :** nom, langue de l'interface, étape actuelle de formation/carrière et, si tu le souhaites, canton/ville.",
           "**Éléments de personnalisation :** les intérêts, objectifs et canton/langue cibles que tu choisis, utilisés pour calculer tes recommandations. Les réponses facultatives sur ton parcours (formation, statut de séjour, niveaux de langue) restent sur ton appareil tant que tu n'acceptes pas expressément leur enregistrement.",
           "**Suivis :** les objectifs et tâches que tu crées, pour qu'ils te suivent d'un appareil à l'autre.",
-          "**Données techniques de base :** les journaux d'accès habituels des serveurs (p. ex. adresse IP, horodatage), générés automatiquement par notre hébergement."
+          "**Données techniques de base :** les journaux d'accès habituels des serveurs (p. ex. adresse IP, horodatage), générés automatiquement par notre hébergement.",
+          "**Avis anonyme :** sur certaines pages, tu peux indiquer si elles t'ont aidé et écrire ce qui manque. Nous enregistrons la réponse, la page et l'heure, sans nom, e-mail ni adresse IP ; merci de ne pas écrire de données personnelles dans le texte."
         ]
       },
       {
@@ -393,7 +396,8 @@ const PRIVACY_BASE: Record<Exclude<LanguageCode, "uk">, LegalDoc> = {
           "**Dati di profilo che indichi:** nome, lingua dell'interfaccia, fase attuale di formazione/carriera e, se vuoi, cantone/città.",
           "**Elementi di personalizzazione:** gli interessi, gli obiettivi e il cantone/la lingua di destinazione che scegli, usati per calcolare le raccomandazioni. Le risposte facoltative sul tuo percorso (formazione, statuto di soggiorno, livelli di lingua) restano sul tuo dispositivo finché non acconsenti espressamente al salvataggio.",
           "**Tracker:** gli obiettivi e i compiti che crei, perché ti seguano da un dispositivo all'altro.",
-          "**Dati tecnici di base:** i normali registri di accesso del server (p. es. indirizzo IP, data e ora), generati automaticamente dal nostro hosting."
+          "**Dati tecnici di base:** i normali registri di accesso del server (p. es. indirizzo IP, data e ora), generati automaticamente dal nostro hosting.",
+          "**Feedback anonimo:** su alcune pagine puoi indicare se ti sono state utili e scrivere cosa manca. Salviamo la risposta, la pagina e l'ora, senza nome, e-mail o indirizzo IP; per favore non scrivere dati personali nel testo."
         ]
       },
       {

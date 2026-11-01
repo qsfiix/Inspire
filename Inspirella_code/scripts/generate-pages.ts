@@ -1666,6 +1666,36 @@ function renderAdmissionPage(lang: GLang, canton: string | null, byCanton: Map<s
 // language-course facts per canton.
 // --------------------------------------------------------------------------
 
+// --------------------------------------------------------------------------
+// "Чи допомогло?" block under the Ukrainian planners: anonymous, stored in page_feedback (insert-only for the public).
+// --------------------------------------------------------------------------
+
+let FEEDBACK_REST = "";
+let FEEDBACK_KEY = "";
+
+function feedbackBlock(page: string): string {
+  if (!FEEDBACK_REST || !FEEDBACK_KEY) return "";
+  return `<section class="card prose fb" id="fb" style="margin-top:28px" data-page="${esc(page)}" data-endpoint="${esc(FEEDBACK_REST)}" data-key="${esc(FEEDBACK_KEY)}">
+    <h2>Чи допомогла вам ця сторінка?</h2>
+    <div class="cta-row" style="margin:6px 0 10px"><button type="button" class="btn btn-sec" data-v="yes">👍 Так</button><button type="button" class="btn btn-sec" data-v="no">👎 Не дуже</button></div>
+    <label for="fb-text" style="display:block;font-weight:600;margin-top:4px">Чого вам бракує? Що було незрозуміло?</label>
+    <textarea id="fb-text" maxlength="600" rows="3" style="width:100%;margin-top:6px;padding:10px;border-radius:12px;border:1px solid var(--card-b);background:var(--card);color:var(--fg);font:15px Inter,sans-serif" placeholder="Наприклад: не знайшла курси для дитини 16 років"></textarea>
+    <div class="cta-row" style="margin-top:10px"><button type="button" class="btn btn-primary" data-send>Надіслати</button></div>
+    <p class="more" data-msg>Анонімно: ми не збираємо імен чи контактів, тому не пишіть сюди особисті дані.</p>
+  </section>
+  <script>${FEEDBACK_SCRIPT}</script>`;
+}
+
+const FEEDBACK_SCRIPT = `(function(){
+var b=document.getElementById("fb");if(!b)return;var v=null,sent=false;
+function send(){if(sent)return;var t=(document.getElementById("fb-text").value||"").trim().slice(0,600);if(v===null&&!t)return;sent=true;
+fetch(b.dataset.endpoint,{method:"POST",headers:{"Content-Type":"application/json",apikey:b.dataset.key,Authorization:"Bearer "+b.dataset.key,Prefer:"return=minimal"},body:JSON.stringify({page:b.dataset.page,lang:"uk",helpful:v,missing:t||null,context:(location.hash||"").slice(0,200)||null})})
+.then(function(r){b.querySelector("[data-msg]").textContent=r.ok?"Дякуємо! Ваша відповідь допоможе зробити Inspirella кориснішою.":"Не вдалося надіслати. Спробуйте пізніше або напишіть на iinspirella@gmail.com.";if(!r.ok)sent=false;})
+.catch(function(){sent=false;b.querySelector("[data-msg]").textContent="Не вдалося надіслати. Спробуйте пізніше.";});}
+b.querySelectorAll("[data-v]").forEach(function(x){x.addEventListener("click",function(){v=x.dataset.v==="yes";b.querySelectorAll("[data-v]").forEach(function(y){y.style.borderColor=y===x?"var(--accent)":"";});b.querySelector("[data-msg]").textContent=v?"Дякуємо! Якщо хочете, напишіть, чого ще бракує, і натисніть «Надіслати».":"Напишіть, будь ласка, чого бракує, і натисніть «Надіслати».";});});
+b.querySelector("[data-send]").addEventListener("click",send);
+})();`;
+
 function renderUkLanguage(node: Row | undefined, facts: Row[], cantonFacts: Row[], today: string): string {
   const url = SITE + "/uk/mova/";
   const names = CANTON_NAMES_I18N.uk;
@@ -1773,6 +1803,7 @@ function renderUkLanguage(node: Row | undefined, facts: Row[], cantonFacts: Row[
   ${courses ? `<h2 style="margin-top:34px">Курси</h2><section class="card prose"><p>${esc(txt(courses.text_uk)!)}</p>${src(courses) ? `<p class="more"><a href="${esc(src(courses)!)}" rel="noopener">Офіційне джерело →</a></p>` : ""}</section>` : ""}
   ${online ? `<h2 style="margin-top:34px">Де тренуватися</h2><section class="card prose"><p>${esc(txt(online.text_uk)!)}</p>${src(online) ? `<p class="more"><a href="${esc(src(online)!)}" rel="noopener">Модельні тести fide →</a></p>` : ""}</section>` : ""}
 
+  ${feedbackBlock("uk-mova")}
   <section class="card founder" style="margin-top:34px"><img src="/logo-mark-64.png" alt="" width="40" height="40"><div><p>Inspirella створена Софією, яка сама колись потребувала такої підтримки.</p><p>У 2022 році вона приїхала з Києва до Швейцарії. Спочатку навчалася в класі для українських дітей, а згодом перейшла до швейцарської школи, де не розуміла ні діалекту, ні системи, ні завдань. Сьогодні вона вільно орієнтується в швейцарському середовищі, володіє німецькою на рівні B2 і навчається в гімназії.</p><p>Inspirella — це частково той план, якого їй самій колись бракувало. Вона створює платформу, яка може допомогти іншим українцям, підліткам у Швейцарії краще зрозуміти освітню систему, побачити свої можливості та знайти власний шлях до майбутнього.</p></div></section>
 
   <section class="card prose" style="margin-top:22px"><p>Далі: <a href="/uk/">з чого почати у Швейцарії</a> · <a href="/uk/status-s/">статус S за кантонами</a> · <a href="/uk/diplom-dlia-doroslykh/">диплом з професії для дорослих</a> · <a href="/uk/systema-osvity-shveitsarii/">система освіти</a></p></section>
@@ -1917,6 +1948,7 @@ function renderUkKids(schoolFacts: Row[], admissions: Row[], langgymCantons: str
     <tr><td>близько 15–16 років</td><td>Після обов’язкової школи: гімназія, середня фахова школа (FMS), професійне навчання з практикою (Lehre) або перехідна програма.</td></tr>
   </table><p class="more"><a href="/uk/systema-osvity-shveitsarii/">Уся система освіти на одній сторінці →</a></p></section>
 
+  ${feedbackBlock("uk-dity")}
   <section class="card prose" style="margin-top:22px"><p>Далі: <a href="/uk/pryjom/">вступ за кантонами</a> · <a href="/uk/perekhidni-prohramy/">перехідні програми для молоді</a> · <a href="/uk/status-s/">статус S за кантонами</a> · <a href="/uk/mova/">мовний план для дорослих</a></p></section>
 
   <section class="card founder" style="margin-top:22px"><img src="/logo-mark-64.png" alt="" width="40" height="40"><div><p>Inspirella створена Софією, яка сама колись потребувала такої підтримки.</p><p>У 2022 році вона приїхала з Києва до Швейцарії. Спочатку навчалася в класі для українських дітей, а згодом перейшла до швейцарської школи, де не розуміла ні діалекту, ні системи, ні завдань. Сьогодні вона вільно орієнтується в швейцарському середовищі, володіє німецькою на рівні B2 і навчається в гімназії.</p></div></section>
@@ -1978,6 +2010,40 @@ function render(){
 document.getElementById("planner").addEventListener("change",function(e){render();if(e.target.name==="int"&&!box.hidden){box.scrollIntoView({behavior:"smooth",block:"start"});}});
 })();`;
 
+/** The three audiences of the Ukrainian start page and their first steps (links to pages that hold the verified facts). */
+const WHO: { id: string; label: string; map: string; steps: [string, string, string][] }[] = [
+  {
+    id: "adult",
+    label: "Я дорослий / доросла",
+    map: "/pathmap/?lang=uk&from=arrival_adult",
+    steps: [
+      ["Мовний план за 2 хвилини", "Ваш рівень, скільки ще потрібно для вашої мети й курси у вашому кантоні.", "/uk/mova/"],
+      ["Статус S у вашому кантоні", "Контакти, курси мови й перші кроки там, де ви живете.", "/uk/status-s/"],
+      ["Професія або диплом у Швейцарії", "Як дорослим здобути швейцарський диплом з професії, зокрема з досвідом роботи.", "/uk/diplom-dlia-doroslykh/"]
+    ]
+  },
+  {
+    id: "parent",
+    label: "Я батько / мати",
+    map: "/pathmap/?lang=uk&from=arrival",
+    steps: [
+      ["Шкільний план для дитини", "У якому класі за віком, запис до школи, підтримка мови й вступ далі у вашому кантоні.", "/uk/dity/"],
+      ["Вступ до гімназії, FMS чи на Lehre", "Умови й терміни вступу за кантонами.", "/uk/pryjom/"],
+      ["Як улаштована система освіти", "Усі етапи на одній сторінці: від садка до університету.", "/uk/systema-osvity-shveitsarii/"]
+    ]
+  },
+  {
+    id: "youth",
+    label: "Мені 16–25 років",
+    map: "/pathmap/?lang=uk&from=arrival",
+    steps: [
+      ["Перехідні програми", "Підготовка до професійного навчання або школи: мова, орієнтація, практика.", "/uk/perekhidni-prohramy/"],
+      ["Мовний план", "Який рівень потрібен для Lehre чи навчання і де вчити мову.", "/uk/mova/"],
+      ["Вступ за кантонами", "Гімназія, FMS, професійна матура: умови й терміни.", "/uk/pryjom/"]
+    ]
+  }
+];
+
 function renderUkStart(counts: Counts, programCount: number): string {
   const url = SITE + "/uk/";
   const cards: [string, string, string][] = [
@@ -1998,7 +2064,7 @@ function renderUkStart(counts: Counts, programCount: number): string {
     <div class="badges"><span class="badge">Для українців у Швейцарії</span><span class="badge warm">Безкоштовно</span></div>
     <h1>Освіта та навчання у Швейцарії: з чого почати</h1>
     <p class="lead">Школа, професійне навчання, мовні курси та вступ до університету. Прості пояснення українською, з посиланнями на офіційні джерела та контакти у вашому кантоні.</p>
-    <div class="cta-row"><a class="btn btn-primary" href="/uk/status-s/">Обрати свій кантон →</a><a class="btn btn-sec" href="/?lang=uk">Відкрити застосунок</a></div>
+    <div class="cta-row"><a class="btn btn-primary" href="#who">З чого почати мені →</a><a class="btn btn-sec" href="/uk/status-s/">Обрати свій кантон</a></div>
   </header>
   ${factsHtml([
     ["Професій у каталозі", String(counts.professions)],
@@ -2006,10 +2072,19 @@ function renderUkStart(counts: Counts, programCount: number): string {
     ["Програм навчання у вишах", String(programCount)],
     ["Кантонів", "26"]
   ])}
-  <section class="card">
-    <h2>Оберіть свою ситуацію</h2>
+  <section class="card who" id="who">
+    <h2>Хто ви?</h2>
+    <p class="more" style="margin:0 0 12px">Оберіть, і ми покажемо три перші кроки саме для вас.</p>
+    <div class="cta-row">${WHO.map(w => `<button type="button" class="btn btn-sec" data-who="${w.id}">${esc(w.label)}</button>`).join("")}</div>
+    ${WHO.map(w => `<div class="who-panel" data-panel="${w.id}" hidden><ol class="plan">${w.steps.map(([t, d, h]) => `<li><a href="${esc(h)}"><b>${esc(t)}</b></a><br><span>${esc(d)}</span></li>`).join("")}</ol><div class="cta-row" style="margin-top:12px"><a class="btn btn-primary" href="${esc(w.map)}">Мій шлях на мапі →</a></div></div>`).join("")}
+  </section>
+  <section class="card" style="margin-top:22px">
+    <h2>Усі розділи</h2>
     <ul class="schools">${cardsHtml}</ul>
   </section>
+  <style>.who-panel{margin-top:16px}.who-panel ol.plan{padding-left:20px;margin:0}.who-panel li{margin-bottom:12px}.who-panel li a{color:var(--accent);text-decoration:none}.who-panel li span{color:var(--muted);font-size:15px}.who .btn[aria-pressed="true"]{border-color:var(--accent);background:rgba(139,92,246,.18)}</style>
+  <script>(function(){var w=document.getElementById("who");w.querySelectorAll("[data-who]").forEach(function(b){b.addEventListener("click",function(){w.querySelectorAll("[data-who]").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});w.querySelectorAll("[data-panel]").forEach(function(p){p.hidden=p.dataset.panel!==b.dataset.who;});try{localStorage.setItem("inspirella-who",b.dataset.who);}catch(e){}});});try{var s=localStorage.getItem("inspirella-who");var b=s&&w.querySelector('[data-who="'+s+'"]');if(b)b.click();}catch(e){}})();</script>
+  ${feedbackBlock("uk-start")}
   <section class="card prose" style="margin-top:22px">
     <h2>Як користуватися</h2>
     <ul>
@@ -2376,6 +2451,8 @@ async function main() {
     return;
   }
   // Tolerate a pasted REST endpoint (".../rest/v1") - the client wants the bare project URL.
+  FEEDBACK_REST = rawUrl.replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "") + "/rest/v1/page_feedback";
+  FEEDBACK_KEY = key;
   const supabase = createClient(rawUrl.replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, ""), key, {
     auth: { persistSession: false, autoRefreshToken: false }
   });
