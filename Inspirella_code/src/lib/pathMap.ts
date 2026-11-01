@@ -12,32 +12,35 @@ export const canonicalNode = (code: string): string => ALIASES[code] ?? code;
 
 /** Grid position of each stage: column = how far along the system, row = lane (fractions allowed). */
 export const NODE_LAYOUT: Record<string, { col: number; row: number }> = {
-  arrival: { col: 0, row: 3.1 },
-  recognition: { col: 0, row: 5.7 },
-  primar: { col: 1, row: 3.6 },
-  sek1: { col: 2, row: 3.6 },
-  gymnasium: { col: 3, row: 0.2 },
-  fms: { col: 3, row: 1.3 },
-  wms: { col: 3, row: 2.4 },
-  efz: { col: 3, row: 4.4 },
-  eba: { col: 3, row: 5.5 },
-  bridge: { col: 3, row: 6.6 },
-  integration: { col: 3, row: 7.7 },
-  adult: { col: 3, row: 8.8 },
-  gym_matura: { col: 4, row: 0.2 },
-  fachmatura: { col: 4, row: 1.3 },
-  passerelle: { col: 4, row: 2.6 },
-  berufsmatura: { col: 4, row: 4.0 },
-  work: { col: 4, row: 7.4 },
-  uni: { col: 5, row: 0.2 },
-  ph: { col: 5, row: 1.5 },
-  fh: { col: 5, row: 3.2 },
-  hf: { col: 5, row: 5.0 },
-  fa: { col: 5, row: 6.2 },
-  diplom_hfp: { col: 5, row: 7.4 },
-  doctorate: { col: 7, row: 0.2 },
-  master: { col: 6, row: 1.2 },
-  weiterbildung: { col: 6, row: 4.6 }
+  // arrival band: children and teenagers / adults, then language and recognition of diplomas
+  arrival: { col: 0, row: 2.4 },
+  arrival_adult: { col: 0, row: 6.2 },
+  language: { col: 1, row: 5.2 },
+  recognition: { col: 1, row: 7.4 },
+  primar: { col: 2, row: 3.6 },
+  sek1: { col: 3, row: 3.6 },
+  gymnasium: { col: 4, row: 0.2 },
+  fms: { col: 4, row: 1.3 },
+  wms: { col: 4, row: 2.4 },
+  efz: { col: 4, row: 4.4 },
+  eba: { col: 4, row: 5.5 },
+  bridge: { col: 4, row: 6.6 },
+  integration: { col: 4, row: 7.7 },
+  adult: { col: 4, row: 8.8 },
+  gym_matura: { col: 5, row: 0.2 },
+  fachmatura: { col: 5, row: 1.3 },
+  passerelle: { col: 5, row: 2.6 },
+  berufsmatura: { col: 5, row: 4.0 },
+  work: { col: 5, row: 7.4 },
+  uni: { col: 6, row: 0.2 },
+  ph: { col: 6, row: 1.5 },
+  fh: { col: 6, row: 3.2 },
+  hf: { col: 6, row: 5.0 },
+  fa: { col: 6, row: 6.2 },
+  diplom_hfp: { col: 6, row: 7.4 },
+  doctorate: { col: 8, row: 0.2 },
+  master: { col: 7, row: 1.2 },
+  weiterbildung: { col: 7, row: 4.6 }
 };
 
 export const MAP_GEOMETRY = { colGap: 158, rowGap: 78, nodeW: 124, nodeH: 46, padX: 24, padY: 28 };
@@ -84,12 +87,15 @@ export interface MapEdge {
  * a stage pointing to itself (second apprenticeship) and arrows into "work" (completion, nothing
  * to draw) are left out, and a pair without a position on the map is skipped.
  */
+const NEWCOMER_TO_WORK = new Set(["arrival_adult", "language"]);
+
 export function buildEdges(transitions: EducationTransition[]): MapEdge[] {
   const byPair = new Map<string, EducationTransition[]>();
   for (const t of transitions) {
     const from = canonicalNode(t.from);
     const to = canonicalNode(t.to);
-    if (from === to || to === "work") continue;
+    // arrows into "work" mark a finished qualification (nothing to draw), except for newcomers: starting work is a real step
+    if (from === to || (to === "work" && !NEWCOMER_TO_WORK.has(from))) continue;
     if (!NODE_LAYOUT[from] || !NODE_LAYOUT[to]) continue;
     const key = `${from}>${to}`;
     byPair.set(key, [...(byPair.get(key) ?? []), t]);
@@ -300,6 +306,8 @@ export const BAND_AGES: Record<string, [number, number] | undefined> = {
  */
 export const NODE_YEARS: Record<string, [number, number]> = {
   arrival: [0, 0],
+  arrival_adult: [0, 0],
+  language: [0.5, 2],
   recognition: [0.3, 0.8],
   primar: [6, 8],
   sek1: [3, 3],
@@ -347,7 +355,8 @@ export function estimateYears(steps: PathStep[]): { min: number; max: number } {
  */
 export function alternativePaths(edges: MapEdge[], start: string, goal: string, limit = 3): PathStep[][] {
   if (start === goal) return [];
-  const forward = edges.filter(e => !e.loops);
+  // forward and same-column steps (adult qualification -> EFZ); a step back is an option, not a route
+  const forward = edges.filter(e => NODE_LAYOUT[e.to].col >= NODE_LAYOUT[e.from].col);
   const byFrom = new Map<string, MapEdge[]>();
   for (const e of forward) byFrom.set(e.from, [...(byFrom.get(e.from) ?? []), e]);
   const found: { steps: PathStep[]; cost: number }[] = [];
@@ -363,7 +372,7 @@ export function alternativePaths(edges: MapEdge[], start: string, goal: string, 
       if (seen.has(e.to)) continue;
       seen.add(e.to);
       steps.push({ from: e.from, to: e.to, edge: e });
-      visit(e.to, steps, seen, cost + e.weight);
+      visit(e.to, steps, seen, cost + e.weight + (e.loops ? 1.5 : 0));
       steps.pop();
       seen.delete(e.to);
     }

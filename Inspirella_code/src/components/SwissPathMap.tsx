@@ -55,6 +55,11 @@ type Ui = {
   to: string;
   pick: string;
   newcomer: string;
+  newcomerWho: string;
+  newcomerChild: string;
+  newcomerYouth: string;
+  newcomerAdult: string;
+  newcomerTitle: string;
   yourWay: string;
   stepsCount: (n: number) => string;
   noRoute: string;
@@ -128,6 +133,11 @@ const UI: Record<LanguageCode, Ui> = {
     to: "Ich will hierhin",
     pick: "Station wählen",
     newcomer: "Ich bin neu in der Schweiz",
+    newcomerWho: "Für wen?",
+    newcomerChild: "Kind (bis 15)",
+    newcomerYouth: "Jugendliche/r (16 bis 25)",
+    newcomerAdult: "Erwachsene/r",
+    newcomerTitle: "Für alle, die neu in der Schweiz sind",
     yourWay: "Dein Weg",
     stepsCount: n => (n === 1 ? "1 Schritt" : `${n} Schritte`),
     noRoute: "In unseren Daten gibt es dafür keinen direkten Weg. Oft hilft ein Brückenangebot oder die Berufsberatung weiter.",
@@ -199,6 +209,11 @@ const UI: Record<LanguageCode, Ui> = {
     to: "I want to get here",
     pick: "Choose a stage",
     newcomer: "I am new in Switzerland",
+    newcomerWho: "For whom?",
+    newcomerChild: "Child (up to 15)",
+    newcomerYouth: "Young person (16 to 25)",
+    newcomerAdult: "Adult",
+    newcomerTitle: "For everyone who is new in Switzerland",
     yourWay: "Your way",
     stepsCount: n => (n === 1 ? "1 step" : `${n} steps`),
     noRoute: "Our data has no direct way for this. A bridge programme or career guidance often helps.",
@@ -270,6 +285,11 @@ const UI: Record<LanguageCode, Ui> = {
     to: "Je veux arriver ici",
     pick: "Choisir une étape",
     newcomer: "Je viens d'arriver en Suisse",
+    newcomerWho: "Pour qui ?",
+    newcomerChild: "Enfant (jusqu'à 15 ans)",
+    newcomerYouth: "Jeune (16 à 25 ans)",
+    newcomerAdult: "Adulte",
+    newcomerTitle: "Pour toutes les personnes arrivées en Suisse",
     yourWay: "Ton chemin",
     stepsCount: n => (n === 1 ? "1 étape" : `${n} étapes`),
     noRoute: "Nos données n'indiquent pas de voie directe. Une offre transitoire ou l'orientation professionnelle aide souvent.",
@@ -341,6 +361,11 @@ const UI: Record<LanguageCode, Ui> = {
     to: "Voglio arrivare qui",
     pick: "Scegli una tappa",
     newcomer: "Sono appena arrivato in Svizzera",
+    newcomerWho: "Per chi?",
+    newcomerChild: "Bambino (fino a 15 anni)",
+    newcomerYouth: "Giovane (16-25 anni)",
+    newcomerAdult: "Adulto",
+    newcomerTitle: "Per chi è appena arrivato in Svizzera",
     yourWay: "Il tuo percorso",
     stepsCount: n => (n === 1 ? "1 passo" : `${n} passi`),
     noRoute: "Nei nostri dati non c'è una via diretta. Spesso aiutano un'offerta transitoria o l'orientamento professionale.",
@@ -411,7 +436,12 @@ const UI: Record<LanguageCode, Ui> = {
     from: "Я тут",
     to: "Хочу потрапити сюди",
     pick: "Обрати етап",
-    newcomer: "Я нещодавно приїхав(-ла) до Швейцарії",
+    newcomer: "Ми нещодавно у Швейцарії",
+    newcomerWho: "Для кого?",
+    newcomerChild: "Дитина (до 15 років)",
+    newcomerYouth: "Молодь (16–25 років)",
+    newcomerAdult: "Дорослий",
+    newcomerTitle: "Для всіх, хто нещодавно у Швейцарії",
     yourWay: "Ваш шлях",
     stepsCount: n => (n % 10 === 1 && n % 100 !== 11 ? `${n} крок` : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? `${n} кроки` : `${n} кроків`),
     noRoute: "У наших даних немає прямого шляху. Часто допомагає перехідна програма (Brückenangebot) або профорієнтація.",
@@ -490,13 +520,25 @@ const EDGE_STYLE: Record<string, { dash?: string; light: string; dark: string }>
 };
 const edgeStyle = (kind: string) => EDGE_STYLE[kind] ?? EDGE_STYLE.direct;
 
+/** The arrival stages; each shows the facts for its own audience. */
+const NEWCOMER_STAGES = new Set(["arrival", "arrival_adult", "language", "recognition"]);
+/** Where a Status S fact belongs on the map: school topics with the children, language with language, the rest with adults. */
+const statusTopicStage = (topic: string): string =>
+  ["school_registration", "school_language_support", "school_children", "youth_transition", "teens_apprenticeship"].includes(topic)
+    ? "arrival"
+    : topic === "language_courses"
+      ? "language"
+      : ["recognition_diplomas", "university_ukraine", "university_scholarships"].includes(topic)
+        ? "recognition"
+        : "arrival_adult";
+
 const BAND_COLUMNS: { band: string; cols: number[] }[] = [
-  { band: "-1", cols: [0] },
-  { band: "0", cols: [1] },
-  { band: "1", cols: [2] },
-  { band: "2", cols: [3, 4] },
-  { band: "3", cols: [5] },
-  { band: "4", cols: [6, 7] }
+  { band: "-1", cols: [0, 1] },
+  { band: "0", cols: [2] },
+  { band: "1", cols: [3] },
+  { band: "2", cols: [4, 5] },
+  { band: "3", cols: [6] },
+  { band: "4", cols: [7, 8] }
 ];
 
 /** On the chart a long name loses its bracket (the full name stays in the tooltip and the card). */
@@ -572,6 +614,8 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   });
   const [cantonFacts, setCantonFacts] = useState<CantonStageFact[]>([]);
   const [statusSFacts, setStatusSFacts] = useState<AudienceFact[]>([]);
+  const [newcomerFacts, setNewcomerFacts] = useState<AudienceFact[]>([]);
+  const [newcomerOpen, setNewcomerOpen] = useState(false);
   const [routeIndex, setRouteIndex] = useState(0);
   const [showAllWays, setShowAllWays] = useState(false);
   const [professionCounts, setProfessionCounts] = useState<Record<string, number>>({});
@@ -620,6 +664,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
     let active = true;
     DataRepository.getCantonStageFacts().then(rows => active && setCantonFacts(rows)).catch(() => undefined);
     DataRepository.getAudienceFacts("ukraine_s").then(rows => active && setStatusSFacts(rows)).catch(() => undefined);
+    DataRepository.getAudienceFacts("newcomer").then(rows => active && setNewcomerFacts(rows)).catch(() => undefined);
     return () => {
       active = false;
     };
@@ -879,16 +924,38 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
             </div>
           );
         })()}
-        {code === "arrival" && statusSFacts.length > 0 && (
+        {NEWCOMER_STAGES.has(code) && newcomerFacts.some(f => f.node === code) && (
+          <details open className={`rounded-xl border ${isDark ? "border-sky-300/30 bg-[#06131a]/90" : "border-sky-500/50 bg-sky-50"}`}>
+            <summary className={`cursor-pointer px-3 py-2 text-[12.5px] font-bold ${isDark ? "text-sky-100" : "text-sky-950"}`}>{ui.newcomerTitle}</summary>
+            <div className="space-y-2.5 px-3 pb-3">
+              {newcomerFacts.filter(f => f.node === code && !f.canton).map(f => {
+                const lang = currentLanguage === "de" ? "de" : currentLanguage === "uk" ? "uk" : "en";
+                return (
+                  <div key={`${f.topic}-${f.sortOrder}-${f.headline.de.slice(0, 24)}`} className="space-y-0.5">
+                    <p className={`text-[12.5px] font-semibold leading-snug ${isDark ? "text-white" : "text-sky-950"}`}>{f.headline[lang]}</p>
+                    {f.text[lang] && <p className={`text-[12px] leading-relaxed ${cardText}`}>{f.text[lang]}</p>}
+                    {f.url && (
+                      <a href={f.url} target="_blank" rel="noopener noreferrer" className={link}>
+                        {ui.official} <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </details>
+        )}
+        {NEWCOMER_STAGES.has(code) && statusSFacts.some(f => statusTopicStage(f.topic) === code) && (
           <details open className={`rounded-xl border ${isDark ? "border-amber-300/30 bg-[#1a1405]/90" : "border-amber-500/50 bg-amber-50"}`}>
             <summary className={`cursor-pointer px-3 py-2 text-[12.5px] font-bold ${isDark ? "text-amber-100" : "text-amber-950"}`}>{ui.statusSTitle}</summary>
             <div className="space-y-2.5 px-3 pb-3">
               <p className={`text-[11px] ${muted}`}>{ui.statusSHint}{currentLanguage !== "de" && currentLanguage !== "uk" ? " " + ui.statusSLang + "." : ""}</p>
               {(() => {
                 const lang = currentLanguage === "de" ? "de" : currentLanguage === "uk" ? "uk" : "en";
-                const cantonal = canton ? statusSFacts.filter(f => f.canton === canton) : [];
+                const here = statusSFacts.filter(f => statusTopicStage(f.topic) === code);
+                const cantonal = canton ? here.filter(f => f.canton === canton) : [];
                 const renderFact = (f: AudienceFact) => (
-                  <div key={f.canton ? `${f.canton}-${f.topic}` : f.topic} className="space-y-0.5">
+                  <div key={`${f.canton ?? "ch"}-${f.topic}-${f.sortOrder}-${f.headline.de.slice(0, 24)}`} className="space-y-0.5">
                     <p className={`text-[12.5px] font-semibold leading-snug ${isDark ? "text-white" : "text-amber-950"}`}>{f.headline[lang]}</p>
                     {f.text[lang] && <p className={`text-[12px] leading-relaxed ${cardText}`}>{f.text[lang]}</p>}
                     {f.url && (
@@ -906,7 +973,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                       {!canton && <p className={`text-[11.5px] ${muted}`}>{ui.statusSPickCanton}</p>}
                       {cantonal.map(renderFact)}
                     </div>
-                    {statusSFacts.filter(f => !f.canton).map(renderFact)}
+                    {here.filter(f => !f.canton).map(renderFact)}
                   </>
                 );
               })()}
@@ -1037,10 +1104,12 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   );
 
   // --- Layout --------------------------------------------------------------------------------
-  const startNewcomer = () => {
-    setFrom("arrival");
+  const startNewcomer = (who: "child" | "youth" | "adult") => {
+    const stage = who === "adult" ? "arrival_adult" : "arrival";
+    setFrom(stage);
     setFromProfile(false);
-    openNode("arrival");
+    setNewcomerOpen(false);
+    openNode(stage);
   };
 
   const card = `rounded-2xl border backdrop-blur-sm ${isDark ? "border-white/10 bg-[#0c0916]/90" : "border-violet-200 bg-white/95"}`;
@@ -1085,9 +1154,21 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                   {selectable.map(nodeOption)}
                 </select>
               </label>
-              <button type="button" onClick={startNewcomer} className={btn}>
-                <Sparkles className="h-3.5 w-3.5" /> {ui.newcomer}
-              </button>
+              <div className="relative">
+                <button type="button" onClick={() => setNewcomerOpen(o => !o)} className={btn} aria-expanded={newcomerOpen}>
+                  <Sparkles className="h-3.5 w-3.5" /> {ui.newcomer}
+                </button>
+                {newcomerOpen && (
+                  <div className={`absolute right-0 z-20 mt-1.5 w-60 space-y-1 rounded-xl border p-2 shadow-xl ${isDark ? "border-white/15 bg-[#120c24]" : "border-violet-200 bg-white"}`}>
+                    <p className={`px-1 text-[11px] font-semibold ${muted}`}>{ui.newcomerWho}</p>
+                    {(["child", "youth", "adult"] as const).map(who => (
+                      <button key={who} type="button" onClick={() => startNewcomer(who)} className={`${btn} w-full justify-start`}>
+                        {who === "child" ? ui.newcomerChild : who === "youth" ? ui.newcomerYouth : ui.newcomerAdult}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             <label className="flex max-w-xs flex-col">
               <span className={label}>{ui.myCanton}</span>
