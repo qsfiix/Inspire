@@ -1696,6 +1696,90 @@ b.querySelectorAll("[data-v]").forEach(function(x){x.addEventListener("click",fu
 b.querySelector("[data-send]").addEventListener("click",send);
 })();`;
 
+// --------------------------------------------------------------------------
+// Ukrainian page "Статус S, дозвіл B і C" (/uk/zalyshytysia/): what status S allows, its latest changes, and the
+// steps to stay (S -> B -> C -> citizenship). Only verified Status S facts with the status topics; canton news below.
+// --------------------------------------------------------------------------
+
+const STAY_TOPICS: { topic: string; title: string }[] = [
+  { topic: "status_news", title: "Останні рішення та зміни" },
+  { topic: "status_rights", title: "Що дає статус S" },
+  { topic: "status_duration", title: "Скільки діє статус S" },
+  { topic: "status_to_b", title: "Дозвіл на проживання B" },
+  { topic: "status_to_c", title: "Дозвіл на постійне проживання C" },
+  { topic: "naturalisation", title: "Громадянство" },
+  { topic: "status_return", title: "Повернення в Україну" }
+];
+
+function renderUkStay(national: Row[], cantonal: Row[], today: string): string {
+  const url = SITE + "/uk/zalyshytysia/";
+  const names = CANTON_NAMES_I18N.uk;
+  const card = (r: Row) => {
+    const href = safeUrl(r.official_url) ?? safeUrl(r.evidence_url);
+    return `<section class="card prose"><h3>${esc(txt(r.headline_uk)!)}</h3><p>${esc(txt(r.text_uk)!)}</p>${href ? `<p class="more"><a href="${esc(href)}" rel="noopener">Офіційне джерело →</a></p>` : ""}</section>`;
+  };
+  const ok = (r: Row) => !!txt(r.headline_uk) && !!txt(r.text_uk);
+  const sections = STAY_TOPICS.map(t => {
+    const rows = national.filter(r => r.topic === t.topic && ok(r));
+    return rows.length ? `<h2 id="${t.topic}" style="margin-top:34px">${esc(t.title)}</h2>\n  ${rows.map(card).join("\n  ")}` : "";
+  }).filter(Boolean);
+  const toc = STAY_TOPICS.filter(t => national.some(r => r.topic === t.topic && ok(r))).map(t => `<a href="#${t.topic}">${esc(t.title)}</a>`).join(" · ");
+
+  const byCanton = new Map<string, Row[]>();
+  for (const r of cantonal.filter(ok)) {
+    const c = String(r.canton_code).toUpperCase();
+    if (!names[c]) continue;
+    byCanton.set(c, [...(byCanton.get(c) ?? []), r]);
+  }
+  const cantonHtml = [...byCanton.entries()]
+    .sort((a, b) => names[a[0]].localeCompare(names[b[0]], "uk"))
+    .map(([c, rows]) => `<details class="qa" id="kanton-${esc(c.toLowerCase())}"><summary>Кантон ${esc(names[c])}</summary>${rows.map(r => {
+      const href = safeUrl(r.official_url) ?? safeUrl(r.evidence_url);
+      return `<p><strong>${esc(txt(r.headline_uk)!)}</strong></p><p>${esc(txt(r.text_uk)!)}</p>${href ? `<p class="more"><a href="${esc(href)}" rel="noopener">Офіційна сторінка кантону →</a></p>` : ""}`;
+    }).join("")}<p class="more"><a href="/uk/status-s/${esc(c.toLowerCase())}/">Школа, мова й контакти в кантоні ${esc(names[c])} →</a></p></details>`)
+    .join("");
+
+  const ladder = [
+    ["S", "Статус захисту S", "тимчасовий захист"],
+    ["B", "Дозвіл B", "проживання"],
+    ["C", "Дозвіл C", "постійне проживання"],
+    ["CH", "Громадянство", "натуралізація"]
+  ];
+  const ladderHtml = `<div class="ladder">${ladder.map(([k, t, d], i) => `<a class="rung" href="#${["status_rights", "status_to_b", "status_to_c", "naturalisation"][i]}"><b>${esc(k)}</b><span>${esc(t)}</span><small>${esc(d)}</small></a>`).join('<span class="arrow">→</span>')}</div>`;
+
+  const description = "Статус S у Швейцарії: що він дає, скільки діє, останні рішення, як отримати дозвіл B, потім C і громадянство. Українською, з офіційними джерелами SEM і кантонів, з датами.";
+  const css = `.ladder{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0 4px}.rung{display:flex;flex-direction:column;min-width:120px;padding:12px 14px;border-radius:14px;border:1px solid var(--card-b);background:var(--card);text-decoration:none}.rung b{font:700 22px "Space Grotesk",sans-serif;color:var(--accent)}.rung small{color:var(--muted)}.arrow{color:var(--muted);font-size:20px}h3{margin-top:0}`;
+
+  const main = `  <style>${css}</style>
+  <div class="crumbs"><a href="/uk/">Inspirella</a> › <a href="/uk/status-s/">Статус S</a> › Як залишитися</div>
+  <header class="hero">
+    <div class="badges"><span class="badge">Статус S</span><span class="badge warm">Станом на ${esc(statusDate("uk", today))}</span></div>
+    <h1>Статус S, дозвіл B і C: як залишитися у Швейцарії</h1>
+    <p class="lead">Що дає статус захисту S, що змінилося останнім часом і які кроки ведуть до дозволу B, дозволу C та громадянства. Коротко, з датами й посиланнями на офіційні джерела.</p>
+    ${ladderHtml}
+  </header>
+  ${toc ? `<p class="more">${toc}${byCanton.size ? ` · <a href="#kantony">Новини кантонів</a>` : ""}</p>` : ""}
+  ${sections.join("\n  ")}
+  ${byCanton.size ? `<h2 id="kantony" style="margin-top:34px">Що роблять кантони</h2><section class="card prose">${cantonHtml}</section>` : ""}
+  <div class="note">Правила щодо статусу S змінюються. Остаточне рішення про ваш дозвіл ухвалює міграційний орган вашого кантону; перевіряйте актуальні дані за посиланнями й зверніться туди з особистими питаннями.</div>
+  ${feedbackBlock("uk-stay")}
+  <section class="card prose" style="margin-top:22px"><p>Далі: <a href="/uk/mova/">мовний план</a> (для дозволів потрібен рівень мови) · <a href="/uk/diplom-dlia-doroslykh/">професія для дорослих</a> · <a href="/uk/dity/">шкільний план для дитини</a> · <a href="/uk/status-s/">статус S за кантонами</a></p></section>
+  <div class="source">Inspirella — незалежний інструмент для орієнтації, а не офіційна установа і не юридична консультація. Тексти взято з офіційних джерел (SEM, Федеральна рада, fedlex, кантони) і перекладено, з датою кожного рішення. Помітили помилку? Напишіть на <a href="mailto:iinspirella@gmail.com">iinspirella@gmail.com</a>.</div>
+  <script>(function(){function o(){var d=location.hash&&document.getElementById(location.hash.slice(1));if(d&&d.tagName==="DETAILS"){d.open=true;d.scrollIntoView();}}window.addEventListener("hashchange",o);o();})();</script>`;
+
+  return layout({
+    docTitle: "Статус S, дозвіл B і C: як залишитися у Швейцарії | Inspirella",
+    ogTitle: "Статус S, дозвіл B і C: як залишитися у Швейцарії",
+    description,
+    url,
+    indexable: true,
+    lang: "uk",
+    nav: { about: "Про Inspirella", app: "Відкрити застосунок" },
+    ld: { "@context": "https://schema.org", "@type": "WebPage", name: "Статус S, дозвіл B і C: як залишитися у Швейцарії", url, inLanguage: "uk", description, dateModified: today, isPartOf: { "@type": "WebSite", name: "Inspirella", url: SITE + "/" } },
+    main
+  });
+}
+
 function renderUkLanguage(node: Row | undefined, facts: Row[], cantonFacts: Row[], today: string): string {
   const url = SITE + "/uk/mova/";
   const names = CANTON_NAMES_I18N.uk;
@@ -1917,7 +2001,7 @@ function renderUkKids(schoolFacts: Row[], admissions: Row[], langgymCantons: str
   .result{padding:22px;border:1px solid var(--accent)}
   .stage{display:inline-block;padding:6px 12px;border-radius:99px;background:rgba(139,92,246,.18);font-weight:700;margin:4px 0 10px}
   ol.plan{padding-left:20px;margin:12px 0 0}ol.plan li{margin-bottom:12px}ol.plan a{color:var(--accent)}
-  .admit{border-left:3px solid var(--accent);padding:6px 0 6px 12px;margin:8px 0}
+  .admit{border:1px solid var(--card-b);border-radius:12px;background:rgba(139,92,246,.06);padding:10px 12px;margin:8px 0}
   .admit small{display:block;color:var(--muted)}
   table.need{width:100%;border-collapse:collapse;font-size:15px}table.need td{border-bottom:1px solid var(--card-b);padding:9px 8px;vertical-align:top}table.need td:first-child{font-weight:600;width:38%}
   .founder{display:flex;gap:14px;align-items:flex-start;padding:18px 20px;font-size:15px}.founder img{width:40px;height:40px;flex:none}
@@ -2018,7 +2102,7 @@ const WHO: { id: string; label: string; map: string; steps: [string, string, str
     map: "/pathmap/?lang=uk&from=arrival_adult",
     steps: [
       ["Мовний план за 2 хвилини", "Ваш рівень, скільки ще потрібно для вашої мети й курси у вашому кантоні.", "/uk/mova/"],
-      ["Статус S у вашому кантоні", "Контакти, курси мови й перші кроки там, де ви живете.", "/uk/status-s/"],
+      ["Статус S, дозвіл B і C", "Що дає статус S, останні рішення і як залишитися у Швейцарії надовго.", "/uk/zalyshytysia/"],
       ["Професія або диплом у Швейцарії", "Як дорослим здобути швейцарський диплом з професії, зокрема з досвідом роботи.", "/uk/diplom-dlia-doroslykh/"]
     ]
   },
@@ -2047,6 +2131,7 @@ const WHO: { id: string; label: string; map: string; steps: [string, string, str
 function renderUkStart(counts: Counts, programCount: number): string {
   const url = SITE + "/uk/";
   const cards: [string, string, string][] = [
+    ["Статус S, дозвіл B і C: як залишитися у Швейцарії", "Що дає статус S, що змінилося останнім часом і кроки до дозволу B, C та громадянства, з датами й джерелами.", "/uk/zalyshytysia/"],
     ["Я щойно приїхав(-ла) зі статусом захисту S", "Школа для дітей, курси німецької, контакти та перші кроки у вашому кантоні. Обираєте кантон і бачите, що там працює.", "/uk/status-s/"],
     ["Хочу здобути професію у Швейцарії", "Як дорослі отримують швейцарський диплом з професії: шляхи для тих, хто вже має досвід або вже працює.", "/uk/diplom-dlia-doroslykh/"],
     ["Шкільний план для дитини", "У якому класі за віком, як записати до школи у вашому кантоні, підтримка мови, гімназія, FMS чи Lehre і коли подаватися.", "/uk/dity/"],
@@ -2758,6 +2843,14 @@ async function main() {
     const admissionRows = await fetchAll((from, to) => supabase.from("admission_conditions").select("*").eq("is_active", true).eq("verification_status", "verified").order("code", { ascending: true }).range(from, to));
     const langgymRow = (await supabase.from("education_transitions").select("cantons").eq("code", "primar__gymnasium__langgym").eq("is_active", true).maybeSingle()).data as Row | null;
     const langgymCantons = Array.isArray(langgymRow?.cantons) ? (langgymRow!.cantons as unknown[]).map(c => String(c).toUpperCase()) : [];
+    // status S and staying (S -> B -> C -> citizenship)
+    const stayTopics = STAY_TOPICS.map(t => t.topic);
+    const stayFacts = await fetchAll((from, to) => supabase.from("audience_facts").select("*").eq("is_active", true).eq("verification_status", "verified").eq("audience", "ukraine_s").in("topic", stayTopics).order("sort_order", { ascending: true }).range(from, to));
+    const stayNational = stayFacts.filter(r => !r.canton_code);
+    if (stayNational.length) {
+      await writePage(["uk", "zalyshytysia"], renderUkStay(stayNational, stayFacts.filter(r => r.canton_code), today));
+      urls.push({ loc: SITE + "/uk/zalyshytysia/", lastmod: today });
+    }
     if (schoolFacts.length) {
       await writePage(["uk", "dity"], renderUkKids(schoolFacts, admissionRows.filter(r => !r.institution_id), langgymCantons, today));
       urls.push({ loc: SITE + "/uk/dity/", lastmod: today });
