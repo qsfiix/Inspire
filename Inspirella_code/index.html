@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inspirella: Berufe, Schulen und Bildungswege in der Schweiz</title>
     <meta name="description" content="Inspirella zeigt dir das Schweizer Bildungssystem: Berufe, Schulen, Lehre, Gymnasium und Hochschule, mit Lohn, Zulassung und Quellen. Kostenlos, auf Deutsch, Französisch, Italienisch, Englisch und Ukrainisch." />
-    <meta name="theme-color" content="#0d0618" />
+    <meta name="theme-color" content="#d6c4f1" />
+    <!-- Theme before the first paint: Alpenglühen by default, "nacht" when chosen earlier (old value "dark"). -->
+    <script>(function(){var t="alpen";try{var v=localStorage.getItem("inspirella_theme");if(v==="nacht"||v==="dark")t="nacht";}catch(e){}document.documentElement.setAttribute("data-theme",t);})();</script>
+    <style>html[data-theme="nacht"] body{background:#030008;color:#e2e8f0}html[data-theme="alpen"] body{background:#f8f5fc;color:#1e1730}#prerender{background:#f8f5fc}html[data-theme="nacht"] #prerender{background:#030008}</style>
     <meta name="msvalidate.01" content="C1866894EA2FC1BFEBF34C9F92E40DF1" />
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="canonical" href="https://www.inspirella.ch/" />
 
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="64x64" href="/logo-mark-64.png" />
 
     <!-- Open Graph / social preview -->
@@ -32,9 +36,9 @@
     <!-- Mapbox GL (JS and CSS) comes from the npm bundle and loads only with the map: no third-party request on other pages. -->
     <script src="/analytics.js" defer></script>
   </head>
-  <body class="bg-[#030008] text-slate-100">
+  <body>
     <!-- Plain-text home for crawlers and the first paint: it covers the page until the app has drawn itself, then App removes it. -->
-    <div id="prerender" style="position:absolute;inset:0;z-index:50;overflow:auto;background:#030008"><!--prerender-home--></div>
+    <div id="prerender" style="position:absolute;inset:0;z-index:50;overflow:auto"><!--prerender-home--></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

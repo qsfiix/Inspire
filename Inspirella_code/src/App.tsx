@@ -32,6 +32,10 @@ import { EXAMPLE_TRACKERS } from "./data/seedData";
 import { localizedMatches } from "./lib/localized";
 
 import FooterLinks from "./components/FooterLinks";
+import SiteNav from "./components/SiteNav";
+import SiteFooter from "./components/SiteFooter";
+import AlpenHome from "./features/home/AlpenHome";
+import { type ThemeName, readStoredTheme, storeTheme, applyThemeToDocument } from "./lib/theme";
 import { HomeView, AboutView, ContactView, PrivacyView, ImpressumView } from "./features/marketing";
 import type { PhoenixSceneStatus } from "./components/phoenix/PhoenixScene";
 
@@ -103,8 +107,11 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [trackers, setTrackers] = useState<TrackerGoal[]>([]);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-  const isDark = theme === "dark";
+  // "alpen" (default) or "nacht" (the earlier dark theme). Components still take "dark" | "light".
+  const [themeName, setThemeName] = useState<ThemeName>(() => readStoredTheme());
+  const isDark = themeName === "nacht";
+  const theme: "dark" | "light" = isDark ? "dark" : "light";
+  const isAlpenHome = !isDark && activeTab === "home";
   const [mapboxConfig, setMapboxConfig] = useState<{ accessToken?: string; styleUrl?: string }>({});
   const [authError, setAuthError] = useState<string | null>(null);
   const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState<string | null>(null);
@@ -118,7 +125,8 @@ export default function App() {
   // The map page has its own WebGL context: two at once made it lag and, on phones, killed the tab.
   // The backdrop stops rendering there (the canvas is hidden) and the page gets a plain background.
   const sceneActive = activeTab !== "map";
-  const sceneVisible = sceneStatus !== "error" && sceneActive;
+  // the particle backdrop belongs to the night theme only
+  const sceneVisible = isDark && sceneStatus !== "error" && sceneActive;
   // The 3D backdrop (three.js, a few hundred KB) is not needed for the first paint: it starts once the page is
   // idle, and not at all for visitors who asked their system to reduce motion.
   const [sceneAllowed, setSceneAllowed] = useState(false);
@@ -139,9 +147,9 @@ export default function App() {
   }, []);
 
   const handleThemeToggle = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    localStorage.setItem("inspirella_theme", nextTheme);
+    const next: ThemeName = isDark ? "alpen" : "nacht";
+    setThemeName(next);
+    storeTheme(next);
   };
 
   // Dynamic Resources State synchronizer
@@ -194,18 +202,12 @@ export default function App() {
     };
   }, [resourcesWanted]);
 
-  // Coordinate theme classes on document body
+  // Theme on <html data-theme> (the first paint already set it, see index.html) and the body classes.
   useEffect(() => {
-    if (theme === "dark") {
-      document.body.classList.add("dark-mode");
-      document.body.style.backgroundColor = "#030008";
-      document.body.style.color = "#e2e8f0";
-    } else {
-      document.body.classList.remove("dark-mode");
-      document.body.style.backgroundColor = "#f5f3ff";
-      document.body.style.color = "#1e1b4b";
-    }
-  }, [theme]);
+    applyThemeToDocument(themeName);
+    document.body.style.backgroundColor = isDark ? "#030008" : "";
+    document.body.style.color = isDark ? "#e2e8f0" : "";
+  }, [themeName, isDark]);
 
   // Card spotlight (index.css .card-premium): one delegated listener feeds
   // the cursor position to whichever premium card is under the pointer.
@@ -241,11 +243,6 @@ export default function App() {
 
   // Bootstrap app state
   useEffect(() => {
-    // Retrieve cached theme selection
-    const cachedTheme = localStorage.getItem("inspirella_theme") as "dark" | "light" | null;
-    if (cachedTheme) {
-      setTheme(cachedTheme);
-    }
 
     const initData = async () => {
       // Attempt connecting and retrieving Supabase/Mapbox runtime credentials
@@ -537,14 +534,15 @@ export default function App() {
         WebGL canvas (PhoenixScene, z-index -1) shows through. */}
     <div className={`min-h-screen transition-colors duration-300 flex flex-col relative select-none ${
       isDark ? "text-slate-100" : "text-indigo-950"
-    } ${sceneVisible ? "bg-transparent" : isDark ? "bg-[#06040a]" : "bg-[#f5f3ff]"}`}>
-      {sceneStatus !== "error" && sceneAllowed && (
+    } ${sceneVisible ? "bg-transparent" : isDark ? "bg-[#06040a]" : ""}`}>
+      {isDark && sceneStatus !== "error" && sceneAllowed && (
         <Suspense fallback={null}>
           <PhoenixScene isDark={isDark} enabled={sceneActive} onStatus={setSceneStatus} />
         </Suspense>
       )}
       
-      {/* Background layered atmospheric blur circles */}
+      {/* Background layered atmospheric blur circles (night theme only) */}
+      {isDark && <>
       <div className={`fixed -top-40 -left-40 h-[500px] w-[500px] rounded-full blur-[120px] pointer-events-none -z-10 transition-colors duration-500 ${
         isDark ? "bg-violet-600/10" : "bg-violet-400/25"
       }`}></div>
@@ -554,8 +552,22 @@ export default function App() {
       <div className={`fixed -bottom-20 left-1/3 h-[500px] w-[500px] rounded-full blur-[140px] pointer-events-none -z-10 transition-colors duration-500 ${
         isDark ? "bg-purple-600/10" : "bg-purple-400/15"
       }`}></div>
+      </>}
 
       {/* Global Navigation Bar */}
+      {!isDark ? (
+        <SiteNav
+          currentLanguage={currentLanguage}
+          onLanguageChange={handleLanguageChange}
+          activeTab={activeTab}
+          onTabChange={handleTabTransition}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+          onStartGuest={handleBypassAuth}
+          theme={themeName}
+          onThemeToggle={handleThemeToggle}
+        />
+      ) : (
       <Navbar
         currentLanguage={currentLanguage}
         onLanguageChange={handleLanguageChange}
@@ -567,8 +579,13 @@ export default function App() {
         theme={theme}
         onThemeToggle={handleThemeToggle}
       />
+      )}
+
+      {/* Alpenglühen home: full-bleed, outside the page container */}
+      {isAlpenHome && <AlpenHome language={currentLanguage} onTab={handleTabTransition} onStartGuest={handleBypassAuth} />}
 
       {/* Main Viewport Content Card Grid */}
+      {!isAlpenHome && <div className={`flex-grow flex flex-col${isDark ? "" : " alp-pagewrap"}`}>
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <AnimatePresence mode="wait">
           
@@ -766,8 +783,10 @@ export default function App() {
 
         </AnimatePresence>
       </main>
+      </div>}
 
       {/* Persistent global footer */}
+      {!isDark ? <SiteFooter language={currentLanguage} onLanguageChange={handleLanguageChange} /> : (
       <footer className={`border-t py-6 text-center text-xs ${isDark ? "border-violet-950/40 bg-zinc-950 text-zinc-400" : "border-purple-200 bg-purple-100 text-black font-bold"}`}>
         <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span className="font-mono text-xs tracking-widest text-violet-500 uppercase font-black">
@@ -776,6 +795,7 @@ export default function App() {
           <FooterLinks language={currentLanguage} isDark={isDark} />
         </div>
       </footer>
+      )}
 
     </div>
     </MotionConfig>

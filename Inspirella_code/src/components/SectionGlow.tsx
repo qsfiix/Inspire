@@ -47,6 +47,8 @@ const MINI_EDGES: [number, number][] = [
 ];
 
 export default function SectionGlow({ isDark, corner = "top-right", showNodes = false, className = "" }: SectionGlowProps) {
+  // The Alpenglühen theme (light branch) has no ambient glows.
+  if (!isDark) return null;
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none select-none ${className}`} aria-hidden="true">
       <div
