@@ -1221,7 +1221,7 @@ export const DataRepository = {
     if (isSupabaseActive()) {
       try {
         const supabase = getSupabase();
-        const canonical = await fetchAllRows(() => supabase.from("institutions").select("*"));
+        const canonical = await fetchAllRows(() => supabase.from("institutions").select("*").order("id", { ascending: true }));
         const fromCanonical = parseRows(canonical.data, parseDbInstitution);
         if (fromCanonical.length > 0) return fromCanonical;
 
