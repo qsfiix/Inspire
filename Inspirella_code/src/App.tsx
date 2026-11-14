@@ -35,6 +35,7 @@ import FooterLinks from "./components/FooterLinks";
 import SiteNav from "./components/SiteNav";
 import SiteFooter from "./components/SiteFooter";
 import AlpenHome from "./features/home/AlpenHome";
+import AlpenBackdrop from "./components/AlpenBackdrop";
 import { type ThemeName, readStoredTheme, storeTheme, applyThemeToDocument } from "./lib/theme";
 import { HomeView, AboutView, ContactView, PrivacyView, ImpressumView } from "./features/marketing";
 import type { PhoenixSceneStatus } from "./components/phoenix/PhoenixScene";
@@ -553,6 +554,9 @@ export default function App() {
         isDark ? "bg-purple-600/10" : "bg-purple-400/15"
       }`}></div>
       </>}
+
+      {/* Misty range behind the app pages (day theme; the home has its own landscape, the map none) */}
+      {!isDark && activeTab !== "home" && activeTab !== "map" && <AlpenBackdrop tab={activeTab} />}
 
       {/* Global Navigation Bar */}
       {!isDark ? (
