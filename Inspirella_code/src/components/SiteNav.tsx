@@ -56,7 +56,7 @@ export default function SiteNav({ currentLanguage, onLanguageChange, activeTab, 
   // Public: static catalogue pages + the planner; signed in: the app's own pages.
   const links: { label: string; href: string; tab?: string }[] = isLoggedIn
     ? [
-        { label: c.dashboard, href: pathForTab("dashboard"), tab: "dashboard" },
+        { label: c.myPath, href: pathForTab("dashboard"), tab: "dashboard" },
         { label: c.planner, href: pathForTab("pathmap"), tab: "pathmap" },
         { label: c.map, href: pathForTab("map"), tab: "map" },
         { label: c.resources, href: pathForTab("resources"), tab: "resources" },
@@ -80,7 +80,7 @@ export default function SiteNav({ currentLanguage, onLanguageChange, activeTab, 
     <>
       <header className={`alp-nav${solid ? " solid" : ""}${activeTab === "home" ? " over" : ""}`}>
         <div className="alp-in">
-          <a className="alp-brand" href={pathForTab(isLoggedIn ? "dashboard" : "home")} onClick={go(isLoggedIn ? "dashboard" : "home")} aria-label="Inspirella">
+          <a className="alp-brand" href="/" onClick={go("home")} aria-label="Inspirella">
             <SwiftMark />inspirella
           </a>
           <nav className="links" aria-label="Navigation">

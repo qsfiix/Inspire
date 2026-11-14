@@ -20,6 +20,11 @@ export default function AlpenBackdrop({ tab }: { tab: string }) {
   useEffect(() => {
     const s = swiftRef.current;
     if (!s || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    // once per visit: a greeting, not something to sit through on every page change
+    try {
+      if (window.sessionStorage.getItem("alp-flyby")) return;
+      window.sessionStorage.setItem("alp-flyby", "1");
+    } catch { /* storage blocked: still fly once per mount */ }
     s.classList.remove("go");
     void s.offsetWidth;
     s.classList.add("go");

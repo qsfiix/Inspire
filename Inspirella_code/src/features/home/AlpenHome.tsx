@@ -248,7 +248,7 @@ export default function AlpenHome({ language, onTab, onStartGuest }: Props) {
               <a className="alp-btn coral" href="/onboarding/" onClick={linkTo("#start-guest")}>{c.path.cta}<Arrow /></a>
               <span className="hint">{c.path.hint}</span>
             </div>
-            <svg className="alp-stairs" viewBox="0 0 640 440" role="img" aria-label={c.path.steps.map(s => s.t).join(", ")}>
+            <svg className="alp-stairs" viewBox="0 0 664 440" role="img" aria-label={c.path.steps.map(s => s.t).join(", ")}>
               <defs><linearGradient id="alpStf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#d9cdf0" stopOpacity=".12" /><stop offset="1" stopColor="#d9cdf0" stopOpacity="0" /></linearGradient></defs>
               <path d="M20 340H130V270H240V200H350V130H460V60H620V440H20Z" fill="url(#alpStf)" />
               <path className="st" d="M20 340H130V270H240V200H350V130H460V60H620" />

@@ -23,25 +23,20 @@ import {
 
 import { LanguageCode, UserProfile, TrackerGoal, ResourceItem, RouteBackground } from "./types";
 import { TRANSLATIONS, OFF_RESOURCES } from "./data";
-import Navbar from "./components/Navbar";
 import MapboxMapGate from "./components/MapboxMapGate";
 import SectionGlow from "./components/SectionGlow";
 import { fetchSupabaseConfig, getMapboxConfig } from "./supabaseClient";
 import { DataRepository } from "./data/Repository";
-import { EXAMPLE_TRACKERS } from "./data/seedData";
+import { exampleTrackers } from "./data/seedData";
 import { localizedMatches } from "./lib/localized";
 
-import FooterLinks from "./components/FooterLinks";
 import SiteNav from "./components/SiteNav";
 import SiteFooter from "./components/SiteFooter";
 import AlpenHome from "./features/home/AlpenHome";
 import AlpenBackdrop from "./components/AlpenBackdrop";
 import { type ThemeName, readStoredTheme, storeTheme, applyThemeToDocument } from "./lib/theme";
-import { HomeView, AboutView, ContactView, PrivacyView, ImpressumView } from "./features/marketing";
-import type { PhoenixSceneStatus } from "./components/phoenix/PhoenixScene";
+import { AboutView, ContactView, PrivacyView, ImpressumView } from "./features/marketing";
 
-// three.js is split into its own chunk and loaded after the first paint.
-const PhoenixScene = lazy(() => import("./components/phoenix/PhoenixScene"));
 const SwissPathMap = lazy(() => import("./components/SwissPathMap"));
 // The signed-in screens are only needed after the visitor leaves the home page, so they load on demand.
 const LoginView = lazy(() => import("./features/auth").then(m => ({ default: m.LoginView })));
@@ -112,39 +107,14 @@ export default function App() {
   const [themeName, setThemeName] = useState<ThemeName>(() => readStoredTheme());
   const isDark = themeName === "nacht";
   const theme: "dark" | "light" = isDark ? "dark" : "light";
-  const isAlpenHome = !isDark && activeTab === "home";
+  // Both themes share the Alpenglühen layout; "nacht" is its night colouring.
+  const isAlpenHome = activeTab === "home";
   const [mapboxConfig, setMapboxConfig] = useState<{ accessToken?: string; styleUrl?: string }>({});
   const [authError, setAuthError] = useState<string | null>(null);
   const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState<string | null>(null);
-  // The living WebGL backdrop is shared by every page (one canvas, never
-  // remounted, so the particles glide between pages), the map page included;
-  // "error" = no WebGL, pages fall back to solid colours.
-  const [sceneStatus, setSceneStatus] = useState<PhoenixSceneStatus>("loading");
-  // Also on the map page (Sofiia 2026-09-28: the black page there broke the
-  // style) - the ambient galaxy freezes after a few seconds, so running
-  // alongside Mapbox's own WebGL costs next to nothing.
-  // The map page has its own WebGL context: two at once made it lag and, on phones, killed the tab.
-  // The backdrop stops rendering there (the canvas is hidden) and the page gets a plain background.
-  const sceneActive = activeTab !== "map";
-  // the particle backdrop belongs to the night theme only
-  const sceneVisible = isDark && sceneStatus !== "error" && sceneActive;
-  // The 3D backdrop (three.js, a few hundred KB) is not needed for the first paint: it starts once the page is
-  // idle, and not at all for visitors who asked their system to reduce motion.
-  const [sceneAllowed, setSceneAllowed] = useState(false);
   useEffect(() => {
     // the plain-text home written into the HTML (see index.html) has done its job once the app is on screen
     requestAnimationFrame(() => document.getElementById("prerender")?.remove());
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-      setSceneStatus("error");
-      return;
-    }
-    const start = () => setSceneAllowed(true);
-    if ("requestIdleCallback" in window) {
-      const id = (window as any).requestIdleCallback(start, { timeout: 2500 });
-      return () => (window as any).cancelIdleCallback?.(id);
-    }
-    const t = (window as any).setTimeout(start, 1200);
-    return () => (window as any).clearTimeout(t);
   }, []);
 
   const handleThemeToggle = () => {
@@ -206,8 +176,8 @@ export default function App() {
   // Theme on <html data-theme> (the first paint already set it, see index.html) and the body classes.
   useEffect(() => {
     applyThemeToDocument(themeName);
-    document.body.style.backgroundColor = isDark ? "#030008" : "";
-    document.body.style.color = isDark ? "#e2e8f0" : "";
+    document.body.style.backgroundColor = "";
+    document.body.style.color = "";
   }, [themeName, isDark]);
 
   // Card spotlight (index.css .card-premium): one delegated listener feeds
@@ -289,7 +259,7 @@ export default function App() {
       if (DataRepository.hasStoredTrackers() || cachedTrackers.length > 0) {
         setTrackers(cachedTrackers);
       } else {
-        const initialTrackers: TrackerGoal[] = EXAMPLE_TRACKERS;
+        const initialTrackers: TrackerGoal[] = exampleTrackers(currentLanguage);
         setTrackers(initialTrackers);
         DataRepository.saveTrackers(initialTrackers);
       }
@@ -531,73 +501,33 @@ export default function App() {
     // reducedMotion="user": every motion animation below honours the OS
     // "reduce motion" setting (transforms off, fades kept) automatically.
     <MotionConfig reducedMotion="user">
-    {/* While the backdrop is visible the root is transparent so the fixed
-        WebGL canvas (PhoenixScene, z-index -1) shows through. */}
     <div className={`min-h-screen transition-colors duration-300 flex flex-col relative select-none ${
       isDark ? "text-slate-100" : "text-indigo-950"
-    } ${sceneVisible ? "bg-transparent" : isDark ? "bg-[#06040a]" : ""}`}>
-      {isDark && sceneStatus !== "error" && sceneAllowed && (
-        <Suspense fallback={null}>
-          <PhoenixScene isDark={isDark} enabled={sceneActive} onStatus={setSceneStatus} />
-        </Suspense>
-      )}
-      
-      {/* Background layered atmospheric blur circles (night theme only) */}
-      {isDark && <>
-      <div className={`fixed -top-40 -left-40 h-[500px] w-[500px] rounded-full blur-[120px] pointer-events-none -z-10 transition-colors duration-500 ${
-        isDark ? "bg-violet-600/10" : "bg-violet-400/25"
-      }`}></div>
-      <div className={`fixed top-1/3 -right-20 h-[450px] w-[450px] rounded-full blur-[130px] pointer-events-none -z-10 transition-colors duration-500 ${
-        isDark ? "bg-indigo-600/10" : "bg-violet-400/20"
-      }`}></div>
-      <div className={`fixed -bottom-20 left-1/3 h-[500px] w-[500px] rounded-full blur-[140px] pointer-events-none -z-10 transition-colors duration-500 ${
-        isDark ? "bg-purple-600/10" : "bg-purple-400/15"
-      }`}></div>
-      </>}
-
-      {/* Misty range behind the app pages (day theme; the home has its own landscape, the map none) */}
-      {!isDark && activeTab !== "home" && activeTab !== "map" && <AlpenBackdrop tab={activeTab} />}
+    }`}>
+      {/* Mountain range behind the app pages (the home has its own landscape, the map none) */}
+      {activeTab !== "home" && activeTab !== "map" && <AlpenBackdrop tab={activeTab} />}
 
       {/* Global Navigation Bar */}
-      {!isDark ? (
-        <SiteNav
-          currentLanguage={currentLanguage}
-          onLanguageChange={handleLanguageChange}
-          activeTab={activeTab}
-          onTabChange={handleTabTransition}
-          isLoggedIn={isLoggedIn}
-          onLogout={handleLogout}
-          onStartGuest={handleBypassAuth}
-          theme={themeName}
-          onThemeToggle={handleThemeToggle}
-        />
-      ) : (
-      <Navbar
+      <SiteNav
         currentLanguage={currentLanguage}
         onLanguageChange={handleLanguageChange}
         activeTab={activeTab}
         onTabChange={handleTabTransition}
         isLoggedIn={isLoggedIn}
         onLogout={handleLogout}
-        userName={userProfile?.name}
-        theme={theme}
+        onStartGuest={handleBypassAuth}
+        theme={themeName}
         onThemeToggle={handleThemeToggle}
       />
-      )}
 
       {/* Alpenglühen home: full-bleed, outside the page container */}
       {isAlpenHome && <AlpenHome language={currentLanguage} onTab={handleTabTransition} onStartGuest={handleBypassAuth} />}
 
       {/* Main Viewport Content Card Grid */}
-      {!isAlpenHome && <div className={`flex-grow flex flex-col${isDark ? "" : " alp-pagewrap"}`}>
+      {!isAlpenHome && <div className="flex-grow flex flex-col alp-pagewrap">
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <AnimatePresence mode="wait">
           
-          {/* VIEW: Public Hero Landing Home */}
-          {activeTab === "home" && (
-            <HomeView t={t} isDark={isDark} tTextTitle={tTextTitle} tTextSub={tTextSub} tTextBody={tTextBody} tTextMuted={tTextMuted} tCard={tCard} tCardAccent={tCardAccent} handleTabTransition={handleTabTransition} handleBypassAuth={handleBypassAuth} sceneStatus={sceneStatus} />
-          )}
-
           {/* VIEW: About */}
           {activeTab === "about" && (
             <AboutView t={t} isDark={isDark} tTextTitle={tTextTitle} tTextBody={tTextBody} tCard={tCard} handleTabTransition={handleTabTransition} language={currentLanguage} />
@@ -790,16 +720,7 @@ export default function App() {
       </div>}
 
       {/* Persistent global footer */}
-      {!isDark ? <SiteFooter language={currentLanguage} onLanguageChange={handleLanguageChange} /> : (
-      <footer className={`border-t py-6 text-center text-xs ${isDark ? "border-violet-950/40 bg-zinc-950 text-zinc-400" : "border-purple-200 bg-purple-100 text-black font-bold"}`}>
-        <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="font-mono text-xs tracking-widest text-violet-500 uppercase font-black">
-            © 2026 Inspirella
-          </span>
-          <FooterLinks language={currentLanguage} isDark={isDark} />
-        </div>
-      </footer>
-      )}
+      <SiteFooter language={currentLanguage} onLanguageChange={handleLanguageChange} />
 
     </div>
     </MotionConfig>

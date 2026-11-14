@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { HomeCopy, NodeId } from "./homeCopy";
-import { WAYS_CONTOURS, WAYS_SPOTS } from "./contours";
+import { WAYS_CONTOURS } from "./contours";
 
 type Only = "" | "A" | "B";
 
@@ -90,7 +90,6 @@ export default function WaysDiagram({ copy, onPlanner }: { copy: HomeCopy["ways"
       <div className="alp-panel" ref={panelRef}>
         <svg className="alp-topo" viewBox="0 0 1160 470" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           {WAYS_CONTOURS.map(c => <path key={`${c.d.slice(0, 18)}${c.i}`} className={c.ix ? "ix" : undefined} style={{ ["--i" as string]: c.i }} pathLength={1} d={c.d} />)}
-          {WAYS_SPOTS.map(s => <text key={s.h} className="spot" x={s.x} y={s.y}>{s.h}</text>)}
         </svg>
 
         {/* Desktop: horizontal */}
@@ -147,8 +146,8 @@ export default function WaysDiagram({ copy, onPlanner }: { copy: HomeCopy["ways"
           <g className="gX">
             <path className="draw br" data-seg="X" pathLength={1} d="M100 330C100 420 270 420 270 510" fill="none" strokeWidth="5" strokeLinecap="round" />
             <path className="draw br" data-seg="X" pathLength={1} d="M270 330C270 420 100 420 100 510" fill="none" strokeWidth="5" strokeLinecap="round" />
-            <text className="bt" x="150" y="372">{copy.passerelle}</text>
-            <text className="bt" x="150" y="480">{copy.praxisjahr}</text>
+            <text className="bt" x="150" y="400">{copy.passerelle}</text>
+            <text className="bt" x="150" y="456">{copy.praxisjahr}</text>
           </g>
           <circle className="nd n0" cx="180" cy="40" r="11" /><text x="180" y="18" textAnchor="middle" className="vt">{copy.nodes.oberstufe.t}</text>
           <g className="gA">

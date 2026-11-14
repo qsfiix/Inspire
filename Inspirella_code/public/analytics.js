@@ -104,7 +104,8 @@
   function init() {
     var c = read();
     if (c === "granted") load();
-    else if (c !== "denied") showBanner();
+    // On the home page the first seconds belong to the sunrise: the question waits until it has played.
+    else if (c !== "denied") setTimeout(showBanner, location.pathname === "/" ? 3800 : 0);
   }
 
   window.openCookieSettings = showBanner;

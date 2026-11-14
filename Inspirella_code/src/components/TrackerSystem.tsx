@@ -196,44 +196,20 @@ export default function TrackerSystem({
 
   return (
     <div className="space-y-8">
-      {/* Intro Metrics Banner */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="card-premium p-5 flex items-center gap-4 text-left">
-          <div className={`flex h-11 w-11 items-center justify-center rounded-xl shrink-0 transition-transform hover:scale-105 ${isDark ? "bg-violet-500/10 text-violet-300 border border-violet-500/20" : "bg-violet-50 text-violet-700 border border-violet-200"}`}>
-            <Trophy className="h-5.5 w-5.5" />
-          </div>
-          <div>
-            <span className={`block text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Active Goals</span>
-            <span className={`font-sans text-lg font-black block mt-0.5 ${isDark ? "text-white" : "text-violet-950"}`}>{shownGoals.length} active</span>
-          </div>
-        </div>
-
-        <div className="card-premium p-5 flex items-center gap-4 text-left">
-          <div className={`flex h-11 w-11 items-center justify-center rounded-xl shrink-0 transition-transform hover:scale-105 ${isDark ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20" : "bg-emerald-50 text-emerald-700 border border-emerald-200"}`}>
-            <BarChart3 className="h-5.5 w-5.5" />
-          </div>
-          <div>
-            <span className={`block text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Average Progress</span>
-            <span className={`font-sans text-lg font-black block mt-0.5 ${isDark ? "text-white" : "text-violet-950"}`}>
-              {shownGoals.length > 0
-                ? Math.round(shownGoals.reduce((acc, curr) => acc + curr.progress, 0) / shownGoals.length)
-                : 0}% Done
-            </span>
-          </div>
-        </div>
-
-        <div className="card-premium p-5 flex items-center gap-4 text-left">
-          <div className={`flex h-11 w-11 items-center justify-center rounded-xl shrink-0 transition-transform hover:scale-105 ${isDark ? "bg-indigo-500/10 text-indigo-300 border border-indigo-500/20" : "bg-indigo-50 text-indigo-700 border border-indigo-200"}`}>
-            <Activity className="h-5.5 w-5.5" />
-          </div>
-          <div>
-            <span className={`block text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>Peak Streak</span>
-            <span className={`font-sans text-lg font-black block mt-0.5 ${isDark ? "text-white" : "text-violet-950"}`}>
-              {shownGoals.length > 0 ? Math.max(...shownGoals.map(t => t.streak), 0) : 0} days
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* One plain status line (the earlier stat tiles with 0% / 0 days read as a template and demotivated) */}
+      {(() => {
+        const steps = shownGoals.flatMap(g => g.items ?? []);
+        const done = steps.filter(i => i.completed).length;
+        const n = shownGoals.length;
+        const line: Record<string, string> = {
+          de: `${n} ${n === 1 ? "Ziel" : "Ziele"} aktiv${steps.length ? ` · ${done} von ${steps.length} Schritten erledigt` : ""}`,
+          en: `${n} ${n === 1 ? "goal" : "goals"} active${steps.length ? ` · ${done} of ${steps.length} steps done` : ""}`,
+          fr: `${n} ${n === 1 ? "objectif actif" : "objectifs actifs"}${steps.length ? ` · ${done} étape${done === 1 ? "" : "s"} sur ${steps.length} faite${done === 1 ? "" : "s"}` : ""}`,
+          it: `${n} ${n === 1 ? "obiettivo attivo" : "obiettivi attivi"}${steps.length ? ` · ${done} di ${steps.length} passi fatti` : ""}`,
+          uk: `Активних цілей: ${n}${steps.length ? ` · виконано ${done} з ${steps.length} кроків` : ""}`
+        };
+        return <p className={`text-sm font-medium ${isDark ? "text-zinc-300" : "text-[var(--ink-2)]"}`}>{line[currentLanguage] ?? line.en}</p>;
+      })()}
 
       {/* Dates and reminders, application board, Schnupperlehre diary */}
       <TrackerNextUp language={currentLanguage} isDark={isDark} trackers={trackers} onTrackersChange={onTrackersChange} />

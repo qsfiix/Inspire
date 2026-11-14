@@ -591,9 +591,9 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
             <div className={`absolute bottom-4 left-4 border backdrop-blur-md rounded-xl p-3.5 max-w-[220px] pointer-events-none shadow-md ${
               isDark ? "bg-white/5 border-white/10" : "bg-white border-purple-200 shadow-md"
             }`}>
-              <span className="block text-xs font-bold font-mono text-violet-500 uppercase">Interactive Directory</span>
-              <span className={`block text-[11px] mt-1 leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-extrabold"}`}>
-                All academies, high vocational systems, and cantonal research institutes are projected above.
+              <span className="block text-xs font-bold text-violet-500">{({ de: "Schulen auf der Karte", en: "Schools on the map", fr: "Écoles sur la carte", it: "Scuole sulla mappa", uk: "Школи на мапі" } as Record<string, string>)[currentLanguage]}</span>
+              <span className={`block text-[11px] mt-1 leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+                {({ de: "Hochschulen, höhere Fachschulen und Schulen der Kantone, während die Karte lädt.", en: "Universities, colleges and cantonal schools, while the map loads.", fr: "Hautes écoles, écoles supérieures et écoles cantonales, pendant le chargement de la carte.", it: "Scuole universitarie, scuole superiori e scuole cantonali, mentre la mappa si carica.", uk: "Виші, вищі фахові та кантональні школи, поки завантажується мапа." } as Record<string, string>)[currentLanguage]}
               </span>
             </div>
           </div>

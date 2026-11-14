@@ -63,8 +63,8 @@ export default function Landscape() {
                 <path d={TRAIL} stroke="#fff" strokeWidth="3" strokeDasharray="9 7" />
                 <path d={TRAIL} stroke="#d9442f" strokeWidth="3" strokeDasharray="3 13" strokeDashoffset="-3" />
               </g>
-              <circle className="alp-ping" cx="1062" cy="150" r="10" fill="#e46f4c" />
-              <circle className="alp-summit" id="alp-summit" cx="1062" cy="150" r="10" fill="#e46f4c" />
+              <circle className="alp-ping" cx="1062" cy="157" r="9" fill="#e46f4c" />
+              <circle className="alp-summit" id="alp-summit" cx="1062" cy="157" r="9" fill="#e46f4c" />
             </g>
           </svg>
         </div>

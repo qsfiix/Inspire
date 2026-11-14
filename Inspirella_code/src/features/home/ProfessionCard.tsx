@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { LanguageCode } from "../../types";
 import { type HomeCopy, PROFESSION_DESC } from "./homeCopy";
-import { CARD_CONTOURS, CARD_SPOTS } from "./contours";
+import { CARD_CONTOURS } from "./contours";
 
 type Interest = "tech" | "natur" | "hand" | "buero";
 
@@ -33,7 +33,13 @@ const P: Record<Interest, { slug: string; years: number; wage: string; median: s
 };
 
 /** Short label for the "similar careers" chips: first form of the title, without the qualification. */
-const short = (title: string) => title.split(" / ")[0].replace(/\s*\((EFZ|CFC|AFC)\)|\s+(EFZ|CFC|AFC)$/, "");
+const short = (title: string) => {
+  const core = title.replace(/\s*\((EFZ|CFC|AFC)\)|\s+(EFZ|CFC|AFC)$/, "");
+  const [a, b] = core.split(" / ").map(x => x.trim());
+  if (!b) return a;
+  if (a.startsWith(b) && a.length - b.length <= 3) return `${b}/${a.slice(b.length)}`;
+  return `${a} / ${b}`;
+};
 
 /** Digits roll to their value like a departure board. */
 function Odometer({ text }: { text: string }) {
@@ -47,7 +53,7 @@ function Odometer({ text }: { text: string }) {
             </i>
           </span>
         ) : (
-          <span className="sep" key={`${i}-${ch}`} aria-hidden="true">{ch}</span>
+          <span className={ch === "'" ? "sep ap" : "sep"} key={`${i}-${ch}`} aria-hidden="true">{ch}</span>
         )
       )}
     </b>
@@ -88,7 +94,6 @@ export default function ProfessionCard({ copy, language }: { copy: HomeCopy["pro
       <article className="alp-pcard" aria-live="polite">
         <svg className="alp-topo" viewBox="0 0 600 420" preserveAspectRatio="xMaxYMin slice" aria-hidden="true">
           {CARD_CONTOURS.map(c => <path key={`${c.d.slice(0, 18)}${c.i}`} className={c.ix ? "ix" : undefined} style={{ ["--i" as string]: c.i }} pathLength={1} d={c.d} />)}
-          {CARD_SPOTS.map(s => <text key={s.h} className="spot" x={s.x} y={s.y}>{s.h}</text>)}
         </svg>
         <div className="pbody">
           <div className={`ptitle ${phase}`} onAnimationEnd={() => phase === "in" && setPhase("")}>

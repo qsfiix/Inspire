@@ -13,6 +13,12 @@ import PathMapLink from "../components/PathMapLink";
 import { DashboardFold, DashboardMapCard } from "../components/DashboardFold";
 import { EducationLevel, LanguageCode, TrackerGoal } from "../types";
 
+/** Guests were saved as "Guest Explorer": show that in the visitor's language. */
+const GUEST_NAME: Record<string, string> = { de: "Gast", en: "Guest", fr: "Invité·e", it: "Ospite", uk: "Гість" };
+const shownName = (p: { name?: string; isGuest?: boolean } | null | undefined, lang: string) =>
+  !p?.name || (p.isGuest && p.name === "Guest Explorer") ? GUEST_NAME[lang] ?? "Guest" : p.name;
+
+
 export function DashboardView({
   t,
   isDark,
@@ -48,7 +54,7 @@ export function DashboardView({
         <SectionGlow isDark={isDark} corner="top-right" />
         <div className="relative space-y-1.5">
           <h1 className={`text-xl md:text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-black font-extrabold"}`}>
-            {t.welcomeBack} <span className="text-shimmer">{userProfile?.name}</span>
+            {t.welcomeBack} <span className="text-shimmer">{shownName(userProfile, currentLanguage)}</span>
             {userProfile?.isGuest && (
               <span className={`ml-2 inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border align-middle ${
                 isDark ? "text-amber-300 bg-amber-500/10 border-amber-500/30" : "text-amber-800 bg-amber-100 border-amber-400"
@@ -241,7 +247,7 @@ export function ProfileView({
           </div>
           <div>
             <h2 className={`text-lg font-bold tracking-tight ${isDark ? "text-white" : "text-black font-black"}`}>
-              {userProfile?.name || "Guest"}
+              {shownName(userProfile, currentLanguage)}
               {userProfile?.isGuest && (
                 <span className={`ml-2 align-middle px-2 py-0.5 rounded-full text-[11px] font-medium border ${isDark ? "bg-amber-500/10 text-amber-300 border-amber-500/30" : "bg-amber-100 text-amber-800 border-amber-300"}`}>Guest</span>
               )}
