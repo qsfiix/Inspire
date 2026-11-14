@@ -86,16 +86,16 @@ export default function InstitutionCompareModal({
           exit={{ opacity: 0, y: 10, scale: 0.98 }}
           onClick={e => e.stopPropagation()}
           className={`w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-2xl border shadow-2xl ${
-            isDark ? "bg-zinc-950 border-white/10 text-white" : "bg-white border-purple-200 text-black"
+            "bg-card border-line text-ink"
           }`}
         >
           <div className={`sticky top-0 z-10 flex items-center justify-between p-4 border-b backdrop-blur-md ${
-            isDark ? "bg-zinc-950/95 border-white/10" : "bg-white/95 border-purple-200"
+            "bg-card border-line"
           }`}>
             <h2 className="text-base font-bold tracking-tight">{t.compareModalTitle}</h2>
             <button
               onClick={onClose}
-              className={`p-1.5 rounded-lg transition ${isDark ? "hover:bg-white/10" : "hover:bg-purple-100"}`}
+              className={`p-1.5 rounded-lg transition hover:bg-wash`}
               aria-label="Close"
             >
               <X className="h-4 w-4" />
@@ -108,14 +108,14 @@ export default function InstitutionCompareModal({
                 <tr>
                   <th className="p-2 w-28 shrink-0"></th>
                   {institutions.map(inst => (
-                    <th key={inst.id} className={`p-2 align-top border-b ${isDark ? "border-white/10" : "border-purple-200"}`}>
+                    <th key={inst.id} className={`p-2 align-top border-b border-line`}>
                       <div className="flex items-start justify-between gap-2">
-                        <span className={`font-black text-[13px] leading-snug ${isDark ? "text-violet-200" : "text-violet-950"}`}>
+                        <span className={`font-black text-[13px] leading-snug text-ink`}>
                           {inst.title}
                         </span>
                         <button
                           onClick={() => onRemove(inst.id)}
-                          className={`shrink-0 p-1 rounded transition ${isDark ? "hover:bg-white/10 text-zinc-400" : "hover:bg-purple-100 text-violet-900/70"}`}
+                          className={`shrink-0 p-1 rounded transition hover:bg-wash text-muted`}
                           aria-label={t.compareRemove}
                         >
                           <X className="h-3 w-3" />
@@ -127,12 +127,12 @@ export default function InstitutionCompareModal({
               </thead>
               <tbody>
                 {rows.map(row => (
-                  <tr key={row.label} className={`border-b ${isDark ? "border-white/5" : "border-purple-100"}`}>
-                    <td className={`p-2 font-mono uppercase text-[11px] tracking-wider align-top ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>
+                  <tr key={row.label} className={`border-b border-line`}>
+                    <td className={`p-2 font-mono uppercase text-[11px] tracking-wider align-top text-muted font-bold`}>
                       {row.label}
                     </td>
                     {institutions.map(inst => (
-                      <td key={inst.id} className={`p-2 align-top ${isDark ? "text-zinc-200" : "text-zinc-800"}`}>
+                      <td key={inst.id} className={`p-2 align-top text-ink`}>
                         {row.render(inst)}
                       </td>
                     ))}
@@ -140,11 +140,11 @@ export default function InstitutionCompareModal({
                 ))}
                 {institutions.some(inst => localizedText(inst.description, currentLanguage)) && (
                   <tr>
-                    <td className={`p-2 font-mono uppercase text-[11px] tracking-wider align-top ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>
+                    <td className={`p-2 font-mono uppercase text-[11px] tracking-wider align-top text-muted font-bold`}>
                       {t.admissionInfo}
                     </td>
                     {institutions.map(inst => (
-                      <td key={inst.id} className={`p-2 align-top text-xs leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                      <td key={inst.id} className={`p-2 align-top text-xs leading-relaxed text-ink-2`}>
                         {localizedText(inst.description, currentLanguage) || noData}
                       </td>
                     ))}

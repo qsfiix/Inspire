@@ -228,10 +228,10 @@ export function LoginView({
           <div className="mx-auto h-12 w-12 rounded-2xl bg-violet-600/10 flex items-center justify-center border border-violet-500/20 text-violet-500">
             <Mail className="h-6 w-6" />
           </div>
-          <h1 className={`text-xl font-black ${isDark ? "text-white" : "text-violet-950"} tracking-tight`}>
+          <h1 className={`text-xl font-black text-ink tracking-tight`}>
             {activeLang.confirmEmailTitle}
           </h1>
-          <p className={`text-xs ${isDark ? "text-zinc-400 font-medium" : "text-violet-900/60 font-bold"} leading-relaxed`}>
+          <p className={`text-xs text-muted font-bold leading-relaxed`}>
             {activeLang.confirmEmailMessage.replace("{email}", pendingConfirmationEmail)}
           </p>
           <button
@@ -270,16 +270,16 @@ export function LoginView({
           <div className="mx-auto h-12 w-12 rounded-2xl bg-violet-600/10 flex items-center justify-center border border-violet-500/20 text-violet-500 mb-2">
             <Compass className="h-6 w-6 animate-spin-slow" />
           </div>
-          <h1 className={`text-xl md:text-2xl font-black ${isDark ? "text-white" : "text-violet-950"} tracking-tight`}>
+          <h1 className={`text-xl md:text-2xl font-black text-ink tracking-tight`}>
             {activeLang.welcomeTitle}
           </h1>
-          <p className={`text-xs ${isDark ? "text-zinc-400 font-medium" : "text-violet-900/60 font-bold"} leading-relaxed max-w-sm mx-auto`}>
+          <p className={`text-xs text-muted font-bold leading-relaxed max-w-sm mx-auto`}>
             {mode === "signUp" ? activeLang.welcomeSubtitle : activeLang.signInSubtitle}
           </p>
         </div>
 
         {/* Sign up / sign in mode toggle */}
-        <div className={`grid grid-cols-2 gap-1.5 p-1 rounded-xl mb-6 ${isDark ? "bg-white/5" : "bg-violet-100/60"}`}>
+        <div className={`grid grid-cols-2 gap-1.5 p-1 rounded-xl mb-6 bg-mist`}>
           {(["signUp", "signIn"] as const).map((m) => (
             <button
               key={m}
@@ -302,11 +302,11 @@ export function LoginView({
         <form onSubmit={onSubmit} className="space-y-5">
           {mode === "signUp" && (
             <div className="space-y-1.5">
-              <label className={`block text-xs font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
+              <label className={`block text-xs font-mono uppercase tracking-wider mb-1.5 text-ink font-black`}>
                 {activeLang.nameLabel}
               </label>
               <div className="relative">
-                <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>
+                <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted`}>
                   <User className="h-4 w-4" />
                 </span>
                 <input
@@ -322,11 +322,11 @@ export function LoginView({
           )}
 
           <div className="space-y-1.5">
-            <label className={`block text-xs font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
+            <label className={`block text-xs font-mono uppercase tracking-wider mb-1.5 text-ink font-black`}>
               {activeLang.emailLabel}
             </label>
             <div className="relative">
-              <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>
+              <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted`}>
                 <Mail className="h-4 w-4" />
               </span>
               <input
@@ -342,11 +342,11 @@ export function LoginView({
           </div>
 
           <div className="space-y-1.5">
-            <label className={`block text-xs font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-violet-950 font-black"}`}>
+            <label className={`block text-xs font-mono uppercase tracking-wider mb-1.5 text-ink font-black`}>
               {activeLang.passwordLabel}
             </label>
             <div className="relative">
-              <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>
+              <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted`}>
                 <Lock className="h-4 w-4" />
               </span>
               <input
@@ -386,18 +386,18 @@ export function LoginView({
           <button
             type="button"
             onClick={() => setMode(mode === "signUp" ? "signIn" : "signUp")}
-            className={`block w-full text-center text-xs font-bold underline-offset-2 hover:underline ${isDark ? "text-violet-400" : "text-violet-700"}`}
+            className={`block w-full text-center text-xs font-bold underline-offset-2 hover:underline text-plum`}
           >
             {mode === "signUp" ? activeLang.switchToSignIn : activeLang.switchToSignUp}
           </button>
 
           {/* Info Disclaimer */}
-          <p className={`text-xs text-center leading-relaxed font-sans px-2 ${isDark ? "text-zinc-400" : "text-violet-950/70 font-medium"}`}>
+          <p className={`text-xs text-center leading-relaxed font-sans px-2 text-muted font-medium`}>
             {activeLang.disclaimer}
           </p>
 
           {/* Beautiful Custom Bypass option */}
-          <div className={`relative flex py-3 items-center text-[11px] font-mono tracking-widest ${isDark ? "text-zinc-400" : "text-violet-900/70 font-bold"}`}>
+          <div className={`relative flex py-3 items-center text-[11px] font-mono tracking-widest text-muted font-bold`}>
             <div className={`flex-grow border-t ${isDark ? "border-white/5" : "border-violet-950/10"}`}></div>
             <span className="mx-3 uppercase">{activeLang.instantOverride}</span>
             <div className={`flex-grow border-t ${isDark ? "border-white/5" : "border-violet-950/10"}`}></div>
@@ -660,9 +660,9 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
   const toggle = (list: string[], setList: (v: string[]) => void, id: string) =>
     setList(list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
 
-  const fieldLabel = `text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/70"}`;
+  const fieldLabel = `text-[11px] font-bold uppercase tracking-wider text-muted`;
   const inputClass = `rounded-xl border px-3 py-2 text-xs font-semibold ${
-    isDark ? "bg-white/[0.03] border-white/10 text-white" : "bg-white border-purple-200 text-violet-950"
+    "bg-card border-line text-ink"
   }`;
   const panelProps = {
     initial: { opacity: 0, x: 15 },
@@ -686,7 +686,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
             <span className={`text-xs uppercase tracking-wider ${isDark ? "text-violet-400 font-bold" : "text-violet-950 font-black animate-pulse"}`}>
               {t.onboardTitle || "Educational Calibration"}
             </span>
-            <span className={`text-xs uppercase font-bold tracking-wider ${isDark ? "text-zinc-400" : "text-violet-900/60"}`}>
+            <span className={`text-xs uppercase font-bold tracking-wider text-muted`}>
               {stepLabelText} {step + 1} / {ONBOARDING_STEPS.length}
             </span>
           </div>
@@ -722,14 +722,14 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
               );
             })}
           </div>
-          <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{c.progressHint}</p>
+          <p className={`text-[11px] text-muted`}>{c.progressHint}</p>
         </div>
 
         <div className="space-y-1 pt-2 border-t border-violet-500/10">
-          <h2 className={`text-lg font-black tracking-tight ${isDark ? "text-white" : "text-violet-950"}`}>
+          <h2 className={`text-lg font-black tracking-tight text-ink`}>
             {currentStepInfo.title}
           </h2>
-          <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/70 font-semibold"}`}>
+          <p className={`text-xs text-muted font-semibold`}>
             {currentStepInfo.subtitle}
           </p>
         </div>
@@ -936,7 +936,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
                 <div className="space-y-3">
                   {SWISS_LANGS.map(code => (
                     <div key={code} className="flex flex-wrap items-center gap-2">
-                      <span className={`w-24 text-xs font-bold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>{c[`lang_${code}`]}</span>
+                      <span className={`w-24 text-xs font-bold text-ink`}>{c[`lang_${code}`]}</span>
                       <div className="flex flex-wrap gap-1.5">
                         {CEFR_CHOICES.map(level => (
                           <OnboardingChoice
@@ -997,7 +997,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
               <button
                 type="button"
                 onClick={() => setStep(step + 1)}
-                className={`text-xs underline cursor-pointer ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}
+                className={`text-xs underline cursor-pointer text-muted`}
               >
                 {c.skipStep}
               </button>
@@ -1006,7 +1006,7 @@ export function OnboardingView({ t, currentLanguage = "en", isDark, submitOnboar
               <button
                 type="button"
                 onClick={finish}
-                className={`text-xs underline cursor-pointer ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}
+                className={`text-xs underline cursor-pointer text-muted`}
               >
                 {c.finishNow}
               </button>

@@ -409,7 +409,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
             {mapEngineLoaded ? "Live map" : "Map"}
           </span>
           <span className={`text-xs px-2 py-0.5 rounded-lg font-mono font-bold shrink-0 ${
-            isDark ? "bg-violet-500/20 text-violet-200" : "bg-violet-100 text-violet-800"
+            "bg-mist text-plum"
           }`}>
             {geoInstitutions.length}/{institutions.length} {t.mapMappedLabel}
           </span>
@@ -468,7 +468,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
 
       {/* Main Map Portal */}
       <div className={`flex-grow h-full relative overflow-hidden flex items-center justify-center rounded-2xl ${
-        isDark ? "bg-zinc-950/40" : "bg-purple-50/25"
+        "bg-mist"
       }`}>
         
         {/* Canvas for Mapbox */}
@@ -592,7 +592,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
               isDark ? "bg-white/5 border-white/10" : "bg-white border-purple-200 shadow-md"
             }`}>
               <span className="block text-xs font-bold text-violet-500">{({ de: "Schulen auf der Karte", en: "Schools on the map", fr: "Écoles sur la carte", it: "Scuole sulla mappa", uk: "Школи на мапі" } as Record<string, string>)[currentLanguage]}</span>
-              <span className={`block text-[11px] mt-1 leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+              <span className={`block text-[11px] mt-1 leading-relaxed text-ink font-semibold`}>
                 {({ de: "Hochschulen, höhere Fachschulen und Schulen der Kantone, während die Karte lädt.", en: "Universities, colleges and cantonal schools, while the map loads.", fr: "Hautes écoles, écoles supérieures et écoles cantonales, pendant le chargement de la carte.", it: "Scuole universitarie, scuole superiori e scuole cantonali, mentre la mappa si carica.", uk: "Виші, вищі фахові та кантональні школи, поки завантажується мапа." } as Record<string, string>)[currentLanguage]}
               </span>
             </div>
@@ -631,7 +631,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
               />
             </motion.div>
           ) : (
-            <div className={`p-6 text-center flex flex-col items-center justify-center h-full ${isDark ? "text-zinc-300" : "text-violet-950 font-bold"}`}>
+            <div className={`p-6 text-center flex flex-col items-center justify-center h-full text-ink font-bold`}>
               <MapIcon className="h-7 w-7 text-violet-500 mb-2" />
               <p className="text-xs">{t.selectPinAlert}</p>
             </div>
@@ -642,11 +642,11 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
       {/* Floating compare tray: institutions the user picked while browsing pins */}
       {compareList.length > 0 && (
         <div className={`absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex flex-wrap items-center justify-center gap-2 max-w-[92%] rounded-2xl border px-3.5 py-2.5 backdrop-blur-md shadow-xl ${
-          isDark ? "bg-zinc-950/90 border-white/15" : "bg-white/95 border-purple-200"
+          "bg-card border-line"
         }`}>
           <div className="flex items-center gap-1.5">
             <Scale className="h-3.5 w-3.5 text-violet-500 shrink-0" />
-            <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/70 font-black"}`}>
+            <span className={`text-xs font-mono uppercase tracking-wider text-muted font-black`}>
               {t.compareBarLabel} ({compareList.length}/{MAX_COMPARE})
             </span>
           </div>
@@ -654,7 +654,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
             <span
               key={inst.id}
               className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold max-w-[140px] ${
-                isDark ? "bg-white/10 text-zinc-200" : "bg-purple-100 text-violet-950"
+                "bg-mist text-ink"
               }`}
             >
               <span className="truncate">{inst.title}</span>
@@ -665,7 +665,7 @@ export default function MapboxMap({ currentLanguage, accessToken, styleUrl, them
           ))}
           <button
             onClick={() => setCompareList([])}
-            className={`text-xs font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/70 hover:text-violet-950"}`}
+            className={`text-xs font-mono underline text-muted hover:text-ink`}
           >
             {t.compareClear}
           </button>

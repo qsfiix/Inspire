@@ -77,12 +77,12 @@ export default function SceneChapters({ labels, isDark }: { labels: string[]; is
               className={`text-[11px] font-medium uppercase tracking-[0.18em] transition-all duration-500 ${
                 on
                   ? `${flash ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2"} group-hover:opacity-100 group-hover:translate-x-0 2xl:opacity-100 2xl:translate-x-0 rounded-full px-2 py-0.5 backdrop-blur-md ${isDark ? "text-violet-100 bg-black/40" : "text-violet-800 bg-white/70"}`
-                  : `opacity-0 translate-x-2 group-hover:opacity-70 group-hover:translate-x-0 ${isDark ? "text-zinc-400" : "text-violet-900/60"}`
+                  : `opacity-0 translate-x-2 group-hover:opacity-70 group-hover:translate-x-0 text-muted`
               }`}
             >
               {label}
             </span>
-            <span className={`text-[11px] font-mono tabular-nums transition-colors duration-500 ${on ? "text-violet-300" : isDark ? "text-zinc-400" : "text-violet-900/60"}`}>
+            <span className={`text-[11px] font-mono tabular-nums transition-colors duration-500 ${on ? "text-violet-300" : "text-muted"}`}>
               {String(i + 1).padStart(2, "0")}
             </span>
             <span

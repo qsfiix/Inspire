@@ -480,10 +480,10 @@ export default function App() {
     ? "bg-zinc-950/60 border border-violet-900/50 shadow-[0_0_30px_rgba(109,40,217,0.15)] shadow-violet-950/30" 
     : "border-2 border-violet-950/45 bg-white shadow-[0_8px_35px_rgba(46,16,101,0.18)] glow-ambient-violet";
   
-  const tTextTitle = isDark ? "text-white font-extrabold" : "text-black font-extrabold";
-  const tTextSub = isDark ? "text-zinc-200 font-bold" : "text-black font-black";
+  const tTextTitle = "text-ink font-extrabold";
+  const tTextSub = "text-ink font-black";
   const tTextBody = isDark ? "text-zinc-300 font-sans" : "text-black font-bold leading-relaxed";
-  const tTextMuted = isDark ? "text-zinc-400 font-medium" : "text-black font-black";
+  const tTextMuted = "text-ink font-black";
   
   // Dark violet accent block (темно-фиолетовый акцент с сиянием)
   const tPurpleAccentBlock = isDark
@@ -495,14 +495,14 @@ export default function App() {
     ? "border border-white/15 bg-white/5 text-white placeholder-zinc-500 focus:border-white/35 focus:ring-1 focus:ring-slate-800"
     : "border-2 border-violet-950/20 bg-white text-indigo-950 placeholder-violet-950/45 focus:border-violet-950 focus:ring-2 focus:ring-violet-950/10 shadow-sm";
 
-  const tOption = isDark ? "bg-zinc-950 text-white" : "bg-white text-indigo-950";
+  const tOption = "bg-card text-ink";
 
   return (
     // reducedMotion="user": every motion animation below honours the OS
     // "reduce motion" setting (transforms off, fades kept) automatically.
     <MotionConfig reducedMotion="user">
     <div className={`min-h-screen transition-colors duration-300 flex flex-col relative select-none ${
-      isDark ? "text-slate-100" : "text-indigo-950"
+      "text-ink"
     }`}>
       {/* Mountain range behind the app pages (the home has its own landscape, the map none) */}
       {activeTab !== "home" && activeTab !== "map" && <AlpenBackdrop tab={activeTab} />}
@@ -641,8 +641,8 @@ export default function App() {
             >
               <div className="relative">
                 <SectionGlow isDark={isDark} corner="top-left" />
-                <h1 className={`relative text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-black font-black"}`}>{t.mapHeader}</h1>
-                <p className={`relative text-xs mt-0.5 ${isDark ? "text-zinc-200" : "text-black font-bold"}`}>{t.mapSub}</p>
+                <h1 className={`relative text-xl font-bold tracking-tight text-ink font-black`}>{t.mapHeader}</h1>
+                <p className={`relative text-xs mt-0.5 text-ink font-bold`}>{t.mapSub}</p>
               </div>
 
               {/* Render Mapbox Component */}

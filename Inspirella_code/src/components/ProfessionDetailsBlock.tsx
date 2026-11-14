@@ -67,14 +67,14 @@ export default function ProfessionDetailsBlock({ profession, professions, langua
   if (!duration && reqs.length === 0 && ints.length === 0 && similar.length === 0) return null;
 
   const label = `text-[11px] font-mono uppercase tracking-wider text-violet-400 flex items-center gap-1.5`;
-  const chip = `rounded-full border px-2.5 py-1 text-[11.5px] font-semibold ${isDark ? "border-white/10 bg-white/[0.04] text-zinc-200" : "border-purple-200 bg-white text-violet-950"}`;
+  const chip = `rounded-full border px-2.5 py-1 text-[11.5px] font-semibold border-line bg-card text-ink`;
 
   return (
     <div className="card-premium space-y-3 p-3.5 text-left">
       {duration && (
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className={label}><Clock3 className="h-3.5 w-3.5" /> {ui.duration}</span>
-          <span className={`font-bold ${isDark ? "text-white" : "text-violet-950"}`}>{duration}</span>
+          <span className={`font-bold text-ink`}>{duration}</span>
         </div>
       )}
       {reqs.length > 0 && (
@@ -102,7 +102,7 @@ export default function ProfessionDetailsBlock({ profession, professions, langua
         </div>
       )}
       {details.sourceUrl && (
-        <a href={details.sourceUrl} target="_blank" rel="noopener noreferrer" className={`block text-[11px] underline ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{ui.source}</a>
+        <a href={details.sourceUrl} target="_blank" rel="noopener noreferrer" className={`block text-[11px] underline text-muted`}>{ui.source}</a>
       )}
     </div>
   );

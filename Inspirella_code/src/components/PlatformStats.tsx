@@ -85,11 +85,11 @@ function StatCount({ value, label, plus, isDark, delay }: { value: number; label
 
   return (
     <div className="text-center">
-      <span className={`block font-mono text-2xl md:text-3xl font-black tabular-nums ${isDark ? "text-white" : "text-violet-950"}`}>
+      <span className={`block font-mono text-2xl md:text-3xl font-black tabular-nums text-ink`}>
         {display}
-        {plus && <span className={isDark ? "text-violet-400" : "text-violet-600"}>+</span>}
+        {plus && <span className="text-plum">+</span>}
       </span>
-      <span className={`block text-[11px] font-mono uppercase tracking-widest mt-0.5 ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>
+      <span className={`block text-[11px] font-mono uppercase tracking-widest mt-0.5 text-muted font-bold`}>
         {label}
       </span>
     </div>

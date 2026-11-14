@@ -835,13 +835,13 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   };
 
   // --- Panels --------------------------------------------------------------------------------
-  const cardText = isDark ? "text-zinc-200" : "text-violet-950";
-  const muted = isDark ? "text-zinc-400" : "text-violet-950/70";
+  const cardText = "text-ink";
+  const muted = "text-muted";
   const label = "block text-[10px] font-mono uppercase tracking-wider text-violet-400";
-  const chip = `inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-mono font-bold ${isDark ? "border-violet-300/30 bg-violet-400/10 text-violet-200" : "border-violet-300 bg-violet-50 text-violet-800"}`;
+  const chip = `inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-mono font-bold border-line bg-mist text-plum`;
   const btn = `inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-colors cursor-pointer ${isDark ? "border-violet-300/40 bg-violet-400/10 text-violet-100 hover:bg-violet-400/20" : "border-violet-400 bg-violet-50 text-violet-900 hover:bg-violet-100"}`;
-  const btnPrimary = `inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold transition-colors cursor-pointer ${isDark ? "bg-violet-500 text-white hover:bg-violet-400" : "bg-violet-700 text-white hover:bg-violet-800"}`;
-  const link = `inline-flex items-center gap-1 text-[11px] font-semibold underline-offset-2 hover:underline ${isDark ? "text-violet-300" : "text-violet-700"}`;
+  const btnPrimary = `inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold transition-colors cursor-pointer bg-btn text-white hover:bg-[var(--btn-2)]`;
+  const link = `inline-flex items-center gap-1 text-[11px] font-semibold underline-offset-2 hover:underline text-plum`;
 
   const Fact = ({ name, value }: { name: string; value?: string }) =>
     value ? (
@@ -853,9 +853,9 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
 
   const wayButton = (e: MapEdge, otherCode: string) => (
     <li key={edgeKey(e)}>
-      <button type="button" onClick={() => setSelection({ type: "edge", key: edgeKey(e) })} className={`w-full cursor-pointer rounded-lg border px-2.5 py-1.5 text-left transition-colors ${isDark ? "border-white/10 bg-[#0c0916]/90 hover:bg-[#17112b]" : "border-violet-200 bg-white hover:bg-violet-50"}`}>
+      <button type="button" onClick={() => setSelection({ type: "edge", key: edgeKey(e) })} className={`w-full cursor-pointer rounded-lg border px-2.5 py-1.5 text-left transition-colors border-line bg-card hover:bg-wash`}>
         <span className="flex items-center justify-between gap-2">
-          <b className={`text-[12px] ${isDark ? "text-white" : "text-violet-950"}`}>{labelOf(otherCode)}</b>
+          <b className={`text-[12px] text-ink`}>{labelOf(otherCode)}</b>
           <span className="shrink-0 text-[10px] font-mono text-violet-400">{kindLabel(e.kind, currentLanguage)}</span>
         </span>
         {e.transitions.length > 1 && <span className={`block text-[10.5px] ${muted}`}>+{e.transitions.length - 1}</span>}
@@ -880,7 +880,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
             {n && <span className={chip}>{ui.bands[String(n.band)] ?? ""}</span>}
             {n && <span className={chip}>{ui.kinds[n.kind] ?? n.kind}</span>}
           </div>
-          <h2 className={`mt-2 text-lg font-bold leading-tight ${isDark ? "text-white" : "text-violet-950"}`}>{title}</h2>
+          <h2 className={`mt-2 text-lg font-bold leading-tight text-ink`}>{title}</h2>
           {n?.summary[currentLanguage] && <p className={`mt-1.5 text-[13px] leading-relaxed ${cardText}`}>{n.summary[currentLanguage]}</p>}
         </div>
 
@@ -894,7 +894,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
         </div>
 
         {n && (
-          <div className={`space-y-3 rounded-xl border p-3 ${isDark ? "border-violet-400/20 bg-[#120c24]/90" : "border-violet-200 bg-violet-50/95"}`}>
+          <div className={`space-y-3 rounded-xl border p-3 border-line bg-mist`}>
             <Fact name={ui.duration} value={inLang(currentLanguage, n.duration, n.uk?.duration)} />
             <Fact name={ui.age} value={inLang(currentLanguage, n.typicalAge, n.uk?.typicalAge)} />
             <Fact name={ui.diploma} value={inLang(currentLanguage, n.diploma, n.uk?.diploma)} />
@@ -1068,7 +1068,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
           )}
         </div>
         {level && !isLoggedIn && (
-          <div className={`rounded-xl border p-3 ${isDark ? "border-violet-400/20 bg-[#120c24]/90" : "border-violet-200 bg-violet-50/95"}`}>
+          <div className={`rounded-xl border p-3 border-line bg-mist`}>
             <p className={`text-[12px] leading-relaxed ${cardText}`}>{ui.needProfile}</p>
             <button type="button" className={`${btnPrimary} mt-2`} onClick={onStartPlanning}>{ui.planRoute} <ArrowRight className="h-3.5 w-3.5" /></button>
           </div>
@@ -1081,7 +1081,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
     <div className="space-y-4">
       <div>
         <span className={chip}>{ui.edgeTitle} · {kindLabel(e.kind, currentLanguage)}</span>
-        <h2 className={`mt-2 text-lg font-bold leading-tight ${isDark ? "text-white" : "text-violet-950"}`}>
+        <h2 className={`mt-2 text-lg font-bold leading-tight text-ink`}>
           {labelOf(e.from)} <ArrowRight className="mx-1 inline h-4 w-4 text-violet-400" /> {labelOf(e.to)}
         </h2>
       </div>
@@ -1091,9 +1091,9 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
       </div>
       <ul className="space-y-3">
         {e.transitions.map(t => (
-          <li key={t.id} className={`space-y-2 rounded-xl border p-3 ${isDark ? "border-violet-400/20 bg-[#120c24]/90" : "border-violet-200 bg-violet-50/95"}`}>
+          <li key={t.id} className={`space-y-2 rounded-xl border p-3 border-line bg-mist`}>
             <div className="flex items-start justify-between gap-2">
-              <b className={`text-[13px] leading-snug ${isDark ? "text-white" : "text-violet-950"}`}>{inLang(currentLanguage, t.label, t.uk?.label)}</b>
+              <b className={`text-[13px] leading-snug text-ink`}>{inLang(currentLanguage, t.label, t.uk?.label)}</b>
               <span className="shrink-0 text-[10px] font-mono text-violet-400">{kindLabel(t.kind, currentLanguage)}</span>
             </div>
             {(t.exception || t.cantons) && (
@@ -1126,8 +1126,8 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
     openNode(stage);
   };
 
-  const card = `rounded-2xl border backdrop-blur-sm ${isDark ? "border-white/10 bg-[#0c0916]/90" : "border-violet-200 bg-white/95"}`;
-  const select = `w-full rounded-lg border px-2.5 py-2 text-[12.5px] ${isDark ? "border-white/15 bg-zinc-900 text-white" : "border-violet-300 bg-white text-violet-950"}`;
+  const card = `rounded-2xl border backdrop-blur-sm border-line bg-card`;
+  const select = `w-full rounded-lg border px-2.5 py-2 text-[12.5px] border-line bg-card text-ink`;
 
   const nodeOption = (n: EducationNode) => <option key={n.code} value={n.code}>{n.label[currentLanguage]}</option>;
   const selectable = ordered.filter(n => NODE_LAYOUT[n.code]);
@@ -1142,9 +1142,9 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
   return (
     <div className="space-y-5">
       <div>
-        <h1 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-black font-black"}`}>{ui.title}</h1>
-        <p className={`mt-0.5 text-xs font-semibold ${isDark ? "text-violet-300" : "text-violet-800"}`}>{ui.sub}</p>
-        <p className={`mt-2 max-w-3xl text-[13px] leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950"}`}>{ui.intro}</p>
+        <h1 className={`text-xl font-bold tracking-tight text-ink font-black`}>{ui.title}</h1>
+        <p className={`mt-0.5 text-xs font-semibold text-plum`}>{ui.sub}</p>
+        <p className={`mt-2 max-w-3xl text-[13px] leading-relaxed text-ink`}>{ui.intro}</p>
       </div>
 
       {state === "loading" && <p className={`text-sm ${muted}`}>{ui.loading}</p>}
@@ -1173,7 +1173,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                   <Sparkles className="h-3.5 w-3.5" /> {ui.newcomer}
                 </button>
                 {newcomerOpen && (
-                  <div className={`absolute right-0 z-20 mt-1.5 w-60 space-y-1 rounded-xl border p-2 shadow-xl ${isDark ? "border-white/15 bg-[#120c24]" : "border-violet-200 bg-white"}`}>
+                  <div className={`absolute right-0 z-20 mt-1.5 w-60 space-y-1 rounded-xl border p-2 shadow-xl border-line bg-card`}>
                     <p className={`px-1 text-[11px] font-semibold ${muted}`}>{ui.newcomerWho}</p>
                     {(["child", "youth", "adult"] as const).map(who => (
                       <button key={who} type="button" onClick={() => startNewcomer(who)} className={`${btn} w-full justify-start`}>
@@ -1208,7 +1208,7 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                               role="tab"
                               aria-selected={active}
                               onClick={() => setRouteIndex(i)}
-                              className={`cursor-pointer rounded-lg border px-2.5 py-1 text-left text-[11px] font-bold transition-colors ${active ? (isDark ? "border-violet-300 bg-violet-500/30 text-white" : "border-violet-700 bg-violet-700 text-white") : isDark ? "border-white/15 text-zinc-300 hover:bg-white/[0.06]" : "border-violet-300 text-violet-900 hover:bg-violet-50"}`}
+                              className={`cursor-pointer rounded-lg border px-2.5 py-1 text-left text-[11px] font-bold transition-colors ${active ? (isDark ? "border-violet-300 bg-violet-500/30 text-white" : "border-violet-700 bg-violet-700 text-white") : "border-line text-ink hover:bg-wash"}`}
                             >
                               {ui.option(i + 1)}
                               <span className="ml-1.5 font-mono font-normal opacity-80">{ui.yearsAbout(Math.round(y.min), Math.round(y.max))}</span>
@@ -1226,8 +1226,8 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                       {path.map(step => (
                         <li key={edgeKey(step.edge)} className="flex items-center gap-2">
                           <ArrowRight className="h-4 w-4 shrink-0 text-violet-400" />
-                          <button type="button" onClick={() => setSelection({ type: "edge", key: edgeKey(step.edge) })} className={`cursor-pointer rounded-lg border px-2.5 py-1.5 text-left transition-colors ${isDark ? "border-white/15 bg-[#0c0916]/90 hover:bg-[#17112b]" : "border-violet-200 bg-white hover:bg-violet-50"}`}>
-                            <b className={`block text-[12px] ${isDark ? "text-white" : "text-violet-950"}`}>{labelOf(step.to)}</b>
+                          <button type="button" onClick={() => setSelection({ type: "edge", key: edgeKey(step.edge) })} className={`cursor-pointer rounded-lg border px-2.5 py-1.5 text-left transition-colors border-line bg-card hover:bg-wash`}>
+                            <b className={`block text-[12px] text-ink`}>{labelOf(step.to)}</b>
                             <span className="block text-[10px] font-mono text-violet-400">{kindLabel(step.edge.kind, currentLanguage)}{stepSummary(step.edge) ? ` · ${stepSummary(step.edge).slice(0, 60)}` : ""}</span>
                           </button>
                         </li>
@@ -1243,9 +1243,9 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
           </section>
 
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div role="group" aria-label={`${ui.viewMap} / ${ui.viewList}`} className={`inline-flex rounded-lg border p-0.5 ${isDark ? "border-white/15" : "border-violet-300"}`}>
+            <div role="group" aria-label={`${ui.viewMap} / ${ui.viewList}`} className={`inline-flex rounded-lg border p-0.5 border-line`}>
               {(["map", "list"] as const).map(v => (
-                <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)} className={`cursor-pointer rounded-md px-3 py-1 text-[11px] font-bold transition-colors ${view === v ? (isDark ? "bg-violet-500 text-white" : "bg-violet-700 text-white") : isDark ? "text-zinc-300 hover:text-white" : "text-violet-900 hover:bg-violet-50"}`}>
+                <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)} className={`cursor-pointer rounded-md px-3 py-1 text-[11px] font-bold transition-colors ${view === v ? ("bg-btn text-white") : isDark ? "text-zinc-300 hover:text-white" : "text-violet-900 hover:bg-violet-50"}`}>
                   {v === "map" ? ui.viewMap : ui.viewList}
                 </button>
               ))}
@@ -1359,13 +1359,13 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
                 if (items.length === 0) return null;
                 return (
                   <section key={b.band} className="space-y-2">
-                    <h2 className={`text-[11px] font-mono font-bold uppercase tracking-wider ${isDark ? "text-violet-300" : "text-violet-800"}`}>{ui.bands[b.band]}{BAND_AGES[b.band] ? " · " + ui.ageRange(BAND_AGES[b.band]![0], BAND_AGES[b.band]![1]) : ""}</h2>
+                    <h2 className={`text-[11px] font-mono font-bold uppercase tracking-wider text-plum`}>{ui.bands[b.band]}{BAND_AGES[b.band] ? " · " + ui.ageRange(BAND_AGES[b.band]![0], BAND_AGES[b.band]![1]) : ""}</h2>
                     <ul className="grid gap-2 sm:grid-cols-2">
                       {items.map(n => (
                         <li key={n.code}>
-                          <button type="button" onClick={() => openNode(n.code)} className={`h-full w-full cursor-pointer rounded-xl border p-3 text-left transition-colors ${nodeDimmed(n.code) ? "opacity-40" : ""} ${isDark ? "border-white/10 bg-[#0c0916]/90 hover:bg-[#17112b]" : "border-violet-200 bg-white hover:bg-violet-50"}`}>
+                          <button type="button" onClick={() => openNode(n.code)} className={`h-full w-full cursor-pointer rounded-xl border p-3 text-left transition-colors ${nodeDimmed(n.code) ? "opacity-40" : ""} border-line bg-card hover:bg-wash`}>
                             <span className="flex items-start justify-between gap-2">
-                              <b className={`text-[13px] leading-snug ${isDark ? "text-white" : "text-violet-950"}`}>{n.label[currentLanguage]}</b>
+                              <b className={`text-[13px] leading-snug text-ink`}>{n.label[currentLanguage]}</b>
                               <span className="shrink-0 text-[10px] font-mono text-violet-400">{ui.kinds[n.kind] ?? n.kind}</span>
                             </span>
                             <span className={`mt-1 line-clamp-3 block text-[12px] leading-relaxed ${muted}`}>{n.summary[currentLanguage]}</span>
@@ -1391,9 +1391,9 @@ export default function SwissPathMap({ currentLanguage, theme, isLoggedIn, onGoa
           role="dialog"
           aria-modal="false"
           aria-label={selectedNodeCode ? labelOf(selectedNodeCode) : ui.edgeTitle}
-          className={`fixed inset-x-0 bottom-0 z-40 max-h-[82vh] overflow-y-auto rounded-t-2xl border-t p-4 shadow-2xl outline-none sm:inset-y-0 sm:left-auto sm:right-0 sm:top-16 sm:max-h-none sm:w-[440px] sm:rounded-none sm:border-l sm:border-t-0 ${isDark ? "border-violet-400/25 bg-zinc-950/95 backdrop-blur-xl" : "border-violet-300 bg-white/97 backdrop-blur-xl"}`}
+          className={`fixed inset-x-0 bottom-0 z-40 max-h-[82vh] overflow-y-auto rounded-t-2xl border-t p-4 shadow-2xl outline-none sm:inset-y-0 sm:left-auto sm:right-0 sm:top-16 sm:max-h-none sm:w-[440px] sm:rounded-none sm:border-l sm:border-t-0 border-line bg-card backdrop-blur-xl`}
         >
-          <button type="button" onClick={() => setSelection(null)} aria-label={ui.close} className={`absolute right-3 top-3 cursor-pointer rounded-lg p-1.5 ${isDark ? "text-zinc-300 hover:bg-white/10" : "text-violet-900 hover:bg-violet-100"}`}>
+          <button type="button" onClick={() => setSelection(null)} aria-label={ui.close} className={`absolute right-3 top-3 cursor-pointer rounded-lg p-1.5 text-ink hover:bg-wash`}>
             <X className="h-4 w-4" />
           </button>
           <div className="pr-8">{selectedNodeCode ? renderNodePanel(selectedNodeCode) : selectedEdge ? renderEdgePanel(selectedEdge) : null}</div>

@@ -138,8 +138,8 @@ export default function ProfessionSalary({ profession, language, isDark }: Props
   const groupName = group ? GROUP_NAME[group]?.[language] ?? total?.groupName ?? "" : "";
   const byAge = (["bis29", "30-49", "ab50"] as const).map(age => ({ age, row: rows.find(b => b.age === age) })).filter(x => x.row);
   const ageLabel = { "bis29": ui.under30, "30-49": ui.mid, "ab50": ui.over50 } as const;
-  const muted = isDark ? "text-zinc-400" : "text-violet-950/70";
-  const strong = isDark ? "text-white" : "text-violet-950";
+  const muted = "text-muted";
+  const strong = "text-ink";
 
   return (
     <div className="card-premium space-y-3 p-3.5 text-left">
@@ -152,7 +152,7 @@ export default function ProfessionSalary({ profession, language, isDark }: Props
           <div className={`text-xs font-bold ${strong}`}>{ui.apprentice}</div>
           <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2">
             {wages.map(w => (
-              <li key={w.year} className={`flex items-baseline justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-xs ${isDark ? "border-white/10 bg-white/[0.03]" : "border-purple-200 bg-white"}`}>
+              <li key={w.year} className={`flex items-baseline justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-xs border-line bg-card`}>
                 <span className={muted}>{ui.yearN(w.year)}</span>
                 <span className={`font-bold ${strong}`}>{range(w.min, w.max)}</span>
               </li>

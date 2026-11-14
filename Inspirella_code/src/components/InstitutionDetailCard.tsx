@@ -95,7 +95,7 @@ export default function InstitutionDetailCard({
               />
             </div>
             {institution.imageAttribution && (
-              <p className={`mt-1 text-[11px] leading-snug ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>
+              <p className={`mt-1 text-[11px] leading-snug text-muted`}>
                 {institution.imageAttribution}
               </p>
             )}
@@ -104,7 +104,7 @@ export default function InstitutionDetailCard({
 
         <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3 border-purple-200/10">
           <div>
-            <h3 className={`text-base font-extrabold flex items-center gap-1.5 leading-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
+            <h3 className={`text-base font-extrabold flex items-center gap-1.5 leading-tight text-ink font-black`}>
               {institution.title}
               {isTrusted(institution) && <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />}
               {isProvisional(institution) && (
@@ -116,12 +116,12 @@ export default function InstitutionDetailCard({
             <div className="flex flex-wrap items-center gap-1.5 mt-1">
               {institution.category && (
                 <span className={`inline-block text-[11px] font-mono px-1.5 py-0.5 rounded ${
-                  isDark ? "bg-violet-950/40 text-violet-300" : "bg-purple-100 text-violet-950 font-bold"
+                  "bg-mist text-ink font-bold"
                 }`}>
                   {categoryLabel(institution.category, currentLanguage)}
                 </span>
               )}
-              <span className={`text-[11px] font-mono ${isDark ? "text-zinc-400" : "text-violet-950/70 font-semibold"}`}>
+              <span className={`text-[11px] font-mono text-muted font-semibold`}>
                 {institution.canton ? `Canton ${institution.canton}` : t.mapCantonUnknown}
               </span>
             </div>
@@ -135,7 +135,7 @@ export default function InstitutionDetailCard({
         </div>
 
         {localizedText(institution.description, currentLanguage) && (
-          <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
+          <p className={`text-xs leading-relaxed text-ink font-semibold`}>
             {localizedText(institution.description, currentLanguage)}
           </p>
         )}
@@ -143,12 +143,12 @@ export default function InstitutionDetailCard({
         {/* Rich German texts reach other languages via the nightly DeepL run
             (Supabase function translate-missing) - say so, honestly. */}
         {currentLanguage !== "de" && institution.profile?.[currentLanguage] && (
-          <p className={`text-[11px] italic ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{t.autoTranslatedNote}</p>
+          <p className={`text-[11px] italic text-muted`}>{t.autoTranslatedNote}</p>
         )}
         {localizedText(institution.profile, currentLanguage) && (
           <div className="card-premium p-3.5">
             <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.institutionProfileLabel}</span>
-            <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+            <p className={`text-xs leading-relaxed text-ink font-semibold`}>
               {localizedText(institution.profile, currentLanguage)}
             </p>
           </div>
@@ -159,13 +159,13 @@ export default function InstitutionDetailCard({
             {institution.establishedYear && (
               <div className="card-premium p-2 text-center">
                 <span className="block text-[10px] font-mono uppercase tracking-wider text-violet-400">Established</span>
-                <span className={`text-xs font-extrabold font-mono ${isDark ? "text-zinc-200" : "text-violet-950"}`}>{institution.establishedYear}</span>
+                <span className={`text-xs font-extrabold font-mono text-ink`}>{institution.establishedYear}</span>
               </div>
             )}
             {institution.studentCount && (
               <div className="card-premium p-2 text-center">
                 <span className="block text-[10px] font-mono uppercase tracking-wider text-violet-400">Students</span>
-                <span className={`text-xs font-extrabold font-mono ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
+                <span className={`text-xs font-extrabold font-mono text-ink`}>
                   {institution.studentCount >= 1000 ? `${(institution.studentCount / 1000).toFixed(0)}k+` : institution.studentCount}
                 </span>
               </div>
@@ -173,7 +173,7 @@ export default function InstitutionDetailCard({
             {institution.cantonalLanguage && (
               <div className="card-premium p-2 text-center">
                 <span className="block text-[10px] font-mono uppercase tracking-wider text-violet-400">Language</span>
-                <span className={`text-[11px] font-extrabold font-mono truncate block ${isDark ? "text-zinc-200" : "text-violet-950"}`}>{institution.cantonalLanguage}</span>
+                <span className={`text-[11px] font-extrabold font-mono truncate block text-ink`}>{institution.cantonalLanguage}</span>
               </div>
             )}
           </div>
@@ -182,7 +182,7 @@ export default function InstitutionDetailCard({
         {localizedText(institution.studentLife, currentLanguage) && (
           <div className="card-premium p-3.5">
             <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.studentLifeLabel}</span>
-            <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+            <p className={`text-xs leading-relaxed text-ink font-semibold`}>
               {localizedText(institution.studentLife, currentLanguage)}
             </p>
           </div>
@@ -193,7 +193,7 @@ export default function InstitutionDetailCard({
             {localizedText(institution.languageEnvironment, currentLanguage) && (
               <div className="card-premium p-3">
                 <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.languageEnvironmentLabel}</span>
-                <p className={`text-xs leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
+                <p className={`text-xs leading-relaxed font-semibold text-ink`}>
                   {localizedText(institution.languageEnvironment, currentLanguage)}
                 </p>
               </div>
@@ -201,7 +201,7 @@ export default function InstitutionDetailCard({
             {localizedText(institution.housingNotes, currentLanguage) && (
               <div className="card-premium p-3">
                 <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.housingNotesLabel}</span>
-                <p className={`text-xs leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
+                <p className={`text-xs leading-relaxed font-semibold text-ink`}>
                   {localizedText(institution.housingNotes, currentLanguage)}
                 </p>
               </div>
@@ -212,10 +212,10 @@ export default function InstitutionDetailCard({
         {localizedText(institution.admissionRequirements, currentLanguage) && (
           <div className="card-premium-accent p-3.5">
             <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.admissionInfo}</span>
-            <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+            <p className={`text-xs leading-relaxed text-ink font-semibold`}>
               {localizedText(institution.admissionRequirements, currentLanguage)}
             </p>
-            <p className={`mt-2 text-[11px] leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/70 font-semibold"}`}>
+            <p className={`mt-2 text-[11px] leading-relaxed text-muted font-semibold`}>
               {t.verifyWithInstitution}
             </p>
           </div>
@@ -224,7 +224,7 @@ export default function InstitutionDetailCard({
         {localizedText(institution.applicationNotes, currentLanguage) && (
           <div className="card-premium-accent p-3.5">
             <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.applicationNotesLabel}</span>
-            <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+            <p className={`text-xs leading-relaxed text-ink font-semibold`}>
               {localizedText(institution.applicationNotes, currentLanguage)}
             </p>
           </div>
@@ -247,7 +247,7 @@ export default function InstitutionDetailCard({
                 <div
                   key={link.id}
                   className={`flex items-center gap-2 text-xs px-2.5 py-1.5 rounded-lg ${
-                    isDark ? "bg-white/5 border border-white/5 text-zinc-200" : "bg-purple-50 text-violet-950 font-semibold border border-purple-200/40"
+                    "bg-mist text-ink font-semibold border border-line"
                   }`}
                 >
                   <Briefcase className="h-3 w-3 text-violet-400 shrink-0" />
@@ -264,7 +264,7 @@ export default function InstitutionDetailCard({
           <div className="flex flex-wrap gap-1">
             {institution.tags.map((tag, idx) => (
               <span key={idx} className={`text-[11px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
-                isDark ? "bg-zinc-900 text-zinc-400 border-violet-900/30" : "bg-purple-100/60 text-violet-950 border-purple-200/50"
+                "bg-mist text-ink border-line"
               }`}>
                 #{tag}
               </span>
@@ -283,7 +283,7 @@ export default function InstitutionDetailCard({
           className={`w-full flex items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-bold tracking-wide transition disabled:opacity-40 disabled:cursor-not-allowed ${
             isInCompare
               ? "bg-violet-600/20 border-violet-500/40 text-violet-300"
-              : isDark ? "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10" : "bg-purple-50 border-purple-200 text-violet-950 hover:bg-purple-100"
+              : "bg-mist border-line text-ink hover:bg-wash"
           }`}
         >
           {isInCompare ? (<><Check className="h-3.5 w-3.5" /> {t.compareRemove}</>) : (<><Plus className="h-3.5 w-3.5" /> {t.compareAdd}</>)}
@@ -292,12 +292,12 @@ export default function InstitutionDetailCard({
         {(institution.email || institution.phone) && (
           <div className="flex items-center gap-2 text-xs">
             {institution.email && (
-              <a href={`mailto:${institution.email}`} className={`inline-flex items-center gap-1 ${isDark ? "text-zinc-300 hover:text-violet-300" : "text-violet-950 hover:text-violet-600 font-semibold"}`}>
+              <a href={`mailto:${institution.email}`} className={`inline-flex items-center gap-1 text-ink hover:text-plum font-semibold`}>
                 <Mail className="h-3 w-3 text-violet-500" /> {institution.email}
               </a>
             )}
             {institution.phone && (
-              <span className={`inline-flex items-center gap-1 ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
+              <span className={`inline-flex items-center gap-1 text-ink font-semibold`}>
                 <Phone className="h-3 w-3 text-violet-500" /> {institution.phone}
               </span>
             )}

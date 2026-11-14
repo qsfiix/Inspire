@@ -91,13 +91,13 @@ export default function GoalPicker({ language, isDark, route, onChange, onClose,
     [institutions, q]
   );
 
-  const muted = isDark ? "text-zinc-400" : "text-zinc-600";
+  const muted = "text-muted";
   const tabCls = (on: boolean) =>
     `px-3 py-1 rounded-full text-[11px] font-semibold border transition cursor-pointer ${
-      on ? (isDark ? "bg-violet-500/25 border-violet-400/50 text-white" : "bg-violet-100 border-violet-300 text-violet-900") : isDark ? "border-white/10 text-zinc-300 hover:bg-white/5" : "border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+      on ? ("bg-mist border-line text-ink") : isDark ? "border-white/10 text-zinc-300 hover:bg-white/5" : "border-zinc-200 text-zinc-700 hover:bg-zinc-50"
     }`;
   const rowCls = `w-full text-left rounded-lg border px-3 py-2 text-[12px] transition cursor-pointer ${
-    isDark ? "border-white/10 bg-white/[0.03] hover:bg-white/10 text-zinc-100" : "border-zinc-200 bg-white hover:bg-violet-50 text-zinc-900"
+    "border-line bg-card hover:bg-wash text-ink"
   }`;
 
   const pickProfession = (p: Profession) => {
@@ -116,9 +116,9 @@ export default function GoalPicker({ language, isDark, route, onChange, onClose,
   };
 
   return (
-    <div className={`mt-3 rounded-xl border p-4 space-y-3 ${isDark ? "border-white/10 bg-white/[0.04]" : "border-purple-200 bg-white"}`}>
+    <div className={`mt-3 rounded-xl border p-4 space-y-3 border-line bg-card`}>
       <div className="flex items-center justify-between gap-2">
-        <h3 className={`text-[13px] font-bold ${isDark ? "text-violet-100" : "text-violet-950"}`}>{ui.title}</h3>
+        <h3 className={`text-[13px] font-bold text-ink`}>{ui.title}</h3>
         <button type="button" onClick={onClose} aria-label={ui.close} className={`rounded-md p-1 cursor-pointer ${isDark ? "hover:bg-white/10 text-zinc-300" : "hover:bg-zinc-100 text-zinc-600"}`}>
           <X className="h-4 w-4" />
         </button>
@@ -135,7 +135,7 @@ export default function GoalPicker({ language, isDark, route, onChange, onClose,
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder={tab === "profession" ? ui.searchProf : ui.searchSchool}
-          className={`w-full text-[12px] px-3 py-2 rounded-lg border outline-none ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-purple-200 text-black"}`}
+          className={`w-full text-[12px] px-3 py-2 rounded-lg border outline-none bg-card border-line text-ink`}
         />
       )}
 
@@ -148,7 +148,7 @@ export default function GoalPicker({ language, isDark, route, onChange, onClose,
           ))}
           {q.length >= 2 && profMatches.length === 0 && <p className={`text-[11px] ${muted}`}>{ui.none}</p>}
           {onBrowse && (
-            <button type="button" onClick={onBrowse} className={`text-[11px] underline cursor-pointer ${isDark ? "text-violet-300" : "text-violet-700"}`}>
+            <button type="button" onClick={onBrowse} className={`text-[11px] underline cursor-pointer text-plum`}>
               {ui.browse}
             </button>
           )}

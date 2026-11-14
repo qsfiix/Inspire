@@ -94,7 +94,7 @@ export default function GoalButton({ item, language, isDark, onDone, className =
         }
       }}
       className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-bold transition cursor-pointer ${
-        isDark ? "border-violet-400/40 bg-violet-500/15 text-violet-100 hover:bg-violet-500/25" : "border-violet-300 bg-violet-50 text-violet-900 hover:bg-violet-100"
+        "border-line bg-mist text-ink hover:bg-wash"
       } ${className}`}
     >
       <Target className="h-3.5 w-3.5" aria-hidden="true" />

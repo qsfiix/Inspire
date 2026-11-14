@@ -12,6 +12,22 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+/* Theme colours as utilities (text-ink, bg-paper, border-line ...). The values live in alpen.css and
+   change with data-theme, so one class serves Alpenglühen and Nacht. */
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-mist: var(--mist);
+  --color-wash: var(--wash);
+  --color-plum: var(--plum);
+  --color-btn: var(--btn);
+  --color-coral: var(--coral);
+}
+
 /* Custom scrollbar matching elegant violet accents */
 ::-webkit-scrollbar {
   width: 8px;

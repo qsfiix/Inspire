@@ -65,10 +65,10 @@ function StepSchools({
     requireFocus: orientation ? "bm_" + orientation : undefined
   });
   const visible = showAll ? all : all.slice(0, 6);
-  const muted = isDark ? "text-zinc-400" : "text-violet-950/70";
+  const muted = "text-muted";
   const field =
     "rounded-lg border px-2 py-1 text-[11px] font-semibold " +
-    (isDark ? "bg-white/[0.03] border-white/10 text-white" : "bg-white border-purple-200 text-violet-950");
+    ("bg-card border-line text-ink");
 
   return (
     <div className="pt-1">
@@ -76,7 +76,7 @@ function StepSchools({
         type="button"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        className={"text-[11px] font-bold underline cursor-pointer " + (isDark ? "text-violet-300" : "text-violet-800")}
+        className={"text-[11px] font-bold underline cursor-pointer " + ("text-plum")}
       >
         {open ? copy.schoolsHide : copy.schoolsShow + " (" + all.length + ")"}
       </button>
@@ -112,17 +112,17 @@ function StepSchools({
                 key={institution.id}
                 className={
                   "flex flex-wrap items-baseline gap-x-2 rounded-lg border px-2.5 py-1.5 text-[11px] " +
-                  (inCanton ? (isDark ? "border-violet-500/60" : "border-violet-500") : isDark ? "border-white/5" : "border-purple-200")
+                  (inCanton ? (isDark ? "border-violet-500/60" : "border-violet-500") : "border-line")
                 }
               >
-                <span className={"font-bold " + (isDark ? "text-white" : "text-violet-950")}>{institution.title}</span>
+                <span className={"font-bold " + ("text-ink")}>{institution.title}</span>
                 <span className={muted}>{[institution.canton, detail].filter(Boolean).join(" · ")}</span>
                 {institution.website && (
                   <a
                     href={institution.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={"ml-auto inline-flex items-center gap-1 underline " + (isDark ? "text-violet-300" : "text-violet-800")}
+                    className={"ml-auto inline-flex items-center gap-1 underline " + ("text-plum")}
                   >
                     {copy.website}
                     <ExternalLink className="h-3 w-3" />
@@ -162,10 +162,10 @@ function SegmentView({
   const [open, setOpen] = useState(defaultOpen);
   const title = getTranslatedString(segment.path.title, language, "de");
   const doneCount = segment.steps.filter(s => s.status === "done").length;
-  const muted = isDark ? "text-zinc-400" : "text-violet-950/70";
+  const muted = "text-muted";
 
   return (
-    <div className={`rounded-2xl border ${isDark ? "border-white/10 bg-white/[0.02]" : "border-purple-200 bg-violet-50/40"}`}>
+    <div className={`rounded-2xl border border-line bg-mist`}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -173,10 +173,10 @@ function SegmentView({
         className="flex w-full items-center justify-between gap-3 p-4 text-left cursor-pointer"
       >
         <div className="min-w-0">
-          <span className={`block text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-violet-300" : "text-violet-800"}`}>
+          <span className={`block text-[11px] font-bold uppercase tracking-wider text-plum`}>
             {copy[`kind_${segment.kind}`]}
           </span>
-          <span className={`block text-sm font-black ${isDark ? "text-white" : "text-violet-950"}`}>{title}</span>
+          <span className={`block text-sm font-black text-ink`}>{title}</span>
           <span className={`block text-xs ${muted}`}>
             {doneCount} / {segment.steps.length}
           </span>
@@ -212,7 +212,7 @@ function SegmentView({
                 </span>
                 <div className="min-w-0 space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`text-xs font-bold ${isDark ? "text-white" : "text-violet-950"}`}>{stepTitle}</span>
+                    <span className={`text-xs font-bold text-ink`}>{stepTitle}</span>
                     {isCurrent && (
                       <span className="rounded-full bg-violet-600 px-2 py-0.5 text-[10px] font-bold text-white">{copy.status_current}</span>
                     )}
@@ -226,7 +226,7 @@ function SegmentView({
                         href={step.officialUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`inline-flex items-center gap-1 text-[11px] underline ${isDark ? "text-violet-300" : "text-violet-800"}`}
+                        className={`inline-flex items-center gap-1 text-[11px] underline text-plum`}
                       >
                         {copy.open}
                         <ExternalLink className="h-3 w-3" />
@@ -240,7 +240,7 @@ function SegmentView({
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`flex items-center gap-1 text-[11px] underline ${isDark ? "text-violet-300" : "text-violet-800"}`}
+                        className={`flex items-center gap-1 text-[11px] underline text-plum`}
                       >
                         <ExternalLink className="h-3 w-3 shrink-0" />
                         <span>
@@ -371,7 +371,7 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
     [templates, route, userProfile, chosenProf?.professionType]
   );
 
-  const muted = isDark ? "text-zinc-400" : "text-violet-950/70";
+  const muted = "text-muted";
   const targetLabel =
     personal && personal.target !== "undecided" ? onboardingCopy[`tgt_${personal.target}`] ?? personal.target : copy.target_undecided;
 
@@ -379,9 +379,9 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
     <div className="card-premium space-y-5 rounded-3xl border border-violet-500/20 p-5 sm:p-6" data-testid="personal-route">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-2">
-          <RouteIcon className={`h-5 w-5 ${isDark ? "text-violet-300" : "text-violet-900"}`} />
+          <RouteIcon className={`h-5 w-5 text-ink`} />
           <div>
-            <h3 className={`text-sm font-black tracking-tight ${isDark ? "text-white" : "text-violet-950"}`}>{copy.title}</h3>
+            <h3 className={`text-sm font-black tracking-tight text-ink`}>{copy.title}</h3>
             <p className={`text-xs ${muted}`}>{copy.subtitle}</p>
           </div>
         </div>
@@ -403,7 +403,7 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
               {copy[`entry_${personal.entry}`]}
             </span>
             <span aria-hidden="true">→</span>
-            <span className={`rounded-full px-3 py-1 font-bold ${isDark ? "bg-violet-950/40 text-violet-200" : "bg-violet-100 text-violet-900"}`}>
+            <span className={`rounded-full px-3 py-1 font-bold bg-mist text-ink`}>
               {targetLabel}
             </span>
             <span className={`ml-auto text-[11px] ${muted}`}>{copy[`conf_${personal.confidence}`]}</span>
@@ -429,7 +429,7 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
               <select
                 value={canton}
                 onChange={e => handleCanton(e.target.value)}
-                className={`rounded-lg border px-2 py-1 text-[11px] font-semibold ${isDark ? "bg-white/[0.03] border-white/10 text-white" : "bg-white border-purple-200 text-violet-950"}`}
+                className={`rounded-lg border px-2 py-1 text-[11px] font-semibold bg-card border-line text-ink`}
               >
                 <option value="">-</option>
                 {CANTONS.map(code => (
@@ -442,7 +442,7 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
             {canton &&
               ["career_guidance", "bridge"].flatMap(topic =>
                 (cantonLinks.get(topic) ?? []).slice(0, 1).map(link => (
-                  <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-1 underline ${isDark ? "text-violet-300" : "text-violet-800"}`}>
+                  <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-1 underline text-plum`}>
                     {(topic === "career_guidance" ? copy.careerGuidanceFor : copy.bridgeFor).replace("{canton}", canton)}
                     <ExternalLink className="h-3 w-3" />
                   </a>
@@ -451,10 +451,10 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
           </div>
 
           <div className="space-y-2" data-testid="route-profession">
-            <span className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-violet-300" : "text-violet-800"}`}>{copy.profTitle}</span>
+            <span className={`text-[11px] font-bold uppercase tracking-wider text-plum`}>{copy.profTitle}</span>
             {chosenProf ? (
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className={`rounded-full px-3 py-1 font-bold ${isDark ? "bg-violet-950/40 text-violet-200" : "bg-violet-100 text-violet-900"}`}>
+                <span className={`rounded-full px-3 py-1 font-bold bg-mist text-ink`}>
                   {getTranslatedString(chosenProf.title, language, "de")}
                 </span>
                 <span className={muted}>{copy["type_" + (chosenProf.professionType ?? "other")] ?? copy.type_other}</span>
@@ -469,7 +469,7 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
                   onChange={e => setProfQuery(e.target.value)}
                   placeholder={copy.profSearch}
                   aria-label={copy.profTitle}
-                  className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold ${isDark ? "bg-white/[0.03] border-white/10 text-white" : "bg-white border-purple-200 text-violet-950"}`}
+                  className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold bg-card border-line text-ink`}
                 />
                 {profQuery.trim().length < 2 && suggested.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5">
@@ -500,7 +500,7 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
                           }}
                           className={`flex w-full items-baseline justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-[11px] cursor-pointer ${isDark ? "border-white/10 hover:border-violet-500" : "border-purple-200 hover:border-violet-600"}`}
                         >
-                          <span className={`font-bold ${isDark ? "text-white" : "text-violet-950"}`}>{getTranslatedString(p.title, language, "de")}</span>
+                          <span className={`font-bold text-ink`}>{getTranslatedString(p.title, language, "de")}</span>
                           <span className={muted}>{copy["type_" + (p.professionType ?? "other")] ?? copy.type_other}</span>
                         </button>
                       </li>
@@ -511,7 +511,7 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
             )}
             {chosenProf && (
               <div className={`rounded-2xl border p-3 ${isDark ? "border-white/10" : "border-purple-200 bg-violet-50/40"}`}>
-                <span className={`block text-xs font-black ${isDark ? "text-white" : "text-violet-950"}`}>{copy.profSchools}</span>
+                <span className={`block text-xs font-black text-ink`}>{copy.profSchools}</span>
                 {profInstitutionIds.length === 0 ? (
                   <p className={`text-[11px] ${muted}`}>{copy.profNoSchools}</p>
                 ) : (
@@ -550,7 +550,7 @@ export default function PersonalRoute({ userProfile, language, isDark, onRefine,
                 type="button"
                 onClick={() => setShowAlternatives(!showAlternatives)}
                 aria-expanded={showAlternatives}
-                className={`flex items-center gap-1 text-xs font-bold underline cursor-pointer ${isDark ? "text-violet-300" : "text-violet-800"}`}
+                className={`flex items-center gap-1 text-xs font-bold underline cursor-pointer text-plum`}
               >
                 {copy.alternativesTitle}
                 {showAlternatives ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}

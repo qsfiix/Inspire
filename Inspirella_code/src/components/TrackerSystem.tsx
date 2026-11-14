@@ -54,9 +54,9 @@ export default function TrackerSystem({
     ? "bg-white/[0.02] border border-white/10"
     : "bg-violet-950/5 border border-violet-950/10 shadow-inner";
 
-  const tTextTitle = isDark ? "text-violet-200" : "text-black font-black";
-  const tTextBody = isDark ? "text-zinc-200" : "text-black font-bold";
-  const tTextSub = isDark ? "text-zinc-300" : "text-black font-extrabold";
+  const tTextTitle = "text-ink font-black";
+  const tTextBody = "text-ink font-bold";
+  const tTextSub = "text-ink font-extrabold";
   const tInput = isDark
     ? "border border-white/10 bg-white/5 text-white placeholder-zinc-500 focus:border-white/30"
     : "border-2 border-violet-950/20 bg-white text-indigo-950 placeholder-violet-950/45 focus:border-violet-950";
@@ -137,20 +137,20 @@ export default function TrackerSystem({
   const renderItem = (goal: TrackerGoal, item: TrackerChecklistItem, nested: boolean, children: TrackerChecklistItem[]) => {
     const days = item.completed ? null : daysTo(item.dueAt);
     const kindLabel = item.kind && item.kind !== "task" && item.kind !== "application" ? ui.kindLabel[item.kind] : null;
-    const muted = isDark ? "text-zinc-400" : "text-zinc-600";
+    const muted = "text-muted";
     return (
       <div key={item.id} className={`card-premium-accent text-xs ${nested ? "ml-5 p-2" : "p-2.5"}`}>
         <div className="flex items-center justify-between">
           <button
             onClick={() => handleToggleItem(goal.id, item.id)}
             className={`flex-1 flex items-center gap-2.5 text-left transition relative cursor-pointer font-bold ${
-              item.completed ? "text-zinc-500 line-through" : isDark ? "text-zinc-100" : "text-violet-950"
+              item.completed ? "text-zinc-500 line-through" : "text-ink"
             }`}
           >
             {item.completed ? (
               <CheckCircle className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
             ) : (
-              <Circle className={`h-4.5 w-4.5 shrink-0 ${isDark ? "text-zinc-400" : "text-violet-950/70"}`} />
+              <Circle className={`h-4.5 w-4.5 shrink-0 text-muted`} />
             )}
             <span>{item.text}</span>
           </button>
@@ -164,14 +164,14 @@ export default function TrackerSystem({
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-2 pl-7">
           {kindLabel && (
-            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${isDark ? "border-violet-400/30 text-violet-200" : "border-violet-300 text-violet-800"}`}>{kindLabel}</span>
+            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold border-line text-plum`}>{kindLabel}</span>
           )}
           <input
             type="date"
             value={item.dueAt ?? ""}
             onChange={e => handlePatchItem(item.id, { dueAt: e.target.value || undefined })}
             aria-label={ui.date}
-            className={`rounded-md border px-1.5 py-0.5 text-[11px] ${isDark ? "bg-white/5 border-white/15 text-white" : "bg-white border-violet-200 text-black"}`}
+            className={`rounded-md border px-1.5 py-0.5 text-[11px] bg-card border-line text-ink`}
           />
           {days !== null && (
             <span className={`text-[11px] font-semibold ${days < 0 ? "text-red-500" : days <= 2 ? "text-amber-500" : muted}`}>{whenText(days, ui)}</span>
@@ -187,7 +187,7 @@ export default function TrackerSystem({
             onChange={e => handlePatchItem(item.id, { note: e.target.value || undefined })}
             placeholder={ui.notePlaceholder}
             aria-label={ui.note}
-            className={`mt-1.5 ml-7 w-[calc(100%-1.75rem)] rounded-md border px-2 py-1 text-[11px] outline-none ${isDark ? "bg-white/5 border-white/10 text-white placeholder-zinc-500" : "bg-white border-violet-200 text-black placeholder-zinc-500"}`}
+            className={`mt-1.5 ml-7 w-[calc(100%-1.75rem)] rounded-md border px-2 py-1 text-[11px] outline-none bg-card border-line text-ink placeholder-muted`}
           />
         )}
       </div>
@@ -218,14 +218,14 @@ export default function TrackerSystem({
       {/* Goal Creation Deck */}
       <div className="card-premium p-6 text-left relative overflow-hidden">
         <SectionGlow isDark={isDark} corner="top-right" />
-        <h2 className={`relative text-base font-bold mb-4 flex items-center gap-2 ${isDark ? "text-violet-100" : "text-violet-950"}`}>
+        <h2 className={`relative text-base font-bold mb-4 flex items-center gap-2 text-ink`}>
           <PlusCircle className="h-5 w-5 text-violet-500" />
           {t.createTracker}
         </h2>
 
         <form onSubmit={handleCreateGoal} className="grid gap-4 sm:grid-cols-7 items-end">
           <div className="sm:col-span-2">
-            <label className={`block text-xs font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>Goal Title *</label>
+            <label className={`block text-xs font-mono uppercase mb-1.5 text-ink font-extrabold`}>Goal Title *</label>
             <input
               type="text"
               value={newGoalTitle}
@@ -237,7 +237,7 @@ export default function TrackerSystem({
           </div>
 
           <div className="sm:col-span-2">
-            <label className={`block text-xs font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>Brief Details / Milestone</label>
+            <label className={`block text-xs font-mono uppercase mb-1.5 text-ink font-extrabold`}>Brief Details / Milestone</label>
             <input
               type="text"
               value={newGoalDesc}
@@ -248,23 +248,23 @@ export default function TrackerSystem({
           </div>
 
           <div className="sm:col-span-1">
-            <label className={`block text-xs font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>Category</label>
+            <label className={`block text-xs font-mono uppercase mb-1.5 text-ink font-extrabold`}>Category</label>
             <select
               value={newGoalCategory}
               onChange={(e) => setNewGoalCategory(e.target.value as TrackerGoal["category"])}
               className={`w-full rounded-lg p-2.5 text-xs focus:outline-none cursor-pointer ${tInput}`}
             >
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="education">{t.habitCat_education}</option>
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="habit">{t.habitCat_habit}</option>
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="sport">{t.habitCat_sport}</option>
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="health">{t.habitCat_health}</option>
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="productivity">{t.habitCat_productivity}</option>
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-purple-100 text-black font-semibold"} value="other">{t.habitCat_other}</option>
+              <option className="bg-mist text-ink font-semibold" value="education">{t.habitCat_education}</option>
+              <option className="bg-mist text-ink font-semibold" value="habit">{t.habitCat_habit}</option>
+              <option className="bg-mist text-ink font-semibold" value="sport">{t.habitCat_sport}</option>
+              <option className="bg-mist text-ink font-semibold" value="health">{t.habitCat_health}</option>
+              <option className="bg-mist text-ink font-semibold" value="productivity">{t.habitCat_productivity}</option>
+              <option className="bg-mist text-ink font-semibold" value="other">{t.habitCat_other}</option>
             </select>
           </div>
 
           <div className="sm:col-span-1">
-            <label className={`block text-xs font-mono uppercase mb-1.5 ${isDark ? "text-zinc-300" : "text-violet-900 font-extrabold"}`}>{t.trackerDueDateLabel}</label>
+            <label className={`block text-xs font-mono uppercase mb-1.5 text-ink font-extrabold`}>{t.trackerDueDateLabel}</label>
             <input
               type="date"
               value={newGoalDueDate}
@@ -291,7 +291,7 @@ export default function TrackerSystem({
           {shownGoals.length === 0 ? (
             <div className="card-premium md:col-span-2 py-12 text-center p-6 border-dashed">
               <Star className="h-8 w-8 text-violet-400 mx-auto mb-2" />
-              <p className={`text-xs font-black ${isDark ? "text-zinc-400" : "text-violet-950"}`}>{t.noTrackers}</p>
+              <p className={`text-xs font-black text-ink`}>{t.noTrackers}</p>
             </div>
           ) : (
             shownGoals.map((goal) => (
@@ -313,7 +313,7 @@ export default function TrackerSystem({
                         {getCategoryIcon(goal.category)}
                       </div>
                       <div>
-                        <h3 className={`text-sm font-bold tracking-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>{goal.title}</h3>
+                        <h3 className={`text-sm font-bold tracking-tight text-ink font-black`}>{goal.title}</h3>
                         <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-905 block font-bold"}`}>{goal.description || "Active Goal"}</p>
                       </div>
                     </div>
@@ -328,7 +328,7 @@ export default function TrackerSystem({
 
                   {/* Progress Indicators & Streaks */}
                   <div className="flex items-center justify-between text-xs mb-3 flex-wrap gap-1.5">
-                    <span className={`font-mono text-xs uppercase ${isDark ? "text-zinc-300 font-bold" : "text-violet-950 font-extrabold"}`}>
+                    <span className={`font-mono text-xs uppercase text-ink font-extrabold`}>
                       {t.completionPercentage} • {goal.progress}%
                     </span>
 
@@ -343,7 +343,7 @@ export default function TrackerSystem({
                               ? (isDark ? "bg-red-500/10 text-red-300 border-red-500/20" : "bg-red-50 text-red-700 border-red-200 font-black")
                               : isDueSoon
                               ? (isDark ? "bg-amber-500/10 text-amber-300 border-amber-500/20" : "bg-amber-50 text-amber-800 border-amber-200 font-black")
-                              : (isDark ? "bg-white/5 text-zinc-300 border-white/10" : "bg-violet-50 text-violet-900 border-violet-200 font-bold")
+                              : ("bg-mist text-ink border-line font-bold")
                           }`}>
                             {isOverdue ? <AlertTriangle className="h-3.5 w-3.5" /> : <CalendarClock className="h-3.5 w-3.5" />}
                             <span>
@@ -367,7 +367,7 @@ export default function TrackerSystem({
                   </div>
 
                   {/* Progress Bar */}
-                  <div className={`h-2 w-full rounded-full overflow-hidden mb-5 border ${isDark ? "bg-white/5 border-white/5" : "bg-violet-100 border-violet-200"}`}>
+                  <div className={`h-2 w-full rounded-full overflow-hidden mb-5 border bg-mist border-line`}>
                     <motion.div
                       className="h-full bg-gradient-to-r from-violet-500 via-indigo-500 to-emerald-500"
                       initial={{ width: 0 }}

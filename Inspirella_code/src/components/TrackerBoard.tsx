@@ -78,12 +78,12 @@ export default function TrackerBoard({ language, isDark, trackers, onTrackersCha
     setLogNote("");
   };
 
-  const card = isDark ? "border-white/10 bg-white/[0.03]" : "border-violet-200 bg-white";
-  const muted = isDark ? "text-zinc-400" : "text-zinc-600";
-  const input = `rounded-lg border px-2.5 py-1.5 text-[12px] outline-none ${isDark ? "bg-white/5 border-white/10 text-white placeholder-zinc-500" : "bg-white border-violet-200 text-black placeholder-zinc-500"}`;
-  const head = `text-[13px] font-bold ${isDark ? "text-violet-100" : "text-violet-950"}`;
+  const card = "border-line bg-card";
+  const muted = "text-muted";
+  const input = `rounded-lg border px-2.5 py-1.5 text-[12px] outline-none bg-card border-line text-ink placeholder-muted`;
+  const head = `text-[13px] font-bold text-ink`;
   const pill = (on: boolean) =>
-    `rounded-full border px-3 py-1 text-[11px] font-semibold cursor-pointer ${on ? (isDark ? "bg-violet-500/25 border-violet-400/50 text-white" : "bg-violet-100 border-violet-300 text-violet-900") : isDark ? "border-white/10 text-zinc-300" : "border-zinc-200 text-zinc-700"}`;
+    `rounded-full border px-3 py-1 text-[11px] font-semibold cursor-pointer ${on ? ("bg-mist border-line text-ink") : "border-line text-ink-2"}`;
 
   const stars = (value: number, onPick: (n: number) => void) => (
     <span className="inline-flex" role="group" aria-label={ui.logRating}>
@@ -113,8 +113,8 @@ export default function TrackerBoard({ language, isDark, trackers, onTrackersCha
             {COLUMNS.map(col => {
               const cards = apps.filter(a => col.statuses.includes(a.appStatus ?? "planned"));
               return (
-                <div key={col.id} className={`rounded-lg border p-2 ${isDark ? "border-white/10 bg-black/10" : "border-violet-100 bg-violet-50/50"}`}>
-                  <div className={`mb-1.5 flex items-center justify-between text-[11px] font-bold uppercase tracking-wide ${isDark ? "text-zinc-300" : "text-violet-900"}`}>
+                <div key={col.id} className={`rounded-lg border p-2 border-line bg-mist`}>
+                  <div className={`mb-1.5 flex items-center justify-between text-[11px] font-bold uppercase tracking-wide text-ink`}>
                     <span>{col.id === "closed" ? `${ui.statusLabel.rejected} / ${ui.statusLabel.declined}` : ui.statusLabel[col.statuses[0]]}</span>
                     <span className={muted}>{cards.length}</span>
                   </div>
@@ -122,7 +122,7 @@ export default function TrackerBoard({ language, isDark, trackers, onTrackersCha
                     {cards.map(a => (
                       <div key={a.id} className={`rounded-lg border p-2 ${card}`}>
                         <div className="flex items-start justify-between gap-1">
-                          <div className={`text-[12px] font-semibold ${isDark ? "text-white" : "text-violet-950"}`}>
+                          <div className={`text-[12px] font-semibold text-ink`}>
                             {a.firm?.name ?? a.text}
                             {a.firm?.url && (
                               <a href={a.firm.url} target="_blank" rel="noreferrer" className="ml-1 inline-block align-middle" aria-label={a.firm.name}>
@@ -182,7 +182,7 @@ export default function TrackerBoard({ language, isDark, trackers, onTrackersCha
             {log.map(entry => (
               <li key={entry.id} className={`rounded-lg border p-2.5 ${card}`}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className={`text-[12px] font-semibold ${isDark ? "text-white" : "text-violet-950"}`}>
+                  <div className={`text-[12px] font-semibold text-ink`}>
                     {entry.firm?.name ?? entry.text}
                     {entry.dueAt && <span className={`ml-2 font-normal ${muted}`}>{new Date(`${entry.dueAt}T00:00:00`).toLocaleDateString(language)}</span>}
                   </div>

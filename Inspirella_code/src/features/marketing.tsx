@@ -129,7 +129,7 @@ export function HomeView({
                         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                         transition={{ delay: 0.25 + i * 0.09, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
                       >
-                        <span className={isAccent ? "text-shimmer" : isDark ? "text-zinc-50" : "text-violet-950"}>{word}</span>
+                        <span className={isAccent ? "text-shimmer" : "text-ink"}>{word}</span>
                       </motion.span>{" "}
                     </React.Fragment>
                   );
@@ -221,7 +221,7 @@ export function HomeView({
 
         {/* Scroll cue: a light drop running down a thin line */}
         <div className="hidden md:flex absolute bottom-2 left-1/2 -translate-x-1/2 flex-col items-center gap-2 pointer-events-none" aria-hidden="true">
-          <span className={`text-[11px] font-mono uppercase tracking-[0.3em] ${isDark ? "text-violet-300/60" : "text-violet-900/50"}`}>Scroll</span>
+          <span className={`text-[11px] font-mono uppercase tracking-[0.3em] text-muted`}>Scroll</span>
           <span className={`scroll-cue relative block h-10 w-px overflow-hidden ${isDark ? "bg-white/10" : "bg-violet-900/15"}`} />
         </div>
       </section>
@@ -236,10 +236,10 @@ export function HomeView({
           <h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight text-balance ${tTextTitle}`}>
             {t.whyTitle}
           </h2>
-          <p className={`text-base leading-relaxed max-w-xl ${isDark ? "text-zinc-300" : "text-violet-950/80 font-medium"}`}>
+          <p className={`text-base leading-relaxed max-w-xl text-ink-2 font-medium`}>
             {t.whyText}
           </p>
-          <p className={`text-base leading-relaxed max-w-xl ${isDark ? "text-zinc-400" : "text-violet-950/75 font-medium"}`}>
+          <p className={`text-base leading-relaxed max-w-xl text-muted font-medium`}>
             {t.swissSpecialDesc}
           </p>
 
@@ -253,7 +253,7 @@ export function HomeView({
                 <span className={`font-bold text-sm ${isDark ? "text-amber-100" : "text-violet-950"}`}>{t.hmVetTitle}</span>
                 <span className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${isDark ? "bg-amber-400/10 text-amber-300" : "bg-amber-100 text-amber-800"}`}>~70%</span>
               </div>
-              <p className={`text-sm ml-11 ${isDark ? "text-zinc-300" : "text-violet-950/80"}`}>
+              <p className={`text-sm ml-11 text-ink-2`}>
                 {t.hmVetText}
               </p>
             </div>
@@ -275,10 +275,10 @@ export function HomeView({
                 <div className="p-2 rounded-lg bg-violet-400/15 text-violet-300">
                   <GraduationCap className="h-4.5 w-4.5" />
                 </div>
-                <span className={`font-bold text-sm ${isDark ? "text-violet-100" : "text-violet-950"}`}>{t.hmAcadTitle}</span>
-                <span className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${isDark ? "bg-violet-400/10 text-violet-200" : "bg-violet-100 text-violet-800"}`}>~30%</span>
+                <span className={`font-bold text-sm text-ink`}>{t.hmAcadTitle}</span>
+                <span className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full bg-mist text-plum`}>~30%</span>
               </div>
-              <p className={`text-sm ml-11 ${isDark ? "text-zinc-300" : "text-violet-950/80"}`}>
+              <p className={`text-sm ml-11 text-ink-2`}>
                 {t.hmAcadText}
               </p>
             </div>
@@ -287,7 +287,7 @@ export function HomeView({
 
         <div className="order-1 lg:order-2 space-y-4">
           <div data-scene-anchor="1" aria-hidden="true" className="w-full aspect-[16/10]" />
-          <ul className={`space-y-2 text-sm ${isDark ? "text-zinc-300" : "text-violet-950/80 font-medium"}`}>
+          <ul className={`space-y-2 text-sm text-ink-2 font-medium`}>
             <li className="flex items-center gap-2.5">
               <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-amber-300 shadow-[0_0_10px_rgba(252,211,77,0.8)]" aria-hidden="true" />
               {t.streamVet}
@@ -314,7 +314,7 @@ export function HomeView({
         <div className="space-y-6">
           <Reveal className="space-y-4">
             <h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight text-balance ${tTextTitle}`}>{t.howItWorks}</h2>
-            <p className={`text-base leading-relaxed max-w-xl ${isDark ? "text-zinc-300" : "text-violet-950/80 font-medium"}`}>
+            <p className={`text-base leading-relaxed max-w-xl text-ink-2 font-medium`}>
               {t.howItWorksIntro}
             </p>
           </Reveal>
@@ -335,22 +335,22 @@ export function HomeView({
                   >
                     <span
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm font-bold ${
-                        isDark ? "border-violet-400/30 bg-violet-500/10 text-violet-200" : "border-violet-300 bg-violet-50 text-violet-800"
+                        "border-line bg-mist text-plum"
                       }`}
                     >
                       {idx + 1}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className={`flex items-center gap-2 font-bold text-base ${tTextTitle}`}>
-                        <StepIcon className={`h-4 w-4 shrink-0 ${isDark ? "text-violet-300" : "text-violet-700"}`} aria-hidden="true" />
+                        <StepIcon className={`h-4 w-4 shrink-0 text-plum`} aria-hidden="true" />
                         {String(step.title).replace(/^[0-9]+\.\s*/, "")}
                       </span>
-                      <span className={`mt-1 block text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/75 font-medium"}`}>
+                      <span className={`mt-1 block text-sm leading-relaxed text-muted font-medium`}>
                         {step.desc}
                       </span>
                     </span>
                     <ChevronRight
-                      className={`h-4 w-4 mt-3 shrink-0 transition group-hover:translate-x-1 ${isDark ? "text-violet-300" : "text-violet-700"}`}
+                      className={`h-4 w-4 mt-3 shrink-0 transition group-hover:translate-x-1 text-plum`}
                       aria-hidden="true"
                     />
                   </button>
@@ -376,7 +376,7 @@ export function HomeView({
         <div className="flex flex-col gap-8">
           <div className="space-y-3 text-center md:text-left">
             <h3 className={`text-xl font-bold tracking-tight ${tTextTitle}`}>{t.futureVisionTitle}</h3>
-            <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-medium"}`}>
+            <p className={`text-sm leading-relaxed text-ink-2 font-medium`}>
               {t.futureVisionDesc}
             </p>
           </div>
@@ -387,7 +387,7 @@ export function HomeView({
               isDark ? "bg-violet-500/10 border-violet-500/40 shadow-[0_8px_24px_-10px_rgba(139,92,246,0.6)]" : "bg-white border-violet-600/40 shadow-sm"
             }`}>
               <span className="text-lg font-black tracking-wider text-violet-400">CH</span>
-              <span className={`text-xs font-bold mt-1 ${isDark ? "text-white" : "text-violet-950"}`}>{t.futureVisionLive}</span>
+              <span className={`text-xs font-bold mt-1 text-ink`}>{t.futureVisionLive}</span>
               <span className={`mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${isDark ? "bg-emerald-500/10 text-emerald-300" : "bg-emerald-50 text-emerald-800"}`}>
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                 {t.hmLive}
@@ -416,7 +416,7 @@ export function HomeView({
           <h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight text-balance ${tTextTitle}`}>
             {t.finalCtaTitle}
           </h2>
-          <p className={`text-base md:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 ${isDark ? "text-zinc-300" : "text-violet-950/80 font-medium"}`}>
+          <p className={`text-base md:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 text-ink-2 font-medium`}>
             {t.finalCtaText}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
@@ -462,30 +462,30 @@ export function AboutView({ t, isDark, tTextTitle, tTextBody, tCard, handleTabTr
       <section className="grid gap-8 md:grid-cols-2">
         <div className="card-premium p-8 leading-relaxed">
           <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block mb-3">Addressing System Complexity</span>
-          <p className={`text-sm ${isDark ? "text-zinc-300" : "text-violet-950/90 font-bold"}`}>{t.aboutPara1}</p>
+          <p className={`text-sm text-ink-2 font-bold`}>{t.aboutPara1}</p>
         </div>
 
         <div className="card-premium p-8 leading-relaxed">
           <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block mb-3">Interactive Mapping</span>
-          <p className={`text-sm ${isDark ? "text-zinc-300" : "text-violet-950/90 font-bold"}`}>{t.aboutPara2}</p>
+          <p className={`text-sm text-ink-2 font-bold`}>{t.aboutPara2}</p>
         </div>
       </section>
 
       {/* Mission - condensed from 00_Brain/Mission.md */}
       <section className="card-premium-glow p-8 space-y-3 text-center max-w-3xl mx-auto">
         <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block">{t.aboutMissionEyebrow}</span>
-        <p className={`text-base leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950/95 font-bold"}`}>{t.aboutMissionBody}</p>
+        <p className={`text-base leading-relaxed text-ink font-bold`}>{t.aboutMissionBody}</p>
       </section>
 
       {/* Why it matters - condensed from the "gap" section of Mission.md */}
       <section className="max-w-3xl mx-auto text-center space-y-2">
         <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block">{t.aboutWhyEyebrow}</span>
-        <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-semibold"}`}>{t.aboutWhyBody}</p>
+        <p className={`text-sm leading-relaxed text-ink-2 font-semibold`}>{t.aboutWhyBody}</p>
       </section>
 
       {/* Core values */}
       <section className="space-y-6">
-        <h3 className={`text-center font-bold text-lg tracking-wider font-mono uppercase ${isDark ? "text-violet-300" : "text-violet-950"}`}>
+        <h3 className={`text-center font-bold text-lg tracking-wider font-mono uppercase text-ink`}>
           {t.aboutValuesTitle}
         </h3>
 
@@ -505,8 +505,8 @@ export function AboutView({ t, isDark, tTextTitle, tTextBody, tCard, handleTabTr
                   <div className="p-2 rounded-lg bg-violet-500/10 text-violet-500 w-fit">
                     <PillarIcon className="h-5 w-5" />
                   </div>
-                  <h4 className={`text-sm font-extrabold ${isDark ? "text-white" : "text-black"}`}>{pillar.title}</h4>
-                  <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/80 font-semibold"}`}>{pillar.desc}</p>
+                  <h4 className={`text-sm font-extrabold text-ink`}>{pillar.title}</h4>
+                  <p className={`text-xs text-ink-2 font-semibold`}>{pillar.desc}</p>
                 </div>
               </div>
             );
@@ -518,11 +518,11 @@ export function AboutView({ t, isDark, tTextTitle, tTextBody, tCard, handleTabTr
       <section className="card-premium p-8 space-y-4 relative overflow-hidden">
         <div className="absolute top-0 right-0 h-full w-2 bg-gradient-to-b from-orange-500 via-violet-500 to-indigo-500"></div>
         <span className={`block text-xs font-mono uppercase tracking-widest font-bold ${
-          isDark ? "text-violet-300" : "text-violet-900"
+          "text-ink"
         }`}>
           Cantonal Educational Autonomy
         </span>
-        <p className={`text-sm leading-relaxed font-sans ${isDark ? "text-zinc-300" : "text-violet-950/95 font-bold"}`}>
+        <p className={`text-sm leading-relaxed font-sans text-ink font-bold`}>
           Switzerland's secondary pathways rely on cantonal boards (EDK / CDIP), which means local regions have different schedules and entrance requirements. Inspirella helps make sense of this system.
         </p>
       </section>
@@ -538,16 +538,16 @@ export function AboutView({ t, isDark, tTextTitle, tTextBody, tCard, handleTabTr
       {/* Vision - condensed from 00_Brain/Vision.md */}
       <section className="max-w-3xl mx-auto text-center space-y-2 pb-2">
         <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block">{t.aboutVisionEyebrow}</span>
-        <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/80 font-semibold"}`}>{t.aboutVisionBody}</p>
+        <p className={`text-sm leading-relaxed text-ink-2 font-semibold`}>{t.aboutVisionBody}</p>
       </section>
 
       {/* Who is behind it: a plain statement, with the Impressum one click away. */}
       <section className="max-w-3xl mx-auto text-center space-y-2 pb-2">
         <span className="text-xs uppercase font-mono font-bold tracking-widest text-violet-500 block">{t.aboutWhoEyebrow}</span>
-        <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950/80 font-semibold"}`}>{t.aboutWhoBody}</p>
+        <p className={`text-sm leading-relaxed text-ink-2 font-semibold`}>{t.aboutWhoBody}</p>
         <button
           onClick={() => handleTabTransition("impressum")}
-          className={`text-xs font-bold underline underline-offset-2 cursor-pointer ${isDark ? "text-violet-300" : "text-violet-800"}`}
+          className={`text-xs font-bold underline underline-offset-2 cursor-pointer text-plum`}
         >
           {LEGAL_LINKS.impressum[language as LanguageCode]}
         </button>
@@ -579,8 +579,8 @@ function LegalView({ doc, language, isDark, tTextTitle, handleTabTransition, oth
   handleTabTransition: (tab: string) => void;
   other: { tab: string; label: string };
 }) {
-  const tBody = isDark ? "text-zinc-300" : "text-violet-950/90 font-semibold";
-  const tHeading = isDark ? "text-violet-200" : "text-violet-950";
+  const tBody = "text-ink-2 font-semibold";
+  const tHeading = "text-ink";
   return (
     <motion.div
       key={`view-legal-${doc.title}`}
@@ -596,7 +596,7 @@ function LegalView({ doc, language, isDark, tTextTitle, handleTabTransition, oth
           <span>{doc.eyebrow}</span>
         </div>
         <h1 className={`text-3xl font-extrabold tracking-tight ${tTextTitle}`}>{doc.title}</h1>
-        <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/70 font-medium"}`}>{doc.updated}</p>
+        <p className={`text-xs text-muted font-medium`}>{doc.updated}</p>
       </div>
 
       {doc.sections.map(section => (
@@ -616,7 +616,7 @@ function LegalView({ doc, language, isDark, tTextTitle, handleTabTransition, oth
       ))}
 
       {doc.closing && (
-        <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950/70 font-medium"}`}>{doc.closing}</p>
+        <p className={`text-xs leading-relaxed text-muted font-medium`}>{doc.closing}</p>
       )}
 
       <div className="flex flex-wrap gap-3">
@@ -695,7 +695,7 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
       <div className="relative text-center max-w-lg mx-auto space-y-2 py-2">
         <SectionGlow isDark={isDark} corner="center" />
         <h1 className={`relative text-3xl font-extrabold tracking-tight ${tTextTitle}`}>{t.contactTitle}</h1>
-        <p className={`relative text-xs ${isDark ? "text-zinc-400" : "text-violet-950/80 font-bold"}`}>{t.contactSubtitle}</p>
+        <p className={`relative text-xs text-ink-2 font-bold`}>{t.contactSubtitle}</p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-12 items-start">
@@ -703,10 +703,10 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
         <div className="card-premium lg:col-span-5 p-6 space-y-6">
           <div className="space-y-2">
             <span className="text-xs font-mono uppercase tracking-widest text-violet-500 font-bold">Contact</span>
-            <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-violet-950"}`}>
+            <h3 className={`text-lg font-bold text-ink`}>
               An early-stage, independent project
             </h3>
-            <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/80 font-bold"}`}>
+            <p className={`text-xs text-ink-2 font-bold`}>
               Inspirella is not yet a registered company - there's no office or phone line, just a real
               person reading every message.
             </p>
@@ -718,7 +718,7 @@ export function ContactView({ t, isDark, tTextTitle, tTextSub, tInput, tCard }: 
                 <Mail className="h-4 w-4" />
               </div>
               <div>
-                <span className={`block font-mono text-[11px] uppercase ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>Email</span>
+                <span className={`block font-mono text-[11px] uppercase text-muted`}>Email</span>
                 <a
                   href="mailto:iinspirella@gmail.com"
                   className={`font-bold underline underline-offset-2 ${isDark ? "text-zinc-200 hover:text-violet-300" : "text-violet-950"}`}

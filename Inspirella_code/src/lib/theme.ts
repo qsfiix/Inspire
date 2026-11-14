@@ -1,9 +1,9 @@
 /**
  * Site themes. "alpen" (Alpenglühen: dawn light, plum ink, coral accent) is the default since 2026-11;
- * "nacht" is the earlier dark violet look with the particle phoenix, kept as an option.
+ * "nacht" is the same world at night (moon, stars, moonlit range).
  *
- * Most components still branch on `isDark`: under "alpen" they render their light branch, which
- * alpen.css re-skins to the new palette until each file is migrated to tokens.
+ * Colours come from tokens (text-ink, bg-card, border-line ... see DESIGN.md). About 200 older
+ * `isDark` pairs remain; alpen.css section 3 re-skins their light branch until they move to tokens.
  */
 export type ThemeName = "alpen" | "nacht";
 

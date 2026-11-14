@@ -202,11 +202,11 @@ interface BoxProps {
 }
 
 const boxClass = (isDark: boolean) =>
-  `rounded-xl border p-3 space-y-2 ${isDark ? "border-violet-400/20 bg-violet-500/[0.06]" : "border-violet-200 bg-violet-50/70"}`;
+  `rounded-xl border p-3 space-y-2 border-line bg-mist`;
 const labelClass = "block text-[10px] font-mono uppercase tracking-wider text-violet-400";
-const textClass = (isDark: boolean) => `text-[11.5px] leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950"}`;
+const textClass = (isDark: boolean) => `text-[11.5px] leading-relaxed text-ink`;
 const linkClass = (isDark: boolean) =>
-  `inline-flex items-center gap-1 text-[11px] font-semibold underline-offset-2 hover:underline ${isDark ? "text-violet-300" : "text-violet-700"}`;
+  `inline-flex items-center gap-1 text-[11px] font-semibold underline-offset-2 hover:underline text-plum`;
 
 function Field({ label, value, isDark }: { label: string; value?: string; isDark: boolean }) {
   if (!value) return null;
@@ -224,7 +224,7 @@ export function AdmissionBox({ canton, routes, language, isDark, hintWithoutCant
   if (!data || (routes.length === 0 && !institutionId)) return null;
   const national = routes.every(r => NATIONAL_ROUTES.has(r));
   if (!canton && !national) {
-    return hintWithoutCanton ? <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{(UI[language] ?? UI.de).pickCanton}</p> : null;
+    return hintWithoutCanton ? <p className={`text-[11px] text-muted`}>{(UI[language] ?? UI.de).pickCanton}</p> : null;
   }
   const list = admissionsFor(data.admissions, canton, routes, institutionId);
   if (list.length === 0) return null;
@@ -238,7 +238,7 @@ export function AdmissionBox({ canton, routes, language, isDark, hintWithoutCant
     return (
       <div key={a.id} className={boxClass(isDark)}>
         <div className="flex items-start justify-between gap-2">
-          <b className={`text-xs ${isDark ? "text-white" : "text-violet-950"}`}>
+          <b className={`text-xs text-ink`}>
             {field ? hfFieldLabel(field, language) : routeLabel(a.route, language)}
             {a.canton === "CH" && !a.institutionId ? <span className="ml-1.5 text-[10px] font-mono font-normal text-violet-400">{ui.nationwide}</span> : null}
           </b>
@@ -266,12 +266,12 @@ export function AdmissionBox({ canton, routes, language, isDark, hintWithoutCant
       <span className={labelClass}>{national || !canton ? ui.admissionTitleNational : ui.admissionTitle(canton.toUpperCase())}</span>
       {general.map(renderRow)}
       {byField.length > 0 && (
-        <details className={`rounded-xl border ${isDark ? "border-violet-400/20" : "border-violet-200"}`}>
-          <summary className={`cursor-pointer px-3 py-2 text-[11px] font-bold ${isDark ? "text-violet-200" : "text-violet-900"}`}>{ui.byField(byField.length)}</summary>
+        <details className={`rounded-xl border border-line`}>
+          <summary className={`cursor-pointer px-3 py-2 text-[11px] font-bold text-ink`}>{ui.byField(byField.length)}</summary>
           <div className="space-y-2 p-2">{byField.map(renderRow)}</div>
         </details>
       )}
-      <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{ui.germanNote}</p>
+      <p className={`text-[11px] text-muted`}>{ui.germanNote}</p>
     </div>
   );
 }
@@ -288,15 +288,15 @@ export function BridgeBox({ canton, language, isDark, max = 4 }: BoxProps & { ca
   return (
     <div className={boxClass(isDark)}>
       <span className={labelClass}>{ui.bridgeTitle(canton.toUpperCase())}</span>
-      <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{ui.bridgeHint}</p>
+      <p className={`text-[11px] text-muted`}>{ui.bridgeHint}</p>
       <ul className="space-y-2">
         {shown.map(p => (
-          <li key={p.id} className={`rounded-lg border px-2.5 py-2 space-y-0.5 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-violet-200 bg-white"}`}>
+          <li key={p.id} className={`rounded-lg border px-2.5 py-2 space-y-0.5 border-line bg-card`}>
             <div className="flex items-start justify-between gap-2">
-              <b className={`text-[12px] ${isDark ? "text-white" : "text-violet-950"}`}>{inLang(language, p.title, p.uk?.title)}</b>
+              <b className={`text-[12px] text-ink`}>{inLang(language, p.title, p.uk?.title)}</b>
               <span className="shrink-0 text-[10px] font-mono text-violet-400">{kindLabel(p.kind, language)}</span>
             </div>
-            {p.provider && <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{p.provider}</p>}
+            {p.provider && <p className={`text-[11px] text-muted`}>{p.provider}</p>}
             {p.duration && <p className={textClass(isDark)}><span className="text-violet-400">{ui.duration}:</span> {inLang(language, p.duration, p.uk?.duration)}</p>}
             {p.targetGroup && <p className={textClass(isDark)}><span className="text-violet-400">{ui.target}:</span> {inLang(language, p.targetGroup, p.uk?.targetGroup)}</p>}
             {p.url && (
@@ -312,7 +312,7 @@ export function BridgeBox({ canton, language, isDark, max = 4 }: BoxProps & { ca
           {all ? "−" : ui.more(list.length - max)}
         </button>
       )}
-      <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{ui.germanNote}</p>
+      <p className={`text-[11px] text-muted`}>{ui.germanNote}</p>
     </div>
   );
 }
@@ -327,12 +327,12 @@ export function NextWaysBox({ nodes, language, isDark }: BoxProps & { nodes: str
   return (
     <div className={boxClass(isDark)}>
       <span className={labelClass}>{ui.nextTitle}</span>
-      <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{ui.nextHint}</p>
+      <p className={`text-[11px] text-muted`}>{ui.nextHint}</p>
       <ul className="space-y-2">
         {list.map(t => (
-          <li key={t.id} className={`rounded-lg border px-2.5 py-2 space-y-0.5 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-violet-200 bg-white"}`}>
+          <li key={t.id} className={`rounded-lg border px-2.5 py-2 space-y-0.5 border-line bg-card`}>
             <div className="flex items-start justify-between gap-2">
-              <b className={`text-[12px] ${isDark ? "text-white" : "text-violet-950"}`}>
+              <b className={`text-[12px] text-ink`}>
                 {nodeLabel(t.from, language)} → {nodeLabel(t.to, language)}
               </b>
               <span className="shrink-0 text-[10px] font-mono text-violet-400">{kindLabel(t.kind, language)}</span>
@@ -348,7 +348,7 @@ export function NextWaysBox({ nodes, language, isDark }: BoxProps & { nodes: str
           </li>
         ))}
       </ul>
-      <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-violet-950/70"}`}>{ui.germanNote}</p>
+      <p className={`text-[11px] text-muted`}>{ui.germanNote}</p>
     </div>
   );
 }

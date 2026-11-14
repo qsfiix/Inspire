@@ -208,10 +208,10 @@ export default function LadderExtras({ step, profession, profile, language, isDa
     };
   }, [hook, topic, profession.id]);
 
-  const muted = isDark ? "text-zinc-400" : "text-zinc-600";
-  const head = `text-[10px] font-mono uppercase tracking-widest ${isDark ? "text-violet-300/80" : "text-violet-700"}`;
-  const linkCls = `inline-flex items-center gap-1 text-[11px] font-semibold underline-offset-2 hover:underline ${isDark ? "text-violet-300" : "text-violet-700"}`;
-  const chip = `text-[10px] px-1.5 py-0.5 rounded-full border ${isDark ? "border-white/15 text-zinc-300" : "border-zinc-300 text-zinc-700"}`;
+  const muted = "text-muted";
+  const head = `text-[10px] font-mono uppercase tracking-widest text-plum`;
+  const linkCls = `inline-flex items-center gap-1 text-[11px] font-semibold underline-offset-2 hover:underline text-plum`;
+  const chip = `text-[10px] px-1.5 py-0.5 rounded-full border border-line text-ink-2`;
 
   const facts = data?.facts.get(profession.id);
   const lines = useMemo(() => factLines(facts, topic), [facts, topic]);
@@ -254,7 +254,7 @@ export default function LadderExtras({ step, profession, profile, language, isDa
       {hook === "profession_facts" && (
         <div className="space-y-1">
           {lines.length > 0 ? (
-            <ul className={`text-[11px] space-y-0.5 ${isDark ? "text-zinc-200" : "text-zinc-800"}`}>
+            <ul className={`text-[11px] space-y-0.5 text-ink`}>
               {lines.map(l => (
                 <li key={l}>{l}</li>
               ))}
@@ -314,7 +314,7 @@ export default function LadderExtras({ step, profession, profile, language, isDa
           {data && firms.length === 0 && <p className={`text-[11px] ${muted}`}>{ui.noFirms}</p>}
           {firms.map(({ firm, reasons }) => (
             <div key={firm.id} className={`rounded-lg border px-2.5 py-1.5 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-zinc-200 bg-zinc-50"}`}>
-              <div className={`text-[12px] font-semibold ${isDark ? "text-white" : "text-violet-950"}`}>{firm.name}</div>
+              <div className={`text-[12px] font-semibold text-ink`}>{firm.name}</div>
               <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
                 <MapPin className="h-3 w-3" />
                 {[firm.postalCode, firm.city, firm.canton].filter(Boolean).join(" ")}
@@ -380,7 +380,7 @@ export default function LadderExtras({ step, profession, profile, language, isDa
           <div className={head}>{ui.schoolsHead}</div>
           {data && schools.length === 0 && <p className={`text-[11px] ${muted}`}>{ui.noSchools}</p>}
           {schools.map(s => (
-            <div key={s.institution.id} className={`text-[11px] ${isDark ? "text-zinc-200" : "text-zinc-800"}`}>
+            <div key={s.institution.id} className={`text-[11px] text-ink`}>
               {s.institution.title}
               <span className={`ml-1 ${muted}`}>
                 {[s.institution.canton, s.detail].filter(Boolean).join(" · ")}
@@ -421,7 +421,7 @@ export default function LadderExtras({ step, profession, profile, language, isDa
             <div className="space-y-0.5">
               <div className={head}>{ui.schoolsHead}</div>
               {uasSchools.map(s => (
-                <div key={s.institution.id} className={`text-[11px] ${isDark ? "text-zinc-200" : "text-zinc-800"}`}>
+                <div key={s.institution.id} className={`text-[11px] text-ink`}>
                   {s.institution.title}
                   <span className={`ml-1 ${muted}`}>{s.institution.canton}</span>
                 </div>

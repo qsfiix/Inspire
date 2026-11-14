@@ -53,7 +53,7 @@ export function DashboardView({
       <section className="card-premium flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 relative overflow-hidden text-left">
         <SectionGlow isDark={isDark} corner="top-right" />
         <div className="relative space-y-1.5">
-          <h1 className={`text-xl md:text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-black font-extrabold"}`}>
+          <h1 className={`text-xl md:text-2xl font-bold tracking-tight text-ink font-extrabold`}>
             {t.welcomeBack} <span className="text-shimmer">{shownName(userProfile, currentLanguage)}</span>
             {userProfile?.isGuest && (
               <span className={`ml-2 inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border align-middle ${
@@ -63,19 +63,19 @@ export function DashboardView({
               </span>
             )}
           </h1>
-          <p className={`text-sm ${isDark ? "text-zinc-400" : "text-black/70 font-semibold"}`}>{t.allSystemsGo}</p>
+          <p className={`text-sm text-muted font-semibold`}>{t.allSystemsGo}</p>
         </div>
 
         {/* Plain-language status pills (was: mono "LANGUAGE CORE / DATA SYNC /
             GEOGRAPHIC SEGMENT" readouts, which read like a debug panel). */}
         <div className="relative flex flex-wrap gap-2 text-[11px] font-medium">
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border ${isDark ? "bg-white/5 border-white/10 text-zinc-200" : "bg-purple-50 border-purple-200 text-violet-950"}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border bg-mist border-line text-ink`}>
             <MapPin className="h-3 w-3 text-rose-400" /> {t.dbSwitzerland}
           </span>
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border ${isDark ? "bg-white/5 border-white/10 text-zinc-200" : "bg-purple-50 border-purple-200 text-violet-950"}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border bg-mist border-line text-ink`}>
             <Globe className="h-3 w-3 text-violet-400" /> {currentLanguage.toUpperCase()}
           </span>
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border ${isDark ? "bg-white/5 border-white/10 text-zinc-200" : "bg-purple-50 border-purple-200 text-violet-950"}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border bg-mist border-line text-ink`}>
             {userProfile?.syncState === "cloud" ? (
               <><Cloud className="h-3 w-3 text-sky-400" /> {t.dbSavedAccount}</>
             ) : (
@@ -101,7 +101,7 @@ export function DashboardView({
             }`}>
               {t.dashboardReminderTitle}
             </span>
-            <span className={`text-xs ${isDark ? "text-zinc-200" : "text-black font-semibold"}`}>
+            <span className={`text-xs text-ink font-semibold`}>
               {[
                 overdueCount > 0 ? `${overdueCount} ${t.dashboardReminderOverdueSuffix}` : null,
                 dueSoonCount > 0 ? `${dueSoonCount} ${t.dashboardReminderDueSoonSuffix}` : null
@@ -110,7 +110,7 @@ export function DashboardView({
           </div>
           <button
             onClick={() => handleTabTransition("tracker")}
-            className={`text-xs font-mono underline shrink-0 ${isDark ? "text-zinc-300 hover:text-white" : "text-black hover:text-violet-950"}`}
+            className={`text-xs font-mono underline shrink-0 text-ink hover:text-ink`}
           >
             {t.navTracker}
           </button>
@@ -171,9 +171,9 @@ export function DashboardView({
       <DashboardMapCard language={currentLanguage} isDark={isDark} onOpen={() => onOpenPathMap?.()} />
 
       <section className="space-y-4">
-        <div className={`flex items-center gap-1.5 border-b pb-2 ${isDark ? "border-white/10" : "border-purple-300"}`}>
+        <div className={`flex items-center gap-1.5 border-b pb-2 border-line`}>
           <Sparkles className="h-4.5 w-4.5 text-violet-500 animate-pulse" />
-          <h3 className={`text-sm font-semibold uppercase tracking-wider ${isDark ? "text-white" : "text-violet-950 font-black"}`}>{t.quickAccess}</h3>
+          <h3 className={`text-sm font-semibold uppercase tracking-wider text-ink font-black`}>{t.quickAccess}</h3>
         </div>
 
         <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
@@ -194,10 +194,10 @@ export function DashboardView({
                     <span className={`p-2 rounded-lg ${portal.tint}`}>
                       <PortalIcon className="h-4 w-4" />
                     </span>
-                    <ArrowUpRight className={`h-4 w-4 transition duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${isDark ? "text-zinc-400 group-hover:text-violet-300" : "text-violet-950/70 group-hover:text-violet-700"}`} />
+                    <ArrowUpRight className={`h-4 w-4 transition duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-muted group-hover:text-plum`} />
                   </div>
-                  <span className={`block font-bold text-xs mt-3 ${isDark ? "text-white" : "text-indigo-950 font-black"}`}>{portal.label}</span>
-                  <span className={`block text-xs mt-1 leading-normal ${isDark ? "text-zinc-400" : "text-violet-900/60 font-bold"}`}>{portal.desc}</span>
+                  <span className={`block font-bold text-xs mt-3 text-ink font-black`}>{portal.label}</span>
+                  <span className={`block text-xs mt-1 leading-normal text-muted font-bold`}>{portal.desc}</span>
                 </button>
               </Reveal>
             );
@@ -246,13 +246,13 @@ export function ProfileView({
             <User className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className={`text-lg font-bold tracking-tight ${isDark ? "text-white" : "text-black font-black"}`}>
+            <h2 className={`text-lg font-bold tracking-tight text-ink font-black`}>
               {shownName(userProfile, currentLanguage)}
               {userProfile?.isGuest && (
                 <span className={`ml-2 align-middle px-2 py-0.5 rounded-full text-[11px] font-medium border ${isDark ? "bg-amber-500/10 text-amber-300 border-amber-500/30" : "bg-amber-100 text-amber-800 border-amber-300"}`}>Guest</span>
               )}
             </h2>
-            <p className={`text-xs ${isDark ? "text-zinc-400" : "text-violet-950/70 font-semibold"}`}>
+            <p className={`text-xs text-muted font-semibold`}>
               {userProfile?.isGuest
                 ? t.pfGuestSub
                 : userProfile?.syncState === "cloud"
@@ -267,11 +267,11 @@ export function ProfileView({
             for personal identity in the profile - this is the first piece of it. */}
         <div className={`p-4 rounded-xl border ${isDark ? "bg-zinc-900/30 border-violet-950" : "bg-purple-100 border-2 border-purple-300 shadow-sm"}`}>
           <div className="flex items-center justify-between mb-2">
-            <span className={`text-[11px] font-mono uppercase ${isDark ? "text-zinc-400" : "text-black font-black"}`}>{t.profileBioLabel}</span>
+            <span className={`text-[11px] font-mono uppercase text-ink font-black`}>{t.profileBioLabel}</span>
             {!isEditingBio && (
               <button
                 onClick={startEditingBio}
-                className={`inline-flex items-center gap-1 text-xs font-semibold cursor-pointer ${isDark ? "text-violet-300 hover:text-white" : "text-violet-700 hover:text-violet-950"}`}
+                className={`inline-flex items-center gap-1 text-xs font-semibold cursor-pointer text-plum hover:text-ink`}
               >
                 <Pencil className="h-3 w-3" /> {t.profileBioEdit}
               </button>
@@ -287,17 +287,17 @@ export function ProfileView({
                 rows={4}
                 autoFocus
                 className={`w-full rounded-lg p-3 text-xs leading-relaxed resize-none focus:outline-none ${
-                  isDark ? "bg-zinc-950/60 text-zinc-100 placeholder-zinc-500 border border-violet-950" : "bg-white text-black placeholder-violet-950/40 border border-purple-300"
+                  "bg-card text-ink placeholder-muted border border-line"
                 }`}
               />
               <div className="flex items-center justify-between">
-                <span className={`text-[11px] font-mono ${isDark ? "text-zinc-400" : "text-violet-950/70 font-semibold"}`}>
+                <span className={`text-[11px] font-mono text-muted font-semibold`}>
                   {draftBio.length}/{BIO_MAX_LENGTH}
                 </span>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setIsEditingBio(false)}
-                    className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg cursor-pointer ${isDark ? "text-zinc-300 hover:text-white" : "text-black hover:text-violet-950"}`}
+                    className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg cursor-pointer text-ink hover:text-ink`}
                   >
                     <X className="h-3 w-3" /> {t.profileBioCancel}
                   </button>
@@ -311,7 +311,7 @@ export function ProfileView({
               </div>
             </div>
           ) : (
-            <p className={`text-xs leading-relaxed ${userProfile?.bio ? (isDark ? "text-zinc-200" : "text-black font-semibold") : (isDark ? "text-zinc-400 italic" : "text-violet-950/70 italic")}`}>
+            <p className={`text-xs leading-relaxed ${userProfile?.bio ? ("text-ink font-semibold") : ("text-muted italic")}`}>
               {userProfile?.bio || t.profileBioEmpty}
             </p>
           )}
@@ -321,22 +321,22 @@ export function ProfileView({
           <div className={`p-3 rounded-xl border ${isDark ? "bg-zinc-900/30 border-violet-950" : "bg-purple-100 border-2 border-purple-300 shadow-sm"}`}>
             {/* A guest has no account - showing the placeholder guest address
                 as "authenticated credentials" claimed something untrue. */}
-            <span className={`block text-[11px] font-medium mb-1 ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>{userProfile?.isGuest ? t.pfAccount : t.profileUserAddress}</span>
-            <span className={`truncate block font-semibold ${isDark ? "text-zinc-200" : "text-black"}`}>
+            <span className={`block text-[11px] font-medium mb-1 text-muted font-bold`}>{userProfile?.isGuest ? t.pfAccount : t.profileUserAddress}</span>
+            <span className={`truncate block font-semibold text-ink`}>
               {userProfile?.isGuest ? t.pfNoAccount : userProfile?.email || t.pfNoEmail}
             </span>
           </div>
 
           <div className={`p-3 rounded-xl border ${isDark ? "bg-zinc-900/30 border-violet-950" : "bg-purple-100 border-2 border-purple-300 shadow-sm"}`}>
-            <span className={`block text-[11px] font-medium mb-1 ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>{t.pfStage}</span>
-            <span className={`block font-semibold ${isDark ? "text-zinc-200" : "text-black"}`}>
+            <span className={`block text-[11px] font-medium mb-1 text-muted font-bold`}>{t.pfStage}</span>
+            <span className={`block font-semibold text-ink`}>
               {userProfile?.currentStage ? t[stageLabelKey(userProfile.currentStage) as keyof typeof t] || userProfile.currentStage : t.pfStageUnset}
             </span>
           </div>
         </div>
 
         <div className="space-y-2">
-          <span className={`block text-sm font-semibold ${isDark ? "text-zinc-200" : "text-black font-black"}`}>{t.pfLanguage}</span>
+          <span className={`block text-sm font-semibold text-ink font-black`}>{t.pfLanguage}</span>
           <div className="flex flex-wrap gap-2">
             {[
               { code: "en", label: "English" },
@@ -363,7 +363,7 @@ export function ProfileView({
         {/* Only facts we actually know (was: a theme label, a hard-coded
             "Geneva" region and "Synchronized to Inspirella Core"). */}
         {userProfile?.createdAt && (
-          <div className={`pt-4 border-t text-xs ${isDark ? "border-violet-950/40 text-zinc-400" : "border-purple-200 text-violet-950/70 font-semibold"}`}>
+          <div className={`pt-4 border-t text-xs border-line text-muted font-semibold`}>
             {t.registeredAt}: {new Date(userProfile.createdAt).toLocaleDateString(currentLanguage)}
           </div>
         )}
@@ -396,14 +396,14 @@ export function ProfileView({
         <a
           href="mailto:iinspirella@gmail.com?subject=Inspirella%20-%20Something%20isn't%20working"
           className={`block w-full py-3 text-xs text-center rounded-lg border transition ${
-            isDark ? "border-white/10 text-zinc-300 hover:bg-white/5" : "border-purple-200 text-violet-950 font-semibold hover:bg-purple-50"
+            "border-line text-ink font-semibold hover:bg-wash"
           }`}
         >
           {t.pfFeedback}
         </a>
 
         {/* Destructive action sits apart from the feedback link and names its consequence. */}
-        <div className={`pt-4 mt-2 border-t ${isDark ? "border-white/5" : "border-purple-100"}`}>
+        <div className={`pt-4 mt-2 border-t border-line`}>
           <button
             onClick={handleLogout}
             className="btn-danger w-full py-3.5 text-xs text-center"

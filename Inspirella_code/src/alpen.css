@@ -1,14 +1,14 @@
 /*
  * Alpenglühen (default theme since 2026-11). Dawn light on the Bernese Alps: plum ink, coral accent,
  * swisstopo contour lines, one authored moment per screen. See DESIGN.md.
- * Part 1: tokens + base. Part 2: navigation, home, footer (alp-*). Part 3: skin for app pages that still
- * branch on isDark (their light branch renders under this theme until each file uses tokens).
+ * Part 1: tokens + base (exposed to Tailwind as text-ink, bg-card ... in index.css). Part 2: navigation,
+ * home, footer (alp-*). Part 3: skin for the isDark pairs not yet on tokens. 4: app backdrop. 5: Nacht.
  */
 
 /* ---------- 1. tokens + base ---------- */
 html {
   --btn: #4a2377; --btn-2: #3a1a60;
-  --ink: #1e1730; --ink-2: #43395a; --muted: #5c5470; --line: #e7e1ee; --paper: #ffffff; --mist: #f8f5fc;
+  --ink: #1e1730; --ink-2: #43395a; --muted: #5c5470; --line: #e7e1ee; --paper: #ffffff; --mist: #f8f5fc; --card: #ffffff; --wash: #efe8f8;
   --plum: #4a2377; --plum-2: #3a1a60; --dusk: #2b1546; --night: #1b0d30;
   --lav: #9c86c9; --lav-pale: #d8cbee; --on-dusk: #cbbbe6; --pill: #8f7cb8;
   --peach: #f4a27f; --coral: #e46f4c; --coral-deep: #b9441f; --coral-ink: #a8401a; --blush: #fbe3d9;
@@ -451,7 +451,7 @@ html[data-theme="alpen"] a { text-underline-offset: 4px; }
 
 /* ---------- 3. skin for app pages (light branch of isDark components) ---------- */
 html[data-theme="alpen"] main .text-black { color: var(--ink) !important; }
-html[data-theme="alpen"] main .font-black { font-weight: 700 !important; }
+html[data-theme] main .font-black { font-weight: 700 !important; }
 html[data-theme="alpen"] main .text-indigo-950, html[data-theme="alpen"] main .text-violet-950 { color: var(--ink) !important; }
 html[data-theme="alpen"] main [class*="border-violet-950"], html[data-theme="alpen"] main [class*="border-purple-200"], html[data-theme="alpen"] main [class*="border-violet-200"], html[data-theme="alpen"] main [class*="border-violet-300"] { border-color: var(--line) !important; }
 html[data-theme="alpen"] main [class*="bg-violet-100"], html[data-theme="alpen"] main [class*="bg-purple-50"], html[data-theme="alpen"] main [class*="bg-purple-100"], html[data-theme="alpen"] main [class*="bg-violet-50"] { background-color: var(--mist) !important; }
@@ -535,7 +535,7 @@ html[data-theme="alpen"] main .btn-danger:hover { background: #fdf1ef !important
 /* ---------- 5. Nacht: the same world at night (moon, stars, moonlit range) ---------- */
 html[data-theme="nacht"] {
   --btn: #7b55c7; --btn-2: #6a45b5;
-  --ink: #ece8f5; --ink-2: #cfc6e2; --muted: #a9a0c0; --line: #2c2340; --paper: #120d1f; --mist: #0e0a19;
+  --ink: #ece8f5; --ink-2: #cfc6e2; --muted: #a9a0c0; --line: #2c2340; --paper: #120d1f; --mist: #0e0a19; --card: #161024; --wash: #211933;
   --plum: #c4b0f2; --plum-2: #d7c8f7; --dusk: #160f28; --night: #0a0714;
   --lav: #8f7cc4; --lav-pale: #3a2d5a; --on-dusk: #c9bddf; --pill: #4d3f6c;
   --coral: #f08a68; --coral-deep: #f08a68; --coral-ink: #f4a383; --blush: #3a2230;

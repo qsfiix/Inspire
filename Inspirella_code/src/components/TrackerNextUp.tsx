@@ -44,26 +44,26 @@ export default function TrackerNextUp({ language, isDark, trackers, onTrackersCh
     URL.revokeObjectURL(url);
   };
 
-  const card = isDark ? "border-white/10 bg-white/[0.03]" : "border-violet-200 bg-white";
-  const muted = isDark ? "text-zinc-400" : "text-zinc-600";
+  const card = "border-line bg-card";
+  const muted = "text-muted";
   const hasOverdue = list.some(u => u.days < 0);
-  const dateCls = `rounded-md border px-1.5 py-0.5 text-[11px] ${isDark ? "bg-white/5 border-white/15 text-white" : "bg-white border-violet-200 text-black"}`;
+  const dateCls = `rounded-md border px-1.5 py-0.5 text-[11px] bg-card border-line text-ink`;
 
   return (
     <section className={`rounded-xl border p-4 text-left ${hasOverdue ? (isDark ? "border-red-500/25 bg-red-500/[0.04]" : "border-red-200 bg-red-50/60") : card}`} aria-label={ui.nextTitle}>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <h3 className={`flex items-center gap-2 text-[13px] font-bold ${isDark ? "text-violet-100" : "text-violet-950"}`}>
+        <h3 className={`flex items-center gap-2 text-[13px] font-bold text-ink`}>
           {hasOverdue ? <AlertTriangle className="h-4 w-4 text-red-500" /> : <CalendarClock className="h-4 w-4 text-violet-500" />}
           {compact ? ui.weekTitle : ui.nextTitle}
         </h3>
         {compact ? (
           onOpenTracker && (
-            <button type="button" onClick={onOpenTracker} className={`text-[11px] underline cursor-pointer ${isDark ? "text-violet-300" : "text-violet-700"}`}>
+            <button type="button" onClick={onOpenTracker} className={`text-[11px] underline cursor-pointer text-plum`}>
               {ui.weekAll}
             </button>
           )
         ) : (
-          <button type="button" onClick={downloadIcs} title={ui.calendarHint} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold cursor-pointer ${isDark ? "border-white/15 text-zinc-200 hover:bg-white/5" : "border-violet-200 text-violet-900 hover:bg-violet-50"}`}>
+          <button type="button" onClick={downloadIcs} title={ui.calendarHint} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold cursor-pointer border-line text-ink hover:bg-wash`}>
             <CalendarPlus className="h-3.5 w-3.5" /> {ui.calendar}
           </button>
         )}
@@ -77,10 +77,10 @@ export default function TrackerNextUp({ language, isDark, trackers, onTrackersCh
           return (
             <li key={item.id} className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 ${card}`}>
               <button type="button" onClick={() => tick(item.id)} disabled={!onTrackersChange} aria-label={item.text} className="shrink-0 cursor-pointer disabled:cursor-default">
-                {item.completed ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <Circle className={`h-4 w-4 ${isDark ? "text-zinc-400" : "text-violet-950/70"}`} />}
+                {item.completed ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <Circle className={`h-4 w-4 text-muted`} />}
               </button>
               <div className="min-w-0 flex-1">
-                <div className={`truncate text-[12px] font-semibold ${isDark ? "text-zinc-100" : "text-zinc-900"}`}>
+                <div className={`truncate text-[12px] font-semibold text-ink`}>
                   {item.text}
                   {item.firm && <span className={`font-normal ${muted}`}> · {item.firm.name}</span>}
                 </div>
@@ -103,7 +103,7 @@ export default function TrackerNextUp({ language, isDark, trackers, onTrackersCh
             {undated.map(({ item, goal }) => (
               <li key={item.id} className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 ${card}`}>
                 <div className="min-w-0 flex-1">
-                  <div className={`truncate text-[12px] font-semibold ${isDark ? "text-zinc-100" : "text-zinc-900"}`}>{item.text}</div>
+                  <div className={`truncate text-[12px] font-semibold text-ink`}>{item.text}</div>
                   <div className={`truncate text-[10px] ${muted}`}>{goal.title}</div>
                 </div>
                 {onTrackersChange && <input type="date" value="" onChange={e => setDate(item.id, e.target.value)} aria-label={ui.setDate} className={dateCls} />}

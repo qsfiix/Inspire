@@ -96,7 +96,7 @@ function MatchBadge({ score, topScore, isDark, reasons, t, fit }: { score: numbe
     level === 3
       ? isDark ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/30" : "text-emerald-800 bg-emerald-50 border-emerald-300"
       : level === 2
-        ? isDark ? "text-violet-200 bg-violet-500/10 border-violet-500/30" : "text-violet-800 bg-violet-50 border-violet-300"
+        ? "text-plum bg-mist border-line"
         : isDark ? "text-zinc-300 bg-white/5 border-white/10" : "text-zinc-700 bg-zinc-50 border-zinc-300";
 
   return (
@@ -183,8 +183,8 @@ export default function AdvisorReport({
     }
   };
 
-  const tTextBody = isDark ? "text-zinc-200" : "text-black font-bold";
-  const tTextMuted = isDark ? "text-zinc-300" : "text-black font-extrabold";
+  const tTextBody = "text-ink font-bold";
+  const tTextMuted = "text-ink font-extrabold";
 
   return (
     <div className="card-premium-glow w-full p-6 relative overflow-hidden text-left">
@@ -200,8 +200,8 @@ export default function AdvisorReport({
         isDark ? "border-white/10" : "border-violet-950/10"
       }`}>
         <div className="flex items-center gap-2">
-          <BrainCircuit className={`h-5.5 w-5.5 ${isDark ? "text-violet-300" : "text-violet-950"}`} />
-          <h2 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
+          <BrainCircuit className={`h-5.5 w-5.5 text-ink`} />
+          <h2 className={`text-xl font-bold tracking-tight text-ink font-black`}>
             {t.arTitle}
           </h2>
         </div>
@@ -216,23 +216,23 @@ export default function AdvisorReport({
       {/* Consultation Input Scope Tags Box: only what the person actually answered */}
       {(!!currentStage || interests.length > 0 || goals.length > 0) && (
       <div className={`rounded-xl p-3 border mb-5 flex flex-wrap items-center gap-2 text-xs ${
-        isDark ? "bg-white/[0.01] border-white/5" : "bg-violet-50/50 border-purple-200"
+        "bg-mist border-line"
       }`}>
-        <span className={`font-medium mr-1 shrink-0 ${isDark ? "text-zinc-400" : "text-violet-950/70 font-bold"}`}>
+        <span className={`font-medium mr-1 shrink-0 text-muted font-bold`}>
           {t.arBasedOn}
         </span>
         {currentStage && (
-        <div className={`px-2 py-0.5 rounded border ${isDark ? "bg-white/5 border-white/5 text-zinc-300" : "bg-white border-purple-200 text-violet-950 font-extrabold"}`}>
+        <div className={`px-2 py-0.5 rounded border bg-card border-line text-ink font-extrabold`}>
           {t.arStage}: {t[stageLabelKey(currentStage)] || currentStage.replace("stage_", "")}
         </div>
         )}
         {interests.length > 0 && (
-          <div className={`px-2 py-0.5 rounded border max-w-xs truncate ${isDark ? "bg-white/5 border-white/5 text-zinc-300" : "bg-white border-purple-200 text-violet-950 font-extrabold"}`}>
+          <div className={`px-2 py-0.5 rounded border max-w-xs truncate bg-card border-line text-ink font-extrabold`}>
             {t.arInterests}: {interests.map(i => t["interests_" + i] || i).join(", ")}
           </div>
         )}
         {goals.length > 0 && (
-          <div className={`px-2 py-0.5 rounded border max-w-xs truncate ${isDark ? "bg-white/5 border-white/5 text-zinc-300" : "bg-white border-purple-200 text-violet-950 font-extrabold"}`}>
+          <div className={`px-2 py-0.5 rounded border max-w-xs truncate bg-card border-line text-ink font-extrabold`}>
             {t.arFocus}: {goals.map(g => t[GOAL_LABEL_KEY[g.replace(/^goals_/, "")]] || g.replace(/^goals_/, "")).join(", ")}
           </div>
         )}
@@ -266,8 +266,8 @@ export default function AdvisorReport({
           </motion.div>
         ) : recommendation && !recommendation.hasAnswers ? (
           <motion.div key="no-answers" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-6 text-center space-y-3">
-            <h3 className={`text-base font-bold ${isDark ? "text-white" : "text-violet-950"}`}>{(NO_ANSWERS[language] ?? NO_ANSWERS.en).title}</h3>
-            <p className={`mx-auto max-w-md text-xs leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{(NO_ANSWERS[language] ?? NO_ANSWERS.en).body}</p>
+            <h3 className={`text-base font-bold text-ink`}>{(NO_ANSWERS[language] ?? NO_ANSWERS.en).title}</h3>
+            <p className={`mx-auto max-w-md text-xs leading-relaxed text-ink-2`}>{(NO_ANSWERS[language] ?? NO_ANSWERS.en).body}</p>
             {onAnswer && (
               <button type="button" onClick={onAnswer} className="btn-primary btn-shine px-5 py-2.5 text-xs font-bold">
                 {(NO_ANSWERS[language] ?? NO_ANSWERS.en).button}
@@ -284,18 +284,18 @@ export default function AdvisorReport({
           >
             {/* Primary Path Focus */}
             <div className={`border-beam p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-              isDark ? "bg-violet-950/20 border-violet-800/30" : "bg-purple-100/60 border-purple-300"
+              "bg-mist border-line"
             }`}>
               <div className="space-y-1">
-                <span className={`text-xs font-medium ${isDark ? "text-violet-300" : "text-violet-800 font-bold"}`}>{t.arFocusLabel}</span>
-                <h3 className={`text-lg font-bold flex items-center gap-2 ${isDark ? "text-white" : "text-violet-950"}`}>
+                <span className={`text-xs font-medium text-plum font-bold`}>{t.arFocusLabel}</span>
+                <h3 className={`text-lg font-bold flex items-center gap-2 text-ink`}>
                   <ShieldCheck className="h-5 w-5 text-emerald-500" />
                   {recommendation.pathFocus}
                 </h3>
               </div>
               <div className="sm:text-right max-w-[240px]">
-                <span className={`text-xs font-medium ${isDark ? "text-zinc-400" : "text-zinc-600 font-bold"}`}>{t.arNextStep}</span>
-                <p className={`text-sm leading-snug mt-1 ${isDark ? "text-zinc-200" : "text-black font-semibold"}`}>
+                <span className={`text-xs font-medium text-muted font-bold`}>{t.arNextStep}</span>
+                <p className={`text-sm leading-snug mt-1 text-ink font-semibold`}>
                   {recommendation.nextBestStep}
                 </p>
               </div>
@@ -303,7 +303,7 @@ export default function AdvisorReport({
 
             {/* AI explanation layer: optional, on-demand narrative over the result above */}
             {FEATURES.aiExplanation && (
-            <div className={`rounded-xl border p-4 ${isDark ? "bg-white/[0.02] border-white/10" : "bg-white border-purple-200"}`}>
+            <div className={`rounded-xl border p-4 bg-card border-line`}>
               {aiState === "idle" && (
                 <button
                   onClick={requestAiExplanation}
@@ -317,7 +317,7 @@ export default function AdvisorReport({
               {aiState === "loading" && (
                 <div className="flex items-center justify-center gap-2 py-2 text-xs">
                   <Sparkles className="h-3.5 w-3.5 text-violet-500 animate-pulse" />
-                  <span className={isDark ? "text-zinc-300" : "text-zinc-700"}>{t.arAiLoading}</span>
+                  <span className="text-ink-2">{t.arAiLoading}</span>
                 </div>
               )}
 
@@ -329,7 +329,7 @@ export default function AdvisorReport({
                   </div>
                   <button
                     onClick={requestAiExplanation}
-                    className={`text-[11px] font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/70 hover:text-violet-950"}`}
+                    className={`text-[11px] font-mono underline text-muted hover:text-ink`}
                   >
                     {t.arTryAgain}
                   </button>
@@ -340,7 +340,7 @@ export default function AdvisorReport({
                 <div className="space-y-3">
                   <div className="flex items-center gap-1.5">
                     <Sparkles className="h-3.5 w-3.5 text-violet-500" />
-                    <span className={`text-[11px] uppercase tracking-widest font-mono ${isDark ? "text-violet-400" : "text-violet-800 font-extrabold"}`}>
+                    <span className={`text-[11px] uppercase tracking-widest font-mono text-plum font-extrabold`}>
                       {t.arAiPerspective}{aiData.isFallback ? t.arAiGeneric : ""}
                     </span>
                   </div>
@@ -356,18 +356,18 @@ export default function AdvisorReport({
                     </div>
                   )}
 
-                  <h3 className={`text-base font-bold ${isDark ? "text-white" : "text-violet-950"}`}>{aiData.suggestedPathTitle}</h3>
+                  <h3 className={`text-base font-bold text-ink`}>{aiData.suggestedPathTitle}</h3>
                   <p className={`text-xs leading-relaxed ${tTextBody}`}>{aiData.welcomeMessage}</p>
-                  <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{aiData.explanation}</p>
+                  <p className={`text-xs leading-relaxed text-ink-2`}>{aiData.explanation}</p>
 
                   {aiData.milestones?.length > 0 && (
                     <ol className="space-y-2 pt-1">
                       {aiData.milestones.map((m, idx) => (
-                        <li key={m.id || idx} className={`p-2.5 rounded-lg border flex items-start gap-2.5 ${isDark ? "bg-white/[0.02] border-white/10" : "bg-purple-50/50 border-purple-200"}`}>
+                        <li key={m.id || idx} className={`p-2.5 rounded-lg border flex items-start gap-2.5 bg-mist border-line`}>
                           <Milestone className="h-3.5 w-3.5 mt-0.5 text-violet-500 shrink-0" />
                           <div className="min-w-0">
-                            <div className={`font-bold text-[11px] ${isDark ? "text-violet-200" : "text-violet-950"}`}>{m.title}</div>
-                            <p className={`text-xs mt-0.5 leading-snug ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{m.description}</p>
+                            <div className={`font-bold text-[11px] text-ink`}>{m.title}</div>
+                            <p className={`text-xs mt-0.5 leading-snug text-ink-2`}>{m.description}</p>
                             {m.timeframe && (
                               <span className={`text-[11px] font-mono ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>{m.timeframe}</span>
                             )}
@@ -382,7 +382,7 @@ export default function AdvisorReport({
                       {aiData.recommendedInstitutions.map((name, idx) => (
                         <span
                           key={idx}
-                          className={`text-[11px] font-mono px-2 py-1 rounded-lg border ${isDark ? "bg-white/5 border-white/10 text-zinc-300" : "bg-purple-100/80 text-violet-950 border-purple-200"}`}
+                          className={`text-[11px] font-mono px-2 py-1 rounded-lg border bg-mist text-ink border-line`}
                         >
                           {name}
                         </span>
@@ -397,7 +397,7 @@ export default function AdvisorReport({
             <div className="grid gap-6 md:grid-cols-2">
               {/* Shortlist: Professions */}
               <div className="space-y-3 flex flex-col">
-                <div className={`text-sm font-semibold flex items-center gap-1.5 ${isDark ? "text-zinc-200" : "text-violet-950 font-bold"}`}>
+                <div className={`text-sm font-semibold flex items-center gap-1.5 text-ink font-bold`}>
                   <Briefcase className="h-4 w-4 text-violet-400" />
                   {t.arCareers}
                 </div>
@@ -405,12 +405,12 @@ export default function AdvisorReport({
                   <div key={idx} className="card-premium-accent p-3.5 space-y-2 text-left h-full flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start gap-2">
-                        <span className={`font-bold text-sm ${isDark ? "text-violet-100" : "text-violet-950"}`}>
+                        <span className={`font-bold text-sm text-ink`}>
                           {localizedText(rp.profession.title, language)}
                         </span>
                         <MatchBadge score={rp.score} topScore={topProfessionScore} isDark={isDark} reasons={rp.matchReasons} t={t} fit={rp.fit} />
                       </div>
-                      <div className={`text-xs mt-2 space-y-1 ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                      <div className={`text-xs mt-2 space-y-1 text-ink-2`}>
                         {rp.matchReasons.filter(r => !PROVISIONAL_REASON.test(r)).map((reason, i) => (
                           <div key={i} className="flex gap-1.5 items-start">
                             <Lightbulb className="h-3.5 w-3.5 mt-0.5 text-amber-400 shrink-0" />
@@ -439,7 +439,7 @@ export default function AdvisorReport({
 
               {/* Shortlist: Institutions */}
               <div className="space-y-3 flex flex-col">
-                <div className={`text-sm font-semibold flex items-center gap-1.5 ${isDark ? "text-zinc-200" : "text-violet-950 font-bold"}`}>
+                <div className={`text-sm font-semibold flex items-center gap-1.5 text-ink font-bold`}>
                   <Landmark className="h-4 w-4 text-violet-400" />
                   {t.arStudy}
                 </div>
@@ -447,12 +447,12 @@ export default function AdvisorReport({
                   <div key={idx} className="card-premium-accent p-3.5 space-y-2 text-left h-full flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start gap-2">
-                        <span className={`font-bold text-sm ${isDark ? "text-violet-100" : "text-violet-950"}`}>
+                        <span className={`font-bold text-sm text-ink`}>
                           {inst.institution.title}
                         </span>
                         <MatchBadge score={inst.score} topScore={topInstitutionScore} isDark={isDark} reasons={inst.matchReasons} t={t} />
                       </div>
-                      <div className={`text-xs mt-2 space-y-1 ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                      <div className={`text-xs mt-2 space-y-1 text-ink-2`}>
                         {inst.matchReasons.filter(r => !PROVISIONAL_REASON.test(r)).map((reason, i) => (
                           <div key={i} className="flex gap-1.5 items-start">
                             <Lightbulb className="h-3.5 w-3.5 mt-0.5 text-amber-400 shrink-0" />
@@ -482,7 +482,7 @@ export default function AdvisorReport({
 
             {/* Shortlist: Resources */}
             <div className={`pt-4 border-t space-y-3 ${isDark ? "border-white/10" : "border-violet-950/10"}`}>
-              <div className={`text-sm font-semibold ${isDark ? "text-zinc-200" : "text-violet-950 font-bold"}`}>
+              <div className={`text-sm font-semibold text-ink font-bold`}>
                 {t.arResources}
               </div>
               <div className="grid gap-2 sm:grid-cols-3">
@@ -497,12 +497,12 @@ export default function AdvisorReport({
                     }`}
                   >
                     <div className="flex items-center justify-between gap-1 mb-1">
-                      <span className={`font-semibold text-sm leading-snug ${isDark ? "text-violet-200" : "text-violet-900"}`}>
+                      <span className={`font-semibold text-sm leading-snug text-ink`}>
                         {localizedText(rawRes.resource.title, language)}
                       </span>
                       <ExternalLink className="h-3 w-3 opacity-50 shrink-0" />
                     </div>
-                    <div className={`text-xs mt-1 ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
+                    <div className={`text-xs mt-1 text-muted`}>
                       {rawRes.matchReasons.find(r => !PROVISIONAL_REASON.test(r)) || t.arGeneral}
                     </div>
                   </a>

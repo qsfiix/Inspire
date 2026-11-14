@@ -63,18 +63,18 @@ export default function MapboxMapGate({ onOpenSchools, ...mapProps }: MapProps &
   const isDark = mapProps.theme !== "light";
   return (
     <div className="card-premium flex flex-col items-center gap-4 p-6 text-center">
-      <span className={`flex h-12 w-12 items-center justify-center rounded-xl ${isDark ? "bg-violet-500/15 text-violet-300" : "bg-violet-100 text-violet-800"}`}>
+      <span className={`flex h-12 w-12 items-center justify-center rounded-xl bg-mist text-plum`}>
         <MapIcon className="h-6 w-6" />
       </span>
-      <h2 className={`text-base font-bold ${isDark ? "text-white" : "text-black font-black"}`}>{ui.title}</h2>
-      <p className={`text-sm leading-relaxed ${isDark ? "text-zinc-300" : "text-black/80 font-semibold"}`}>{ui.text}</p>
+      <h2 className={`text-base font-bold text-ink font-black`}>{ui.title}</h2>
+      <p className={`text-sm leading-relaxed text-ink-2 font-semibold`}>{ui.text}</p>
       <button type="button" onClick={onOpenSchools} className="btn-primary flex w-full items-center justify-center gap-2 px-4 py-3 text-sm">
         <Search className="h-4 w-4" /> {ui.browse}
       </button>
       <button
         type="button"
         onClick={() => setForceMap(true)}
-        className={`text-xs underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/70 hover:text-violet-950"}`}
+        className={`text-xs underline text-muted hover:text-ink`}
       >
         {ui.load}
       </button>

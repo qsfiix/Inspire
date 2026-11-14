@@ -84,8 +84,8 @@ export function ResourcesCareersView({
       <div className="relative flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 py-1">
         <SectionGlow isDark={isDark} corner="top-left" />
         <div className="relative">
-          <h1 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-black font-black"}`}>{t.resourcesCareersHeader}</h1>
-          <p className={`text-xs mt-0.5 max-w-xl ${isDark ? "text-zinc-300" : "text-black font-bold"}`}>{t.resourcesCareersSub}</p>
+          <h1 className={`text-xl font-bold tracking-tight text-ink font-black`}>{t.resourcesCareersHeader}</h1>
+          <p className={`text-xs mt-0.5 max-w-xl text-ink font-bold`}>{t.resourcesCareersSub}</p>
         </div>
 
         <div className={`flex gap-1 rounded-xl p-1 border shrink-0 ${
@@ -98,7 +98,7 @@ export function ResourcesCareersView({
               className={`px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-lg transition cursor-pointer ${
                 activeSection === section.id
                   ? isDark ? "bg-violet-900/50 text-violet-200" : "bg-violet-600 text-white shadow-sm"
-                  : isDark ? "text-zinc-300 hover:text-white" : "text-black hover:text-violet-950"
+                  : "text-ink hover:text-ink"
               }`}
             >
               {section.label}
@@ -165,8 +165,8 @@ function ResourcesPanel({
           into a narrow column ("Official Swiss / Resources"). */}
       <div className="flex flex-col gap-4">
         <div>
-          <h2 className={`text-lg font-extrabold tracking-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>{t.resourcesHeader}</h2>
-          <p className={`text-xs mt-0.5 ${isDark ? "text-zinc-300" : "text-black font-bold"}`}>{t.resourcesSub}</p>
+          <h2 className={`text-lg font-extrabold tracking-tight text-ink font-black`}>{t.resourcesHeader}</h2>
+          <p className={`text-xs mt-0.5 text-ink font-bold`}>{t.resourcesSub}</p>
           {userProfile && (
             <p className={`text-xs mt-1 font-medium ${isDark ? "text-violet-300" : "text-emerald-800 font-bold"}`}>
               <Sparkles className="inline-block h-3 w-3 mr-1" />
@@ -179,14 +179,14 @@ function ResourcesPanel({
           <div className={`relative flex items-center rounded-xl p-1.5 pr-2 w-full sm:w-60 border ${
             isDark ? "bg-zinc-900/60 border-violet-950 text-white" : "bg-white border-purple-300 shadow-sm text-black"
           }`}>
-            <Search className={`h-4 w-4 ml-1.5 mr-2 ${isDark ? "text-zinc-400" : "text-violet-600"}`} />
+            <Search className={`h-4 w-4 ml-1.5 mr-2 text-plum`} />
             <input
               type="text"
               value={resourceSearch}
               onChange={(e) => setResourceSearch(e.target.value)}
               placeholder={t.resourcesSearchPlaceholder}
               aria-label={t.resourcesSearchPlaceholder}
-              className={`w-full bg-transparent text-xs focus:outline-none ${isDark ? "text-white placeholder-zinc-500" : "text-black placeholder-violet-950/40 font-bold"}`}
+              className={`w-full bg-transparent text-xs focus:outline-none text-ink placeholder-muted font-bold`}
             />
           </div>
 
@@ -200,7 +200,7 @@ function ResourcesPanel({
                 className={`px-2.5 py-1 text-xs font-semibold first-letter:uppercase rounded-lg transition shrink-0 cursor-pointer ${
                   resourceCategoryFilter === cat
                     ? isDark ? "bg-violet-900/40 text-violet-300 font-bold" : "bg-violet-600 text-white font-black shadow-sm"
-                    : isDark ? "text-zinc-300 hover:text-white" : "text-black hover:text-violet-950 font-bold"
+                    : "text-ink hover:text-ink font-bold"
                 }`}
               >
                 {cat === "all" ? t.filterAll : categoryLabel(cat, currentLanguage)}
@@ -212,7 +212,7 @@ function ResourcesPanel({
 
       {filteredResources.length === 0 && (
         <div className={`rounded-2xl border border-dashed p-10 text-center ${
-          isDark ? "border-white/10 text-zinc-400" : "border-purple-300 text-violet-950/70"
+          "border-line text-muted"
         }`}>
           <p className="text-xs font-semibold">{t.resourcesEmptyTitle}</p>
           <p className="text-[11px] mt-1 opacity-80">{t.resourcesEmptyHint}</p>
@@ -290,7 +290,7 @@ function ResourcesPanel({
                 )}
               </div>
 
-              <h4 className={`text-sm font-bold tracking-tight leading-snug ${isDark ? "text-white" : "text-black font-black"}`}>
+              <h4 className={`text-sm font-bold tracking-tight leading-snug text-ink font-black`}>
                 {localizedText(res.title, currentLanguage)}
               </h4>
               {localizedText(res.description, currentLanguage) && (
@@ -305,7 +305,7 @@ function ResourcesPanel({
                     <span
                       key={idx}
                       className={`text-[11px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
-                        isDark ? "bg-zinc-900 text-zinc-400 border-violet-900/30" : "bg-purple-100/60 text-violet-950 border-purple-200/50"
+                        "bg-mist text-ink border-line"
                       }`}
                     >
                       #{tag}
@@ -315,8 +315,8 @@ function ResourcesPanel({
               )}
             </div>
 
-            <div className={`pt-4 mt-4 border-t flex items-center justify-between ${isRecommended ? (isDark ? "border-emerald-900/30" : "border-emerald-200") : (isDark ? "border-violet-950/40" : "border-purple-200")}`}>
-              <span className={`text-xs uppercase font-mono ${isDark ? "text-zinc-400" : "text-black font-black"}`}>
+            <div className={`pt-4 mt-4 border-t flex items-center justify-between ${isRecommended ? (isDark ? "border-emerald-900/30" : "border-emerald-200") : ("border-line")}`}>
+              <span className={`text-xs uppercase font-mono text-ink font-black`}>
                 {res.isFederal ? t.resourceFederal : t.resourceSwiss}
               </span>
 
@@ -347,7 +347,7 @@ function ListSkeleton({ label, isDark }: { label: string; isDark: boolean }) {
     <div role="status" aria-live="polite" className="space-y-2">
       <span className="sr-only">{label}</span>
       {[0, 1, 2, 3, 4].map(i => (
-        <div key={i} aria-hidden="true" className={`w-full p-3.5 rounded-xl border animate-pulse ${isDark ? "border-white/5" : "border-purple-200"}`}>
+        <div key={i} aria-hidden="true" className={`w-full p-3.5 rounded-xl border animate-pulse border-line`}>
           <div className={`h-3 rounded ${bar}`} style={{ width: `${70 - i * 7}%` }} />
           <div className={`h-2.5 rounded mt-2 ${bar}`} style={{ width: "35%" }} />
         </div>
@@ -468,30 +468,30 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
     }`}>
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b pb-4 mb-6 border-purple-200/10 text-left">
         <div>
-          <span className={`block font-mono text-[11px] uppercase tracking-widest ${isDark ? "text-violet-400" : "text-violet-600 font-extrabold"}`}>
+          <span className={`block font-mono text-[11px] uppercase tracking-widest text-plum font-extrabold`}>
             {t.professionsEyebrow}
           </span>
-          <h2 className={`text-base font-extrabold tracking-tight flex items-center gap-1.5 ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
+          <h2 className={`text-base font-extrabold tracking-tight flex items-center gap-1.5 text-ink font-black`}>
             <Briefcase className="h-4.5 w-4.5 text-violet-500 shrink-0" />
             {t.professionsTitle}
           </h2>
-          <p className={`text-xs mt-0.5 leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950 font-semibold"}`}>
+          <p className={`text-xs mt-0.5 leading-relaxed text-ink font-semibold`}>
             {t.professionsSub}
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto text-left">
           <div className={`relative flex items-center rounded-xl p-1.5 pr-2 w-full sm:w-56 border ${
-            isDark ? "bg-zinc-900/60 border-violet-950 text-white" : "bg-purple-50/50 border-purple-200 text-black"
+            "bg-mist border-line text-ink"
           }`}>
-            <Search className={`h-3.5 w-3.5 ml-1.5 mr-1.5 ${isDark ? "text-zinc-400" : "text-violet-650"}`} />
+            <Search className={`h-3.5 w-3.5 ml-1.5 mr-1.5 text-plum`} />
             <input
               type="text"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               placeholder={t.professionsSearchPlaceholder}
               aria-label={t.professionsSearchPlaceholder}
-              className={`w-full bg-transparent text-[11px] focus:outline-none ${isDark ? "text-white placeholder-zinc-500" : "text-black placeholder-violet-950/40 font-bold"}`}
+              className={`w-full bg-transparent text-[11px] focus:outline-none text-ink placeholder-muted font-bold`}
             />
           </div>
 
@@ -525,7 +525,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
               <p className="text-xs">{t.professionsLoadError}</p>
             </div>
           ) : filtered.length === 0 ? (
-            <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-white/10 text-zinc-400" : "border-purple-200 text-violet-950/70"}`}>
+            <div className={`text-center py-10 rounded-2xl border border-dashed border-line text-muted`}>
               {/* Distinguish "search/filter narrowed to zero" from "catalog has
                   nothing yet" - conflating the two would either hide a real
                   empty-catalog state or wrongly blame the user's search. */}
@@ -541,7 +541,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                   className={`w-full p-3.5 rounded-xl text-left transition border flex items-center justify-between gap-3 cursor-pointer ${
                     isSelected
                       ? isDark ? "border-violet-500 bg-violet-950/20 text-white shadow" : "border-2 border-violet-950 bg-violet-100 text-violet-950 font-black shadow-sm"
-                      : isDark ? "border-white/5 bg-white/[0.02] hover:bg-white/[0.06] text-zinc-300" : "border-purple-200 bg-purple-50/40 hover:bg-violet-50 text-black font-semibold"
+                      : "border-line bg-mist hover:bg-wash text-ink font-semibold"
                   }`}
                 >
                   <div className="space-y-1 truncate pr-1">
@@ -550,7 +550,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                     </span>
                     <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
                       {p.category && (
-                        <span className={`px-1.5 py-0.5 rounded border ${isDark ? "border-white/10 bg-black" : "border-purple-200 bg-white"}`}>{categoryLabel(p.category, currentLanguage)}</span>
+                        <span className={`px-1.5 py-0.5 rounded border border-line bg-card`}>{categoryLabel(p.category, currentLanguage)}</span>
                       )}
 
                       {isProvisional(p.status) && (
@@ -563,7 +563,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                       {typeof p.salaryCHF === "number" && (
                         <>
                           <span>•</span>
-                          <span className={`${isDark ? "text-violet-300" : "text-violet-950 font-bold"}`}>CHF {(p.salaryCHF / 1000).toFixed(0)}k/yr</span>
+                          <span className={`text-ink font-bold`}>CHF {(p.salaryCHF / 1000).toFixed(0)}k/yr</span>
                         </>
                       )}
                     </div>
@@ -591,7 +591,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                 <div className="space-y-4 text-left">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3 border-purple-200/10">
                     <div>
-                      <h3 className={`text-base font-extrabold flex items-center gap-1.5 leading-tight ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
+                      <h3 className={`text-base font-extrabold flex items-center gap-1.5 leading-tight text-ink font-black`}>
                         {localizedText(selectedProf.title, currentLanguage)}
                         {isTrusted(selectedProf) && (
                           <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
@@ -604,7 +604,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                       </h3>
                       {selectedProf.category && (
                         <span className={`inline-block text-[11px] font-mono px-1.5 py-0.5 mt-1 rounded ${
-                          isDark ? "bg-violet-950/40 text-violet-300" : "bg-purple-100 text-violet-950 font-bold"
+                          "bg-mist text-ink font-bold"
                         }`}>
                           {categoryLabel(selectedProf.category, currentLanguage)}
                         </span>
@@ -615,7 +615,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                       <div className="text-right">
                         <div className="flex items-center gap-1 text-[11px] font-mono leading-none">
                           <Coins className="h-3.5 w-3.5 text-violet-400 shrink-0" />
-                          <span className={`font-extrabold ${isDark ? "text-white" : "text-black"}`}>CHF {selectedProf.salaryCHF.toLocaleString()}</span>
+                          <span className={`font-extrabold text-ink`}>CHF {selectedProf.salaryCHF.toLocaleString()}</span>
                         </div>
                         <span className="text-[11px] uppercase tracking-wider font-mono text-zinc-400">{t.professionSalaryLabel}</span>
                       </div>
@@ -628,7 +628,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                   </div>
 
                   {localizedText(selectedProf.description, currentLanguage) && (
-                    <p className={`text-[11.5px] leading-relaxed ${isDark ? "text-zinc-300" : "text-violet-950 font-semibold"}`}>
+                    <p className={`text-[11.5px] leading-relaxed text-ink font-semibold`}>
                       {localizedText(selectedProf.description, currentLanguage)}
                     </p>
                   )}
@@ -643,7 +643,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                   {localizedText(selectedProf.targetGroup, currentLanguage) && (
                     <div className="card-premium p-3.5">
                       <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.professionTargetGroupLabel}</span>
-                      <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+                      <p className={`text-xs leading-relaxed text-ink font-semibold`}>
                         {localizedText(selectedProf.targetGroup, currentLanguage)}
                       </p>
                     </div>
@@ -656,7 +656,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                           <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">
                             {t.professionEducationRequired}
                           </span>
-                          <p className={`text-xs leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
+                          <p className={`text-xs leading-relaxed font-semibold text-ink`}>
                             {localizedText(selectedProf.educationRequired, currentLanguage)}
                           </p>
                         </div>
@@ -690,7 +690,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                       {localizedText(selectedProf.dailyWorkContext, currentLanguage) && (
                         <div className="card-premium p-3">
                           <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.professionDailyWorkLabel}</span>
-                          <p className={`text-xs leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
+                          <p className={`text-xs leading-relaxed font-semibold text-ink`}>
                             {localizedText(selectedProf.dailyWorkContext, currentLanguage)}
                           </p>
                         </div>
@@ -698,7 +698,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                       {localizedText(selectedProf.typicalWorkplace, currentLanguage) && (
                         <div className="card-premium p-3">
                           <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.professionWorkplaceLabel}</span>
-                          <p className={`text-xs leading-relaxed font-semibold ${isDark ? "text-zinc-200" : "text-violet-950"}`}>
+                          <p className={`text-xs leading-relaxed font-semibold text-ink`}>
                             {localizedText(selectedProf.typicalWorkplace, currentLanguage)}
                           </p>
                         </div>
@@ -709,7 +709,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                   {localizedText(selectedProf.admissionReality, currentLanguage) && (
                     <div className="card-premium-accent p-3.5">
                       <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.professionAdmissionRealityLabel}</span>
-                      <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+                      <p className={`text-xs leading-relaxed text-ink font-semibold`}>
                         {localizedText(selectedProf.admissionReality, currentLanguage)}
                       </p>
                     </div>
@@ -718,7 +718,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                   {localizedText(selectedProf.progressionNotes, currentLanguage) && (
                     <div className="card-premium p-3.5">
                       <span className="block text-[11px] font-mono uppercase tracking-wider text-violet-400 mb-1">{t.professionProgressionLabel}</span>
-                      <p className={`text-xs leading-relaxed ${isDark ? "text-zinc-200" : "text-violet-950 font-semibold"}`}>
+                      <p className={`text-xs leading-relaxed text-ink font-semibold`}>
                         {localizedText(selectedProf.progressionNotes, currentLanguage)}
                       </p>
                     </div>
@@ -735,7 +735,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                           <span
                             key={idx}
                             className={`inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-lg ${
-                              isDark ? "bg-white/5 border border-white/5 text-zinc-300" : "bg-purple-100 text-violet-950 font-bold border border-purple-200/40"
+                              "bg-mist text-ink font-bold border border-line"
                             }`}
                           >
                             <Check className="h-2.5 w-2.5 text-violet-400 shrink-0" />
@@ -780,7 +780,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
                           <div
                             key={link.id}
                             className={`flex items-center gap-2 text-xs px-2.5 py-1.5 rounded-lg ${
-                              isDark ? "bg-white/5 border border-white/5 text-zinc-200" : "bg-purple-50 text-violet-950 font-semibold border border-purple-200/40"
+                              "bg-mist text-ink font-semibold border border-line"
                             }`}
                           >
                             <Landmark className="h-3 w-3 text-violet-400 shrink-0" />
@@ -798,7 +798,7 @@ export function ProfessionsExplorer({ isDark, currentLanguage, t, onGoalSet, ini
             </AnimatePresence>
           ) : (
             <div className={`p-10 text-center rounded-2xl border border-dashed flex flex-col items-center justify-center h-full min-h-[280px] ${
-              isDark ? "border-white/10 text-zinc-400 bg-white/[0.005]" : "border-purple-200 text-violet-950/70 bg-purple-50/10"
+              "border-line text-muted bg-mist"
             }`}>
               <Briefcase className="h-6 w-6 text-violet-500 mb-2.5" />
               <p className="text-xs font-semibold">{t.professionSelectHint}</p>
@@ -889,30 +889,30 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet , i
     }`}>
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b pb-4 mb-6 border-purple-200/10 text-left">
         <div>
-          <span className={`block font-mono text-[11px] uppercase tracking-widest ${isDark ? "text-violet-400" : "text-violet-600 font-extrabold"}`}>
+          <span className={`block font-mono text-[11px] uppercase tracking-widest text-plum font-extrabold`}>
             {t.institutionsEyebrow}
           </span>
-          <h2 className={`text-base font-extrabold tracking-tight flex items-center gap-1.5 ${isDark ? "text-white" : "text-violet-950 font-black"}`}>
+          <h2 className={`text-base font-extrabold tracking-tight flex items-center gap-1.5 text-ink font-black`}>
             <Landmark className="h-4.5 w-4.5 text-violet-500 shrink-0" />
             {t.institutionsTitle}
           </h2>
-          <p className={`text-xs mt-0.5 leading-relaxed ${isDark ? "text-zinc-400" : "text-violet-950 font-semibold"}`}>
+          <p className={`text-xs mt-0.5 leading-relaxed text-ink font-semibold`}>
             {t.institutionsSub}
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto text-left">
           <div className={`relative flex items-center rounded-xl p-1.5 pr-2 w-full sm:w-56 border ${
-            isDark ? "bg-zinc-900/60 border-violet-950 text-white" : "bg-purple-50/50 border-purple-200 text-black"
+            "bg-mist border-line text-ink"
           }`}>
-            <Search className={`h-3.5 w-3.5 ml-1.5 mr-1.5 ${isDark ? "text-zinc-400" : "text-violet-650"}`} />
+            <Search className={`h-3.5 w-3.5 ml-1.5 mr-1.5 text-plum`} />
             <input
               type="text"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               placeholder={t.institutionsSearchPlaceholder}
               aria-label={t.institutionsSearchPlaceholder}
-              className={`w-full bg-transparent text-[11px] focus:outline-none ${isDark ? "text-white placeholder-zinc-500" : "text-black placeholder-violet-950/40 font-bold"}`}
+              className={`w-full bg-transparent text-[11px] focus:outline-none text-ink placeholder-muted font-bold`}
             />
           </div>
 
@@ -922,7 +922,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet , i
               onChange={(e) => setCantonFilter(e.target.value)}
               aria-label={CANTON_FILTER_LABEL[currentLanguage as LanguageCode] ?? CANTON_FILTER_LABEL.en}
               className={`rounded-xl border px-2.5 py-2 text-[11px] font-semibold cursor-pointer focus:outline-none ${
-                isDark ? "bg-zinc-900/60 border-violet-950 text-white" : "bg-purple-50/50 border-purple-200 text-black"
+                "bg-mist border-line text-ink"
               }`}
             >
               <option value="all">{CANTON_FILTER_LABEL[currentLanguage as LanguageCode] ?? CANTON_FILTER_LABEL.en}</option>
@@ -962,7 +962,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet , i
               <p className="text-xs">{t.institutionsLoadError}</p>
             </div>
           ) : filtered.length === 0 ? (
-            <div className={`text-center py-10 rounded-2xl border border-dashed ${isDark ? "border-white/10 text-zinc-400" : "border-purple-200 text-violet-950/70"}`}>
+            <div className={`text-center py-10 rounded-2xl border border-dashed border-line text-muted`}>
               <p className="text-xs">{institutionsList.length === 0 ? t.institutionsCatalogGrowing : t.institutionsEmpty}</p>
             </div>
           ) : (
@@ -975,14 +975,14 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet , i
                   className={`w-full p-3.5 rounded-xl text-left transition border flex items-center justify-between gap-3 cursor-pointer ${
                     isSelected
                       ? isDark ? "border-violet-500 bg-violet-950/20 text-white shadow" : "border-2 border-violet-950 bg-violet-100 text-violet-950 font-black shadow-sm"
-                      : isDark ? "border-white/5 bg-white/[0.02] hover:bg-white/[0.06] text-zinc-300" : "border-purple-200 bg-purple-50/40 hover:bg-violet-50 text-black font-semibold"
+                      : "border-line bg-mist hover:bg-wash text-ink font-semibold"
                   }`}
                 >
                   <div className="space-y-1 truncate pr-1">
                     <span className="block font-bold text-xs truncate">{inst.title}</span>
                     <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
                       {inst.category && (
-                        <span className={`px-1.5 py-0.5 rounded border ${isDark ? "border-white/10 bg-black" : "border-purple-200 bg-white"}`}>{categoryLabel(inst.category, currentLanguage)}</span>
+                        <span className={`px-1.5 py-0.5 rounded border border-line bg-card`}>{categoryLabel(inst.category, currentLanguage)}</span>
                       )}
                       {inst.canton && <span>{inst.canton}</span>}
                       {isProvisional(inst.status) && (
@@ -1027,7 +1027,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet , i
             </AnimatePresence>
           ) : (
             <div className={`p-10 text-center rounded-2xl border border-dashed flex flex-col items-center justify-center h-full min-h-[280px] ${
-              isDark ? "border-white/10 text-zinc-400 bg-white/[0.005]" : "border-purple-200 text-violet-950/70 bg-purple-50/10"
+              "border-line text-muted bg-mist"
             }`}>
               <Landmark className="h-6 w-6 text-violet-500 mb-2.5" />
               <p className="text-xs font-semibold">{t.institutionSelectHint}</p>
@@ -1039,17 +1039,17 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet , i
       {/* Floating compare tray - same pattern and same InstitutionCompareModal as the map */}
       {compareList.length > 0 && (
         <div className={`sticky bottom-4 z-20 mt-4 flex flex-wrap items-center gap-2 rounded-2xl border px-3.5 py-2.5 backdrop-blur-md shadow-xl ${
-          isDark ? "bg-zinc-950/90 border-white/15" : "bg-white/95 border-purple-200"
+          "bg-card border-line"
         }`}>
           <div className="flex items-center gap-1.5">
             <Scale className="h-3.5 w-3.5 text-violet-500 shrink-0" />
-            <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-zinc-400" : "text-violet-950/70 font-black"}`}>
+            <span className={`text-xs font-mono uppercase tracking-wider text-muted font-black`}>
               {t.compareBarLabel} ({compareList.length}/{MAX_COMPARE})
             </span>
           </div>
           {compareList.map(inst => (
             <span key={inst.id} className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold max-w-[140px] ${
-              isDark ? "bg-white/10 text-zinc-200" : "bg-purple-100 text-violet-950"
+              "bg-mist text-ink"
             }`}>
               <span className="truncate">{inst.title}</span>
               <button onClick={() => toggleCompare(inst)} aria-label={t.compareRemove}><X className="h-3 w-3 shrink-0" /></button>
@@ -1057,7 +1057,7 @@ function InstitutionsExplorer({ isDark, currentLanguage, theme, t, onGoalSet , i
           ))}
           <button
             onClick={() => setCompareList([])}
-            className={`text-xs font-mono underline ${isDark ? "text-zinc-400 hover:text-zinc-200" : "text-violet-950/70 hover:text-violet-950"}`}
+            className={`text-xs font-mono underline text-muted hover:text-ink`}
           >
             {t.compareClear}
           </button>

@@ -273,7 +273,7 @@ export default function MyPathLadder({
 
   if (loading) return null;
 
-  const headerIcon = <Sparkles className={`h-4.5 w-4.5 ${isDark ? "text-violet-300" : "text-violet-800"}`} />;
+  const headerIcon = <Sparkles className={`h-4.5 w-4.5 text-plum`} />;
 
   // Honest empty state: no fabricated path when the profile hasn't produced
   // one yet - just an invitation, not silence and not a placeholder.
@@ -283,8 +283,8 @@ export default function MyPathLadder({
         <div className="flex items-center gap-2.5">
           {headerIcon}
           <div>
-            <h2 className={`text-base font-bold tracking-tight ${isDark ? "text-white" : "text-violet-950"}`}>{t.mpTitle}</h2>
-            <p className={`text-xs mt-0.5 ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
+            <h2 className={`text-base font-bold tracking-tight text-ink`}>{t.mpTitle}</h2>
+            <p className={`text-xs mt-0.5 text-muted`}>
               {t.mpEmpty}
             </p>
           </div>
@@ -293,7 +293,7 @@ export default function MyPathLadder({
           <button
             onClick={onExploreAlternatives}
             className={`shrink-0 inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${
-              isDark ? "text-violet-300 bg-white/5 hover:bg-white/10" : "text-violet-700 bg-violet-50 hover:bg-violet-100"
+              "text-plum bg-mist hover:bg-wash"
             }`}
           >
             {t.mpExplore}
@@ -478,14 +478,14 @@ export default function MyPathLadder({
                 </linearGradient>
               </defs>
             </svg>
-            <span className={`absolute inset-0 flex items-center justify-center text-[11px] font-bold ${isDark ? "text-white" : "text-violet-950"}`}>
+            <span className={`absolute inset-0 flex items-center justify-center text-[11px] font-bold text-ink`}>
               {Math.round(progress * 100)}%
             </span>
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               {headerIcon}
-              <h2 className={`text-base font-bold tracking-tight ${isDark ? "text-white" : "text-violet-950"}`}>{t.mpTitle}</h2>
+              <h2 className={`text-base font-bold tracking-tight text-ink`}>{t.mpTitle}</h2>
               {language !== "de" && (
                 <span
                   className="text-[11px] font-mono px-2 py-0.5 rounded-full border"
@@ -501,9 +501,9 @@ export default function MyPathLadder({
                 </span>
               )}
             </div>
-            <p className={`text-xs mt-0.5 truncate ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
+            <p className={`text-xs mt-0.5 truncate text-muted`}>
               {t.mpRoute} <span className="text-shimmer font-semibold">{goalTitle}</span>
-              <span className={isDark ? "text-zinc-400" : "text-zinc-500"}> · {fill(t.mpStepsDone, { done: doneCount, total: steps.length })}</span>
+              <span className="text-muted"> · {fill(t.mpStepsDone, { done: doneCount, total: steps.length })}</span>
             </p>
           </div>
         </div>
@@ -511,7 +511,7 @@ export default function MyPathLadder({
           <button
             onClick={() => setShowPicker(v => !v)}
             className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-2 rounded-lg transition cursor-pointer ${
-              isDark ? "text-violet-200 bg-white/5 hover:bg-white/10" : "text-violet-800 bg-violet-50 hover:bg-violet-100"
+              "text-plum bg-mist hover:bg-wash"
             }`}
           >
             <Repeat className="h-3.5 w-3.5" />
@@ -533,7 +533,7 @@ export default function MyPathLadder({
             <button
               onClick={onOpenTracker}
               className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-2 rounded-lg transition cursor-pointer ${
-                isDark ? "text-violet-200 bg-white/5 hover:bg-white/10" : "text-violet-800 bg-violet-50 hover:bg-violet-100"
+                "text-plum bg-mist hover:bg-wash"
               }`}
             >
               <ArrowRight className="h-3.5 w-3.5" />
@@ -1078,7 +1078,7 @@ export default function MyPathLadder({
           </span>
           <span className="min-w-0 flex-1">
             <span className={`block text-[11px] font-mono uppercase tracking-widest ${isDark ? "text-amber-300/80" : "text-amber-700"}`}>{t.mpNextStep}</span>
-            <span className={`block truncate text-sm font-semibold ${isDark ? "text-white" : "text-violet-950"}`}>
+            <span className={`block truncate text-sm font-semibold text-ink`}>
               {localizedText(steps[currentStepIndex].title, language)}
             </span>
           </span>
@@ -1099,7 +1099,7 @@ export default function MyPathLadder({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.18 }}
-            className={`mt-3 rounded-xl border p-4 backdrop-blur-md ${isDark ? "bg-white/[0.04] border-white/10" : "bg-white border-purple-200"}`}
+            className={`mt-3 rounded-xl border p-4 backdrop-blur-md bg-card border-line`}
           >
             {selected.type === "step" && (() => {
               const idx = selected.index;
@@ -1116,7 +1116,7 @@ export default function MyPathLadder({
                     <span
                       className={`text-[11px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-full border ${
                         s === "done"
-                          ? isDark ? "text-violet-200 border-violet-400/40 bg-violet-500/15" : "text-violet-800 border-violet-300 bg-violet-100"
+                          ? "text-plum border-line bg-mist"
                           : s === "current"
                           ? isDark ? "text-amber-200 border-amber-300/40 bg-amber-400/15" : "text-amber-800 border-amber-300 bg-amber-100"
                           : isDark
@@ -1127,11 +1127,11 @@ export default function MyPathLadder({
                       {fill(t.mpStepOf, { n: idx + 1, total: steps.length })} · {s === "done" ? t.mpStateDone : s === "current" ? t.mpStateHere : t.mpStateAhead}
                     </span>
                   </div>
-                  <div className={`font-bold text-[13px] ${isDark ? "text-violet-100" : "text-violet-950"}`}>
+                  <div className={`font-bold text-[13px] text-ink`}>
                     {localizedText(step.title, language)}
                   </div>
                   {localizedText(step.description, language) && (
-                    <p className={`text-[11px] leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                    <p className={`text-[11px] leading-relaxed text-ink-2`}>
                       {localizedText(step.description, language)}
                     </p>
                   )}
@@ -1150,10 +1150,10 @@ export default function MyPathLadder({
                     const planB = planBSeason(start.year) && (key === "bewerben" || key === "gespraech" || key === "entscheid");
                     return (
                       <div className="space-y-1">
-                        <div className={`text-[11px] ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                        <div className={`text-[11px] text-ink-2`}>
                           {label.text} · <span className={win.state === "now" ? (isDark ? "text-amber-300" : "text-amber-700") : ""}>{label.status}</span>
                         </div>
-                        {label.note && <div className={`text-[10px] ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>{label.note}</div>}
+                        {label.note && <div className={`text-[10px] text-muted`}>{label.note}</div>}
                         {planB && (
                           <div className={`rounded-lg border px-2.5 py-1.5 text-[11px] ${isDark ? "border-amber-300/30 bg-amber-400/10 text-amber-100" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
                             {PLAN_B_TEXT[language] ?? PLAN_B_TEXT.de}
@@ -1185,7 +1185,7 @@ export default function MyPathLadder({
                   {goal ? (
                     <div className="space-y-1.5 pt-1">
                       {items.length > 0 && (
-                        <div className={`h-1 w-full overflow-hidden rounded-full ${isDark ? "bg-white/10" : "bg-violet-100"}`}>
+                        <div className={`h-1 w-full overflow-hidden rounded-full bg-mist`}>
                           <motion.div
                             className="h-full rounded-full bg-gradient-to-r from-violet-400 to-fuchsia-400"
                             initial={false}
@@ -1231,7 +1231,7 @@ export default function MyPathLadder({
                           onClick={() => addSubtask(idx, newTaskText)}
                           aria-label={t.mpAddTaskLabel}
                           className={`shrink-0 flex items-center justify-center h-7 w-7 rounded-lg transition ${
-                            isDark ? "text-violet-300 bg-white/5 hover:bg-white/10" : "text-violet-700 bg-violet-50 hover:bg-violet-100"
+                            "text-plum bg-mist hover:bg-wash"
                           }`}
                         >
                           <Plus className="h-3.5 w-3.5" />
@@ -1239,7 +1239,7 @@ export default function MyPathLadder({
                       </div>
                     </div>
                   ) : (
-                    <p className={`text-[11px] ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
+                    <p className={`text-[11px] text-muted`}>
                       {t.mpTrackHint}
                     </p>
                   )}
@@ -1249,12 +1249,12 @@ export default function MyPathLadder({
 
             {selected.type === "goal" && (
               <div className="space-y-2">
-                <div className={`flex items-center gap-2 font-bold text-[13px] ${isDark ? "text-violet-100" : "text-violet-950"}`}>
+                <div className={`flex items-center gap-2 font-bold text-[13px] text-ink`}>
                   <Trophy className="h-4 w-4 text-amber-400" />
                   {goalTitle}
                 </div>
                 {localizedText(mainPath.description, language) && (
-                  <p className={`text-[11px] leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                  <p className={`text-[11px] leading-relaxed text-ink-2`}>
                     {localizedText(mainPath.description, language)}
                   </p>
                 )}
@@ -1267,17 +1267,17 @@ export default function MyPathLadder({
               const alt = altCandidates[selected.index];
               return (
                 <div className="space-y-2">
-                  <div className={`font-bold text-[13px] ${isDark ? "text-violet-100" : "text-violet-950"}`}>
+                  <div className={`font-bold text-[13px] text-ink`}>
                     {localizedText(alt.profession.title, language)}
                   </div>
                   {alt.matchReason && (
-                    <p className={`text-[11px] leading-relaxed ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{alt.matchReason}</p>
+                    <p className={`text-[11px] leading-relaxed text-ink-2`}>{alt.matchReason}</p>
                   )}
                   {onExploreAlternatives && (
                     <button
                       onClick={onExploreAlternatives}
                       className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg mt-1 ${
-                        isDark ? "text-violet-300 bg-white/5 hover:bg-white/10" : "text-violet-700 bg-violet-50 hover:bg-violet-100"
+                        "text-plum bg-mist hover:bg-wash"
                       }`}
                     >
                       {t.mpExplorePath}

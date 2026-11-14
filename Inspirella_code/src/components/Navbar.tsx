@@ -82,10 +82,10 @@ export default function Navbar({
             />
           </div>
           <div>
-            <span className={`text-lg sm:text-xl font-bold tracking-wider transition-colors ${isDark ? "text-white" : "text-indigo-950"}`}>
+            <span className={`text-lg sm:text-xl font-bold tracking-wider transition-colors text-ink`}>
               INSPIRELLA
             </span>
-            <span className={`${isLoggedIn ? "hidden xl:block" : "hidden sm:block"} whitespace-nowrap text-[9px] font-mono tracking-widest uppercase transition-colors ${isDark ? "text-violet-400" : "text-violet-600 font-semibold"}`}>
+            <span className={`${isLoggedIn ? "hidden xl:block" : "hidden sm:block"} whitespace-nowrap text-[9px] font-mono tracking-widest uppercase transition-colors text-plum font-semibold`}>
               Swiss Education Explorer
             </span>
           </div>
@@ -110,8 +110,8 @@ export default function Navbar({
                 aria-current={isActive ? "page" : undefined}
                 className={`relative flex items-center gap-1.5 px-2.5 xl:px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors duration-300 rounded-lg cursor-pointer ${
                   isActive
-                    ? isDark ? "text-white" : "text-violet-950 font-bold"
-                    : isDark ? "text-white/70 hover:text-white hover:bg-white/5" : "text-black/80 hover:text-black hover:bg-purple-100"
+                    ? "text-ink font-bold"
+                    : "text-ink-2 hover:text-ink hover:bg-wash"
                 }`}
               >
                 {isActive && (
@@ -156,28 +156,28 @@ export default function Navbar({
 
           {/* Language Selector */}
           <div className={`flex items-center gap-1.5 rounded-lg border p-1 ${
-            isDark ? "border-white/10 bg-white/5" : "border-purple-200 bg-purple-50/30"
+            "border-line bg-mist"
           }`}>
             <Globe className="h-3.5 w-3.5 text-violet-500" />
             <select
               value={currentLanguage}
               onChange={(e) => onLanguageChange(e.target.value as LanguageCode)}
               className={`bg-transparent text-xs font-medium focus:outline-none cursor-pointer pr-1 ${
-                isDark ? "text-white" : "text-indigo-950"
+                "text-ink"
               }`}
             >
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-white text-indigo-950"} value="en">EN</option>
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-white text-indigo-950"} value="de">DE</option>
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-white text-indigo-950"} value="fr">FR</option>
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-white text-indigo-950"} value="it">IT</option>
-              <option className={isDark ? "bg-zinc-950 text-white" : "bg-white text-indigo-950"} value="uk">UA</option>
+              <option className="bg-card text-ink" value="en">EN</option>
+              <option className="bg-card text-ink" value="de">DE</option>
+              <option className="bg-card text-ink" value="fr">FR</option>
+              <option className="bg-card text-ink" value="it">IT</option>
+              <option className="bg-card text-ink" value="uk">UA</option>
             </select>
           </div>
 
           {isLoggedIn ? (
             <div className="flex items-center gap-2">
               <span className={`hidden xl:inline text-xs font-mono whitespace-nowrap border-l pl-3 ${
-                isDark ? "text-violet-200 border-white/10" : "text-black font-extrabold border-purple-200"
+                "text-ink font-extrabold border-line"
               }`}>
                 {userName || "Explorer"}
               </span>

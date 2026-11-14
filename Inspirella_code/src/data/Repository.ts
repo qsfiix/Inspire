@@ -445,7 +445,18 @@ export const parseDbResource = (db: Record<string, any>): ResourceItem | null =>
   return resource;
 };
 
-const PROFESSION_QUALITY_FIELDS = ["category", "description", "educationRequired", "salaryCHF"];
+/**
+ * Only the columns parseDbProfession reads. `select=*` also shipped translation_meta, long_description_*
+ * and other unused text, roughly a third of the 7.5 MB payload. Every name listed here must exist in
+ * the table, or PostgREST rejects the whole request.
+ */
+const PROFESSION_TEXT = ["title", "summary", "description", "education_notes", "target_group", "daily_work_context", "typical_workplace", "admission_reality", "progression_notes"];
+const PROFESSION_COLUMNS = [
+  "id", "code", "profession_category_id", "sector", "verification_status", "profession_type", "isco_group", "isco_confidence",
+  ...PROFESSION_TEXT.flatMap(base => SUPPORTED_LANGUAGES.map(code => `${base}_${code}`))
+].join(",");
+
+const PROFESSION_QUALITY_FIELDS =["category", "description", "educationRequired", "salaryCHF"];
 
 export const parseDbProfession = (db: Record<string, any>): Profession | null => {
   const id = normalizeId(pick(db, "id", "profession_id", "slug"));
@@ -1285,7 +1296,7 @@ export const DataRepository = {
       try {
         const supabase = getSupabase();
         const [{ data, error }, categoryCodes] = await Promise.all([
-          fetchAllRows(() => supabase.from("professions").select("*").eq("is_active", true).order("id", { ascending: true })),
+          fetchAllRows(() => supabase.from("professions").select(PROFESSION_COLUMNS).eq("is_active", true).order("id", { ascending: true })),
           fetchCodeLookup("profession_categories")
         ]);
         if (!error && Array.isArray(data) && data.length > 0) {
