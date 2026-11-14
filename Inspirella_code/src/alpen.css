@@ -469,3 +469,10 @@ html[data-theme="alpen"] .card-premium::before, html[data-theme="alpen"] .card-p
 html[data-theme="alpen"] .tilt-3d { transform: none !important; }
 html[data-theme="alpen"] main .text-violet-600, html[data-theme="alpen"] main .text-violet-700 { color: var(--plum) !important; }
 html[data-theme="alpen"] .alp-pagewrap { background: linear-gradient(180deg, #ece3f8 0, var(--mist) 260px); }
+html[data-theme="alpen"] main [class*="font-mono"] { font-family: var(--f-body) !important; letter-spacing: 0 !important; text-transform: none !important; }
+html[data-theme="alpen"] main [class*="uppercase"][class*="tracking"] { text-transform: none !important; letter-spacing: 0 !important; }
+html[data-theme="alpen"] main .bg-violet-600, html[data-theme="alpen"] main .bg-violet-500, html[data-theme="alpen"] main .bg-purple-600, html[data-theme="alpen"] main .bg-indigo-600, html[data-theme="alpen"] main .bg-violet-700 { background-color: var(--plum) !important; }
+html[data-theme="alpen"] main [class*="hover:bg-violet-700"]:hover, html[data-theme="alpen"] main [class*="hover:bg-violet-500"]:hover { background-color: var(--plum-2) !important; }
+html[data-theme="alpen"] main [class*="bg-emerald-50"][class*="rounded-2xl"], html[data-theme="alpen"] main [class*="bg-emerald-50"][class*="rounded-3xl"] { background-color: #fff !important; border-color: #d8cbee !important; }
+html[data-theme="alpen"] main svg.lucide-sparkles { display: none !important; }
+html[data-theme="alpen"] main .text-violet-400, html[data-theme="alpen"] main .text-violet-500 { color: #5d3f96 !important; }

@@ -754,8 +754,8 @@ export default function App() {
               className="space-y-4"
             >
               <div>
-                <h1 className="text-xl font-bold text-white tracking-tight">{t.trackerHeader}</h1>
-                <p className="text-xs text-zinc-400 mt-0.5">{t.trackerSub}</p>
+                <h1 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-[var(--ink)]"}`}>{t.trackerHeader}</h1>
+                <p className={`text-xs mt-0.5 ${isDark ? "text-zinc-400" : "text-[var(--muted)]"}`}>{t.trackerSub}</p>
               </div>
 
               {/* Render the full tracker mini-system */}

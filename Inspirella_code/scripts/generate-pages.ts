@@ -122,121 +122,102 @@ async function fetchAll(build: (from: number, to: number) => PromiseLike<{ data:
 }
 
 const CSS = `
-@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url(/fonts/inter-latin.woff2) format("woff2")}
-@font-face{font-family:"Space Grotesk";font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/space-grotesk-latin.woff2) format("woff2")}
-:root{--bg:#030008;--fg:#e8e4f5;--muted:#a39bc2;--card:rgba(255,255,255,.05);--card-b:rgba(255,255,255,.10);--accent:#a78bfa;--grain:196,181,253}
-body.light{--bg:#f5f3ff;--fg:#1e1b4b;--muted:#5b5280;--card:#fff;--card-b:#e9d5ff;--accent:#6d28d9;--grain:109,40,217}
+@font-face{font-family:"Manrope";font-style:normal;font-weight:400 800;font-display:swap;src:url(/fonts/manrope-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Manrope";font-style:normal;font-weight:400 800;font-display:swap;src:url(/fonts/manrope-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Manrope";font-style:normal;font-weight:400 800;font-display:swap;src:url(/fonts/manrope-cyrillic.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Wix Madefor Display";font-style:normal;font-weight:400 800;font-display:swap;src:url(/fonts/wix-display-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Wix Madefor Display";font-style:normal;font-weight:400 800;font-display:swap;src:url(/fonts/wix-display-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Wix Madefor Display";font-style:normal;font-weight:400 800;font-display:swap;src:url(/fonts/wix-display-cyrillic.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+:root{--bg:#f8f5fc;--fg:#1e1730;--muted:#5c5470;--card:#fff;--card-b:#e7e1ee;--accent:#4a2377;--accent-2:#a8401a;--coral:#e46f4c;--tint:rgba(74,35,119,.06);--btn:#4a2377;--btn-h:#3a1a60;--sky:#e6daf6;--shadow:0 2px 4px rgba(30,23,48,.04),0 24px 48px -30px rgba(74,35,119,.4);--grain:109,40,217}
+body.nacht{--bg:#0b0812;--fg:#ece8f5;--muted:#a9a2bb;--card:rgba(255,255,255,.05);--card-b:rgba(255,255,255,.10);--accent:#c4b5fd;--accent-2:#f4a27f;--tint:rgba(196,181,253,.08);--btn:#7c3aed;--btn-h:#6d28d9;--sky:#1a1030;--shadow:none;--grain:196,181,253}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,sans-serif;line-height:1.6;transition:background .4s,color .4s;overflow-x:hidden}
-h1,h2{font-family:"Space Grotesk",sans-serif;margin:0;line-height:1.15}
-a{color:inherit}
+html{scrollbar-color:#b9a8dc transparent}
+body{margin:0;background:var(--bg) linear-gradient(180deg,var(--sky) 0,var(--bg) 460px) no-repeat;color:var(--fg);font-family:Manrope,"Segoe UI",system-ui,sans-serif;line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(228,111,76,.28)}
+:focus-visible{outline:3px solid var(--coral);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-family:"Wix Madefor Display",Manrope,sans-serif;margin:0;line-height:1.12;text-wrap:balance}
+a{color:inherit;text-underline-offset:4px}
 main li,main dd,main td,main th,main p{overflow-wrap:anywhere}
-.ambient{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.blob{position:absolute;border-radius:50%;filter:blur(110px);animation:drift 22s ease-in-out infinite}
-.b1{width:28rem;height:28rem;top:-2rem;left:-2rem;background:radial-gradient(circle,rgba(139,92,246,.28),rgba(99,102,241,0) 70%)}
-.b2{width:26rem;height:26rem;top:35%;right:-5rem;background:radial-gradient(circle,rgba(99,102,241,.25),rgba(79,70,229,0) 70%);animation-duration:26s;animation-direction:reverse}
-.b3{width:24rem;height:24rem;bottom:-7rem;left:25%;background:radial-gradient(circle,rgba(192,132,252,.2),rgba(168,85,247,0) 70%);animation-duration:19s}
-.b4{width:22rem;height:22rem;top:8%;left:42%;background:radial-gradient(circle,rgba(251,146,60,.14),rgba(139,92,246,.1) 45%,transparent 75%);animation-duration:14s}
-body.light .blob{opacity:.75}
-@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(4%,-6%) scale(1.08)}}
-canvas#sand{position:absolute;inset:0;width:100%;height:100%}
-.grain{position:absolute;inset:0;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(6,4,10,.5) 100%)}
-body.light .vignette{background:radial-gradient(ellipse at center,transparent 40%,rgba(245,243,255,.7) 100%)}
-body.light .grain{mix-blend-mode:multiply;opacity:.025}
-nav{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;max-width:1080px;margin:0 auto;padding:18px 20px}
-.logo{display:flex;align-items:center;gap:10px;font:700 20px "Space Grotesk",sans-serif;text-decoration:none}
-.logo img{width:30px;height:30px;object-fit:contain}
-.nav-r{display:flex;gap:14px;align-items:center;font-size:14px;flex-wrap:wrap;justify-content:flex-end}
-.nav-r a{color:var(--muted);text-decoration:none}.nav-r a:hover{color:var(--accent)}
-.tgl{background:var(--card);border:1px solid var(--card-b);color:var(--fg);border-radius:10px;padding:6px 12px;cursor:pointer;font:500 13px Inter,sans-serif}
-main{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:8px 20px 70px}
-.crumbs{font-size:13px;color:var(--muted);margin:10px 0 28px}
+.topo{position:absolute;top:0;right:0;width:min(560px,70vw);height:420px;pointer-events:none;z-index:0;opacity:.9}
+.topo path{fill:none;stroke:#e6dcf3;stroke-width:1.1}
+body.nacht .topo path{stroke:rgba(196,181,253,.08)}
+nav{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:1080px;margin:0 auto;padding:18px 20px}
+.logo{display:flex;align-items:center;gap:10px;font:700 21px Manrope,sans-serif;letter-spacing:-.02em;text-decoration:none}
+.logo svg{width:30px;height:30px;color:var(--accent)}
+.nav-r{display:flex;gap:18px;align-items:center;font-size:15px;font-weight:500;flex-wrap:wrap;justify-content:flex-end}
+.nav-r a{color:var(--muted);text-decoration:none}.nav-r a:hover{color:var(--fg)}
+.nav-r a.app{color:#fff;background:var(--btn);padding:9px 14px;border-radius:12px;font-weight:650}
+.nav-r a.app:hover{background:var(--btn-h);color:#fff}
+.tgl{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;background:var(--card);border:1px solid var(--card-b);color:var(--fg);border-radius:10px;cursor:pointer}
+.tgl svg{width:18px;height:18px}
+@media(max-width:640px){.nav-r .opt{display:none}}
+main{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:8px 20px 80px}
+.crumbs{font-size:13.5px;color:var(--muted);margin:10px 0 28px}
 .crumbs a{text-decoration:none}.crumbs a:hover{color:var(--accent)}
-.hero{display:grid;gap:18px;margin-bottom:34px}
+.hero{display:grid;gap:18px;margin-bottom:36px}
 .badges{display:flex;gap:8px;flex-wrap:wrap}
-.badge{font:600 12px Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;padding:5px 12px;border-radius:99px;border:1px solid var(--card-b);background:var(--card);color:var(--accent)}
-.badge.warm{color:#fdba74;border-color:rgba(251,146,60,.35)}
-body.light .badge.warm{color:#c2410c}
-h1{font-size:clamp(30px,5vw,52px);font-weight:700;letter-spacing:-.01em}
+.badge{font:700 13px Manrope,sans-serif;padding:5px 12px;border-radius:99px;border:1px solid var(--card-b);background:var(--card);color:var(--accent)}
+.badge.warm{color:var(--accent-2);background:#fbe3d9;border-color:#f5cdbd}
+body.nacht .badge.warm{background:rgba(244,162,127,.1);border-color:rgba(244,162,127,.3)}
+h1{font-size:clamp(32px,5vw,56px);font-weight:800;letter-spacing:-.035em}
 .lead{font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:62ch;margin:0}
 .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:14px;font:600 15px Inter,sans-serif;text-decoration:none;border:1px solid transparent;transition:transform .15s}
-.btn:active{transform:scale(.96)}
-.btn-primary{color:#fff;background:linear-gradient(90deg,#7c3aed,#4f46e5,#9333ea);box-shadow:0 8px 24px -8px rgba(124,58,237,.7);position:relative;overflow:hidden;isolation:isolate}
-.btn-primary::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.45) 50%,transparent 65%);transform:translateX(-120%);animation:shine 4.5s ease-in-out 1s 3}
-.btn-primary:hover::after{animation:shine1 .9s ease-out}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:13px 22px;border-radius:14px;font:650 15.5px Manrope,sans-serif;text-decoration:none;border:1px solid transparent;transition:transform .15s,background .2s}
+.btn:active{transform:scale(.98)}
+.btn-primary{color:#fff;background:var(--btn);box-shadow:0 12px 26px -14px rgba(74,35,119,.75)}
+.btn-primary:hover{background:var(--btn-h)}
 .btn-sec{background:var(--card);border-color:var(--card-b);color:var(--fg)}
-.btn-sec:hover{border-color:rgba(167,139,250,.5)}
-@keyframes shine{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
-@keyframes shine1{from{transform:translateX(-120%)}to{transform:translateX(120%)}}
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:34px}
+.btn-sec:hover{border-color:var(--accent)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:36px}
 .fact{padding:16px 18px}
-.fact small{display:block;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-.fact b{font:600 17px "Space Grotesk",sans-serif}
-.card{border-radius:18px;border:1px solid var(--card-b);background-color:var(--card);backdrop-filter:blur(14px);transition:border-color .3s,box-shadow .3s;background-image:radial-gradient(420px circle at var(--sx,50%) var(--sy,50%),rgba(139,92,246,calc(.12*var(--so,0))),transparent 70%)}
-.card:hover{--so:1;border-color:rgba(139,92,246,.4);box-shadow:0 0 28px -8px rgba(139,92,246,.35)}
-body.light .card{box-shadow:0 4px 25px rgba(46,16,101,.06)}
+.fact small{display:block;color:var(--muted);font-size:13px;font-weight:600;margin-bottom:4px}
+.fact b{font:800 19px "Wix Madefor Display",sans-serif;letter-spacing:-.01em}
+.card{border-radius:20px;border:1px solid var(--card-b);background:var(--card);box-shadow:var(--shadow);transition:border-color .3s}
+a.card:hover,.card:hover{border-color:#d4c7e8}
+body.nacht .card:hover{border-color:rgba(196,181,253,.3)}
 .grid{display:grid;grid-template-columns:1.55fr 1fr;gap:22px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:22px}
 @media(max-width:860px){.grid{grid-template-columns:1fr}}
 section.card{padding:26px 28px}
 section.card+section.card{margin-top:22px}
 .grid2 section.card+section.card{margin-top:0}
-.chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}.chips li{padding:6px 12px;border-radius:99px;border:1px solid var(--card-b);background:rgba(139,92,246,.08);font-size:14px}
-.qa{border-top:1px solid var(--card-b);padding:10px 0}.qa summary{cursor:pointer;font-weight:600}.qa p{margin:8px 0 0;color:var(--muted)}
-ul.cols{list-style:none;margin:0;padding:0;columns:2 260px;column-gap:28px}ul.cols li{break-inside:avoid;padding:3px 0}ul.cols a{text-decoration:none}ul.cols a:hover{color:var(--accent)}ul.cols span{color:var(--muted);font-size:13px}
-table.cmp{border-collapse:collapse;width:100%;font-size:15px}table.cmp th,table.cmp td{border-bottom:1px solid var(--card-b);padding:9px 12px;text-align:left;vertical-align:top}table.cmp thead th{color:var(--accent);font-size:13px;text-transform:uppercase;letter-spacing:.05em}
-h3{font:600 18px "Space Grotesk",sans-serif;margin:0 0 8px}
-h2{font-size:22px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
-h2::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,#fff,#a78bfa);box-shadow:0 0 12px #a78bfa}
+.chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}.chips li{padding:6px 12px;border-radius:99px;border:1px solid var(--card-b);background:var(--tint);font-size:14px}
+.qa{border-top:1px solid var(--card-b);padding:12px 0}.qa summary{cursor:pointer;font-weight:700}.qa p{margin:8px 0 0;color:var(--muted)}
+ul.cols{list-style:none;margin:0;padding:0;columns:2 260px;column-gap:28px}ul.cols li{break-inside:avoid;padding:3px 0}ul.cols a{text-decoration:none}ul.cols a:hover{color:var(--accent);text-decoration:underline}ul.cols span{color:var(--muted);font-size:13px}
+table.cmp{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}table.cmp th,table.cmp td{border-bottom:1px solid var(--card-b);padding:9px 12px;text-align:left;vertical-align:top}table.cmp thead th{color:var(--accent);font-size:13.5px;font-weight:700}
+h3{font:700 18px "Wix Madefor Display",sans-serif;margin:0 0 8px}
+h2{font-size:23px;font-weight:800;letter-spacing:-.02em;margin-bottom:14px}
 .dl{display:grid;gap:16px;margin:0}
-.dl dt{font:600 13px Inter,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:2px}
+.dl dt{font:700 13.5px Manrope,sans-serif;color:var(--accent);margin-bottom:2px}
 .dl dd{margin:0}
 .schools{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.school{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 14px;border-radius:12px;border:1px solid var(--card-b);background:rgba(139,92,246,.06);text-decoration:none;color:inherit;transition:border-color .2s,transform .2s}
-a.school:hover{border-color:rgba(192,132,252,.55);transform:translateX(3px)}
+.school{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 14px;border-radius:14px;border:1px solid var(--card-b);background:var(--tint);text-decoration:none;color:inherit;transition:border-color .2s,transform .2s}
+a.school:hover{border-color:var(--accent);transform:translateX(3px)}
 .school span{font-size:13px;color:var(--muted)}
-.cant{font:600 12px "Space Grotesk",sans-serif;font-style:normal;padding:3px 9px;border-radius:99px;border:1px solid rgba(167,139,250,.4);color:var(--accent)}
+.cant{font:700 12px Manrope,sans-serif;font-style:normal;padding:3px 9px;border-radius:99px;border:1px solid var(--card-b);color:var(--accent);background:var(--card)}
 .more{margin:12px 0 0;color:var(--muted);font-size:14px}
 .prose p{margin:0 0 14px}.prose p:last-child{margin:0}.prose ul{margin:0;padding-left:20px}.prose li{margin-bottom:6px}.prose a{color:var(--accent)}
-.eyebrow{font:600 12px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+.eyebrow{font:700 13.5px Manrope,sans-serif;color:var(--accent-2);display:block;margin-bottom:6px}
 .source{margin-top:30px;padding:16px 20px;font-size:14px;color:var(--muted);border-radius:14px;border:1px dashed var(--card-b)}
 .source a{color:var(--accent)}
-.note{margin-top:22px;padding:18px 22px;border-radius:14px;border:1px solid rgba(251,146,60,.3);background:rgba(251,146,60,.06)}
-.foot{position:relative;z-index:2;text-align:center;color:var(--muted);font-size:13px;padding:0 20px 40px}
-.foot a{text-decoration:none}.foot a:hover{color:var(--accent)}
-@media(prefers-reduced-motion:reduce){.blob,.btn-primary::after{animation:none!important}}
+.note{margin-top:22px;padding:18px 22px;border-radius:14px;border:1px solid #f5cdbd;background:#fdf1ea}
+body.nacht .note{border-color:rgba(251,146,60,.3);background:rgba(251,146,60,.06)}
+.foot{position:relative;z-index:2;background:#1b0d30;color:#cfc5e0;font-size:14px;padding:34px 20px 40px}
+.foot .in{max-width:1080px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+.foot .brand{display:inline-flex;align-items:center;gap:9px;font:700 18px Manrope,sans-serif;color:#fff;text-decoration:none;margin-right:10px}
+.foot .brand svg{width:26px;height:26px;color:#d8cbee}
+.foot a{text-decoration:none;color:#cfc5e0}.foot a:hover{color:#fff;text-decoration:underline}
+.foot .date{margin-left:auto;color:#a99cc2}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 `;
 
 const SCRIPT = `
 (function(){
   var b=document.body,t=null;
   try{t=localStorage.getItem("inspirella_theme")}catch(e){}
-  if(t?t==="light":(window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches))b.classList.add("light");
+  if(t==="nacht"||t==="dark")b.classList.add("nacht");
   var g=document.getElementById("tgl");
-  if(g)g.onclick=function(){b.classList.toggle("light");try{localStorage.setItem("inspirella_theme",b.classList.contains("light")?"light":"dark")}catch(e){}};
-  document.addEventListener("pointermove",function(e){var c=e.target.closest&&e.target.closest(".card");if(!c)return;var r=c.getBoundingClientRect();c.style.setProperty("--sx",(e.clientX-r.left)+"px");c.style.setProperty("--sy",(e.clientY-r.top)+"px")});
-  var cv=document.getElementById("sand");if(!cv||!cv.getContext)return;
-  var ctx=cv.getContext("2d"),reduce=matchMedia("(prefers-reduced-motion: reduce)").matches,W,H,dpr=Math.min(devicePixelRatio||1,2),P=[];
-  function size(){W=cv.clientWidth;H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
-  function mk(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.3,vx:Math.random()*.25+.05,vy:-(Math.random()*.18+.03),a:Math.random()*.6+.2,t:Math.random()*6.28,w:Math.random()<.14}}
-  size();var n=Math.round(Math.min(160,W*H/9000));for(var i=0;i<n;i++)P.push(mk());
-  addEventListener("resize",size);
-  function frame(){
-    ctx.clearRect(0,0,W,H);
-    var rgb=getComputedStyle(b).getPropertyValue("--grain");
-    for(var i=0;i<P.length;i++){var p=P[i];
-      if(!reduce){p.t+=.012;p.x+=p.vx+Math.sin(p.t)*.12;p.y+=p.vy}
-      if(p.x>W+5)p.x=-5;if(p.y<-5){p.y=H+5;p.x=Math.random()*W}
-      var tw=.65+.35*Math.sin(p.t*1.7);
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);
-      ctx.fillStyle=p.w?"rgba(251,146,60,"+(p.a*tw*.8)+")":"rgba("+rgb+","+(p.a*tw*.75)+")";
-      ctx.shadowBlur=p.r*5;ctx.shadowColor=p.w?"rgba(251,146,60,.8)":"rgba("+rgb+",.8)";
-      ctx.fill()}
-    if(!reduce)requestAnimationFrame(frame)
-  }
-  frame()
+  if(g)g.onclick=function(){var n=b.classList.toggle("nacht");try{localStorage.setItem("inspirella_theme",n?"nacht":"alpen")}catch(e){}};
 })();
 `;
 
@@ -284,6 +265,9 @@ function registerOg(url: string, title: string, description: string): string {
   return `${SITE}/og${p}.png`;
 }
 
+const SWIFT_SVG = "<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path d=\"M24 24C19 19.5 11 15.5 2 15.5C9 18.5 15.5 23.5 20.6 28.6L18.2 40.5L24 34.6L29.8 40.5L27.4 28.6C32.5 23.5 39 18.5 46 15.5C37 15.5 29 19.5 24 24Z\" fill=\"currentColor\"/><circle cx=\"24\" cy=\"17.2\" r=\"3.8\" fill=\"#e46f4c\"/></svg>";
+const TOPO_SVG = "<svg class=\"topo\" viewBox=\"0 0 560 420\" preserveAspectRatio=\"xMaxYMin slice\" aria-hidden=\"true\"><path d=\"M529 40C530 42 530 44 529 45C528 47 525 49 521 50C518 51 512 51 508 51C503 51 497 50 493 50C489 49 485 48 482 47C479 46 478 45 477 46C476 46 477 46 477 48C477 49 478 52 478 55C478 58 478 61 477 65C475 68 473 72 470 75C467 78 463 80 459 82C455 83 450 83 446 83C442 82 439 80 437 78C435 75 434 72 434 69C434 66 436 62 437 59C439 56 442 53 444 51C446 49 449 47 450 46C451 45 452 44 452 43C451 43 450 43 448 42C446 41 443 41 441 40C438 39 435 38 433 37C431 35 430 34 429 32C428 31 428 29 429 28C430 27 431 26 433 25C435 24 437 23 439 22C441 21 443 21 445 20C447 19 449 19 450 18C452 17 454 16 456 15C458 14 460 13 462 12C465 11 467 10 470 10C473 9 476 9 478 10C481 11 483 12 485 13C487 14 489 16 490 18C491 20 491 22 491 23C492 25 491 26 492 27C493 28 493 29 495 30C496 30 498 30 501 31C504 31 508 32 511 32C514 33 519 34 522 35C525 37 528 38 529 40Z\"/><path d=\"M576 45C577 48 576 52 574 55C572 58 567 61 562 63C557 66 550 67 543 68C537 69 530 70 524 70C518 70 512 70 508 70C503 70 500 71 498 72C496 73 495 75 493 78C491 81 491 84 488 88C486 92 483 97 479 101C475 105 470 110 464 113C458 116 450 118 444 119C437 120 429 119 423 118C417 116 411 113 407 109C403 106 400 101 399 96C398 92 398 87 399 83C399 78 401 74 402 71C403 68 404 65 404 63C404 60 404 58 402 57C400 55 397 53 395 51C392 49 388 47 385 45C382 43 379 40 377 37C375 34 374 31 374 28C374 25 375 22 377 20C379 17 383 15 386 12C389 10 393 8 397 7C401 5 405 3 409 2C413 0 417 -2 421 -3C425 -5 429 -7 434 -8C438 -10 443 -12 448 -13C453 -14 459 -15 464 -15C469 -15 475 -15 480 -14C485 -13 490 -11 495 -9C499 -7 502 -4 506 -2C509 1 511 4 513 6C516 8 517 11 520 13C522 15 525 17 528 18C531 20 536 21 540 23C544 24 550 26 554 28C559 30 564 33 568 36C572 38 575 42 576 45Z\"/><path d=\"M622 50C623 55 621 60 618 65C615 69 609 73 602 77C595 80 586 83 578 85C570 88 561 89 554 90C546 91 539 92 533 93C528 95 523 96 519 99C515 101 513 104 510 108C506 112 503 117 499 122C494 127 489 133 482 138C475 143 467 148 458 151C449 154 438 156 429 156C419 157 409 155 400 153C392 150 384 146 378 141C372 136 368 129 365 124C362 118 362 111 361 106C360 101 361 95 360 91C360 86 360 83 359 79C357 76 355 73 352 70C349 67 345 64 341 61C337 57 332 54 328 50C325 46 321 42 320 37C318 33 317 28 318 24C319 19 322 15 325 11C329 7 334 3 339 0C344 -3 350 -6 356 -9C361 -12 368 -14 374 -17C380 -19 386 -22 392 -24C399 -27 405 -29 412 -32C419 -34 426 -36 434 -37C442 -39 450 -40 458 -40C466 -40 474 -39 482 -38C490 -36 497 -34 504 -31C510 -28 516 -25 521 -22C527 -18 531 -14 535 -11C540 -8 543 -5 548 -2C552 1 557 4 562 7C567 9 573 12 579 14C585 17 592 20 598 24C604 27 610 31 614 36C618 40 622 45 622 50Z\"/><path d=\"M669 55C669 61 666 68 662 74C657 80 649 86 641 90C633 95 622 99 613 102C603 105 592 108 583 110C574 112 566 114 559 117C552 119 547 122 541 126C536 130 532 134 527 140C522 145 517 151 510 157C503 163 495 170 485 176C476 181 464 186 452 189C440 192 426 194 414 194C401 193 388 191 378 187C367 183 357 177 349 171C342 165 336 157 332 150C328 143 326 136 324 129C322 122 321 116 319 111C317 105 316 100 313 96C310 91 306 87 302 83C297 79 291 75 286 70C281 65 275 60 271 55C267 50 264 44 262 38C261 32 261 25 263 20C265 14 269 8 273 3C278 -3 285 -8 292 -12C298 -17 306 -21 314 -25C322 -28 330 -32 338 -35C346 -39 354 -42 363 -46C372 -49 381 -52 390 -55C400 -57 410 -60 420 -62C430 -63 441 -64 452 -64C463 -64 474 -63 484 -61C494 -59 504 -56 513 -53C522 -49 530 -45 537 -41C544 -37 550 -32 557 -28C563 -24 569 -20 576 -16C582 -12 589 -9 596 -5C603 -2 611 2 619 6C627 10 636 14 643 19C650 24 657 30 661 36C665 42 668 49 669 55Z\"/><path d=\"M714 60C714 68 710 76 704 84C699 91 689 98 679 104C670 110 657 114 646 119C635 123 623 126 613 130C603 133 593 136 585 140C577 144 571 148 564 153C557 159 552 165 545 171C537 178 530 186 521 193C512 200 501 208 488 214C476 219 461 225 446 228C431 230 414 232 399 230C384 229 368 226 355 221C342 216 331 208 321 201C312 194 305 184 299 176C294 168 291 159 287 152C284 144 282 137 278 130C275 124 272 118 267 113C262 107 257 102 251 97C245 91 237 86 231 80C225 74 218 67 213 60C209 53 205 45 204 38C203 30 204 23 207 15C210 8 215 1 221 -6C227 -13 236 -19 244 -24C253 -30 263 -35 272 -40C282 -45 292 -50 302 -54C312 -59 323 -63 334 -67C345 -71 356 -75 368 -78C380 -81 393 -84 406 -86C419 -88 433 -89 446 -88C459 -88 473 -87 486 -84C498 -82 511 -78 522 -74C533 -70 543 -65 552 -60C562 -55 570 -50 579 -45C587 -40 595 -35 604 -31C612 -26 621 -22 630 -17C640 -12 650 -8 659 -3C669 3 679 8 687 15C695 21 703 29 708 36C712 44 715 52 714 60Z\"/><path d=\"M760 65C758 74 753 84 746 93C739 102 728 110 717 117C706 124 692 130 680 135C667 141 654 145 643 150C631 155 621 159 612 164C603 169 595 175 587 182C579 188 572 196 563 204C554 212 545 221 533 229C521 237 507 246 491 252C476 258 458 264 440 266C422 269 402 269 384 267C367 265 349 260 333 254C318 248 305 239 294 230C283 221 275 211 268 202C261 192 256 182 251 174C246 165 243 157 238 150C233 142 227 136 221 129C214 123 207 117 199 110C191 103 182 97 175 89C167 82 160 74 155 65C150 56 146 47 146 38C145 29 147 20 151 11C155 2 161 -7 169 -14C177 -22 187 -30 197 -37C207 -43 219 -50 230 -56C242 -62 254 -67 266 -73C279 -78 291 -83 304 -88C318 -93 332 -98 346 -101C361 -105 376 -108 392 -110C407 -112 424 -113 440 -113C456 -112 472 -110 487 -107C502 -104 517 -100 530 -95C544 -91 556 -85 568 -79C579 -74 590 -68 600 -62C611 -57 621 -51 632 -46C643 -40 654 -35 665 -29C677 -24 689 -18 700 -11C711 -5 723 2 732 10C741 18 749 27 754 36C759 45 761 56 760 65Z\"/><path d=\"M804 70C802 81 796 92 787 102C779 112 766 122 754 130C741 138 726 145 713 152C699 158 685 164 673 170C660 176 649 181 639 188C629 195 620 202 611 210C601 218 593 228 582 237C571 247 559 257 545 266C530 275 513 284 495 291C476 297 455 302 434 304C413 306 390 306 370 303C350 300 329 293 312 286C295 279 280 268 267 258C255 248 245 237 237 226C228 216 222 205 216 196C209 186 204 177 197 169C190 161 183 154 174 146C166 139 156 132 146 124C137 116 126 108 118 99C109 90 101 80 96 70C90 60 87 49 87 38C87 28 89 17 94 6C100 -4 108 -14 117 -23C126 -32 138 -41 150 -49C162 -57 175 -64 189 -71C202 -78 216 -85 230 -91C245 -98 260 -104 275 -110C291 -115 307 -120 324 -125C341 -129 360 -132 378 -134C396 -136 415 -137 434 -136C453 -136 471 -133 489 -130C506 -127 523 -122 539 -116C555 -111 569 -105 583 -98C597 -92 609 -86 622 -79C635 -73 648 -67 661 -61C674 -54 687 -48 701 -42C714 -35 728 -28 741 -20C754 -12 767 -4 777 6C787 15 796 26 800 37C805 47 806 59 804 70Z\"/></svg>";
+
 /** The shared page shell: head/SEO tags, ambient background, nav, footer, theme + sand script. */
 function layout(o: LayoutOptions): string {
   const nav = o.nav ?? { about: "Über Inspirella", app: "Zur App" };
@@ -297,8 +281,10 @@ function layout(o: LayoutOptions): string {
 <title>${esc(o.docTitle)}</title>
 <meta name="description" content="${esc(o.description)}">
 <link rel="canonical" href="${esc(o.url)}">
-${hreflang ? hreflang + "\n" : ""}${o.indexable ? "" : '<meta name="robots" content="noindex, follow">\n'}<meta name="theme-color" content="#0d0618">
-<link rel="icon" type="image/png" href="/logo-mark.png">
+${hreflang ? hreflang + "\n" : ""}${o.indexable ? "" : '<meta name="robots" content="noindex, follow">\n'}<meta name="theme-color" content="#e6daf6">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/swift-mark-64.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Inspirella">
 <meta property="og:title" content="${esc(o.ogTitle)}">
@@ -309,27 +295,28 @@ ${hreflang ? hreflang + "\n" : ""}${o.indexable ? "" : '<meta name="robots" cont
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="${ogImage}">
-<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script type="application/ld+json">${JSON.stringify(o.ld).replace(/</g, "\\u003c")}</script>
 <style>${CSS}</style>
 <script src="/analytics.js" defer></script>
 </head>
 <body>
-<div class="ambient" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div><canvas id="sand"></canvas><div class="grain"></div><div class="vignette"></div></div>
+<script>try{var __t=localStorage.getItem("inspirella_theme");if(__t==="nacht"||__t==="dark")document.body.classList.add("nacht")}catch(e){}</script>
+${TOPO_SVG}
 <nav>
-  <a class="logo" href="/"><img src="/logo-mark-64.png" alt="" width="30" height="29">Inspirella</a>
-  <div class="nav-r"><a href="/ueber-inspirella/">${esc(nav.about)}</a><a href="/">${esc(nav.app)}</a><button class="tgl" id="tgl" type="button" aria-label="Design wechseln">☀ / ☾</button></div>
+  <a class="logo" href="/" aria-label="Inspirella">${SWIFT_SVG}inspirella</a>
+  <div class="nav-r"><a class="opt" href="/berufe/">${o.lang === "uk" ? "Професії" : o.lang === "en" ? "Careers" : "Berufe"}</a><a class="opt" href="/schulen/">${o.lang === "uk" ? "Школи" : o.lang === "en" ? "Schools" : "Schulen"}</a><a class="opt" href="/ueber-inspirella/">${esc(nav.about)}</a><button class="tgl" id="tgl" type="button" aria-label="${o.lang === "uk" ? "Денний або нічний режим" : o.lang === "en" ? "Day or night mode" : "Tag- oder Nachtmodus"}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg></button><a class="app" href="/">${esc(nav.app)}</a></div>
 </nav>
 <main>
 ${o.main}
 </main>
-<div class="foot">© Inspirella · <a href="/">inspirella.ch</a> · ${
+<div class="foot"><div class="in"><a class="brand" href="/">${SWIFT_SVG}inspirella</a> ${
     o.lang === "uk"
       ? `<a href="/ueber-inspirella/">Про Inspirella</a> · <a href="/uk/systema-osvity-shveitsarii/">Система освіти</a> · <a href="/impressum/">Імпресум</a> · <a href="/datenschutz/">Конфіденційність</a> · <a href="#cookie-settings" data-cookie-settings>Налаштування cookie</a>`
       : o.lang === "en"
         ? `<a href="/ueber-inspirella/">About Inspirella</a> · <a href="/en/swiss-education-system/">Education system</a> · <a href="/impressum/">Imprint</a> · <a href="/datenschutz/">Privacy</a> · <a href="#cookie-settings" data-cookie-settings>Cookie settings</a>`
         : `<a href="/ueber-inspirella/">Über Inspirella</a> · <a href="/bildungssystem/">Bildungssystem</a> · <a href="/impressum/">Impressum</a> · <a href="/datenschutz/">Datenschutz</a> · <a href="#cookie-settings" data-cookie-settings>Cookie-Einstellungen</a>`
-  }</div>
+  }<span class="date">© 2026 Inspirella</span></div></div>
 <script>${SCRIPT}</script>
 </body>
 </html>
@@ -907,7 +894,7 @@ function renderAbout(counts: Counts): string {
       "@type": "Organization",
       name: "Inspirella",
       url: SITE + "/",
-      logo: `${SITE}/logo-mark.png`,
+      logo: `${SITE}/swift-mark-512.png`,
       description
     },
     main
@@ -1888,7 +1875,7 @@ function renderUkLanguage(node: Row | undefined, facts: Row[], cantonFacts: Row[
   ${online ? `<h2 style="margin-top:34px">Де тренуватися</h2><section class="card prose"><p>${esc(txt(online.text_uk)!)}</p>${src(online) ? `<p class="more"><a href="${esc(src(online)!)}" rel="noopener">Модельні тести fide →</a></p>` : ""}</section>` : ""}
 
   ${feedbackBlock("uk-mova")}
-  <section class="card founder" style="margin-top:34px"><img src="/logo-mark-64.png" alt="" width="40" height="40"><div><p>Inspirella створена Софією, яка сама колись потребувала такої підтримки.</p><p>У 2022 році вона приїхала з Києва до Швейцарії. Спочатку навчалася в класі для українських дітей, а згодом перейшла до швейцарської школи, де не розуміла ні діалекту, ні системи, ні завдань. Сьогодні вона вільно орієнтується в швейцарському середовищі, володіє німецькою на рівні B2 і навчається в гімназії.</p><p>Inspirella — це частково той план, якого їй самій колись бракувало. Вона створює платформу, яка може допомогти іншим українцям, підліткам у Швейцарії краще зрозуміти освітню систему, побачити свої можливості та знайти власний шлях до майбутнього.</p></div></section>
+  <section class="card founder" style="margin-top:34px"><img src="/swift-mark-64.png" alt="" width="40" height="40"><div><p>Inspirella створена Софією, яка сама колись потребувала такої підтримки.</p><p>У 2022 році вона приїхала з Києва до Швейцарії. Спочатку навчалася в класі для українських дітей, а згодом перейшла до швейцарської школи, де не розуміла ні діалекту, ні системи, ні завдань. Сьогодні вона вільно орієнтується в швейцарському середовищі, володіє німецькою на рівні B2 і навчається в гімназії.</p><p>Inspirella — це частково той план, якого їй самій колись бракувало. Вона створює платформу, яка може допомогти іншим українцям, підліткам у Швейцарії краще зрозуміти освітню систему, побачити свої можливості та знайти власний шлях до майбутнього.</p></div></section>
 
   <section class="card prose" style="margin-top:22px"><p>Далі: <a href="/uk/">з чого почати у Швейцарії</a> · <a href="/uk/status-s/">статус S за кантонами</a> · <a href="/uk/diplom-dlia-doroslykh/">диплом з професії для дорослих</a> · <a href="/uk/systema-osvity-shveitsarii/">система освіти</a></p></section>
   <div class="source">Inspirella — незалежний інструмент для орієнтації, а не офіційна установа. Вимоги й курси взято з офіційних джерел (SEM, fide, berufsberatung.ch, swissuniversities, кантони) і перекладено; вони можуть змінюватися, тому перевіряйте їх за посиланнями. Оцінка рівня — лише орієнтир. Дані станом на ${esc(today)}. Помітили помилку? Напишіть на <a href="mailto:iinspirella@gmail.com">iinspirella@gmail.com</a>.</div>
@@ -2035,7 +2022,7 @@ function renderUkKids(schoolFacts: Row[], admissions: Row[], langgymCantons: str
   ${feedbackBlock("uk-dity")}
   <section class="card prose" style="margin-top:22px"><p>Далі: <a href="/uk/pryjom/">вступ за кантонами</a> · <a href="/uk/perekhidni-prohramy/">перехідні програми для молоді</a> · <a href="/uk/status-s/">статус S за кантонами</a> · <a href="/uk/mova/">мовний план для дорослих</a></p></section>
 
-  <section class="card founder" style="margin-top:22px"><img src="/logo-mark-64.png" alt="" width="40" height="40"><div><p>Inspirella створена Софією, яка сама колись потребувала такої підтримки.</p><p>У 2022 році вона приїхала з Києва до Швейцарії. Спочатку навчалася в класі для українських дітей, а згодом перейшла до швейцарської школи, де не розуміла ні діалекту, ні системи, ні завдань. Сьогодні вона вільно орієнтується в швейцарському середовищі, володіє німецькою на рівні B2 і навчається в гімназії.</p></div></section>
+  <section class="card founder" style="margin-top:22px"><img src="/swift-mark-64.png" alt="" width="40" height="40"><div><p>Inspirella створена Софією, яка сама колись потребувала такої підтримки.</p><p>У 2022 році вона приїхала з Києва до Швейцарії. Спочатку навчалася в класі для українських дітей, а згодом перейшла до швейцарської школи, де не розуміла ні діалекту, ні системи, ні завдань. Сьогодні вона вільно орієнтується в швейцарському середовищі, володіє німецькою на рівні B2 і навчається в гімназії.</p></div></section>
   <div class="source">Inspirella — незалежний інструмент для орієнтації, а не офіційна установа. Дані взято з офіційних сторінок кантонів, EDK і berufsberatung.ch і перекладено; правила й терміни можуть змінюватися, тому перевіряйте їх за посиланнями. Вік указано приблизно: клас визначає школа. Дані станом на ${esc(today)}. Помітили помилку? Напишіть на <a href="mailto:iinspirella@gmail.com">iinspirella@gmail.com</a>.</div>
   <script type="application/json" id="kids-data">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>
   <script>${KIDS_SCRIPT}</script>`;

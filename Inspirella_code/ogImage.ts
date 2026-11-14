@@ -38,7 +38,7 @@ function loadAssets(dist: string): void {
   }
   if (!logoUri) {
     try {
-      logoUri = "data:image/png;base64," + fs.readFileSync(path.join(dist, "logo-mark-128.png")).toString("base64");
+      logoUri = "data:image/png;base64," + fs.readFileSync(path.join(dist, "swift-mark-128.png")).toString("base64");
     } catch {
       logoUri = "";
     }
@@ -64,18 +64,18 @@ export async function renderOgImage(key: string, dist: string): Promise<Buffer |
   const size = title.length > 90 ? 50 : title.length > 60 ? 58 : title.length > 36 ? 68 : 80;
   const tree = el(
     "div",
-    { width: 1200, height: 630, flexDirection: "column", justifyContent: "space-between", padding: 64, background: "linear-gradient(135deg, #0d0618 0%, #1e1145 60%, #2e1a6b 100%)", color: "#f5f3ff", fontFamily: "Inter, InterExt, InterCyr" },
+    { width: 1200, height: 630, flexDirection: "column", justifyContent: "space-between", padding: 64, background: "linear-gradient(180deg, #d3c1f0 0%, #e8daf5 40%, #f8e0da 78%, #fdebe0 100%)", color: "#1e1730", fontFamily: "Inter, InterExt, InterCyr" },
     [
       el("div", { alignItems: "center", gap: 18 }, [
-        logoUri ? { type: "img", props: { src: logoUri, width: 56, height: 53 } } : el("div", {}, ""),
-        el("div", { fontSize: 34, fontWeight: 700, letterSpacing: 1 }, "Inspirella")
+        logoUri ? { type: "img", props: { src: logoUri, width: 56, height: 56 } } : el("div", {}, ""),
+        el("div", { fontSize: 34, fontWeight: 700 }, "inspirella")
       ]),
       el("div", { flexDirection: "column", gap: 22, width: 1072 }, [
-        entry.k ? el("div", { fontSize: 28, fontWeight: 700, color: "#fb923c", textTransform: "uppercase", letterSpacing: 3 }, drawable(entry.k)) : el("div", {}, ""),
+        entry.k ? el("div", { fontSize: 28, fontWeight: 700, color: "#a8401a" }, drawable(entry.k)) : el("div", {}, ""),
         el("div", { fontSize: size, fontWeight: 700, lineHeight: 1.12 }, title),
-        entry.s ? el("div", { fontSize: 30, color: "#c4b5fd", lineHeight: 1.3 }, drawable(entry.s)) : el("div", {}, "")
+        entry.s ? el("div", { fontSize: 30, color: "#43395a", lineHeight: 1.3 }, drawable(entry.s)) : el("div", {}, "")
       ]),
-      el("div", { fontSize: 26, color: "#a78bfa", justifyContent: "space-between" }, [el("div", {}, "inspirella.ch"), el("div", {}, "Schweizer Bildung, klar erklärt")])
+      el("div", { fontSize: 26, color: "#4a2377", justifyContent: "space-between" }, [el("div", {}, "inspirella.ch"), el("div", {}, "Schweizer Bildung, klar erklärt")])
     ]
   );
   const svg = await satori(tree as never, { width: 1200, height: 630, fonts: fonts! });

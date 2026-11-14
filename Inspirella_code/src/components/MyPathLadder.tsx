@@ -1004,7 +1004,7 @@ export default function MyPathLadder({
                   animate={reduceMotion ? undefined : { y: [0, -6, 0], scale: 1 }}
                   transition={{ y: { duration: 2.4, repeat: Infinity, ease: "easeInOut" }, scale: { duration: 0.4 } }}
                 >
-                  <img src="/logo-mark.png" alt="" className="h-12 w-12 drop-shadow-[0_0_14px_rgba(250,199,117,0.85)]" />
+                  <img src="/swift-mark-128.png" alt="" className="h-12 w-12" />
                 </motion.div>
               </motion.div>
             )}

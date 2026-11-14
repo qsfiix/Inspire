@@ -74,14 +74,14 @@
     b.id = "cookie-banner";
     b.setAttribute("role", "dialog");
     b.setAttribute("aria-label", "Cookies");
-    b.style.cssText = "position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483000;max-width:640px;margin:0 auto;padding:14px 16px;border-radius:14px;background:#1b1030;color:#f4efff;border:1px solid rgba(255,255,255,.18);box-shadow:0 8px 30px rgba(0,0,0,.45);font:14px/1.45 Inter,system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between";
+    b.style.cssText = "position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483000;max-width:640px;margin:0 auto;padding:14px 16px;border-radius:14px;background:#1b0d30;color:#f3eefa;border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 40px -16px rgba(27,13,48,.6);font:14px/1.5 Manrope,'Manrope Variable',Inter,system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between";
     var p = document.createElement("p");
     p.style.cssText = "margin:0;flex:1 1 280px";
     p.appendChild(document.createTextNode(t.t + " "));
     var a = document.createElement("a");
     a.href = t.pu;
     a.textContent = t.p;
-    a.style.cssText = "color:#d9c7ff;text-decoration:underline";
+    a.style.cssText = "color:#f4a27f;text-decoration:underline;text-underline-offset:3px";
     p.appendChild(a);
     var row = document.createElement("div");
     row.style.cssText = "display:flex;gap:8px;flex:0 0 auto";
@@ -89,7 +89,7 @@
       var x = document.createElement("button");
       x.type = "button";
       x.textContent = label;
-      x.style.cssText = "cursor:pointer;border-radius:10px;padding:8px 14px;font:600 14px Inter,system-ui,sans-serif;border:1px solid rgba(255,255,255,.3);" + (primary ? "background:#f4efff;color:#1b1030" : "background:transparent;color:#f4efff");
+      x.style.cssText = "cursor:pointer;border-radius:10px;padding:8px 14px;font:650 14px Manrope,'Manrope Variable',Inter,system-ui,sans-serif;min-height:40px;border:1px solid rgba(255,255,255,.3);" + (primary ? "background:#f3eefa;color:#1b0d30" : "background:transparent;color:#f3eefa");
       x.addEventListener("click", function () { choose(value); });
       return x;
     }
