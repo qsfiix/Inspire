@@ -607,11 +607,18 @@ const fetchCodeLookup = async (table: string): Promise<Map<string, string>> => {
   return codes;
 };
 
-const PAGE_SIZE = 1000;
+// Smaller pages keep each request well under the anonymous role's 3 s statement timeout (wide rows such as
+// professions take ~0.5 s per 1000 rows when idle, more when several tables load at once); a timed-out page is
+// retried once before giving up.
+const PAGE_SIZE = 400;
 const fetchAllRows =async (queryFactory: () => PromiseLike<{ data: any[] | null; error: any }>) => {
   const rows: any[] = [];
   for (let offset = 0; ; offset += PAGE_SIZE) {
-    const { data, error } = await (queryFactory() as any).range(offset, offset + PAGE_SIZE - 1);
+    let { data, error } = await (queryFactory() as any).range(offset, offset + PAGE_SIZE - 1);
+    if (error) {
+      await new Promise(r => setTimeout(r, 600));
+      ({ data, error } = await (queryFactory() as any).range(offset, offset + PAGE_SIZE - 1));
+    }
     if (error) return { data: rows, error };
     const page = Array.isArray(data) ? data : [];
     rows.push(...page);
@@ -1168,7 +1175,7 @@ export const DataRepository = {
       try {
         const supabase = getSupabase();
         const [{ data, error }, categoryCodes] = await Promise.all([
-          supabase.from("resources").select("*"),
+          fetchAllRows(() => supabase.from("resources").select("*").order("id", { ascending: true })),
           fetchCodeLookup("resource_categories")
         ]);
         if (!error && Array.isArray(data) && data.length > 0) {
@@ -1422,7 +1429,7 @@ export const DataRepository = {
       const [pathsRes, stepsRes] = await Promise.all([
         // 1700+ profession paths exist, past PostgREST's 1000-row cap: paginate or newer template paths vanish.
         fetchAllRows(() => supabase.from("learning_paths").select("*").eq("is_active", true).order("id", { ascending: true })),
-        fetchAllRows(() => supabase.from("learning_path_steps").select("*").order("step_order", { ascending: true }))
+        fetchAllRows(() => supabase.from("learning_path_steps").select("*").order("step_order", { ascending: true }).order("id", { ascending: true }))
       ]);
 
       if (pathsRes.error || !Array.isArray(pathsRes.data)) return [];
