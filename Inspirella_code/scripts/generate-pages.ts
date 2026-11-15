@@ -256,12 +256,14 @@ const OG_KINDS: Record<string, string> = {
   "perekhidni-prohramy": "Перехідні програми",
   "diplom-dlia-doroslykh": "Диплом для дорослих"
 };
+const OG_KINDS_UK: Record<string, string> = { beruf: "Професія", institution: "Школа" };
+const OG_KINDS_EN: Record<string, string> = { beruf: "Career", institution: "School" };
 function registerOg(url: string, title: string, description: string): string {
   const p = new URL(url).pathname.replace(/\/+$/, "");
   if (!p) return SITE + "/og-image.png";
   const parts = p.split("/").filter(Boolean);
   const seg = parts[0] === "en" || parts[0] === "uk" ? parts[1] ?? "" : parts[0];
-  OG_INDEX[p] = { t: title.replace(/\s*\|\s*Inspirella$/, ""), s: truncate(description, 110), k: OG_KINDS[seg] ?? "Inspirella" };
+  OG_INDEX[p] = { t: title.replace(/\s*\|\s*Inspirella$/, ""), s: truncate(description, 110), k: (parts[0] === "uk" ? OG_KINDS_UK[seg] : parts[0] === "en" ? OG_KINDS_EN[seg] : undefined) ?? OG_KINDS[seg] ?? "Inspirella" };
   return `${SITE}/og${p}.png`;
 }
 
@@ -305,7 +307,7 @@ ${hreflang ? hreflang + "\n" : ""}${o.indexable ? "" : '<meta name="robots" cont
 ${TOPO_SVG}
 <nav>
   <a class="logo" href="/" aria-label="Inspirella">${SWIFT_SVG}inspirella</a>
-  <div class="nav-r"><a class="opt" href="/berufe/">${o.lang === "uk" ? "Професії" : o.lang === "en" ? "Careers" : "Berufe"}</a><a class="opt" href="/schulen/">${o.lang === "uk" ? "Школи" : o.lang === "en" ? "Schools" : "Schulen"}</a><a class="opt" href="/ueber-inspirella/">${esc(nav.about)}</a><button class="tgl" id="tgl" type="button" aria-label="${o.lang === "uk" ? "Денний або нічний режим" : o.lang === "en" ? "Day or night mode" : "Tag- oder Nachtmodus"}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg></button><a class="app" href="/">${esc(nav.app)}</a></div>
+  <div class="nav-r"><a class="opt" href="${o.lang === "uk" ? "/uk/beruf/" : o.lang === "en" ? "/en/beruf/" : "/berufe/"}">${o.lang === "uk" ? "Професії" : o.lang === "en" ? "Careers" : "Berufe"}</a><a class="opt" href="/schulen/">${o.lang === "uk" ? "Школи" : o.lang === "en" ? "Schools" : "Schulen"}</a><a class="opt" href="/ueber-inspirella/">${esc(nav.about)}</a><button class="tgl" id="tgl" type="button" aria-label="${o.lang === "uk" ? "Денний або нічний режим" : o.lang === "en" ? "Day or night mode" : "Tag- oder Nachtmodus"}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg></button><a class="app" href="/">${esc(nav.app)}</a></div>
 </nav>
 <main>
 ${o.main}
@@ -372,6 +374,7 @@ interface Ctx {
   benchByGroup: Map<string, Record<string, Row>>;
   regionByGroup: Map<string, Row[]>;
   factsByProf: Map<string, Row>;
+  profRowByCode: Map<string, Row>;
   instById: Map<string, { slug: string; title: string; city?: string; canton?: string }>;
   today: string;
 }
@@ -450,7 +453,7 @@ const isoDate = (v: unknown): string | undefined => (typeof v === "string" && /^
 const sameText = (a?: string, b?: string) => !!a && !!b && a.replace(/\s+/g, " ").trim().toLowerCase() === b.replace(/\s+/g, " ").trim().toLowerCase();
 const PLACEHOLDER = /Auf dem Berufsprofil nicht näher beschrieben/i;
 
-function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx): { html: string; indexable: boolean; lastmod?: string } {
+function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx, langs: PLang[] = []): { html: string; indexable: boolean; lastmod?: string } {
   const title = txt(p.title_de) || txt(p.name_de) || slug;
   const url = `${SITE}/beruf/${slug}/`;
   const type = String(p.profession_type || "other");
@@ -618,6 +621,7 @@ function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx): { ht
     <h1>${esc(title)}</h1>
     ${short ? `<p class="lead">${esc(short)}</p>` : ""}
     <div class="cta-row"><a class="btn btn-primary" href="/ressourcen/?beruf=${encodeURIComponent(String(p.code || ""))}">Beruf in Inspirella erkunden →</a></div>
+    ${langs.length ? `<p class="more" style="margin-top:10px">${langs.map(l => `<a href="/${l}/beruf/${slug}/" hreflang="${l}" lang="${l}">${l === "uk" ? "Українською" : "In English"}</a>`).join(" · ")}</p>` : ""}
   </header>
   ${glance.length ? `<section class="card"><h2>Auf einen Blick</h2><dl class="dl">${glance.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>${ageTexts.length ? `<p class="more">Mittlerer Lohn der Berufsgruppe nach Alter: ${esc(ageTexts.join(" · "))}.</p>` : ""}${wageLines.length || medianText ? `<p class="more">${wageLines.length ? "Lehrlingslohn: Empfehlung der Berufsverbände (berufsberatung.ch), der tatsächliche Lohn hängt von Region und Betrieb ab. " : ""}${medianText ? "Lohn im Beruf: Zahlen für die ganze Berufsgruppe, Bundesamt für Statistik, Lohnstrukturerhebung 2024." : ""}</p>` : ""}</section>` : ""}
   ${regionHtml}
@@ -640,9 +644,283 @@ function renderProfession(p: Row, slug: string, schools: Link[], ctx: Ctx): { ht
   } und beim kantonalen Berufsinformationszentrum (BIZ). Zuletzt geprüft: ${esc(checked)}. <a href="/methodik/">So arbeiten wir</a>.</div>`;
 
   return {
-    html: layout({ docTitle: fitTitle(uniqueBase(title), [type === "apprenticeship_efz" || type === "apprenticeship_eba" ? "Lehre" : "Ausbildung", ...(wageLines.length || bench ? ["Lohn"] : []), ...(schools.length ? ["Schulen"] : [])]), ogTitle: `${shortTitle(title)} | Inspirella`, description, url, indexable, ld, main }),
+    html: layout({ docTitle: fitTitle(uniqueBase(title), [type === "apprenticeship_efz" || type === "apprenticeship_eba" ? "Lehre" : "Ausbildung", ...(wageLines.length || bench ? ["Lohn"] : []), ...(schools.length ? ["Schulen"] : [])]), ogTitle: `${shortTitle(title)} | Inspirella`, description, url, indexable, ld, main, ...(langs.length ? { alternates: profAlternates(slug, langs) } : {}) }),
     indexable,
     lastmod: isoDate(p.updated_at)
+  };
+}
+
+// --------------------------------------------------------------------------
+// Profession page in Ukrainian and English (/uk/beruf/<slug>/, /en/beruf/<slug>/)
+// --------------------------------------------------------------------------
+
+type PLang = "uk" | "en";
+const PROF_LANGS: PLang[] = ["uk", "en"];
+
+/** A translated profession page is built only when the row has its own title and description in that language. */
+function profLangReady(p: Row, lang: PLang): boolean {
+  return !!txt(p[`title_${lang}`]) && !!(txt(p[`short_description_${lang}`]) || txt(p[`summary_${lang}`]) || txt(p[`description_${lang}`]));
+}
+
+function profAlternates(slug: string, langs: PLang[]): { lang: string; href: string }[] {
+  const alts = [{ lang: "de", href: `${SITE}/beruf/${slug}/` }, ...langs.map(l => ({ lang: l, href: `${SITE}/${l}/beruf/${slug}/` }))];
+  alts.push({ lang: "x-default", href: `${SITE}/beruf/${slug}/` });
+  return alts;
+}
+
+const PL = {
+  uk: {
+    careers: "Професії",
+    types: { apprenticeship_efz: "Професійне навчання EFZ", apprenticeship_eba: "Професійне навчання EBA", fachausweis: "Федеральний сертифікат (Fachausweis)", diplom: "Федеральний диплом", hf_diploma: "Вища фахова школа HF", fh_bachelor: "Університет прикладних наук (бакалавр)", university: "Університет / ETH" } as Record<string, string>,
+    regulated: "Регульована професія",
+    year: (n: number) => (n === 1 ? "1 рік" : n < 5 ? `${n} роки` : `${n} років`),
+    months: (n: number) => `${n} міс.`,
+    range: (a: string, b: string) => `від ${a} до ${b}`,
+    perMonth: "на місяць",
+    lyear: (n: number) => `${n}-й рік навчання`,
+    glance: "Коротко",
+    degree: "Диплом",
+    duration: "Тривалість",
+    appWage: "Зарплата учня",
+    wage: (g: string) => `Зарплата в професії (група «${g}»)`,
+    median: (v: string, a: string, b: string) => `${v} на місяць (медіана, брутто, повна зайнятість; середні 50 %: ${a}–${b})`,
+    approx: "приблизно ",
+    wageNote: "Зарплата учня: рекомендація професійних об’єднань (berufsberatung.ch), реальна сума залежить від регіону та підприємства. Зарплата в професії: дані для всієї професійної групи, Федеральне статистичне управління, обстеження 2024.",
+    bm: "Професійна матура (BM) можлива",
+    yes: "Так",
+    no: "Ні",
+    next: "Наступний рівень",
+    what: "Що робить людина в цій професії?",
+    tasks: "Завдання",
+    daily: "Робочий день",
+    places: "Де працюють",
+    tools: "Інструменти",
+    access: "Як потрапити",
+    path: "Шлях навчання",
+    fit: "Кому підходить?",
+    reqs: "Що варто вміти",
+    ints: "Підходить вам, якщо ви любите …",
+    onward: "Що далі?",
+    schools: "Де цьому вчаться?",
+    related: "Схожі професії",
+    more: (n: number) => `і ще ${n}`,
+    cta: "Відкрити професію в Inspirella →",
+    deVersion: "Сторінка німецькою",
+    lead: (t: string) => `${t}: професія у Швейцарії.`,
+    descDur: (d: string) => `Тривалість: ${d}.`,
+    descWage: (v: string) => `Зарплата учня від ${v}.`,
+    descMedian: (v: string) => `Зарплата: медіана ${v}.`,
+    titleParts: (apprentice: boolean, wage: boolean, schools: boolean) => [apprentice ? "навчання" : "освіта", ...(wage ? ["зарплата"] : []), ...(schools ? ["школи"] : [])],
+    source: (link: string, date: string) => `Джерело та орієнтир: Inspirella допомагає зорієнтуватися. Офіційну інформацію шукайте ${link} та в кантональному центрі профорієнтації (BIZ). Перевірено: ${date}. <a href="/methodik/">Як ми працюємо</a> (нім.).`,
+    sourceSpecific: (u: string) => `у <a href="${u}" rel="noopener">профілі професії на berufsberatung.ch</a> (нім., фр., італ.)`,
+    sourceGeneral: (u: string) => `на <a href="${u}" rel="noopener">berufsberatung.ch</a>`,
+    nav: { about: "Про Inspirella", app: "До застосунку" },
+    country: "Швейцарія"
+  },
+  en: {
+    careers: "Careers",
+    types: { apprenticeship_efz: "Apprenticeship EFZ", apprenticeship_eba: "Apprenticeship EBA", fachausweis: "Federal certificate (Fachausweis)", diplom: "Federal diploma", hf_diploma: "College of higher education (HF)", fh_bachelor: "University of applied sciences (Bachelor)", university: "University / ETH" } as Record<string, string>,
+    regulated: "Regulated profession",
+    year: (n: number) => (n === 1 ? "1 year" : `${n} years`),
+    months: (n: number) => `${n} months`,
+    range: (a: string, b: string) => `${a} to ${b}`,
+    perMonth: "per month",
+    lyear: (n: number) => `Year ${n}`,
+    glance: "At a glance",
+    degree: "Qualification",
+    duration: "Duration",
+    appWage: "Apprentice pay",
+    wage: (g: string) => `Pay in this field (occupational group “${g}”)`,
+    median: (v: string, a: string, b: string) => `${v} per month (median, gross, full-time; middle 50%: ${a} to ${b})`,
+    approx: "about ",
+    wageNote: "Apprentice pay: recommendation of the professional associations (berufsberatung.ch); actual pay depends on region and company. Pay in this field: figures for the whole occupational group, Swiss Federal Statistical Office, Wage Structure Survey 2024.",
+    bm: "Vocational baccalaureate (BM) possible",
+    yes: "Yes",
+    no: "No",
+    next: "Next level",
+    what: "What do people in this job do?",
+    tasks: "Tasks",
+    daily: "Everyday work",
+    places: "Workplaces",
+    tools: "Tools",
+    access: "Getting in",
+    path: "Education path",
+    fit: "Who is it for?",
+    reqs: "What you should bring",
+    ints: "A good fit if you like …",
+    onward: "What comes next?",
+    schools: "Where can you learn it?",
+    related: "Related careers",
+    more: (n: number) => `and ${n} more`,
+    cta: "Explore this career in Inspirella →",
+    deVersion: "German version",
+    lead: (t: string) => `${t}: a career in Switzerland.`,
+    descDur: (d: string) => `Duration: ${d}.`,
+    descWage: (v: string) => `Apprentice pay from ${v}.`,
+    descMedian: (v: string) => `Pay: median ${v}.`,
+    titleParts: (apprentice: boolean, wage: boolean, schools: boolean) => [apprentice ? "apprenticeship" : "training", ...(wage ? ["pay"] : []), ...(schools ? ["schools"] : [])],
+    source: (link: string, date: string) => `Source and orientation: Inspirella is an orientation tool. For binding information see ${link} and your cantonal career guidance centre (BIZ). Last checked: ${date}. <a href="/methodik/">How we work</a> (German).`,
+    sourceSpecific: (u: string) => `the <a href="${u}" rel="noopener">career profile on berufsberatung.ch</a> (German, French, Italian)`,
+    sourceGeneral: (u: string) => `<a href="${u}" rel="noopener">berufsberatung.ch</a>`,
+    nav: { about: "About Inspirella", app: "Open the app" },
+    country: "Switzerland"
+  }
+};
+
+const PROF_HUB: Record<PLang, { title: string; h1: string; lead: (n: number) => string; groups: Record<string, string> }> = {
+  uk: {
+    title: "Професії у Швейцарії українською | Inspirella",
+    h1: "Професії у Швейцарії",
+    lead: n => `${n} професій і освітніх програм українською: що робить людина в професії, скільки триває навчання, яка зарплата і де вчитися.`,
+    groups: { apprenticeship_efz: "Професійне навчання EFZ (3–4 роки)", apprenticeship_eba: "Професійне навчання EBA (2 роки)", hf_diploma: "Вища фахова школа (HF)", fh_bachelor: "Університет прикладних наук (FH)", university: "Університет / ETH", fachausweis: "Федеральний сертифікат (Fachausweis)", diplom: "Федеральний диплом", other: "Інші професії" }
+  },
+  en: {
+    title: "Careers in Switzerland in English | Inspirella",
+    h1: "Careers in Switzerland",
+    lead: n => `${n} careers and programmes in English: what the work involves, how long the training takes, pay, and where to learn it.`,
+    groups: { apprenticeship_efz: "Apprenticeships EFZ (3–4 years)", apprenticeship_eba: "Apprenticeships EBA (2 years)", hf_diploma: "Colleges of higher education (HF)", fh_bachelor: "Universities of applied sciences (FH)", university: "University / ETH", fachausweis: "Federal certificate (Fachausweis)", diplom: "Federal diploma", other: "Other careers" }
+  }
+};
+
+function renderProfessionL(lang: PLang, p: Row, slug: string, schools: Link[], ctx: Ctx, langs: PLang[]): { html: string; indexable: boolean } {
+  const L = PL[lang];
+  const f = (base: string) => {
+    const t = txt(p[`${base}_${lang}`]);
+    return t && !PLACEHOLDER.test(t) ? t : undefined;
+  };
+  const title = f("title")!;
+  const url = `${SITE}/${lang}/beruf/${slug}/`;
+  const type = String(p.profession_type || "other");
+  const details = ctx.detailsByProf.get(String(p.id));
+  const facts = ctx.factsByProf.get(String(p.id));
+  const wages = (ctx.wagesByProf.get(String(p.id)) ?? []).sort((a, b) => a.year_no - b.year_no);
+  const group = p.isco_group && p.isco_confidence !== "low" ? ctx.benchByGroup.get(String(p.isco_group)) : undefined;
+  const bench = group?.total;
+
+  const short = f("short_description") || f("summary") || f("description");
+  const tasks = [f("role_summary"), f("description"), f("long_description")].find(t => t && !sameText(t, short));
+  const daily = f("daily_work_context");
+  const detail = ([
+    [L.tasks, tasks],
+    [L.daily, daily && !sameText(daily, tasks) && !sameText(daily, short) ? daily : undefined],
+    [L.places, f("typical_workplace")],
+    [L.tools, f("core_tools")],
+    [L.access, f("admission_reality")],
+    [L.path, f("education_notes")]
+  ] as [string, string | undefined][]).filter((s): s is [string, string] => !!s[1]);
+  const traitText = (ids: unknown): string[] => (Array.isArray(ids) ? ids.map(i => txt(ctx.traits.get(Number(i))?.[`text_${lang}`])).filter((x): x is string => !!x) : []);
+  const reqs = traitText(details?.requirement_ids);
+  const ints = traitText(details?.interest_ids);
+  if (!reqs.length && !ints.length && f("target_group")) detail.splice(Math.min(4, detail.length), 0, [L.fit, f("target_group")!]);
+  const progression = f("progression_notes");
+
+  const typeLabel = L.types[type];
+  const fm = (m: number) => (m % 12 === 0 ? L.year(m / 12) : L.months(m));
+  const a = details?.duration_min_months, b = details?.duration_max_months;
+  const duration = a != null && b != null ? (a === b ? fm(a) : L.range(fm(a), fm(b))) : facts?.duration_years ? L.year(Number(facts.duration_years)) : undefined;
+  const wageLines = wages.map(w => `${L.lyear(w.year_no)}: ${w.min_chf === w.max_chf ? chf(w.min_chf) : L.range(chf(w.min_chf), chf(w.max_chf))} ${L.perMonth}`);
+  const approx = p.isco_confidence === "medium" ? L.approx : "";
+  // occupational group names exist only in German; they stay in German inside quotes
+  const groupName = bench ? String(bench.group_name_de).replace(/^\d+\s+/, "") : "";
+  const medianText = bench ? L.median(approx + chf(bench.median), chf(bench.p25), chf(bench.p75)) : undefined;
+  const bm = txt(facts?.bm_possible);
+  const bmText = bm ? (/^(ja|yes|true)/i.test(bm) ? L.yes : /^(nein|no|false)/i.test(bm) ? L.no : undefined) : undefined;
+  const follow = [...(Array.isArray(facts?.fh_followups) ? facts!.fh_followups : []), ...(Array.isArray(facts?.weiterbildung) ? facts!.weiterbildung : [])].map(txt).filter((x): x is string => !!x).slice(0, 8);
+
+  const glance: [string, string][] = [];
+  if (typeLabel) glance.push([L.degree, typeLabel]);
+  if (duration) glance.push([L.duration, duration]);
+  if (wageLines.length) glance.push([L.appWage, wageLines.join(" · ")]);
+  if (medianText) glance.push([L.wage(groupName), medianText]);
+  if (bmText) glance.push([L.bm, bmText]);
+  if (follow.length) glance.push([L.next, follow.join(", ")]);
+
+  const guidance = safeUrl(details?.source_url) || safeUrl(facts?.source_url) || safeUrl(p.official_guidance_url) || "https://www.berufsberatung.ch/";
+  const specific = guidance !== "https://www.berufsberatung.ch/" && guidance !== "https://www.berufsberatung.ch";
+  const checked = isoDate(details?.retrieved_at) || isoDate(p.last_verified_at) || ctx.today;
+
+  // related careers: only those that have a page in this language, else the German page
+  const relatedCodes = [...(Array.isArray(details?.similar_codes) ? details!.similar_codes : [])];
+  for (const c of ctx.profByCategory.get(String(p.profession_category_id)) ?? []) {
+    if (relatedCodes.length >= 10) break;
+    if (!relatedCodes.includes(c) && c !== p.code) relatedCodes.push(c);
+  }
+  const related: Link[] = relatedCodes
+    .map(c => ({ info: ctx.profByCode.get(String(c)), row: ctx.profRowByCode.get(String(c)) }))
+    .filter(x => x.info && x.row && profLangReady(x.row, lang))
+    .slice(0, 10)
+    .map(x => ({ title: txt(x.row![`title_${lang}`])!, href: `/${lang}/beruf/${x.info!.slug}/` }));
+
+  const totalText = [short, ...detail.map(d => d[1]), progression, ...glance.map(g => g[1])].filter(Boolean).join(" ");
+  const indexable = totalText.length >= MIN_INDEXABLE_CHARS;
+  const descBits = [short ? truncate(short, 110) : L.lead(title), duration ? L.descDur(duration) : "", wageLines.length ? L.descWage(chf(wages[0].min_chf)) : bench ? L.descMedian(chf(bench.median)) : ""].filter(Boolean);
+  const description = truncate(descBits.join(" "), 158);
+  const apprentice = type === "apprenticeship_efz" || type === "apprenticeship_eba";
+
+  const ld: Record<string, unknown>[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Occupation",
+      name: title,
+      description,
+      url,
+      inLanguage: lang,
+      occupationLocation: { "@type": "Country", name: L.country },
+      ...(typeLabel ? { educationRequirements: typeLabel } : {}),
+      ...(bench ? { estimatedSalary: { "@type": "MonetaryAmountDistribution", currency: "CHF", duration: "P1M", median: Math.round(bench.median), percentile25: Math.round(bench.p25), percentile75: Math.round(bench.p75) } } : {})
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Inspirella", item: SITE + "/" },
+        { "@type": "ListItem", position: 2, name: L.careers, item: `${SITE}/${lang}/beruf/` },
+        { "@type": "ListItem", position: 3, name: title, item: url }
+      ]
+    }
+  ];
+
+  const chips = (h: string, list: string[]) => (list.length ? `<section class="card"><h2>${esc(h)}</h2><ul class="chips">${list.map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>` : "");
+  const others = langs.filter(l => l !== lang);
+  const langLinks = [`<a href="/beruf/${slug}/" hreflang="de" lang="de">${esc(L.deVersion)}</a>`, ...others.map(l => `<a href="/${l}/beruf/${slug}/" hreflang="${l}" lang="${l}">${l === "uk" ? "Українською" : "In English"}</a>`)].join(" · ");
+
+  const main = `  <div class="crumbs"><a href="/">Inspirella</a> › <a href="/${lang}/beruf/">${esc(L.careers)}</a> › ${esc(title)}</div>
+  <header class="hero">
+    <div class="badges">${typeLabel ? `<span class="badge">${esc(typeLabel)}</span>` : ""}${p.regulated_status === "regulated" ? `<span class="badge warm">${esc(L.regulated)}</span>` : ""}</div>
+    <h1>${esc(title)}</h1>
+    ${short ? `<p class="lead">${esc(short)}</p>` : ""}
+    <div class="cta-row"><a class="btn btn-primary" href="/ressourcen/?beruf=${encodeURIComponent(String(p.code || ""))}&amp;lang=${lang}">${esc(L.cta)}</a></div>
+    <p class="more" style="margin-top:10px">${langLinks}</p>
+  </header>
+  ${glance.length ? `<section class="card"><h2>${esc(L.glance)}</h2><dl class="dl">${glance.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>${wageLines.length || medianText ? `<p class="more">${esc(L.wageNote)}</p>` : ""}</section>` : ""}
+  <div class="grid">
+    <div>
+      ${dlSection(L.what, detail)}
+      ${chips(L.reqs, reqs)}
+      ${chips(L.ints, ints)}
+      ${progression ? `<section class="card"><h2>${esc(L.onward)}</h2><p style="margin:0">${esc(progression)}</p></section>` : ""}
+    </div>
+    <aside>
+      ${linkListSection(L.schools, schools, 100, L.more)}
+      ${linkListSection(L.related, related, 10, L.more)}
+    </aside>
+  </div>
+  <div class="source">${L.source(specific ? L.sourceSpecific(esc(guidance)) : L.sourceGeneral(esc(guidance)), esc(checked))}</div>`;
+
+  return {
+    html: layout({
+      docTitle: fitTitle(title, L.titleParts(apprentice, !!(wageLines.length || bench), !!schools.length)),
+      ogTitle: `${title} | Inspirella`,
+      description,
+      url,
+      indexable,
+      ld,
+      main,
+      lang,
+      alternates: profAlternates(slug, langs),
+      nav: L.nav
+    }),
+    indexable
   };
 }
 
@@ -680,7 +958,7 @@ function programsSection(programs: Row[]): string {
   return `<section class="card" id="studienangebot"><h2>Studienangebot</h2>${out}<p class="more">Die Weiterbildungen sind eine Auswahl. Das vollständige und aktuelle Angebot steht auf der Website der Hochschule.</p></section>`;
 }
 
-function renderInstitution(i: Row, slug: string, professions: Link[], programs: Row[] = []): { html: string; indexable: boolean; lastmod?: string } {
+function renderInstitution(i: Row, slug: string, professions: Link[], programs: Row[] = [], langs: PLang[] = []): { html: string; indexable: boolean; lastmod?: string } {
   const title = txt(i.title_de) || txt(i.name) || slug;
   const url = `${SITE}/institution/${slug}/`;
   const abbreviation = txt(i.abbreviation);
@@ -756,6 +1034,7 @@ function renderInstitution(i: Row, slug: string, professions: Link[], programs: 
     <h1>${esc(title)}</h1>
     ${short ? `<p class="lead">${esc(short)}</p>` : ""}
     <div class="cta-row"><a class="btn btn-primary" href="/karte/">Auf der Karte erkunden →</a>${website ? `<a class="btn btn-sec" href="${esc(website)}" rel="noopener">Offizielle Website</a>` : ""}</div>
+    ${langs.length ? `<p class="more" style="margin-top:10px">${langs.map(l => `<a href="/${l}/institution/${slug}/" hreflang="${l}" lang="${l}">${l === "uk" ? "Українською" : "In English"}</a>`).join(" · ")}</p>` : ""}
   </header>
   ${factsHtml(facts)}
   <div class="grid">
@@ -772,9 +1051,169 @@ function renderInstitution(i: Row, slug: string, professions: Link[], programs: 
   } und beim kantonalen Berufsinformationszentrum (BIZ). Zuletzt geprüft: ${esc(verified || "siehe Methodik")}. <a href="/methodik/">So arbeiten wir</a>.</div>`;
 
   return {
-    html: layout({ docTitle: fitTitle(titleWithAbbr, ["Ausbildungen", "Zulassung"]), ogTitle: `${titleWithAbbr} | Inspirella`, description, url, indexable, ld, main }),
+    html: layout({ docTitle: fitTitle(titleWithAbbr, ["Ausbildungen", "Zulassung"]), ogTitle: `${titleWithAbbr} | Inspirella`, description, url, indexable, ld, main, ...(langs.length ? { alternates: [{ lang: "de", href: url }, ...langs.map(l => ({ lang: l, href: `${SITE}/${l}/institution/${slug}/` })), { lang: "x-default", href: url }] } : {}) }),
     indexable,
     lastmod: isoDate(i.updated_at)
+  };
+}
+
+// --------------------------------------------------------------------------
+// School page in Ukrainian and English (/uk/institution/<slug>/, /en/institution/<slug>/)
+// --------------------------------------------------------------------------
+
+function instLangReady(i: Row, lang: PLang): boolean {
+  return !!(txt(i[`short_description_${lang}`]) || txt(i[`summary_${lang}`]) || txt(i[`overview_${lang}`]) || txt(i[`description_${lang}`]));
+}
+
+const IL = {
+  uk: {
+    schools: "Школи",
+    types: { federal_institute_of_technology: "Федеральна технічна вища школа", teacher_education: "Педагогічний університет", university: "Університет", university_of_applied_sciences: "Університет прикладних наук", fachmittelschule: "Фахова середня школа (FMS)", gymnasium: "Гімназія", international_school: "Міжнародна школа", private_school: "Приватна школа", continuing_education_center: "Центр подальшого навчання", vocational_school: "Професійна школа" } as Record<string, string>,
+    school: "Школа",
+    canton: (c: string) => `кантон ${c}`,
+    overview: "Огляд",
+    profile: "Кому підходить ця школа?",
+    admission: "Вступ",
+    application: "Подання заяви",
+    language: "Мова навчання",
+    life: "Навчання і життя",
+    intl: "Іноземним студентам",
+    housing: "Житло",
+    shortName: "Коротка назва",
+    kind: "Тип",
+    location: "Місце",
+    address: "Адреса",
+    profCount: "Професій в Inspirella",
+    about: "Про школу",
+    progs: "Професії та програми",
+    more: (n: number) => `і ще ${n}`,
+    map: "Подивитися на мапі →",
+    site: "Офіційний сайт",
+    studies: (n: number) => `Програми навчання (${n}) є на німецькій сторінці школи.`,
+    deVersion: "Сторінка німецькою",
+    descCount: (n: number) => `${n} професій і програм в Inspirella.`,
+    titleParts: ["навчання", "вступ"],
+    source: (site: string, date: string) => `Джерело та орієнтир: Inspirella допомагає зорієнтуватися. Офіційну інформацію (вступ, терміни, вартість) шукайте на ${site} та в кантональному центрі профорієнтації (BIZ). Перевірено: ${date}. <a href="/methodik/">Як ми працюємо</a> (нім.).`,
+    siteLink: (u: string) => `<a href="${u}" rel="noopener">офіційному сайті школи</a>`,
+    siteNone: "офіційному сайті школи",
+    seeMethod: "див. методику"
+  },
+  en: {
+    schools: "Schools",
+    types: { federal_institute_of_technology: "Federal institute of technology", teacher_education: "University of teacher education", university: "University", university_of_applied_sciences: "University of applied sciences", fachmittelschule: "Upper-secondary specialised school (FMS)", gymnasium: "Gymnasium", international_school: "International school", private_school: "Private school", continuing_education_center: "Continuing education centre", vocational_school: "Vocational school" } as Record<string, string>,
+    school: "School",
+    canton: (c: string) => `canton of ${c}`,
+    overview: "Overview",
+    profile: "Who is this school for?",
+    admission: "Admission",
+    application: "Applying",
+    language: "Language of instruction",
+    life: "Student life",
+    intl: "International students",
+    housing: "Housing",
+    shortName: "Short name",
+    kind: "Type",
+    location: "Location",
+    address: "Address",
+    profCount: "Careers in Inspirella",
+    about: "About this school",
+    progs: "Careers and programmes",
+    more: (n: number) => `and ${n} more`,
+    map: "Explore on the map →",
+    site: "Official website",
+    studies: (n: number) => `The ${n} study programmes are listed on the German page of this school.`,
+    deVersion: "German version",
+    descCount: (n: number) => `${n} careers and programmes in Inspirella.`,
+    titleParts: ["programmes", "admission"],
+    source: (site: string, date: string) => `Source and orientation: Inspirella is an orientation tool. For binding information (admission, deadlines, fees) see the ${site} and your cantonal career guidance centre (BIZ). Last checked: ${date}. <a href="/methodik/">How we work</a> (German).`,
+    siteLink: (u: string) => `<a href="${u}" rel="noopener">school's official website</a>`,
+    siteNone: "school's official website",
+    seeMethod: "see methodology"
+  }
+};
+
+function renderInstitutionL(lang: PLang, i: Row, slug: string, professions: Link[], programCount: number, langs: PLang[]): { html: string; indexable: boolean } {
+  const L = IL[lang];
+  const f = (base: string) => txt(i[`${base}_${lang}`]);
+  const title = txt(i.title_de) || txt(i.name) || slug; // school names stay in their original language
+  const url = `${SITE}/${lang}/institution/${slug}/`;
+  const abbreviation = txt(i.abbreviation);
+  const aliases = (txt(i.search_aliases) ?? "").split(";").map(a => a.trim()).filter(Boolean);
+  const hasAbbr = !!abbreviation && !title.split(/[^A-Za-z]+/).includes(abbreviation);
+  const titleWithAbbr = hasAbbr ? `${title} (${abbreviation})` : title;
+
+  const short = f("short_description") || f("summary") || f("overview") || f("description");
+  const overview = f("overview") || f("description");
+  const detail = ([
+    [L.overview, overview && overview !== short ? overview : undefined],
+    [L.profile, f("institution_profile")],
+    [L.admission, f("admissions_summary")],
+    [L.application, f("application_notes")],
+    [L.language, f("language_environment")],
+    [L.life, f("student_life")],
+    [L.intl, f("international_support")],
+    [L.housing, f("housing_notes")]
+  ] as [string, string | undefined][]).filter((s): s is [string, string] => !!s[1]);
+  const indexable = [short, ...detail.map(d => d[1])].filter(Boolean).join(" ").length >= MIN_INDEXABLE_CHARS;
+
+  const typeLabel = L.types[i.institution_subgroup as string];
+  const city = txt(i.city);
+  const canton = txt(i.canton)?.toUpperCase();
+  const cantonName = canton ? CANTON_NAMES[canton] : undefined;
+  const address = txt(i.formatted_address)?.replace(/,\s*Switzerland$/i, "");
+  const website = safeUrl(i.official_homepage_url) || safeUrl(i.website_url);
+  const verified = isoDate(i.last_verified_at);
+
+  const where = [city, cantonName ? L.canton(cantonName) : canton].filter(Boolean).join(", ");
+  const lead = `${typeLabel || L.school}${where ? `, ${where}` : ""}.`;
+  const description = truncate([lead, professions.length ? L.descCount(professions.length) : "", short ? truncate(short, 100) : ""].filter(Boolean).join(" "), 158);
+
+  const facts: [string, string][] = [];
+  if (abbreviation) facts.push([L.shortName, [abbreviation, ...aliases.filter(a => a.toLowerCase() !== abbreviation.toLowerCase())].join(", ")]);
+  if (typeLabel) facts.push([L.kind, typeLabel]);
+  if (city || canton) facts.push([L.location, [city, cantonName ?? canton].filter(Boolean).join(", ")]);
+  if (address) facts.push([L.address, address]);
+  if (professions.length) facts.push([L.profCount, String(professions.length)]);
+
+  const ld = [
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      name: title,
+      ...(abbreviation || aliases.length ? { alternateName: [...(abbreviation ? [abbreviation] : []), ...aliases] } : {}),
+      description,
+      url: website || url,
+      ...(website ? { sameAs: [website] } : {}),
+      address: { "@type": "PostalAddress", ...(city ? { addressLocality: city } : {}), ...(canton ? { addressRegion: canton } : {}), addressCountry: "CH" }
+    }
+  ];
+  const others = langs.filter(l => l !== lang);
+  const langLinks = [`<a href="/institution/${slug}/" hreflang="de" lang="de">${esc(L.deVersion)}</a>`, ...others.map(l => `<a href="/${l}/institution/${slug}/" hreflang="${l}" lang="${l}">${l === "uk" ? "Українською" : "In English"}</a>`)].join(" · ");
+
+  const main = `  <div class="crumbs"><a href="/">Inspirella</a> › <a href="/schulen/">${esc(L.schools)}</a> › ${esc(title)}</div>
+  <header class="hero">
+    <div class="badges">${typeLabel ? `<span class="badge">${esc(typeLabel)}</span>` : ""}${cantonName ? `<span class="badge warm">${esc(L.canton(cantonName))}</span>` : ""}</div>
+    <h1>${esc(title)}</h1>
+    ${short ? `<p class="lead">${esc(short)}</p>` : ""}
+    <div class="cta-row"><a class="btn btn-primary" href="/karte/?lang=${lang}">${esc(L.map)}</a>${website ? `<a class="btn btn-sec" href="${esc(website)}" rel="noopener">${esc(L.site)}</a>` : ""}</div>
+    <p class="more" style="margin-top:10px">${langLinks}</p>
+  </header>
+  ${factsHtml(facts)}
+  <div class="grid">
+    <div>
+      ${dlSection(L.about, detail)}
+      ${programCount ? `<p class="more"><a href="/institution/${slug}/#studienangebot" lang="de">${esc(L.studies(programCount))}</a></p>` : ""}
+    </div>
+    <aside>
+      ${linkListSection(L.progs, professions, 200, L.more)}
+    </aside>
+  </div>
+  <div class="source">${L.source(website ? L.siteLink(esc(website)) : L.siteNone, esc(verified || L.seeMethod))}</div>`;
+
+  const alternates = [{ lang: "de", href: `${SITE}/institution/${slug}/` }, ...langs.map(l => ({ lang: l, href: `${SITE}/${l}/institution/${slug}/` })), { lang: "x-default", href: `${SITE}/institution/${slug}/` }];
+  return {
+    html: layout({ docTitle: fitTitle(titleWithAbbr, L.titleParts), ogTitle: `${titleWithAbbr} | Inspirella`, description, url, indexable, ld, main, lang, alternates, nav: PL[lang].nav }),
+    indexable
   };
 }
 
@@ -794,7 +1233,7 @@ function azList(items: Link[]): string {
     letters.map(l => `<section class="card" id="b-${l === "#" ? "x" : l}"><h2>${esc(l)}</h2><ul class="cols">${groups.get(l)!.map(it => `<li><a href="${esc(it.href || "#")}">${esc(it.title)}${it.city ? ` <span>${esc(it.city)}</span>` : ""}</a></li>`).join("")}</ul></section>`).join("\n  ");
 }
 
-function renderHub(opts: { path: string; title: string; h1: string; lead: string; crumbs: [string, string?][]; body: string; description: string; ld?: object }): string {
+function renderHub(opts: { path: string; title: string; h1: string; lead: string; crumbs: [string, string?][]; body: string; description: string; ld?: object; lang?: string; alternates?: { lang: string; href: string }[]; nav?: { about: string; app: string } }): string {
   const url = SITE + opts.path;
   return layout({
     docTitle: truncate(opts.title, 60),
@@ -803,6 +1242,9 @@ function renderHub(opts: { path: string; title: string; h1: string; lead: string
     url,
     indexable: true,
     ld: opts.ld ?? { "@context": "https://schema.org", "@type": "CollectionPage", name: opts.h1, url },
+    lang: opts.lang,
+    alternates: opts.alternates,
+    nav: opts.nav,
     main: `  <div class="crumbs">${opts.crumbs.map(([label, href]) => (href ? `<a href="${esc(href)}">${esc(label)}</a>` : esc(label))).join(" › ")}</div>
   <header class="hero"><h1>${esc(opts.h1)}</h1><p class="lead">${esc(opts.lead)}</p></header>
   ${opts.body}`
@@ -2125,7 +2567,8 @@ function renderUkStart(counts: Counts, programCount: number): string {
     ["Мовний план за 2 хвилини", "Ваш рівень, ваша мета (Lehre, виш, робота, дозвіл C, громадянство) і що робити далі, з курсами саме у вашому кантоні.", "/uk/mova/"],
     ["Молодь 15–25 років: перехідні програми", "Програми, які допомагають підготуватися до професійного навчання або школи: мова, орієнтація, практика.", "/uk/perekhidni-prohramy/"],
     ["Як улаштована система освіти", "Усі етапи від початкової школи до університету на одній сторінці та переходи між ними, у тому числі обхідні шляхи.", "/uk/systema-osvity-shveitsarii/"],
-    ["Каталог професій, шкіл і ресурсів", "Професії, школи, вищі навчальні заклади та корисні сайти українською. Відкривається після короткого старту «Знайдіть свій шлях» (без реєстрації) або входу.", "/ressourcen/?lang=uk"],
+    ["Професії у Швейцарії українською", "Понад 1700 професій: що робить людина в професії, скільки триває навчання, зарплата учня і де вчитися. Без реєстрації.", "/uk/beruf/"],
+    ["Каталог шкіл і ресурсів у застосунку", "Професії, школи, вищі навчальні заклади та корисні сайти українською. Відкривається після короткого старту «Знайдіть свій шлях» (без реєстрації) або входу.", "/ressourcen/?lang=uk"],
     ["Мапа шляхів освіти (Swiss Path Map)", "Усі етапи освіти та переходи між ними для вашого кантону. Також після короткого старту.", "/pathmap/?lang=uk"]
   ];
   const cardsHtml = cards
@@ -2266,8 +2709,8 @@ function renderSystem(lang: SysLang, nodes: Row[], transitions: Row[], statusFac
   // links from each stage of the system to the lists of professions and the guides (pages are in German)
   const EXPLORE: Record<SysLang, { title: string; links: [string, string][] }> = {
     de: { title: "Weiter erkunden", links: [["Alle Berufe von A bis Z", "/berufe/"], ["Lehrberufe EFZ", "/berufe/efz/"], ["Lehrberufe EBA", "/berufe/eba/"], ["Höhere Fachschule (HF)", "/berufe/hf/"], ["Fachhochschule (FH)", "/berufe/fh/"], ["Universität und ETH", "/berufe/uni/"], ["Zulassung nach Kanton", "/zulassung/"], ["Brückenangebote", "/brueckenangebote/"], ["Passerelle", "/passerelle/"], ["Schulen nach Kanton", "/schulen/"]] },
-    en: { title: "Explore further (pages in German)", links: [["All professions A to Z", "/berufe/"], ["Apprenticeships EFZ", "/berufe/efz/"], ["Apprenticeships EBA", "/berufe/eba/"], ["Higher vocational colleges (HF)", "/berufe/hf/"], ["Universities of applied sciences (FH)", "/berufe/fh/"], ["Universities and ETH", "/berufe/uni/"], ["Admission by canton", "/zulassung/"], ["Bridge programmes", "/brueckenangebote/"], ["Passerelle", "/passerelle/"], ["Schools by canton", "/schulen/"]] },
-    uk: { title: "Дивитися далі (сторінки німецькою)", links: [["Усі професії від A до Z", "/berufe/"], ["Професії EFZ", "/berufe/efz/"], ["Професії EBA", "/berufe/eba/"], ["Вищі професійні школи (HF)", "/berufe/hf/"], ["Університети прикладних наук (FH)", "/berufe/fh/"], ["Університети та ETH", "/berufe/uni/"], ["Вступ за кантонами", "/uk/pryjom/"], ["Перехідні програми", "/uk/perekhidni-prohramy/"], ["Пасерель", "/passerelle/"], ["Школи за кантонами", "/schulen/"]] }
+    en: { title: "Explore further (pages in German)", links: [["All careers in English", "/en/beruf/"], ["All professions A to Z (German)", "/berufe/"], ["Apprenticeships EFZ", "/berufe/efz/"], ["Apprenticeships EBA", "/berufe/eba/"], ["Higher vocational colleges (HF)", "/berufe/hf/"], ["Universities of applied sciences (FH)", "/berufe/fh/"], ["Universities and ETH", "/berufe/uni/"], ["Admission by canton", "/zulassung/"], ["Bridge programmes", "/brueckenangebote/"], ["Passerelle", "/passerelle/"], ["Schools by canton", "/schulen/"]] },
+    uk: { title: "Дивитися далі (сторінки німецькою)", links: [["Усі професії українською", "/uk/beruf/"], ["Професії EFZ", "/berufe/efz/"], ["Професії EBA", "/berufe/eba/"], ["Вищі професійні школи (HF)", "/berufe/hf/"], ["Університети прикладних наук (FH)", "/berufe/fh/"], ["Університети та ETH", "/berufe/uni/"], ["Вступ за кантонами", "/uk/pryjom/"], ["Перехідні програми", "/uk/perekhidni-prohramy/"], ["Пасерель", "/passerelle/"], ["Школи за кантонами", "/schulen/"]] }
   };
   const exploreHtml = `<h2 style="margin-top:40px">${esc(EXPLORE[lang].title)}</h2>\n  <section class="card"><ul class="cols">${EXPLORE[lang].links.map(([t, h]) => `<li><a href="${h}"${h.startsWith("/uk/") ? "" : ' lang="de"'}>${esc(t)}</a></li>`).join("")}</ul></section>`;
 
@@ -2600,6 +3043,7 @@ async function main() {
     benchByGroup,
     regionByGroup,
     factsByProf: new Map(factRows.map(f => [String(f.profession_id), f])),
+    profRowByCode: new Map(professions.filter(r => r.code).map(r => [String(r.code), r])),
     instById: new Map(),
     today
   };
@@ -2613,6 +3057,7 @@ async function main() {
   for (const [k, v] of instInfo) ctx.instById.set(k, v);
   const schoolsByProfession = new Map<string, Link[]>();
   const professionsByInstitution = new Map<string, Link[]>();
+  const profIdsByInstitution = new Map<string, string[]>();
   for (const l of links) {
     const prof = profInfo.get(String(l.profession_id));
     const inst = instInfo.get(String(l.institution_id));
@@ -2625,6 +3070,7 @@ async function main() {
       canton: inst.canton,
       href: `/institution/${inst.slug}/`
     });
+    (profIdsByInstitution.get(iid) ?? profIdsByInstitution.set(iid, []).get(iid)!).push(pid);
     (professionsByInstitution.get(iid) ?? professionsByInstitution.set(iid, []).get(iid)!).push({
       title: prof.title,
       href: `/beruf/${prof.slug}/`
@@ -2633,9 +3079,11 @@ async function main() {
   const byTitle = (a: Link, b: Link) => a.title.localeCompare(b.title, "de");
 
   const urls: { loc: string; lastmod?: string }[] = [{ loc: `${SITE}/`, lastmod: today }, { loc: `${SITE}/ueber-inspirella/`, lastmod: today }, { loc: `${SITE}/impressum/`, lastmod: today }, { loc: `${SITE}/datenschutz/`, lastmod: today }, { loc: `${SITE}/methodik/`, lastmod: today }, { loc: `${SITE}/berufe/`, lastmod: today }, { loc: `${SITE}/schulen/`, lastmod: today }];
-  const stats = { professions: 0, professionsNoindex: 0, institutions: 0, institutionsNoindex: 0, skipped: 0 };
+  const stats = { translatedInst: 0, translated: 0, professions: 0, professionsNoindex: 0, institutions: 0, institutionsNoindex: 0, skipped: 0 };
   const lastmodOf = (row: Row) => (typeof row.updated_at === "string" ? row.updated_at.slice(0, 10) : undefined);
 
+  const profLPage = new Map<string, Link>();
+  const translatedProfs: Record<PLang, (Link & { type: string })[]> = { uk: [], en: [] };
   const indexableProfs: Link[] = [];
   const indexableByType = new Map<string, Link[]>();
   const indexableByCategory = new Map<string, Link[]>();
@@ -2646,8 +3094,19 @@ async function main() {
       stats.skipped++;
       continue;
     }
-    const { html, indexable, lastmod } = renderProfession(p, slug, (schoolsByProfession.get(String(p.id)) ?? []).sort(byTitle), ctx);
-    await writePage(["beruf", slug], html);
+    const profSchools = (schoolsByProfession.get(String(p.id)) ?? []).sort(byTitle);
+    const { html, indexable, lastmod } = renderProfession(p, slug, profSchools, ctx);
+    // Ukrainian and English pages where the row is translated; the German page links to them only when it is indexable too
+    const langs = indexable ? PROF_LANGS.filter(l => profLangReady(p, l)) : [];
+    const shownLangs = langs.filter(l => renderProfessionL(l, p, slug, profSchools, ctx, langs).indexable);
+    for (const l of shownLangs) {
+      await writePage([l, "beruf", slug], renderProfessionL(l, p, slug, profSchools, ctx, shownLangs).html);
+      urls.push({ loc: `${SITE}/${l}/beruf/${slug}/`, lastmod: lastmod || today });
+      stats.translated++;
+      profLPage.set(`${String(p.id)}|${l}`, { title: txt(p[`title_${l}`])!, href: `/${l}/beruf/${slug}/` });
+      translatedProfs[l].push({ title: txt(p[`title_${l}`])!, href: `/${l}/beruf/${slug}/`, type: String(p.profession_type || "other") });
+    }
+    await writePage(["beruf", slug], shownLangs.length ? renderProfession(p, slug, profSchools, ctx, shownLangs).html : html);
     stats.professions++;
     if (!indexable) {
       stats.professionsNoindex++;
@@ -2670,8 +3129,19 @@ async function main() {
       continue;
     }
     instTaken.add(slug);
-    const { html, indexable, lastmod } = renderInstitution(i, slug, (professionsByInstitution.get(String(i.id)) ?? []).sort(byTitle), programsByInstitution.get(String(i.id)) ?? []);
-    await writePage(["institution", slug], html);
+    const instProgs = programsByInstitution.get(String(i.id)) ?? [];
+    const { html, indexable, lastmod } = renderInstitution(i, slug, (professionsByInstitution.get(String(i.id)) ?? []).sort(byTitle), instProgs);
+    // Ukrainian and English versions; their career lists link to the translated career pages only
+    const iLangs = indexable ? PROF_LANGS.filter(l => instLangReady(i, l)) : [];
+    const progCount = instProgs.filter(p => p.is_active !== false && safeUrl(p.official_url) && p.level !== "weiterbildung_overview").length;
+    const profsIn = (l: PLang) => (profIdsByInstitution.get(String(i.id)) ?? []).map(pid => profLPage.get(`${pid}|${l}`)).filter((x): x is Link => !!x).sort((a, b) => a.title.localeCompare(b.title, l));
+    const iShown = iLangs.filter(l => renderInstitutionL(l, i, slug, profsIn(l), progCount, iLangs).indexable);
+    for (const l of iShown) {
+      await writePage([l, "institution", slug], renderInstitutionL(l, i, slug, profsIn(l), progCount, iShown).html);
+      urls.push({ loc: `${SITE}/${l}/institution/${slug}/`, lastmod: lastmod || today });
+      stats.translatedInst++;
+    }
+    await writePage(["institution", slug], iShown.length ? renderInstitution(i, slug, (professionsByInstitution.get(String(i.id)) ?? []).sort(byTitle), instProgs, iShown).html : html);
     stats.institutions++;
     if (!indexable) {
       stats.institutionsNoindex++;
@@ -2679,6 +3149,21 @@ async function main() {
     }
     urls.push({ loc: `${SITE}/institution/${slug}/`, lastmod: lastmod || today });
     indexableSchools.push({ title: txt(i.title_de) || txt(i.name) || slug, href: `/institution/${slug}/`, city: [txt(i.city), txt(i.canton)].filter(Boolean).join(", "), cantonCode: txt(i.canton)?.toUpperCase() });
+  }
+
+  for (const l of PROF_LANGS) {
+    const list = translatedProfs[l];
+    if (!list.length) continue;
+    const H = PROF_HUB[l];
+    const order = ["apprenticeship_efz", "apprenticeship_eba", "hf_diploma", "fh_bachelor", "university", "fachausweis", "diplom", "other"];
+    const body = order
+      .map(t => {
+        const items = list.filter(x => (order.includes(x.type) ? x.type : "other") === t).sort((a, b) => a.title.localeCompare(b.title, l));
+        return items.length ? `<section class="card"><h2>${esc(H.groups[t])} <small>(${items.length})</small></h2><ul class="cols">${items.map(it => `<li><a href="${esc(it.href!)}">${esc(it.title)}</a></li>`).join("")}</ul></section>` : "";
+      })
+      .join("\n  ");
+    await writePage([l, "beruf"], renderHub({ path: `/${l}/beruf/`, title: H.title, h1: H.h1, lead: H.lead(list.length), crumbs: [["Inspirella", "/"], [H.h1]], body, description: H.lead(list.length), lang: l, nav: PL[l].nav, alternates: [{ lang: "de", href: `${SITE}/berufe/` }, ...PROF_LANGS.filter(x => translatedProfs[x].length).map(x => ({ lang: x, href: `${SITE}/${x}/beruf/` })), { lang: "x-default", href: `${SITE}/berufe/` }] }));
+    urls.push({ loc: `${SITE}/${l}/beruf/`, lastmod: today });
   }
 
   const counts: Counts = { professions: professions.length, institutions: institutions.length, resources: resourceCount ?? 0 };
@@ -2993,7 +3478,7 @@ async function main() {
   await fs.writeFile(path.join(DIST, "sitemap.xml"), sitemap, "utf8");
 
   console.log(
-    `[pages] ${stats.professions} profession pages (${stats.professionsNoindex} noindex), ${stats.institutions} institution pages (${stats.institutionsNoindex} noindex), about page, ${stats.skipped} skipped for bad slug; sitemap has ${urls.length} URLs.`
+    `[pages] ${stats.professions} profession pages (${stats.professionsNoindex} noindex, ${stats.translated} uk/en versions), ${stats.institutions} institution pages (${stats.institutionsNoindex} noindex, ${stats.translatedInst} uk/en versions), about page, ${stats.skipped} skipped for bad slug; sitemap has ${urls.length} URLs.`
   );
 }
 
