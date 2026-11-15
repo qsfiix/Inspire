@@ -2102,15 +2102,22 @@ function renderAdmissionPage(lang: GLang, canton: string | null, byCanton: Map<s
 let FEEDBACK_REST = "";
 let FEEDBACK_KEY = "";
 
-function feedbackBlock(page: string): string {
+const FEEDBACK_COPY: Record<SLang, Record<string, string>> = {
+  uk: { h: "Чи допомогла вам ця сторінка?", yes: "👍 Так", no: "👎 Не дуже", q: "Чого вам бракує? Що було незрозуміло?", ph: "Наприклад: не знайшла курси для дитини 16 років", send: "Надіслати", anon: "Анонімно: ми не збираємо імен чи контактів, тому не пишіть сюди особисті дані.", ok: "Дякуємо! Ваша відповідь допоможе зробити Inspirella кориснішою.", err: "Не вдалося надіслати. Спробуйте пізніше або напишіть на iinspirella@gmail.com.", vy: "Дякуємо! Якщо хочете, напишіть, чого ще бракує, і натисніть «Надіслати».", vn: "Напишіть, будь ласка, чого бракує, і натисніть «Надіслати»." },
+  de: { h: "Hat dir diese Seite geholfen?", yes: "👍 Ja", no: "👎 Nicht wirklich", q: "Was fehlt dir? Was war unklar?", ph: "Zum Beispiel: Ich habe keine Kurse für meinen 16-jährigen Sohn gefunden", send: "Senden", anon: "Anonym: Wir erfassen keine Namen oder Kontakte, schreib hier also keine persönlichen Daten.", ok: "Danke! Deine Antwort hilft, Inspirella besser zu machen.", err: "Senden hat nicht geklappt. Versuch es später oder schreib an iinspirella@gmail.com.", vy: "Danke! Wenn du magst, schreib, was noch fehlt, und klick auf «Senden».", vn: "Schreib bitte, was fehlt, und klick auf «Senden»." },
+  en: { h: "Did this page help you?", yes: "👍 Yes", no: "👎 Not really", q: "What is missing? What was unclear?", ph: "For example: I could not find courses for my 16-year-old", send: "Send", anon: "Anonymous: we do not collect names or contact details, so please do not write personal data here.", ok: "Thank you! Your answer helps make Inspirella more useful.", err: "Sending failed. Please try later or write to iinspirella@gmail.com.", vy: "Thank you! If you like, tell us what is still missing and press “Send”.", vn: "Please tell us what is missing and press “Send”." }
+};
+
+function feedbackBlock(page: string, lang: SLang = "uk"): string {
   if (!FEEDBACK_REST || !FEEDBACK_KEY) return "";
-  return `<section class="card prose fb" id="fb" style="margin-top:28px" data-page="${esc(page)}" data-endpoint="${esc(FEEDBACK_REST)}" data-key="${esc(FEEDBACK_KEY)}">
-    <h2>Чи допомогла вам ця сторінка?</h2>
-    <div class="cta-row" style="margin:6px 0 10px"><button type="button" class="btn btn-sec" data-v="yes">👍 Так</button><button type="button" class="btn btn-sec" data-v="no">👎 Не дуже</button></div>
-    <label for="fb-text" style="display:block;font-weight:600;margin-top:4px">Чого вам бракує? Що було незрозуміло?</label>
-    <textarea id="fb-text" maxlength="600" rows="3" style="width:100%;margin-top:6px;padding:10px;border-radius:12px;border:1px solid var(--card-b);background:var(--card);color:var(--fg);font:15px Inter,sans-serif" placeholder="Наприклад: не знайшла курси для дитини 16 років"></textarea>
-    <div class="cta-row" style="margin-top:10px"><button type="button" class="btn btn-primary" data-send>Надіслати</button></div>
-    <p class="more" data-msg>Анонімно: ми не збираємо імен чи контактів, тому не пишіть сюди особисті дані.</p>
+  const T = FEEDBACK_COPY[lang];
+  return `<section class="card prose fb" id="fb" style="margin-top:28px" data-page="${esc(page)}" data-lang="${lang}" data-endpoint="${esc(FEEDBACK_REST)}" data-key="${esc(FEEDBACK_KEY)}" data-ok="${esc(T.ok)}" data-err="${esc(T.err)}" data-vy="${esc(T.vy)}" data-vn="${esc(T.vn)}">
+    <h2>${esc(T.h)}</h2>
+    <div class="cta-row" style="margin:6px 0 10px"><button type="button" class="btn btn-sec" data-v="yes">${esc(T.yes)}</button><button type="button" class="btn btn-sec" data-v="no">${esc(T.no)}</button></div>
+    <label for="fb-text" style="display:block;font-weight:600;margin-top:4px">${esc(T.q)}</label>
+    <textarea id="fb-text" maxlength="600" rows="3" style="width:100%;margin-top:6px;padding:10px;border-radius:12px;border:1px solid var(--card-b);background:var(--card);color:var(--fg);font:15px Inter,sans-serif" placeholder="${esc(T.ph)}"></textarea>
+    <div class="cta-row" style="margin-top:10px"><button type="button" class="btn btn-primary" data-send>${esc(T.send)}</button></div>
+    <p class="more" data-msg>${esc(T.anon)}</p>
   </section>
   <script>${FEEDBACK_SCRIPT}</script>`;
 }
@@ -2118,10 +2125,10 @@ function feedbackBlock(page: string): string {
 const FEEDBACK_SCRIPT = `(function(){
 var b=document.getElementById("fb");if(!b)return;var v=null,sent=false;
 function send(){if(sent)return;var t=(document.getElementById("fb-text").value||"").trim().slice(0,600);if(v===null&&!t)return;sent=true;
-fetch(b.dataset.endpoint,{method:"POST",headers:{"Content-Type":"application/json",apikey:b.dataset.key,Authorization:"Bearer "+b.dataset.key,Prefer:"return=minimal"},body:JSON.stringify({page:b.dataset.page,lang:"uk",helpful:v,missing:t||null,context:(location.hash||"").slice(0,200)||null})})
-.then(function(r){b.querySelector("[data-msg]").textContent=r.ok?"Дякуємо! Ваша відповідь допоможе зробити Inspirella кориснішою.":"Не вдалося надіслати. Спробуйте пізніше або напишіть на iinspirella@gmail.com.";if(!r.ok)sent=false;})
-.catch(function(){sent=false;b.querySelector("[data-msg]").textContent="Не вдалося надіслати. Спробуйте пізніше.";});}
-b.querySelectorAll("[data-v]").forEach(function(x){x.addEventListener("click",function(){v=x.dataset.v==="yes";b.querySelectorAll("[data-v]").forEach(function(y){y.style.borderColor=y===x?"var(--accent)":"";});b.querySelector("[data-msg]").textContent=v?"Дякуємо! Якщо хочете, напишіть, чого ще бракує, і натисніть «Надіслати».":"Напишіть, будь ласка, чого бракує, і натисніть «Надіслати».";});});
+fetch(b.dataset.endpoint,{method:"POST",headers:{"Content-Type":"application/json",apikey:b.dataset.key,Authorization:"Bearer "+b.dataset.key,Prefer:"return=minimal"},body:JSON.stringify({page:b.dataset.page,lang:b.dataset.lang||"uk",helpful:v,missing:t||null,context:(location.hash||"").slice(0,200)||null})})
+.then(function(r){b.querySelector("[data-msg]").textContent=r.ok?b.dataset.ok:b.dataset.err;if(!r.ok)sent=false;})
+.catch(function(){sent=false;b.querySelector("[data-msg]").textContent=b.dataset.err;});}
+b.querySelectorAll("[data-v]").forEach(function(x){x.addEventListener("click",function(){v=x.dataset.v==="yes";b.querySelectorAll("[data-v]").forEach(function(y){y.style.borderColor=y===x?"var(--accent)":"";});b.querySelector("[data-msg]").textContent=v?b.dataset.vy:b.dataset.vn;});});
 b.querySelector("[data-send]").addEventListener("click",send);
 })();`;
 
@@ -2130,29 +2137,82 @@ b.querySelector("[data-send]").addEventListener("click",send);
 // steps to stay (S -> B -> C -> citizenship). Only verified Status S facts with the status topics; canton news below.
 // --------------------------------------------------------------------------
 
-const STAY_TOPICS: { topic: string; title: string }[] = [
-  { topic: "status_news", title: "Останні рішення та зміни" },
-  { topic: "status_rights", title: "Що дає статус S" },
-  { topic: "status_duration", title: "Скільки діє статус S" },
-  { topic: "status_to_b", title: "Дозвіл на проживання B" },
-  { topic: "status_to_c", title: "Дозвіл на постійне проживання C" },
-  { topic: "naturalisation", title: "Громадянство" },
-  { topic: "status_return", title: "Повернення в Україну" }
+const STAY_TOPICS: { topic: string; title: Record<SLang, string> }[] = [
+  { topic: "status_news", title: { uk: "Останні рішення та зміни", de: "Neueste Entscheide und Änderungen", en: "Latest decisions and changes" } },
+  { topic: "status_rights", title: { uk: "Що дає статус S", de: "Was der Status S erlaubt", en: "What status S gives you" } },
+  { topic: "status_duration", title: { uk: "Скільки діє статус S", de: "Wie lange der Status S gilt", en: "How long status S lasts" } },
+  { topic: "status_to_b", title: { uk: "Дозвіл на проживання B", de: "Aufenthaltsbewilligung B", en: "Residence permit B" } },
+  { topic: "status_to_c", title: { uk: "Дозвіл на постійне проживання C", de: "Niederlassungsbewilligung C", en: "Settlement permit C" } },
+  { topic: "naturalisation", title: { uk: "Громадянство", de: "Einbürgerung", en: "Citizenship" } },
+  { topic: "status_return", title: { uk: "Повернення в Україну", de: "Rückkehr in die Ukraine", en: "Returning to Ukraine" } }
 ];
 
-function renderUkStay(national: Row[], cantonal: Row[], today: string): string {
-  const url = SITE + "/uk/zalyshytysia/";
-  const names = CANTON_NAMES_I18N.uk;
+const STAY_PATHS: Record<SLang, string> = { uk: "/uk/zalyshytysia/", de: "/status-s/bleiben/", en: "/en/status-s/staying/" };
+
+const STAY_COPY: Record<SLang, {
+  title: string; h1: string; lead: string; description: string; crumbHome: string; crumbStatus: string; crumbHere: string; badge: string; asOf: (d: string) => string;
+  ladder: [string, string, string][]; source: string; cantonSource: string; canton: (n: string) => string; cantonMore: (n: string) => string; cantonNews: string; cantonsH: string;
+  note: string; next: string; footer: string; nav: { about: string; app: string };
+}> = {
+  uk: {
+    title: "Статус S, дозвіл B і C: як залишитися у Швейцарії | Inspirella",
+    h1: "Статус S, дозвіл B і C: як залишитися у Швейцарії",
+    lead: "Що дає статус захисту S, що змінилося останнім часом і які кроки ведуть до дозволу B, дозволу C та громадянства. Коротко, з датами й посиланнями на офіційні джерела.",
+    description: "Статус S у Швейцарії: що він дає, скільки діє, останні рішення, як отримати дозвіл B, потім C і громадянство. Українською, з офіційними джерелами SEM і кантонів, з датами.",
+    crumbHome: "/uk/", crumbStatus: "Статус S", crumbHere: "Як залишитися", badge: "Статус S", asOf: d => `Станом на ${d}`,
+    ladder: [["S", "Статус захисту S", "тимчасовий захист"], ["B", "Дозвіл B", "проживання"], ["C", "Дозвіл C", "постійне проживання"], ["CH", "Громадянство", "натуралізація"]],
+    source: "Офіційне джерело →", cantonSource: "Офіційна сторінка кантону →", canton: n => `Кантон ${n}`, cantonMore: n => `Школа, мова й контакти в кантоні ${n} →`, cantonNews: "Новини кантонів", cantonsH: "Що роблять кантони",
+    note: "Правила щодо статусу S змінюються. Остаточне рішення про ваш дозвіл ухвалює міграційний орган вашого кантону; перевіряйте актуальні дані за посиланнями й зверніться туди з особистими питаннями.",
+    next: `Далі: <a href="/uk/mova/">мовний план</a> (для дозволів потрібен рівень мови) · <a href="/uk/diplom-dlia-doroslykh/">професія для дорослих</a> · <a href="/uk/dity/">шкільний план для дитини</a> · <a href="/uk/status-s/">статус S за кантонами</a>`,
+    footer: "Inspirella — незалежний інструмент для орієнтації, а не офіційна установа і не юридична консультація. Тексти взято з офіційних джерел (SEM, Федеральна рада, fedlex, кантони) і перекладено, з датою кожного рішення. Помітили помилку? Напишіть на",
+    nav: { about: "Про Inspirella", app: "Відкрити застосунок" }
+  },
+  de: {
+    title: "Status S, Bewilligung B und C: in der Schweiz bleiben | Inspirella",
+    h1: "Status S, Bewilligung B und C: wie man in der Schweiz bleiben kann",
+    lead: "Was der Schutzstatus S erlaubt, was sich zuletzt geändert hat und welche Schritte zur Aufenthaltsbewilligung B, zur Niederlassungsbewilligung C und zur Einbürgerung führen. Kurz, mit Datum und Link zur offiziellen Quelle.",
+    description: "Schutzstatus S in der Schweiz: Rechte, Dauer, neueste Entscheide und der Weg zur Bewilligung B, C und zur Einbürgerung. Mit offiziellen Quellen von SEM und Kantonen.",
+    crumbHome: "/", crumbStatus: "Schutzstatus S", crumbHere: "In der Schweiz bleiben", badge: "Schutzstatus S", asOf: d => `Stand ${d}`,
+    ladder: [["S", "Schutzstatus S", "vorübergehender Schutz"], ["B", "Bewilligung B", "Aufenthalt"], ["C", "Bewilligung C", "Niederlassung"], ["CH", "Bürgerrecht", "Einbürgerung"]],
+    source: "Offizielle Quelle →", cantonSource: "Offizielle Seite des Kantons →", canton: n => `Kanton ${n}`, cantonMore: n => `Schule, Sprache und Kontakte im Kanton ${n} →`, cantonNews: "Neues aus den Kantonen", cantonsH: "Was die Kantone tun",
+    note: "Die Regeln zum Status S ändern sich. Über deine Bewilligung entscheidet das Migrationsamt deines Kantons; prüfe die aktuellen Angaben über die Links und wende dich mit persönlichen Fragen dorthin.",
+    next: `Weiter: <a href="/status-s/">Schutzstatus S nach Kanton</a> · <a href="/berufsabschluss-fuer-erwachsene/">Berufsabschluss für Erwachsene</a> · <a href="/brueckenangebote/">Brückenangebote</a> · <a href="/zulassung/">Zulassung nach Kanton</a>`,
+    footer: "Inspirella ist ein unabhängiges Orientierungswerkzeug, keine Behörde und keine Rechtsberatung. Die Texte stammen aus offiziellen Quellen (SEM, Bundesrat, fedlex, Kantone), jeweils mit Datum des Entscheids. Fehler gefunden? Schreib an",
+    nav: { about: "Über Inspirella", app: "Zur App" }
+  },
+  en: {
+    title: "Status S, permit B and C: staying in Switzerland | Inspirella",
+    h1: "Status S, permit B and C: how to stay in Switzerland",
+    lead: "What protection status S gives you, what has changed recently, and the steps towards residence permit B, settlement permit C and citizenship. Short, with dates and links to the official sources.",
+    description: "Protection status S in Switzerland: rights, duration, latest decisions and the path to permit B, permit C and citizenship. With official sources from SEM and the cantons.",
+    crumbHome: "/", crumbStatus: "Status S", crumbHere: "Staying in Switzerland", badge: "Status S", asOf: d => `As of ${d}`,
+    ladder: [["S", "Protection status S", "temporary protection"], ["B", "Permit B", "residence"], ["C", "Permit C", "settlement"], ["CH", "Citizenship", "naturalisation"]],
+    source: "Official source →", cantonSource: "Official cantonal page →", canton: n => `Canton of ${n}`, cantonMore: n => `School, language and contacts in ${n} →`, cantonNews: "News from the cantons", cantonsH: "What the cantons are doing",
+    note: "The rules on status S change. The migration office of your canton decides on your permit; check the current details via the links and contact them with personal questions.",
+    next: `Next: <a href="/en/status-s/">status S by canton</a> · <a href="/en/swiss-education-system/">the Swiss education system</a> · <a href="/en/beruf/">careers in English</a>`,
+    footer: "Inspirella is an independent orientation tool, not an authority and not legal advice. The texts come from official sources (SEM, Federal Council, fedlex, cantons) and are translated, each with the date of the decision. Spotted a mistake? Write to",
+    nav: { about: "About Inspirella", app: "Open the app" }
+  }
+};
+
+/** "Status S, permit B and C" in three languages: what status S allows, its latest changes and the steps to stay. */
+function renderStay(lang: SLang, national: Row[], cantonal: Row[], today: string, langs: SLang[]): string {
+  const C = STAY_COPY[lang];
+  const url = SITE + STAY_PATHS[lang];
+  const names: Record<string, string> = lang === "de" ? CANTON_NAMES : CANTON_NAMES_I18N[lang];
+  const statusBase = STATUS_S[lang].base;
+  const h = (r: Row) => txt(r[`headline_${lang}`]);
+  const t = (r: Row) => txt(r[`text_${lang}`]);
+  const ok = (r: Row) => !!h(r) && !!t(r);
   const card = (r: Row) => {
     const href = safeUrl(r.official_url) ?? safeUrl(r.evidence_url);
-    return `<section class="card prose"><h3>${esc(txt(r.headline_uk)!)}</h3><p>${esc(txt(r.text_uk)!)}</p>${href ? `<p class="more"><a href="${esc(href)}" rel="noopener">Офіційне джерело →</a></p>` : ""}</section>`;
+    return `<section class="card prose"><h3>${esc(h(r)!)}</h3><p>${esc(t(r)!)}</p>${href ? `<p class="more"><a href="${esc(href)}" rel="noopener">${esc(C.source)}</a></p>` : ""}</section>`;
   };
-  const ok = (r: Row) => !!txt(r.headline_uk) && !!txt(r.text_uk);
-  const sections = STAY_TOPICS.map(t => {
-    const rows = national.filter(r => r.topic === t.topic && ok(r));
-    return rows.length ? `<h2 id="${t.topic}" style="margin-top:34px">${esc(t.title)}</h2>\n  ${rows.map(card).join("\n  ")}` : "";
+  const sections = STAY_TOPICS.map(tp => {
+    const rows = national.filter(r => r.topic === tp.topic && ok(r));
+    return rows.length ? `<h2 id="${tp.topic}" style="margin-top:34px">${esc(tp.title[lang])}</h2>\n  ${rows.map(card).join("\n  ")}` : "";
   }).filter(Boolean);
-  const toc = STAY_TOPICS.filter(t => national.some(r => r.topic === t.topic && ok(r))).map(t => `<a href="#${t.topic}">${esc(t.title)}</a>`).join(" · ");
+  const toc = STAY_TOPICS.filter(tp => national.some(r => r.topic === tp.topic && ok(r))).map(tp => `<a href="#${tp.topic}">${esc(tp.title[lang])}</a>`).join(" · ");
 
   const byCanton = new Map<string, Row[]>();
   for (const r of cantonal.filter(ok)) {
@@ -2161,50 +2221,47 @@ function renderUkStay(national: Row[], cantonal: Row[], today: string): string {
     byCanton.set(c, [...(byCanton.get(c) ?? []), r]);
   }
   const cantonHtml = [...byCanton.entries()]
-    .sort((a, b) => names[a[0]].localeCompare(names[b[0]], "uk"))
-    .map(([c, rows]) => `<details class="qa" id="kanton-${esc(c.toLowerCase())}"><summary>Кантон ${esc(names[c])}</summary>${rows.map(r => {
+    .sort((a, b) => names[a[0]].localeCompare(names[b[0]], lang))
+    .map(([c, rows]) => `<details class="qa" id="kanton-${esc(c.toLowerCase())}"><summary>${esc(C.canton(names[c]))}</summary>${rows.map(r => {
       const href = safeUrl(r.official_url) ?? safeUrl(r.evidence_url);
-      return `<p><strong>${esc(txt(r.headline_uk)!)}</strong></p><p>${esc(txt(r.text_uk)!)}</p>${href ? `<p class="more"><a href="${esc(href)}" rel="noopener">Офіційна сторінка кантону →</a></p>` : ""}`;
-    }).join("")}<p class="more"><a href="/uk/status-s/${esc(c.toLowerCase())}/">Школа, мова й контакти в кантоні ${esc(names[c])} →</a></p></details>`)
+      return `<p><strong>${esc(h(r)!)}</strong></p><p>${esc(t(r)!)}</p>${href ? `<p class="more"><a href="${esc(href)}" rel="noopener">${esc(C.cantonSource)}</a></p>` : ""}`;
+    }).join("")}<p class="more"><a href="${statusBase}${esc(c.toLowerCase())}/">${esc(C.cantonMore(names[c]))}</a></p></details>`)
     .join("");
 
-  const ladder = [
-    ["S", "Статус захисту S", "тимчасовий захист"],
-    ["B", "Дозвіл B", "проживання"],
-    ["C", "Дозвіл C", "постійне проживання"],
-    ["CH", "Громадянство", "натуралізація"]
-  ];
-  const ladderHtml = `<div class="ladder">${ladder.map(([k, t, d], i) => `<a class="rung" href="#${["status_rights", "status_to_b", "status_to_c", "naturalisation"][i]}"><b>${esc(k)}</b><span>${esc(t)}</span><small>${esc(d)}</small></a>`).join('<span class="arrow">→</span>')}</div>`;
-
-  const description = "Статус S у Швейцарії: що він дає, скільки діє, останні рішення, як отримати дозвіл B, потім C і громадянство. Українською, з офіційними джерелами SEM і кантонів, з датами.";
+  const ladderHtml = `<div class="ladder">${C.ladder.map(([k, tt, d], i) => `<a class="rung" href="#${["status_rights", "status_to_b", "status_to_c", "naturalisation"][i]}"><b>${esc(k)}</b><span>${esc(tt)}</span><small>${esc(d)}</small></a>`).join('<span class="arrow">→</span>')}</div>`;
   const css = `.ladder{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0 4px}.rung{display:flex;flex-direction:column;min-width:120px;padding:12px 14px;border-radius:14px;border:1px solid var(--card-b);background:var(--card);text-decoration:none}.rung b{font:700 22px "Space Grotesk",sans-serif;color:var(--accent)}.rung small{color:var(--muted)}.arrow{color:var(--muted);font-size:20px}h3{margin-top:0}`;
+  const others = langs.filter(l => l !== lang);
+  const langLinks = others.length ? `<p class="more">${others.map(l => `<a href="${STAY_PATHS[l]}" hreflang="${l}" lang="${l}">${l === "uk" ? "Українською" : l === "en" ? "In English" : "Auf Deutsch"}</a>`).join(" · ")}</p>` : "";
 
   const main = `  <style>${css}</style>
-  <div class="crumbs"><a href="/uk/">Inspirella</a> › <a href="/uk/status-s/">Статус S</a> › Як залишитися</div>
+  <div class="crumbs"><a href="${C.crumbHome}">Inspirella</a> › <a href="${statusBase}">${esc(C.crumbStatus)}</a> › ${esc(C.crumbHere)}</div>
   <header class="hero">
-    <div class="badges"><span class="badge">Статус S</span><span class="badge warm">Станом на ${esc(statusDate("uk", today))}</span></div>
-    <h1>Статус S, дозвіл B і C: як залишитися у Швейцарії</h1>
-    <p class="lead">Що дає статус захисту S, що змінилося останнім часом і які кроки ведуть до дозволу B, дозволу C та громадянства. Коротко, з датами й посиланнями на офіційні джерела.</p>
+    <div class="badges"><span class="badge">${esc(C.badge)}</span><span class="badge warm">${esc(C.asOf(statusDate(lang, today)))}</span></div>
+    <h1>${esc(C.h1)}</h1>
+    <p class="lead">${esc(C.lead)}</p>
     ${ladderHtml}
+    ${langLinks}
   </header>
-  ${toc ? `<p class="more">${toc}${byCanton.size ? ` · <a href="#kantony">Новини кантонів</a>` : ""}</p>` : ""}
+  ${toc ? `<p class="more">${toc}${byCanton.size ? ` · <a href="#kantony">${esc(C.cantonNews)}</a>` : ""}</p>` : ""}
   ${sections.join("\n  ")}
-  ${byCanton.size ? `<h2 id="kantony" style="margin-top:34px">Що роблять кантони</h2><section class="card prose">${cantonHtml}</section>` : ""}
-  <div class="note">Правила щодо статусу S змінюються. Остаточне рішення про ваш дозвіл ухвалює міграційний орган вашого кантону; перевіряйте актуальні дані за посиланнями й зверніться туди з особистими питаннями.</div>
-  ${feedbackBlock("uk-stay")}
-  <section class="card prose" style="margin-top:22px"><p>Далі: <a href="/uk/mova/">мовний план</a> (для дозволів потрібен рівень мови) · <a href="/uk/diplom-dlia-doroslykh/">професія для дорослих</a> · <a href="/uk/dity/">шкільний план для дитини</a> · <a href="/uk/status-s/">статус S за кантонами</a></p></section>
-  <div class="source">Inspirella — незалежний інструмент для орієнтації, а не офіційна установа і не юридична консультація. Тексти взято з офіційних джерел (SEM, Федеральна рада, fedlex, кантони) і перекладено, з датою кожного рішення. Помітили помилку? Напишіть на <a href="mailto:iinspirella@gmail.com">iinspirella@gmail.com</a>.</div>
+  ${byCanton.size ? `<h2 id="kantony" style="margin-top:34px">${esc(C.cantonsH)}</h2><section class="card prose">${cantonHtml}</section>` : ""}
+  <div class="note">${esc(C.note)}</div>
+  ${feedbackBlock(lang === "uk" ? "uk-stay" : `stay-${lang}`, lang)}
+  <section class="card prose" style="margin-top:22px"><p>${C.next}</p></section>
+  <div class="source">${esc(C.footer)} <a href="mailto:iinspirella@gmail.com">iinspirella@gmail.com</a>.</div>
   <script>(function(){function o(){var d=location.hash&&document.getElementById(location.hash.slice(1));if(d&&d.tagName==="DETAILS"){d.open=true;d.scrollIntoView();}}window.addEventListener("hashchange",o);o();})();</script>`;
 
+  const alternates = [...langs.map(l => ({ lang: l, href: SITE + STAY_PATHS[l] })), { lang: "x-default", href: SITE + STAY_PATHS[langs.includes("de") ? "de" : "uk"] }];
   return layout({
-    docTitle: "Статус S, дозвіл B і C: як залишитися у Швейцарії | Inspirella",
-    ogTitle: "Статус S, дозвіл B і C: як залишитися у Швейцарії",
-    description,
+    docTitle: C.title,
+    ogTitle: C.h1,
+    description: C.description,
     url,
     indexable: true,
-    lang: "uk",
-    nav: { about: "Про Inspirella", app: "Відкрити застосунок" },
-    ld: { "@context": "https://schema.org", "@type": "WebPage", name: "Статус S, дозвіл B і C: як залишитися у Швейцарії", url, inLanguage: "uk", description, dateModified: today, isPartOf: { "@type": "WebSite", name: "Inspirella", url: SITE + "/" } },
+    lang,
+    nav: C.nav,
+    alternates,
+    ld: { "@context": "https://schema.org", "@type": "WebPage", name: C.h1, url, inLanguage: lang, description: C.description, dateModified: today, isPartOf: { "@type": "WebSite", name: "Inspirella", url: SITE + "/" } },
     main
   });
 }
@@ -3320,9 +3377,11 @@ async function main() {
     const stayTopics = STAY_TOPICS.map(t => t.topic);
     const stayFacts = await fetchAll((from, to) => supabase.from("audience_facts").select("*").eq("is_active", true).eq("verification_status", "verified").eq("audience", "ukraine_s").in("topic", stayTopics).order("sort_order", { ascending: true }).range(from, to));
     const stayNational = stayFacts.filter(r => !r.canton_code);
-    if (stayNational.length) {
-      await writePage(["uk", "zalyshytysia"], renderUkStay(stayNational, stayFacts.filter(r => r.canton_code), today));
-      urls.push({ loc: SITE + "/uk/zalyshytysia/", lastmod: today });
+    // a language gets the page when at least five national facts are translated into it
+    const stayLangs = (["uk", "de", "en"] as SLang[]).filter(l => stayNational.filter(r => txt(r[`headline_${l}`]) && txt(r[`text_${l}`])).length >= 5);
+    for (const l of stayLangs) {
+      await writePage(STAY_PATHS[l].split("/").filter(Boolean), renderStay(l, stayNational, stayFacts.filter(r => r.canton_code), today, stayLangs));
+      urls.push({ loc: SITE + STAY_PATHS[l], lastmod: today });
     }
     if (schoolFacts.length) {
       await writePage(["uk", "dity"], renderUkKids(schoolFacts, admissionRows.filter(r => !r.institution_id), langgymCantons, today));
