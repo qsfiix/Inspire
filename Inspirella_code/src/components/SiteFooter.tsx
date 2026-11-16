@@ -1,7 +1,7 @@
 import type { LanguageCode } from "../types";
 import { HOME_COPY } from "../features/home/homeCopy";
 import { FOOT_CONTOURS } from "../features/home/contours";
-import SwiftMark from "./SwiftMark";
+import BrandMark from "./BrandMark";
 
 const LANGS: [LanguageCode, string][] = [["de", "Deutsch"], ["fr", "Français"], ["it", "Italiano"], ["en", "English"], ["uk", "Українська"]];
 
@@ -15,7 +15,7 @@ export default function SiteFooter({ language, onLanguageChange }: { language: L
       </svg>
       <div className="alp-in">
         <div>
-          <a className="alp-brand" href="/"><SwiftMark />inspirella</a>
+          <a className="alp-brand" href="/"><BrandMark />Inspirella</a>
           <p className="meta">{c.footer.tagline}</p>
         </div>
         <div>

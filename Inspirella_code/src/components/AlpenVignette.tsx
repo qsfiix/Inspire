@@ -1,4 +1,4 @@
-import SwiftMark from "./SwiftMark";
+import BrandMark from "./BrandMark";
 
 /**
  * A small dawn landscape for app pages in the Alpenglühen theme (where the night theme shows the
@@ -25,7 +25,7 @@ export default function AlpenVignette({ className = "" }: { className?: string }
         <path d="M0 450L120 420L240 440L360 410L480 444L600 420V560H0Z" fill="#7a5fb2" />
         <path d="M0 500L140 476L300 496L440 470L600 490V560H0Z" fill="#4f2585" />
       </svg>
-      <span className="vig-swift"><SwiftMark /></span>
+      <span className="vig-swift"><BrandMark /></span>
     </div>
   );
 }

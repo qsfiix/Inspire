@@ -1,14 +1,14 @@
 ---
 version: 2.0
 name: Inspirella
-description: Alpenglühen. Dawn light on the Bernese Alps for a Swiss education and career explorer. Calm lilac-and-white surfaces, plum ink, one coral accent (the head of the swift, the dot of the i). Swisstopo contour lines and layered mountain ranges carry the brand instead of glows. Nacht is the same world at night (moon, stars, moonlit range), not a different design. Wix Madefor Display for headings, Manrope for everything else.
+description: Alpenglühen. Dawn light on the Bernese Alps for a Swiss education and career explorer. Calm lilac-and-white surfaces, plum ink, one coral accent. The logo is a figure with arms raised like wings, its orange head the dot of the i. Swisstopo contour lines and layered mountain ranges carry the brand instead of glows. Nacht is the same world at night (moon, stars, moonlit range), not a different design. Wix Madefor Display for headings, Manrope for everything else.
 
 colors:
   # Brand (alpen / nacht)
   plum: "#4a2377 / #c4b0f2"          # --plum: brand text, links, active states
   btn: "#4a2377 / #7b55c7"           # --btn: solid primary buttons (white text)
   btn-2: "#3a1a60 / #6a45b5"         # --btn-2: button hover
-  coral: "#e46f4c / #f08a68"         # --coral: the one accent (summit dot, swift head, focus ring, checks)
+  coral: "#e46f4c / #f08a68"         # --coral: the one accent (summit dot, focus ring, checks)
   coral-ink: "#a8401a / #f4a383"     # coral as text on light ground (AA)
   # Text
   ink: "#1e1730 / #ece8f5"           # --ink: headings, body
@@ -56,7 +56,7 @@ components:
   button: .alp-btn (plum), .alp-btn.coral, .alp-btn.sm; app .btn-primary is re-skinned to the same plum
   pill: .alp-pill, aria-pressed = selected
   card: app .card-premium (white card, soft shadow, contour lines on hover)
-  logo: SwiftMark.tsx (split wings, coral head); PNGs public/swift-mark-{32..512}.png
+  logo: BrandMark.tsx (figure with raised arms, mark purple #4f1d7c, head orange #f26732; wordmark "Inspirella" with capital I, Manrope 700, purple). Files: public/favicon.svg, favicon.ico, logo-mark-{32..512}.png, logo-mark-wide.png (OG renderer), logo-horizontal.png (mark + wordmark), apple-touch-icon.png. swift-mark-*.png are copies of the new mark for old links
   backdrop: AlpenBackdrop.tsx (fixed pale range behind app pages, time of day per page; not on home or map)
 ---
 
@@ -89,8 +89,8 @@ Use token utilities. They switch with the theme by themselves:
 Status colours (emerald, amber, red) still come from the Tailwind palette with an `isDark` pair. About 200 older `isDark ? … : …` pairs remain (shadows, status chips, SVG colours, Mapbox style). Section 3 of alpen.css re-skins their light branch. Move them to tokens when you touch a file, then delete the matching skin rule.
 
 ## Signature moments (one per screen)
-- **Home hero**: layered SVG massif (`Landscape.tsx`, one SVG per depth for parallax). Over about 3 s the sky warms, the sun rises, alpenglow descends the lit faces, the white-red-white Wanderweg draws to the summit, and the swift flies in to become the coral summit dot.
-- **App pages**: `AlpenBackdrop` puts a pale range behind the page. Each page has its own time of day (`data-time` dawn/morning/noon/afternoon/evening; colours are `@property` registered so they fade), the range climbs slightly on scroll, and the swift flies across once per visit.
+- **Home hero**: layered SVG massif (`Landscape.tsx`, one SVG per depth for parallax). Over about 3 s the sky warms, the sun rises, alpenglow descends the lit faces, the white-red-white Wanderweg draws to the summit, and the brand figure flies in and settles on the coral summit dot.
+- **App pages**: `AlpenBackdrop` puts a pale range behind the page. Each page has its own time of day (`data-time` dawn/morning/noon/afternoon/evening; colours are `@property` registered so they fade), the range climbs slightly on scroll, and the brand figure flies across once per visit.
 - **Cards**: a 2px lift; swisstopo contour lines surface in the corner on hover.
 - **Checks**: a completed checkbox pops with a coral ring.
 - **Profession card**: numbers roll like a departure board.
@@ -108,8 +108,8 @@ All motion respects `prefers-reduced-motion` (final state, no flyby).
 - No backdrop blur, no gradient buttons, no glow shadows.
 
 ## Imagery
-- The landscape, contour lines and the swift are the imagery. No stock photos, no 3D blobs, no sparkle icons (`lucide-sparkles` is hidden in app pages).
-- Brand images: `public/og-image.png`, `swift-mark-*.png`, `apple-touch-icon.png`, `favicon.svg`. `logo-mark.png` (phoenix) is legacy and only kept for the unused PhoenixScene.
+- The landscape, contour lines and the brand figure are the imagery. No stock photos, no 3D blobs, no sparkle icons (`lucide-sparkles` is hidden in app pages).
+- Brand images: `public/og-image.png`, `logo-mark-*.png`, `logo-horizontal.png`, `apple-touch-icon.png`, `favicon.svg`, `favicon.ico`. The phoenix and the swift are retired; every old logo file name now holds the new mark.
 
 ## Voice in the UI
 Supportive, precise, honest. Never invent data or promise outcomes. Say plainly when something is an estimate, German-only, or needs checking with the canton or school. Swiss context is explicit: cantons, EFZ/EBA, Matura, FH/Uni, permeability. No mention of AI in site texts.

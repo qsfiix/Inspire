@@ -1,4 +1,4 @@
-import SwiftMark from "../../components/SwiftMark";
+import BrandMark from "../../components/BrandMark";
 
 /**
  * The hero landscape: Bernese-Alps-like massif at dawn, one SVG per depth layer so scroll parallax
@@ -84,7 +84,7 @@ export default function Landscape() {
         <div className="alp-mist m1" />
         <div className="alp-mist m2" />
       </div>
-      <div className="alp-flyer" id="alp-flyer" aria-hidden="true"><SwiftMark /></div>
+      <div className="alp-flyer" id="alp-flyer" aria-hidden="true"><BrandMark /></div>
       <div className="alp-grain" aria-hidden="true" />
     </>
   );

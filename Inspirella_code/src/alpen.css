@@ -39,20 +39,20 @@ html[data-theme="alpen"] a { text-underline-offset: 4px; }
 @media (max-width: 520px) { .alp-in { padding-inline: 18px; } }
 .alp-home .i, .alp-nav .i, .alp-sheet .i, .alp-footer .i { width: 1em; height: 1em; flex: none; display: inline-block; vertical-align: -.12em; }
 
-/* Swift mark: glides in, beats its wings, the coral head arrives last */
-.swift-mark { width: 32px; height: 32px; color: var(--plum, #4a2377); overflow: visible; }
-.swift-mark .bird, .swift-mark .wl, .swift-mark .wr, .swift-mark .head { transform-box: view-box; }
-.swift-mark .wl, .swift-mark .wr { transform-origin: 24px 25px; }
-.swift-mark .head { transform-origin: 24px 17px; }
-.alp-nav .swift-mark .bird { animation: alp-glidein 1.1s .1s var(--out) both; }
-.alp-nav .swift-mark .wl { animation: alp-beatL .32s .18s 3 ease-in-out; }
-.alp-nav .swift-mark .wr { animation: alp-beatR .32s .18s 3 ease-in-out; }
-.alp-nav .swift-mark .head { animation: alp-headin .6s .75s var(--out) both; }
-.alp-brand:hover .swift-mark .wl { animation: alp-beatL .34s ease-in-out; }
-.alp-brand:hover .swift-mark .wr { animation: alp-beatR .34s ease-in-out; }
+/* Brand mark: glides in, raises its arms, the orange head arrives last */
+.brand-mark { width: 40px; height: 27px; color: #4f1d7c; overflow: visible; }
+.brand-mark .bird, .brand-mark .wl, .brand-mark .wr, .brand-mark .head { transform-box: view-box; }
+.brand-mark .wl { transform-origin: 42.5px 31px; } .brand-mark .wr { transform-origin: 51px 31px; }
+.brand-mark .head { transform-origin: 46.75px 8.2px; }
+.alp-nav .brand-mark .bird { animation: alp-glidein 1.1s .1s var(--out) both; }
+.alp-nav .brand-mark .wl { animation: alp-beatL .32s .18s 3 ease-in-out; }
+.alp-nav .brand-mark .wr { animation: alp-beatR .32s .18s 3 ease-in-out; }
+.alp-nav .brand-mark .head { animation: alp-headin .6s .75s var(--out) both; }
+.alp-brand:hover .brand-mark .wl { animation: alp-beatL .34s ease-in-out; }
+.alp-brand:hover .brand-mark .wr { animation: alp-beatR .34s ease-in-out; }
 @keyframes alp-glidein { from { transform: translate(-14px, 9px) rotate(-12deg) scale(.7); opacity: 0 } 60% { opacity: 1 } to { transform: none; opacity: 1 } }
-@keyframes alp-beatL { 0%, 100% { transform: none } 50% { transform: rotate(-22deg) } }
-@keyframes alp-beatR { 0%, 100% { transform: none } 50% { transform: rotate(22deg) } }
+@keyframes alp-beatL { 0%, 100% { transform: none } 50% { transform: rotate(-12deg) } }
+@keyframes alp-beatR { 0%, 100% { transform: none } 50% { transform: rotate(12deg) } }
 @keyframes alp-headin { from { transform: scale(0) } to { transform: none } }
 
 /* Buttons */
@@ -76,6 +76,7 @@ html[data-theme="alpen"] a { text-underline-offset: 4px; }
 .alp-nav.solid { box-shadow: 0 10px 30px -24px rgba(30, 23, 48, .5); }
 .alp-nav .alp-in { display: flex; align-items: center; gap: 18px; height: 72px; }
 .alp-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 21px var(--f-body); letter-spacing: -.02em; color: inherit; }
+html[data-theme="alpen"] .alp-nav .alp-brand { color: #4f1d7c; }
 .alp-nav .links { display: flex; gap: 22px; font-size: 15.5px; font-weight: 500; margin-left: auto; }
 .alp-nav .links a { text-decoration: none; color: var(--ink-2); position: relative; padding-block: 6px; white-space: nowrap; }
 .alp-nav .links a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px; background: var(--coral); transform: scaleX(0); transform-origin: left; transition: transform .3s var(--out); }
@@ -181,14 +182,14 @@ html[data-theme="alpen"] a { text-underline-offset: 4px; }
 @keyframes alp-drift { from { transform: translateX(-4%) } to { transform: translateX(5%) } }
 
 /* The swift flies along the route and becomes the summit dot */
-.alp-flyer { position: absolute; left: 0; top: 0; width: 34px; height: 34px; margin: -17px 0 0 -17px; z-index: 2; color: #3a1a60; pointer-events: none; opacity: 0; offset-rotate: 0deg; offset-distance: 0%; }
-.alp-flyer .swift-mark { width: 100%; height: 100%; display: block; color: inherit; }
+.alp-flyer { position: absolute; left: 0; top: 0; width: 46px; height: 31px; margin: -15px 0 0 -23px; z-index: 2; color: #3a1a60; pointer-events: none; opacity: 0; offset-rotate: 0deg; offset-distance: 0%; }
+.alp-flyer .brand-mark { width: 100%; height: 100%; display: block; color: inherit; }
 .alp-flyer.go { animation: alp-fly 2.7s .25s cubic-bezier(.45, .05, .3, 1) both; }
 .alp-flyer.go .wl { animation: alp-flapL 2.7s .25s linear both; }
 .alp-flyer.go .wr { animation: alp-flapR 2.7s .25s linear both; }
 @keyframes alp-fly { 0% { offset-distance: 0%; opacity: 0; transform: scale(1.15) rotate(-6deg) } 8% { opacity: 1 } 40% { transform: scale(.95) rotate(5deg) } 70% { transform: scale(.7) rotate(-3deg) } 88% { opacity: 1 } 100% { offset-distance: 100%; opacity: 0; transform: scale(.35) rotate(0) } }
-@keyframes alp-flapL { 0%, 6%, 12%, 18%, 24%, 52%, 58%, 64%, 100% { transform: none } 3%, 9%, 15%, 21%, 55%, 61% { transform: rotate(-26deg) } }
-@keyframes alp-flapR { 0%, 6%, 12%, 18%, 24%, 52%, 58%, 64%, 100% { transform: none } 3%, 9%, 15%, 21%, 55%, 61% { transform: rotate(26deg) } }
+@keyframes alp-flapL { 0%, 6%, 12%, 18%, 24%, 52%, 58%, 64%, 100% { transform: none } 3%, 9%, 15%, 21%, 55%, 61% { transform: rotate(-16deg) } }
+@keyframes alp-flapR { 0%, 6%, 12%, 18%, 24%, 52%, 58%, 64%, 100% { transform: none } 3%, 9%, 15%, 21%, 55%, 61% { transform: rotate(16deg) } }
 
 /* Who are you, on the dusk ground */
 .alp-ground { background: var(--dusk); color: #fff; padding-block: 22px 80px; margin-top: -1px; }
@@ -423,7 +424,7 @@ html[data-theme="alpen"] a { text-underline-offset: 4px; }
 .alp-footer .alp-in { position: relative; display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 28px; padding-block: 52px 40px; }
 @media (max-width: 760px) { .alp-footer .alp-in { grid-template-columns: 1fr; } }
 .alp-footer .alp-brand { color: #fff; font-size: 20px; margin-bottom: 12px; }
-.alp-footer .alp-brand .swift-mark { color: var(--lav-pale); }
+.alp-footer .alp-brand .brand-mark { color: var(--lav-pale); }
 .alp-footer h4 { margin: 0 0 10px; font-size: 14px; color: #a99cc2; font-weight: 600; }
 .alp-footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .alp-footer a, .alp-footer ul button { color: #cfc5e0; text-decoration: none; display: inline-flex; min-height: 32px; align-items: center; background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
@@ -442,8 +443,8 @@ html[data-theme="alpen"] a { text-underline-offset: 4px; }
 /* Dawn vignette for app pages (login, onboarding) */
 .alp-vignette { position: relative; overflow: hidden; border-radius: 28px; box-shadow: 0 30px 60px -36px rgba(74, 35, 119, .55); }
 .alp-vignette svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.alp-vignette .vig-swift { position: absolute; left: 18%; top: 22%; width: 44px; height: 44px; color: #3a1a60; animation: alp-glide 9s ease-in-out infinite alternate; }
-.alp-vignette .vig-swift .swift-mark { width: 100%; height: 100%; }
+.alp-vignette .vig-swift { position: absolute; left: 18%; top: 22%; width: 54px; height: 36px; color: #3a1a60; animation: alp-glide 9s ease-in-out infinite alternate; }
+.alp-vignette .vig-swift .brand-mark { width: 100%; height: 100%; }
 .alp-vignette .wl { animation: alp-beatL .9s ease-in-out infinite; }
 .alp-vignette .wr { animation: alp-beatR .9s ease-in-out infinite; }
 @keyframes alp-glide { from { transform: translate(0, 0) rotate(-4deg) } to { transform: translate(60px, -24px) rotate(5deg) } }
@@ -505,8 +506,8 @@ html[data-theme="alpen"] .alp-pagewrap { background: none; }
 .bd-r.r2 { --k: 12vh; height: 50vh; } .bd-r.r2 path { fill: var(--bd-r2); } .bd-r.r2 .snow { fill: #fdfbff; }
 .bd-r.r3 { --k: 18vh; height: 30vh; } .bd-r.r3 path { fill: var(--bd-r3); }
 .bd-mist { position: absolute; left: -10%; right: -10%; bottom: 14vh; height: 18vh; background: radial-gradient(50% 50% at 50% 50%, rgba(255, 255, 255, .7), rgba(255, 255, 255, 0) 70%); animation: alp-drift 46s ease-in-out infinite alternate; }
-.bd-swift { position: absolute; left: 0; top: 0; width: 30px; height: 30px; color: #4a2377; opacity: 0; }
-.bd-swift .swift-mark { width: 100%; height: 100%; }
+.bd-swift { position: absolute; left: 0; top: 0; width: 40px; height: 27px; color: #4a2377; opacity: 0; }
+.bd-swift .brand-mark { width: 100%; height: 100%; }
 .bd-swift .wl, .bd-swift .wr { transform-box: view-box; transform-origin: 24px 25px; }
 .bd-swift.go { animation: bd-fly 2.4s .3s cubic-bezier(.45, .05, .3, 1) both; }
 .bd-swift.go .wl { animation: alp-flapL 2.4s .3s linear both; }
@@ -546,7 +547,7 @@ html[data-theme="nacht"] body { background: var(--mist); color: var(--ink); font
 html[data-theme="nacht"] h1, html[data-theme="nacht"] h2, html[data-theme="nacht"] h3, html[data-theme="nacht"] h4 { font-family: var(--f-display); }
 html[data-theme="nacht"] ::selection { background: rgba(240, 138, 104, .35); color: #fff; }
 html[data-theme="nacht"] :focus-visible { outline: 3px solid var(--coral) !important; outline-offset: 3px; }
-html[data-theme="nacht"] .swift-mark { color: #d7c8f7; }
+html[data-theme="nacht"] .brand-mark { color: #d7c8f7; }
 
 /* navigation and sheets */
 html[data-theme="nacht"] .alp-nav { background: rgba(14, 10, 25, .92); border-bottom-color: var(--line); }

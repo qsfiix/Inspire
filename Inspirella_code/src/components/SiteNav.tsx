@@ -3,7 +3,7 @@ import type { LanguageCode } from "../types";
 import { pathForTab } from "../lib/routes";
 import { HOME_COPY } from "../features/home/homeCopy";
 import type { ThemeName } from "../lib/theme";
-import SwiftMark from "./SwiftMark";
+import BrandMark from "./BrandMark";
 
 interface Props {
   currentLanguage: LanguageCode;
@@ -81,7 +81,7 @@ export default function SiteNav({ currentLanguage, onLanguageChange, activeTab, 
       <header className={`alp-nav${solid ? " solid" : ""}${activeTab === "home" ? " over" : ""}`}>
         <div className="alp-in">
           <a className="alp-brand" href="/" onClick={go("home")} aria-label="Inspirella">
-            <SwiftMark />inspirella
+            <BrandMark />Inspirella
           </a>
           <nav className="links" aria-label="Navigation">
             {links.map(l => (

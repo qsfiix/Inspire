@@ -38,7 +38,7 @@ function loadAssets(dist: string): void {
   }
   if (!logoUri) {
     try {
-      logoUri = "data:image/png;base64," + fs.readFileSync(path.join(dist, "swift-mark-128.png")).toString("base64");
+      logoUri = "data:image/png;base64," + fs.readFileSync(path.join(dist, "logo-mark-wide.png")).toString("base64");
     } catch {
       logoUri = "";
     }
@@ -67,8 +67,8 @@ export async function renderOgImage(key: string, dist: string): Promise<Buffer |
     { width: 1200, height: 630, flexDirection: "column", justifyContent: "space-between", padding: 64, background: "linear-gradient(180deg, #d3c1f0 0%, #e8daf5 40%, #f8e0da 78%, #fdebe0 100%)", color: "#1e1730", fontFamily: "Inter, InterExt, InterCyr" },
     [
       el("div", { alignItems: "center", gap: 18 }, [
-        logoUri ? { type: "img", props: { src: logoUri, width: 56, height: 56 } } : el("div", {}, ""),
-        el("div", { fontSize: 34, fontWeight: 700 }, "inspirella")
+        logoUri ? { type: "img", props: { src: logoUri, width: 75, height: 50 } } : el("div", {}, ""),
+        el("div", { fontSize: 34, fontWeight: 700, color: "#4f1d7c" }, "Inspirella")
       ]),
       el("div", { flexDirection: "column", gap: 22, width: 1072 }, [
         entry.k ? el("div", { fontSize: 28, fontWeight: 700, color: "#a8401a" }, drawable(entry.k)) : el("div", {}, ""),

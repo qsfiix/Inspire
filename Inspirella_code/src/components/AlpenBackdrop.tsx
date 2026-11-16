@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import SwiftMark from "./SwiftMark";
+import BrandMark from "./BrandMark";
 
 /**
  * The misty mountain backdrop behind the app pages (Alpenglühen theme; not on home or the map).
@@ -60,7 +60,7 @@ export default function AlpenBackdrop({ tab }: { tab: string }) {
         <path d="M0 260L140 232L260 246L400 214L520 240L660 220L800 248L940 226L1080 252L1220 222L1340 240L1440 230V300H0Z" />
       </svg>
       <div className="bd-mist" />
-      <div className="bd-swift" ref={swiftRef}><SwiftMark /></div>
+      <div className="bd-swift" ref={swiftRef}><BrandMark /></div>
     </div>
   );
 }
