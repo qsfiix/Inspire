@@ -125,7 +125,7 @@ html[data-theme="alpen"] .alp-nav .alp-brand { color: #4f1d7c; }
 .alp-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(55% 55% at 66% 66%, rgba(255, 190, 150, .55), rgba(255, 190, 150, 0) 70%); }
 .alp-loaded .alp-hero::before { animation: alp-warm 2.4s var(--out) both; }
 @keyframes alp-warm { from { opacity: .1 } to { opacity: 1 } }
-.alp-hero .alp-copy { position: relative; z-index: 4; max-width: 900px; }
+.alp-hero .alp-copy { position: relative; z-index: 4; max-width: 1120px; }
 .alp-hero h1 { font-family: var(--f-display); font-size: clamp(42px, 6.6vw, 90px); font-weight: 800; line-height: .98; letter-spacing: -.038em; }
 .alp-hero h1:lang(uk), .alp-hero h1:lang(fr) { letter-spacing: -.025em; }
 .alp-hero h1 .l2 { display: block; color: var(--plum); }
@@ -149,7 +149,7 @@ html[data-theme="alpen"] .alp-nav .alp-brand { color: #4f1d7c; }
 .alp-results li[aria-selected="true"] a, .alp-results a:hover { background: var(--mist); }
 .alp-results small { color: var(--coral-ink); font-weight: 700; font-size: 12.5px; }
 .alp-results .all a, .alp-results .none a { color: var(--plum); font-weight: 700; border-top: 1px solid var(--line); border-radius: 0 0 10px 10px; }
-.alp-examples { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; font-size: 14.5px; color: #4d4462; }
+.alp-examples { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; max-width: 760px; margin-top: 14px; font-size: 14.5px; color: #4d4462; }
 .alp-examples a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 13px; border-radius: 999px; background: rgba(255, 255, 255, .62); border: 1px solid rgba(74, 35, 119, .14); text-decoration: none; font-weight: 600; color: var(--plum); transition: background .2s, border-color .2s, transform .2s var(--out); }
 .alp-examples a:hover { background: #fff; border-color: var(--plum); transform: translateY(-1px); }
 .alp-assure { max-width: 620px; display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 22px; font-size: 14px; color: #4d4462; }

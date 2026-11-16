@@ -19,7 +19,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     logout: "Log Out",
 
     // Public Home / Landing
-    heroTitle: "No dead ends.|Only next steps.",
+    heroTitle: "Find your way.|Shape your future.",
     closingSlogan: "Nothing is impossible, and you'll see it.",
     heroSubtitle: "Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take.",
     heroCTA: "Find your path",
@@ -369,7 +369,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     logout: "Abmelden",
 
     // Public Home / Landing
-    heroTitle: "Keine Sackgassen.|Nur nächste Schritte.",
+    heroTitle: "Finde deinen Weg.|Gestalte deine Zukunft.",
     closingSlogan: "Nichts ist unmöglich – und du wirst es sehen.",
     heroSubtitle: "Inspirella macht das Schweizer Bildungssystem zu einem klaren, persönlichen Weg: Berufe, die zu dir passen, wo du sie lernen kannst, und der nächste kleine Schritt.",
     heroCTA: "Deinen Weg finden",
@@ -719,7 +719,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     logout: "Se déconnecter",
 
     // Public Home / Landing
-    heroTitle: "Pas d'impasse.|Que des prochaines étapes.",
+    heroTitle: "Trouve ta voie.|Façonne ton avenir.",
     closingSlogan: "Rien n'est impossible, et tu vas le voir.",
     heroSubtitle: "Inspirella transforme le système éducatif suisse en un parcours clair et personnel : les métiers qui te correspondent, où les apprendre et la prochaine petite étape.",
     heroCTA: "Trouver ta voie",
@@ -1069,7 +1069,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     logout: "Disconnetti",
 
     // Public Home / Landing
-    heroTitle: "Nessun vicolo cieco.|Solo prossimi passi.",
+    heroTitle: "Trova la tua strada.|Costruisci il tuo futuro.",
     closingSlogan: "Niente è impossibile, e lo vedrai.",
     heroSubtitle: "Inspirella trasforma il sistema formativo svizzero in un percorso chiaro e personale: le professioni adatte a te, dove impararle e il prossimo piccolo passo.",
     heroCTA: "Trova il tuo percorso",
@@ -1419,7 +1419,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     logout: "Вийти",
 
     // Public Home / Landing
-    heroTitle: "Жодних глухих кутів.|Лише наступні кроки.",
+    heroTitle: "Знайдіть свій шлях.|Будуйте своє майбутнє.",
     closingSlogan: "Немає нічого неможливого, і ви це побачите.",
     heroSubtitle: "Inspirella перетворює систему освіти Швейцарії на один зрозумілий особистий шлях: професії, які вам підходять, де їх опанувати і який маленький крок зробити далі.",
     heroCTA: "Знайти свій шлях",
