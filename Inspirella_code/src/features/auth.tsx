@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import type { LanguageCode } from "../types";
 import { DataRepository } from "../data/Repository";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -18,7 +19,7 @@ import {
 } from "lucide-react";
 import type { CefrLevel, LanguageLevel, RouteBackground } from "../types";
 import { getOnboardingCopy } from "./onboardingCopy";
-import AlpenVignette from "../components/AlpenVignette";
+import SignpostScene from "../components/SignpostScene";
 
 // Localized custom copy definitions for Login phase
 const AUTH_TRANSLATIONS: Record<string, Record<string, string>> = {
@@ -150,25 +151,17 @@ const AUTH_TRANSLATIONS: Record<string, Record<string, string>> = {
 };
 
 /**
- * Login/sign-up layout: the particle phoenix (PhoenixScene, mounted in
- * App.tsx) settles on the empty anchor on the left, the glass form sits on
- * the right; on phones the phoenix sits above the form. Fills one screen
- * below the header on desktop so everything is centred on arrival.
+ * Login/sign-up layout: the signpost scene on the left, the form on the
+ * right; on phones only the form. Fills one screen below the header on
+ * desktop so everything is centred on arrival.
  */
 const AUTH_STAGE_CLASS =
   "max-w-6xl mx-auto px-4 py-6 lg:py-4 lg:min-h-[calc(100svh-8rem)] grid gap-4 lg:gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center";
 const AUTH_CARD_COLUMN_CLASS = "w-full max-w-md mx-auto lg:mx-0 lg:justify-self-end";
 
-function AuthPhoenixAnchor({ isDark = true }: { isDark?: boolean }) {
-  // Alpenglühen theme: a still dawn landscape instead of the particle phoenix.
-  if (!isDark) return <AlpenVignette className="mx-auto h-44 w-full sm:h-56 lg:h-[min(560px,calc(100svh-11rem))]" />;
-  return (
-    <div
-      data-scene-anchor="0"
-      aria-hidden="true"
-      className="mx-auto h-44 w-44 sm:h-56 sm:w-56 lg:h-[min(560px,calc(100svh-11rem))] lg:w-full"
-    />
-  );
+function AuthSignpost({ language }: { language: LanguageCode }) {
+  // A Swiss hiking signpost beside the form (both themes). Hidden on phones, where its signs would be too small to read.
+  return <SignpostScene language={language} className="hidden lg:block w-full h-[min(600px,calc(100svh-10rem))]" />;
 }
 
 export function LoginView({
@@ -221,7 +214,7 @@ export function LoginView({
         transition={{ duration: 0.35, ease: "easeOut" }}
         className={AUTH_STAGE_CLASS}
       >
-        <AuthPhoenixAnchor isDark={isDark} />
+        <AuthSignpost language={currentLanguage} />
         <div className={AUTH_CARD_COLUMN_CLASS}>
         <div className="card-premium p-8 relative overflow-hidden text-center shadow-2xl rounded-3xl border border-violet-500/20 space-y-4">
           <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600"></div>
@@ -259,7 +252,7 @@ export function LoginView({
       transition={{ duration: 0.35, ease: "easeOut" }}
       className={AUTH_STAGE_CLASS}
     >
-      <AuthPhoenixAnchor isDark={isDark} />
+      <AuthSignpost language={currentLanguage} />
       <div className={AUTH_CARD_COLUMN_CLASS}>
       <div className="card-premium p-8 relative overflow-hidden text-left shadow-2xl rounded-3xl border border-violet-500/20">
         {/* Dynamic visual top indicator flare */}

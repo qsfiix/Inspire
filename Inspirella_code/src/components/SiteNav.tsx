@@ -53,7 +53,7 @@ export default function SiteNav({ currentLanguage, onLanguageChange, activeTab, 
     if (id === "start-guest") onStartGuest(); else onTabChange(id);
   };
 
-  // Public: static catalogue pages + the planner; signed in: the app's own pages.
+  // Public: the planner, My Path and About (the catalogue stays reachable from the footer and search); signed in: the app's own pages.
   const links: { label: string; href: string; tab?: string }[] = isLoggedIn
     ? [
         { label: c.myPath, href: pathForTab("dashboard"), tab: "dashboard" },
@@ -64,8 +64,6 @@ export default function SiteNav({ currentLanguage, onLanguageChange, activeTab, 
         { label: c.profile, href: pathForTab("profile"), tab: "profile" }
       ]
     : [
-        { label: c.professions, href: "/berufe/" },
-        { label: c.schools, href: "/schulen/" },
         { label: c.planner, href: pathForTab("pathmap"), tab: "pathmap" },
         { label: c.myPath, href: pathForTab("dashboard"), tab: "dashboard" },
         { label: c.about, href: "/ueber-inspirella/" }

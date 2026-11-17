@@ -1419,7 +1419,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     logout: "Вийти",
 
     // Public Home / Landing
-    heroTitle: "Знайдіть свій шлях.|Будуйте своє майбутнє.",
+    heroTitle: "Знайди свій шлях.|Будуй своє майбутнє.",
     closingSlogan: "Немає нічого неможливого, і ви це побачите.",
     heroSubtitle: "Inspirella перетворює систему освіти Швейцарії на один зрозумілий особистий шлях: професії, які вам підходять, де їх опанувати і який маленький крок зробити далі.",
     heroCTA: "Знайти свій шлях",
