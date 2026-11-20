@@ -50,7 +50,7 @@ import { PUBLIC_TABS, PROTECTED_TABS, STATIC_TAB_PATHS, pathForTab, tabFromLocat
 
 export default function App() {
   // Language of a visitor without a saved profile: the address (?lang=uk, used for shared links), then the language
-  // chosen on an earlier visit, then the browser (Ukrainian), otherwise English.
+  // chosen on an earlier visit, otherwise English (everyone starts in English and switches in the header).
   const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>(() => {
     const known = ["de", "en", "fr", "it", "uk"];
     try {
@@ -62,7 +62,7 @@ export default function App() {
       const saved = window.localStorage.getItem("inspirella-lang");
       if (saved && known.includes(saved)) return saved as LanguageCode;
     } catch { /* blocked storage: fall through */ }
-    return typeof navigator !== "undefined" && (navigator.languages ?? [navigator.language]).some(l => String(l).toLowerCase().startsWith("uk")) ? "uk" : "en";
+    return "en";
   });
   // Every page has its own address (/pathmap/, /ressourcen/ ...) so search engines can follow links to it and the
   // browser's back/forward buttons walk through the pages instead of leaving the site.

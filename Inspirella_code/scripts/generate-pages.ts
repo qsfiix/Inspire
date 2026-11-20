@@ -287,7 +287,9 @@ function layout(o: LayoutOptions): string {
 ${hreflang ? hreflang + "\n" : ""}${o.indexable ? "" : '<meta name="robots" content="noindex, follow">\n'}<meta name="theme-color" content="#e6daf6">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="icon" type="image/png" href="/logo-mark-64.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icon-48.png">
+<link rel="icon" type="image/png" sizes="96x96" href="/icon-96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Inspirella">
@@ -2844,14 +2846,14 @@ function renderHomeBlock(counts: Counts, featured: HomeFeatured): string {
     items.map(i => `<li><a href="${esc(i.href)}" style="color:#4a2377">${esc(i.title)}</a></li>`).join("");
   return `<div style="max-width:1200px;margin:0 auto;padding:28px 24px 56px;font-family:'Manrope Variable',Manrope,system-ui,sans-serif;color:#1e1730;line-height:1.65">
 <p style="display:flex;align-items:center;gap:10px;font:700 21px 'Manrope Variable',Manrope,system-ui,sans-serif;margin:0 0 56px;color:#4f1d7c"><img src="/logo-mark-wide.png" alt="" width="40" height="27">Inspirella</p>
-<h1 lang="de" style="font:800 clamp(40px,6.4vw,88px)/0.98 'Wix Madefor Display Variable','Wix Madefor Display',system-ui,sans-serif;letter-spacing:-.035em;margin:0 0 22px;color:#1e1730">Finde deinen Weg.<span style="display:block;color:#4a2377">Gestalte deine Zukunft<span style="color:#e46f4c">.</span></span></h1>
-<p lang="de" style="font-size:19px;margin:0 0 12px;max-width:60ch">Inspirella hilft dir, dich im Schweizer Bildungssystem zurechtzufinden: Berufe, die zu dir passen, Schulen, wo du sie lernst, und der nächste kleine Schritt. Kostenlos, auf Deutsch, Französisch, Italienisch, Englisch und Ukrainisch.</p>
-<p lang="de" style="margin:0 0 24px;max-width:70ch">${counts.professions} Berufe und Programme, ${counts.institutions} Schulen und Institutionen, ${counts.resources} offizielle Ressourcen. Stand der Daten: ${esc(dataDate())}. Inspirella ist ein Orientierungswerkzeug und keine offizielle Stelle: Verbindliche Informationen findest du auf <a href="https://www.berufsberatung.ch/" style="color:#4a2377">berufsberatung.ch</a> und beim kantonalen Berufsinformationszentrum (BIZ).</p>
-<p lang="en" style="color:#5c5470;margin:0 0 24px">Inspirella turns Switzerland's education system into one clear, personal path: careers that fit you, where to learn them, and the next small step to take. Free, in German, French, Italian, English and Ukrainian.</p>
+<h1 lang="en" style="font:800 clamp(40px,6.4vw,88px)/0.98 'Wix Madefor Display Variable','Wix Madefor Display',system-ui,sans-serif;letter-spacing:-.035em;margin:0 0 22px;color:#1e1730">Find your way.<span style="display:block;color:#4a2377">Shape your future<span style="color:#e46f4c">.</span></span></h1>
+<p lang="en" style="font-size:19px;margin:0 0 12px;max-width:60ch">Inspirella helps you find your way through the Swiss education system: careers that fit you, the schools where you learn them, and the next small step. Free, in English, German, French, Italian and Ukrainian.</p>
+<p lang="en" style="margin:0 0 24px;max-width:70ch">${counts.professions} careers and programmes, ${counts.institutions} schools and institutions, ${counts.resources} official resources. Data as of ${esc(new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }))}. Inspirella is a guidance tool, not an official body: for binding information see <a href="https://www.berufsberatung.ch/" style="color:#4a2377">berufsberatung.ch</a> and your cantonal career information centre (BIZ).</p>
+<p lang="de" style="color:#5c5470;margin:0 0 24px">Inspirella hilft dir, dich im Schweizer Bildungssystem zurechtzufinden: Berufe, die zu dir passen, Schulen, wo du sie lernst, und der nächste kleine Schritt. Kostenlos, auf Englisch, Deutsch, Französisch, Italienisch und Ukrainisch.</p>
 <p style="margin:0 0 28px"><a href="/berufe/" lang="de" style="color:#4a2377">Alle Berufe</a> · <a href="/schulen/" lang="de" style="color:#4a2377">Alle Schulen</a> · <a href="/lehrlingsloehne/" lang="de" style="color:#4a2377">Lehrlingslöhne</a> · <a href="/passerelle/" lang="de" style="color:#4a2377">Passerelle</a> · <a href="/status-s/" lang="de" style="color:#4a2377">Schutzstatus S</a> · <a href="/zulassung/" lang="de" style="color:#4a2377">Zulassung nach Kanton</a> · <a href="/brueckenangebote/" lang="de" style="color:#4a2377">Brückenangebote</a> · <a href="/berufsabschluss-fuer-erwachsene/" lang="de" style="color:#4a2377">Berufsabschluss für Erwachsene</a> · <a href="/methodik/" lang="de" style="color:#4a2377">Methodik</a> · <a href="/ueber-inspirella/" style="color:#4a2377">About Inspirella</a> · <a href="/en/swiss-education-system/" style="color:#4a2377">Swiss education system</a> · <a href="/bildungssystem/" lang="de" style="color:#4a2377">Bildungssystem</a> · <a href="/uk/systema-osvity-shveitsarii/" lang="uk" style="color:#4a2377">Система освіти Швейцарії</a> ·<a href="/sitemap.xml" style="color:#4a2377">Sitemap</a> · <a href="/llms.txt" style="color:#4a2377">For AI assistants (llms.txt)</a> · <a href="/impressum/" style="color:#4a2377">Impressum</a> · <a href="/datenschutz/" style="color:#4a2377">Datenschutz</a></p>
-<h2 lang="de" style="font:600 20px 'Wix Madefor Display',system-ui,sans-serif;margin:0 0 8px">Berufe</h2>
+<h2 lang="en" style="font:600 20px 'Wix Madefor Display',system-ui,sans-serif;margin:0 0 8px">Careers</h2>
 <ul style="margin:0 0 24px;padding-left:20px">${list(featured.professions)}</ul>
-<h2 lang="de" style="font:600 20px 'Wix Madefor Display',system-ui,sans-serif;margin:0 0 8px">Schulen und Institutionen</h2>
+<h2 lang="en" style="font:600 20px 'Wix Madefor Display',system-ui,sans-serif;margin:0 0 8px">Schools and institutions</h2>
 <ul style="margin:0;padding-left:20px">${list(featured.institutions)}</ul>
 <noscript><p style="margin-top:28px;color:#a8401a">The interactive app (map, personal path, tracker) needs JavaScript.</p></noscript>
 </div>`;
