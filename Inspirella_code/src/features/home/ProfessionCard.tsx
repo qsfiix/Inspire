@@ -42,7 +42,7 @@ const short = (title: string) => {
 };
 
 /** Digits roll to their value like a departure board. */
-function Odometer({ text }: { text: string }) {
+export function Odometer({ text }: { text: string }) {
   return (
     <b aria-label={text}>
       {text.split("").map((ch, i) =>

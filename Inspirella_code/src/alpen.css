@@ -121,7 +121,7 @@ html[data-theme="alpen"] .alp-nav .alp-brand { color: #4f1d7c; }
 .alp-grain { position: absolute; inset: 0; background: url(/grain.png) 0 0 / 128px; mix-blend-mode: multiply; opacity: .07; pointer-events: none; z-index: 3; }
 
 /* Hero */
-.alp-hero { position: relative; overflow: hidden; isolation: isolate; background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 32%, var(--sky-3) 64%, var(--sky-4) 100%); padding-top: calc(148px + env(safe-area-inset-top, 0px)); padding-bottom: max(240px, calc(420px - 12vw)); }
+.alp-hero { position: relative; overflow: hidden; isolation: isolate; background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 32%, var(--sky-3) 64%, var(--sky-4) 100%); padding-top: calc(112px + env(safe-area-inset-top, 0px)); padding-bottom: max(170px, calc(360px - 12vw)); }
 .alp-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(55% 55% at 66% 66%, rgba(255, 190, 150, .55), rgba(255, 190, 150, 0) 70%); }
 .alp-loaded .alp-hero::before { animation: alp-warm 2.4s var(--out) both; }
 @keyframes alp-warm { from { opacity: .1 } to { opacity: 1 } }
@@ -152,6 +152,24 @@ html[data-theme="alpen"] .alp-nav .alp-brand { color: #4f1d7c; }
 .alp-examples { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; max-width: 760px; margin-top: 14px; font-size: 14.5px; color: #4d4462; }
 .alp-examples a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 13px; border-radius: 999px; background: rgba(255, 255, 255, .62); border: 1px solid rgba(74, 35, 119, .14); text-decoration: none; font-weight: 600; color: var(--plum); transition: background .2s, border-color .2s, transform .2s var(--out); }
 .alp-examples a:hover { background: #fff; border-color: var(--plum); transform: translateY(-1px); }
+/* Hero proof row: real counts from the database; digits roll once like the profession card */
+.alp-stats { list-style: none; margin: 30px 0 0; padding: 0; display: flex; flex-wrap: wrap; row-gap: 14px; max-width: 780px; animation: alp-statsin .6s var(--out) both; }
+.alp-stats li { display: flex; flex-direction: column; gap: 3px; padding: 0 26px; border-left: 1px solid rgba(74, 35, 119, .2); }
+.alp-stats li:first-child { padding-left: 0; border-left: 0; }
+.alp-stats b { display: flex; font: 700 clamp(26px, 2.5vw, 34px)/1.1 var(--f-display); letter-spacing: -.03em; height: 1.1em; overflow: hidden; color: var(--plum); }
+.alp-stats .sep { margin: 0 -.02em; } .alp-stats .sep.ap { margin: 0 -.1em 0 -.03em; }
+.alp-stats .od { display: inline-block; height: 1.1em; overflow: hidden; font-variant-numeric: tabular-nums; }
+.alp-stats .od i { display: flex; flex-direction: column; font-style: normal; transition: transform .9s var(--out); }
+.alp-stats .od u { text-decoration: none; height: 1.1em; line-height: 1.1; }
+.alp-stats .l { font-size: 14px; font-weight: 600; color: var(--ink-2); }
+@keyframes alp-statsin { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+@media (max-width: 640px) {
+  .alp-stats { display: grid; grid-template-columns: 1fr 1fr; row-gap: 16px; margin-top: 24px; }
+  .alp-stats li { padding: 0 0 0 16px; }
+  .alp-stats li:nth-child(odd) { padding-left: 0; border-left: 0; }
+}
+html[data-theme="nacht"] .alp-stats li { border-left-color: rgba(196, 176, 242, .22); }
+@media (prefers-reduced-motion: reduce) { .alp-stats, .alp-stats .od i { animation: none; transition: none; } }
 .alp-assure { max-width: 620px; display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 22px; font-size: 14px; color: #4d4462; }
 .alp-assure span { display: inline-flex; align-items: center; gap: 7px; }
 .alp-assure .i { width: 15px; height: 15px; color: var(--plum); }
@@ -453,7 +471,7 @@ html[data-theme="alpen"] .alp-nav .alp-brand { color: #4f1d7c; }
 .alp-post .sg-plate rect { fill: #4f1d7c; }
 .alp-post .sg-here { font: 700 20px var(--f-body); fill: #fff; }
 .alp-post .sg-sub { font: 600 12.5px var(--f-body); fill: #d8cbee; letter-spacing: .04em; }
-.alp-post .sg-arm { transform-box: fill-box; animation: sg-swing .75s calc(1.05s + var(--i) * .16s) cubic-bezier(.34, 1.4, .64, 1) both; }
+.alp-post .sg-arm { transform-box: fill-box; animation: sg-swing .75s calc(1.05s + var(--i) * .16s) var(--out) both; }
 .alp-post .sg-arm.r { transform-origin: 0 50%; }
 .alp-post .sg-arm.l { transform-origin: 100% 50%; }
 .alp-post .sg-board { fill: #fff; stroke: #ddd2ec; stroke-width: 1.2; filter: drop-shadow(0 10px 14px rgba(74, 35, 119, .14)); transition: fill .35s, stroke .35s; }

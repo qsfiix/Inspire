@@ -6,6 +6,7 @@ import Landscape from "./Landscape";
 import HomeSearch from "./HomeSearch";
 import WaysDiagram from "./WaysDiagram";
 import ProfessionCard from "./ProfessionCard";
+import HeroStats from "./HeroStats";
 
 interface Props {
   language: LanguageCode;
@@ -167,6 +168,7 @@ export default function AlpenHome({ language, onTab, onStartGuest }: Props) {
             <p className="sub">{c.hero.sub}</p>
             <HomeSearch copy={c.hero} topics={c.topics} language={language} />
             <div className="alp-examples"><span>{c.hero.examplesLabel}</span>{c.hero.examples.map(([label, href]) => <a key={href} href={href}>{label}</a>)}</div>
+            <HeroStats language={language} />
             <div className="alp-assure">{c.hero.assure.map(s => <span key={s}><Check />{s}</span>)}</div>
           </div>
         </div>
