@@ -30,6 +30,13 @@ Related Files:
 
 ---
 
+## 2026-11-21 — База: школы 1119, связи 4191, чистка текстов
+
+- +24 школы: TH Chur, ABB Technikerschule, PHSG, SAE Institute, SAL, XUND, Vatel, Croce Rossa Ticino, MKS, akademie hörenschweiz, Kaminfeger-Ausbildungszentrum Froburg и др.; HSSH проверен (аккредитован до 2029) и переведён в вузы; у всех школ теперь есть координаты.
+- Связи профессия–школа 3852 → ~4190: BP/HFP/HF без школ и «прочие» профессии по курсам, которые прямо названы на berufsberatung.ch; у бакалавриата тип связи common_pathway.
+- Чистка немецких текстов (с en/uk): опечатки, редакторские пометки «laut Seite», заглушки «nicht näher beschrieben» (~720 шагов путей), фактические ошибки в описаниях школ (Thun, Bäumlihof, Am Brühl, Aiglon, Interlaken), французские тексты в _de у ресурсов. Bildungspark Dagmersellen скрыт (не школа).
+- Fahrlehrer BP: пояснение о новой регламентации 2025 (4 отдельных экзамена).
+
 ## 2026-11-20 — База: 1972 профессии, 1096 школ
 
 - Профессии 1778 → 1972 (+194): NDS HF/BP/HFP по спискам SBFI и berufsberatung, 87 программ бакалавриата (FH/Uni, включая Романдию и Тичино), 19 профессий только из orientation.ch/orientamento.ch, 4 DAS SUPSI. Новые записи только из проверенных источников; честных пробелов до 2000 больше нет.
