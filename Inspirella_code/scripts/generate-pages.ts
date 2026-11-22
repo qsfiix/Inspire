@@ -3333,6 +3333,7 @@ async function main() {
     "/beruf/techniker-in-hf-bauplanung/": "/beruf/technikerin-hf-bauplanung/",
     "/beruf/techniker-in-hf-grossanlagenbetrieb/": "/beruf/technikerin-hf-grossanlagenbetrieb/",
     "/beruf/physician-university/": "/beruf/arzt-aerztin/",
+    "/beruf/bkc-meisterin-diplom/": "/beruf/betriebsleiterin-baeckerei-konditorei-confiserie-dip/",
     // schools that were listed twice (2026-10-24): the removed address forwards to the kept school
     "/institution/fms-kantonale-fachmittelschule-lerbermatt/": "/institution/gymnasium-lerbermatt/",
     "/institution/fms-fms-der-kantonsschule-sursee/": "/institution/kantonsschule-sursee/",
