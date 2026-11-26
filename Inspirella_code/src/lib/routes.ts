@@ -26,6 +26,8 @@ export const STATIC_TAB_PATHS: Record<string, string> = {
 // The catalogue and the Swiss Path Map open after sign-up or "Find your path" (guest mode); the static pages stay public.
 export const PUBLIC_TABS = ["home", "contact", "login"];
 export const PROTECTED_TABS = ["dashboard", "pathmap", "resources", "map", "tracker", "profile"];
+/** Members' pages a shared link may open straight away: a guest session starts in the background. */
+export const OPEN_TO_GUESTS = ["pathmap", "resources", "map"];
 
 /** Address of a tab, whichever kind it is. */
 export function pathForTab(tab: string): string {

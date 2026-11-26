@@ -626,8 +626,10 @@ const fetchAllRows =async (queryFactory: () => PromiseLike<{ data: any[] | null;
   const rows: any[] = [];
   for (let offset = 0; ; offset += PAGE_SIZE) {
     let { data, error } = await (queryFactory() as any).range(offset, offset + PAGE_SIZE - 1);
-    if (error) {
-      await new Promise(r => setTimeout(r, 600));
+    // a busy database answers with a statement timeout now and then: wait a little longer each time
+    for (const wait of [700, 2000]) {
+      if (!error) break;
+      await new Promise(r => setTimeout(r, wait));
       ({ data, error } = await (queryFactory() as any).range(offset, offset + PAGE_SIZE - 1));
     }
     if (error) return { data: rows, error };

@@ -46,7 +46,7 @@ const ProfileView = lazy(() => import("./features/dashboard").then(m => ({ defau
 const ResourcesCareersView = lazy(() => import("./features/resourcesCareers").then(m => ({ default: m.ResourcesCareersView })));
 const TrackerSystem = lazy(() => import("./components/TrackerSystem"));
 
-import { PUBLIC_TABS, PROTECTED_TABS, STATIC_TAB_PATHS, pathForTab, tabFromLocation } from "./lib/routes";
+import { PUBLIC_TABS, PROTECTED_TABS, OPEN_TO_GUESTS, STATIC_TAB_PATHS, pathForTab, tabFromLocation } from "./lib/routes";
 
 export default function App() {
   // Language of a visitor without a saved profile: the address (?lang=uk, used for shared links), then the language
@@ -234,7 +234,9 @@ export default function App() {
         const wanted = initialHashTab.current;
         const next = cachedProfile.onboardingComplete
           ? (wanted && wanted !== "home" && wanted !== "login" && wanted !== "onboarding" ? wanted : "dashboard")
-          : "onboarding";
+          : cachedProfile.isGuest && wanted && OPEN_TO_GUESTS.includes(wanted)
+            ? wanted
+            : "onboarding";
         // only rewrite the current history entry when the page really changes
         if ((tabFromLocation() ?? "home") !== next) replaceNextHistory.current = true;
         setActiveTab(next);
@@ -242,7 +244,16 @@ export default function App() {
       bootstrapped.current = true;
       if (!cachedProfile) {
         const here = tabFromLocation();
-        if (here && PROTECTED_TABS.includes(here)) {
+        if (here && OPEN_TO_GUESTS.includes(here)) {
+          // A shared link to the map or the catalogue opens right away: a guest session starts in the background
+          // (nothing is sent anywhere), and the short questions can be answered later from the dashboard.
+          const guestProfile = newGuestProfile();
+          setUserProfile(guestProfile);
+          await DataRepository.saveProfile(guestProfile);
+          setIsLoggedIn(true);
+          isLoggedInRef.current = true;
+          setActiveTab(here);
+        } else if (here && PROTECTED_TABS.includes(here)) {
           pendingTab.current = here;
           replaceNextHistory.current = true;
           setActiveTab("login");
@@ -345,22 +356,24 @@ export default function App() {
     setActiveTab(profile.onboardingComplete ? takePendingTab("dashboard") : "onboarding");
   };
 
+  const newGuestProfile = (): UserProfile => ({
+    name: "Guest Explorer",
+    email: "explorer@inspirella.ch",
+    interests: [],
+    goals: [],
+    currentStage: "",
+    language: currentLanguage,
+    onboardingComplete: false,
+    createdAt: new Date().toISOString(),
+    isGuest: true,
+    syncState: "local"
+  });
+
   const handleBypassAuth = async () => {
     // A guest starts with an empty profile and answers the same short questions as a new
     // account: recommendations must come from their answers, never from an assumed profile
     // (a 15-year-old used to land on a "tertiary student" dashboard they had never described).
-    const guestProfile: UserProfile = {
-      name: "Guest Explorer",
-      email: "explorer@inspirella.ch",
-      interests: [],
-      goals: [],
-      currentStage: "",
-      language: currentLanguage,
-      onboardingComplete: false,
-      createdAt: new Date().toISOString(),
-      isGuest: true,
-      syncState: "local"
-    };
+    const guestProfile = newGuestProfile();
     setUserProfile(guestProfile);
     await DataRepository.saveProfile(guestProfile);
     setIsLoggedIn(true);
@@ -450,6 +463,9 @@ export default function App() {
     } else if (!isLoggedIn && PROTECTED_TABS.includes(tabId)) {
       pendingTab.current = tabId;
       setActiveTab("login");
+    } else if (tabId === "dashboard" && userProfile?.isGuest && !userProfile.onboardingComplete) {
+      // a guest who came in through a shared link answers the short questions before the dashboard
+      setActiveTab("onboarding");
     } else {
       setActiveTab(tabId);
     }
